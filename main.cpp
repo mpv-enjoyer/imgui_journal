@@ -158,7 +158,7 @@ int main(int, char**)
             ImGui::SetNextWindowPos(viewport->WorkPos);
             ImGui::SetNextWindowSize(viewport->WorkSize);
             
-            ImGui::Begin("Hello, world!", nullptr, flags);
+            ImGui::Begin("The Journal itself", nullptr, flags);
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
 	        {
             ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
@@ -226,31 +226,29 @@ int main(int, char**)
                 {
                     if (is_here[i][j]==1 || is_here[i][j]==4) on_lesson++;
                 }
-            std::string fake_time2 = "Группа 2, " + std::to_string(j+8)+":00 - "+ std::to_string(j+10)+":00, есть " + std::to_string(on_lesson) + " учеников.";
+            std::string fake_time2 = "Группа 2, " + std::to_string(j+8)+":00 - "+ std::to_string(j+10)+":00, есть ";
             ImGui::Text(fake_time2.c_str());
             
             //if (ImGui::BeginTable(fake_time2.c_str(), 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoHostExtendX))
             if (ImGui::BeginTable(fake_time2.c_str(),
-            7, 
+            9, 
             ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
             ImVec2(std::numeric_limits<float>::max(),(0.0F)))) 
             //numeric_limit max is a bad way to avoid clipping issue
             {
-                ImGui::TableNextColumn();
-                ImGui::Text("ID");
-                ImGui::TableNextColumn();
-                ImGui::Text("ФИО ученика");
-                ImGui::TableNextColumn();
-                ImGui::Text("# договора");
-                ImGui::TableNextColumn();
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 1.0f)));
-                ImGui::Text("%i", on_lesson);
-                ImGui::TableNextColumn();
-                ImGui::Text("Выбранный урок");
-                ImGui::TableNextColumn();
-                ImGui::Text("Отработка");
-                ImGui::TableNextColumn();
-                ImGui::Text("Цена");
+                ImGui::TableNextColumn(); ImGui::Text("#");
+                ImGui::TableNextColumn(); ImGui::Text("ФИО ученика");
+                ImGui::TableNextColumn(); ImGui::Text("# договора");
+                ImGui::TableNextColumn(); ImGui::Text("Программа");
+                ImGui::TableNextColumn(); ImGui::Text("Цена");
+                ImGui::TableNextColumn(); ImGui::Text("07.07");
+                //ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 1.0f)));
+                
+                ImGui::TableNextColumn(); ImGui::Text("14.07");
+                ImGui::TableNextColumn(); ImGui::Text("21.07");
+                ImGui::TableNextColumn(); ImGui::Text("28.07");
+
+
                 for (int i = 0; i < 10; i++)
                 {
                     ImGui::PushID(i);
@@ -259,27 +257,8 @@ int main(int, char**)
                     ImGui::TableNextColumn();
                     ImGui::Text(names[(i+j)%20].c_str());
                     ImGui::TableNextColumn();
-                    ImGui::Text("12345678");
-                    ImGui::TableNextColumn();
-                    if(ImGui::Combo("##1", &is_here[i][j], " \0+\0Б\0-\0О\0\0")) is_working_out_open = true;
-                    switch (is_here[i][j])
-                    {
-                    case 1:
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.8f, 0.0f, 0.8f)));
-                        break;
-                    case 2:
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.0f, 0.8f)));
-                        break;
-                    case 3:
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.0f, 0.0f, 0.8f)));
-                        break;
-                    case 4:
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.8f, 0.8f))); 
-                        break;
-                    default:
-                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.4f, 0.4f, 0.4f, 0.8f)));
-                        break;
-                    }
+                    ImGui::Text("123");
+
                     ImGui::TableNextColumn();
                     //ImGui::SetNextItemWidth(120);
                     //ImGui::Combo("\0", &lol, "ИЗО+Лепка\0ИЗО\0Лепка\0");
@@ -299,29 +278,41 @@ int main(int, char**)
                         }
                         ImGui::EndCombo();
                     }
-                    ImGui::TableNextColumn();
-                    if (i==4) ImGui::Text("14.11.23"); else ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 0.8f)));
 
-                    ImGui::SetItemTooltip("14 Июля 2023, 09:00, с группой 61");
                     ImGui::TableNextColumn();
                     ImGui::Text("%iр.", prices[i%3]);
+
+                    for (int k = 0; k < 4; k++)
+                    {
+                        ImGui::TableNextColumn();
+                        if(ImGui::Combo("##1", &is_here[i][j], " \0+\0Б\0-\0О\0\0")) is_working_out_open = true;
+                        ImGui::SameLine();
+                        if(ImGui::Combo("##3", &is_here[i][j], " \0+\0Б\0-\0О\0\0")) is_working_out_open = true;
+                    }
+
+                    switch (is_here[i][j])
+                    {
+                    case 1:
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.8f, 0.0f, 0.8f)));
+                        break;
+                    case 2:
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.0f, 0.8f)));
+                        break;
+                    case 3:
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.0f, 0.0f, 0.8f)));
+                        break;
+                    case 4:
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.8f, 0.8f))); 
+                        break;
+                    default:
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.4f, 0.4f, 0.4f, 0.8f)));
+                        break;
+                    }
+                    
+                    //ImGui::SetItemTooltip("14 Июля 2023, 09:00, с группой 61");
+
                     ImGui::PopID();
                 }
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("11");
-                ImGui::TableNextColumn();
-                ImGui::Button("Добавить на отработку");
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("...");
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("...");
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("...");
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("...");
-                ImGui::TableNextColumn();
-                ImGui::TextDisabled("...");
-
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("11");
                 ImGui::TableNextColumn();
@@ -336,6 +327,48 @@ int main(int, char**)
                 ImGui::TextDisabled("...");
                 ImGui::TableNextColumn();
                 ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("11");
+                ImGui::TableNextColumn();
+                ImGui::Button("Добавить на отработку");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled("...");
+
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled(" ");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled(" ");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled(" ");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled(" ");
+                ImGui::TableNextColumn();
+                ImGui::TextDisabled(" ");
+                ImGui::TableNextColumn();
+                ImGui::Text("%i", on_lesson);
+                ImGui::TableNextColumn();
+                ImGui::Text("%i", on_lesson);
+                ImGui::TableNextColumn();
+                ImGui::Text("%i", on_lesson);
+                ImGui::TableNextColumn();
+                ImGui::Text("%i", on_lesson);
 
                 ImGui::EndTable();
             }
@@ -376,9 +409,9 @@ int main(int, char**)
 }
 
 
-
 /*
-- Вертикальная прокрутка
-- ID | ФИО ученика | № договора | Combobox(тут или нет или отработка) | Combobox(ИЗО/ИЗО+Лепка/Лепка/Спецкурс)
-- В каждой таблице должно быть 2 дополнительных строки: для отработчиков и для добавления в группу
+  - Ниже всех полей количество учеников (ИЗО отдельно от Лепки)
+  - Добавление отработчиков снизу, а в группу выше
+  - Даты: отображение месяца для данного дня недели (вид как в журнале)
+  № | ФИО | #дог | Программа | Цена | Даты (посещения)
 */
