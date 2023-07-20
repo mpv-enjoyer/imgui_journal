@@ -38,7 +38,25 @@ bool Lesson_Info::set_day_of_the_week(int new_day)
     return true;
 } 
 
-bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
+bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair) //TODO: restrict time overlap
 {
-    
+    int new_lesson_pair_id = get_lessons_size();
+    if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;
+    for (int i = 0; i < get_lessons_size(); i++)
+    {
+        if (lesson_pairs[i].time_begin > new_lesson_pair.time_begin)
+        {
+            new_lesson_pair_id = i;
+            break;
+        }
+    }
+    lesson_pairs.insert(lesson_pairs.begin()+new_lesson_pair_id, new_lesson_pair);
+    return true;
+}
+
+bool Lesson_Info::delete_lesson_pair(int id)
+{
+    if (id >= get_lessons_size()) return false;
+    lesson_pairs.erase(lesson_pairs.begin()+id);
+    return true;
 }
