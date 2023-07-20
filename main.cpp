@@ -7,6 +7,7 @@ static void glfw_error_callback(int error, const char* description)
 
 int journal_get_lesson() //to replace int with custom structure which will define date + lesson
 {
+
     ImGui::OpenPopup("Отработка");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -112,11 +113,7 @@ int main(int, char**)
     while (!glfwWindowShouldClose(window))
 #endif
     {
-        glfwPollEvents();
-        //glfwWaitEventsTimeout(0.05F);
-        //I have to refresh at least 20 times per second because some elements take more than 1 frame to activate.
-        //In my case it's a combobox.
-        //TODO: make this box dynamic. 
+        glfwWaitEvents();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -140,6 +137,7 @@ int main(int, char**)
             ImGui::SameLine();
             if(ImGui::Button("Изменить день") || is_calendar_open)
             {
+                glfwPostEmptyEvent();
                 is_calendar_open = true;
                 ImGui::OpenPopup("Календарь");
                 ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -161,7 +159,7 @@ int main(int, char**)
             ImGui::SameLine();
             ImGui::Button("Справка");
             ImGui::SameLine();
-            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), " = кнопки работают только для вторых групп = ");
+            ImGui::Text("%i fps", io.Framerate);
 
             ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
             for (int j = 0; j < 10; j++)
@@ -239,8 +237,10 @@ int main(int, char**)
                     ImGuiComboFlags comboflags = ImGuiComboFlags_None;
                     if (ImGui::BeginCombo("##2", lessons[i%3].c_str(), comboflags))
                     {
+                        glfwPostEmptyEvent();
                         for (int n = 0; n < (int)(lessons.size()); n++)
                         {
+
                             static int item_current_idx = is_here[i][n];
                             const bool is_selected = (item_current_idx == n);
                             if (ImGui::Selectable(lessons[n].c_str(), is_selected))
