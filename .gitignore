@@ -8,4 +8,6 @@
 /imgui_tables.o
 /imgui_widgets.o
 /main.o
-/journal
+/student.o
+/lesson_info.o
+group.o

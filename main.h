@@ -32,6 +32,13 @@ struct JTime //TODO: adaptation for AM PM view
     unsigned int minutes; //0-59
 };
 
+inline bool operator==(const JTime& lhs, const JTime& rhs) { return lhs.hours==rhs.hours && lhs.minutes==rhs.minutes; }
+inline bool operator!=(const JTime& lhs, const JTime& rhs) { return !(lhs == rhs); }
+inline bool operator< (const JTime& lhs, const JTime& rhs) { return lhs.hours < rhs.hours || (lhs.hours == rhs.hours && lhs.minutes < rhs.minutes); }
+inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
+inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
+inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
+
 struct Lesson_Pair
 {
     JTime time_begin;
@@ -42,47 +49,44 @@ struct Lesson_Pair
 class Student
 {
 private:
-    int id;
     int contract;
     icu::UnicodeString name;
     std::vector<int> lesson_info_ids; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
-    int get_id(); 
     int get_contract(); bool set_contract(int new_contract);
     icu::UnicodeString get_name(); bool set_name(icu::UnicodeString new_name);
     std::vector<int> get_lesson_info_ids(); bool add_lesson_info_id(int new_lesson_info_id); bool delete_lesson_info_id(int lesson_info_id_to_delete); 
+    int get_lessons_size();
 };
 
 class Group
 {
 private:
-    int id;
-    int number; //visible
-    std::vector<Student> students; //sorted by students_id 
-    std::vector<int> name_sort_ids; //vector_ids, NOT STUDENTS
+    int number;
+    std::vector<Student>* all_students;
+    std::vector<int> students_sort_by_id;
+    std::vector<int> students_sort_by_name;
 public:
-    Group();
+    Group(std::vector<Student>* students_list);
     icu::UnicodeString comment;
-    int get_id(); 
+    int get_size();
     int get_number(); bool set_number(int new_number);
-    std::vector<Student> get_students(); bool add_student(Student new_student); bool delete_student(int to_remove_student); //sorted by name ascending
+    int get_student_sort_id(int student); bool add_student(int student_id); bool delete_student(int student_id);
+    int get_student_sort_name(int student);
 };
 
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
 {
 private:
-    int id;
-    Group group;
+    std::vector<Group>* all_groups;
+    int group;
     int day_of_the_week; //0-6 (Currently starting from Monday. TODO: add configuration for other calendar layout)
     std::vector<Lesson_Pair> lesson_pairs;
 public:
-    int get_id();
-    Group get_group(); bool set_group(Group new_group);
+    Lesson_Info(std::vector<Group>* all_groups);
+    int get_group(); bool set_group(int new_group_id);
     int get_day_of_the_week(); bool set_day_of_the_week(int new_day);
-    Lesson_Pair get_lesson_pair(); bool set_lesson_pair(Lesson_Pair new_lesson_pair);
+    Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
+    int get_lessons_size();
 };
-
-static int student_max_id = -1;
-static int group_max_id = -1;
-static int lesson_info_max_id = -1;

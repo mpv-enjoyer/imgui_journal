@@ -1,18 +1,13 @@
 #include "main.h"
 
-int Group::get_id()
-{
-    return id;
+int Group::get_student_sort_id(int student)
+{   
+    return students_sort_by_id[student];
 }
 
-std::vector<Student> Group::get_students()
-{
-    std::vector<Student> group_sort_by_name;
-    for (int i = 0; i < name_sort_ids.size(); i++)
-    {
-        group_sort_by_name.push_back(students[name_sort_ids[i]]);
-    }
-    return group_sort_by_name;
+int Group::get_student_sort_name(int student)
+{   
+    return students_sort_by_name[student];
 }
 
 int Group::get_number()
@@ -22,60 +17,76 @@ int Group::get_number()
 
 bool Group::set_number(int new_number)
 {
-    Group::number = new_number;
+    number = new_number;
     return true;
 }
 
-bool Group::add_student(Student new_student) //in case name is equal to someone else's: less student_id comes first
+int Group::get_size()
 {
-    int new_student_vector_id = 0; //ascending
-    int new_student_sort_by_name_id = 0; //ascending
-    icu::UnicodeString new_student_name = new_student.get_name();
-    int new_student_id = new_student.get_id();
-    for (int i = 0; i < name_sort_ids.size(); i++)
+    return students_sort_by_id.size();
+}
+
+bool Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
+{
+    int new_student_sort_by_id_id = all_students->size(); //ascending
+    int new_student_sort_by_name_id = all_students->size(); //ascending
+
+    for (int i = 0; i < (all_students->size()); i++)
     {
-        if (new_student_name.compare(students[i].get_name()) > 0 || (new_student_name.compare(students[i].get_name()) == 0 && new_student_id > students[i].get_id()))
+        if (new_student_id == students_sort_by_id[i])
         {
-            new_student_sort_by_name_id++;
+            return false; //already in the list
         }
-        if (new_student_id > students[i].get_id())
+        if (new_student_id < students_sort_by_id[i])
         {
-            new_student_vector_id++;
+            new_student_sort_by_id_id = i; break;
         }
     }
 
-    for (int i = 0; i < name_sort_ids.size(); i++)
+    icu::UnicodeString new_student_name = (all_students->at(new_student_id)).get_name();
+    for (int i = 0; i < (all_students->size()); i++)
     {
-        if (name_sort_ids[i]>=new_student_vector_id) 
+        if (new_student_name.toLower() == (all_students->at(students_sort_by_name[i])).get_name().toLower() && new_student_id < students_sort_by_name[i]);
         {
-            name_sort_ids[i] = name_sort_ids[i]+1;
+            new_student_sort_by_name_id = i; break;
+        }
+        if (new_student_name.toLower() < (all_students->at(students_sort_by_name[i])).get_name().toLower())
+        {
+            new_student_sort_by_name_id = i; break;
         }
     }
-    std::vector<Student>::iterator iterator_students = students.begin();
-    std::vector<int>::iterator iterator_name_sort_ids = name_sort_ids.begin();
-
-    students.insert(iterator_students+new_student_vector_id, new_student);
-    name_sort_ids.insert(iterator_name_sort_ids+new_student_vector_id, new_student_sort_by_name_id);
+    students_sort_by_id.insert(students_sort_by_id.begin()+new_student_sort_by_id_id, new_student_id);
+    students_sort_by_name.insert(students_sort_by_name.begin()+new_student_sort_by_name_id, new_student_id);
     return true;
 };
 
-bool Group::delete_student(int to_remove_student)
+bool Group::delete_student(int to_remove_student_id)
 {
-    if (to_remove_student >= students.size()) return false;
-    int to_remove_vector_id = name_sort_ids[to_remove_student];
-    students.erase(students.begin()+to_remove_vector_id);
-    name_sort_ids.erase(name_sort_ids.begin()+to_remove_student);
-    for (int i = 0; i < name_sort_ids.size(); i++)
+    bool is_found_sort_id = false;
+    bool is_found_sort_name = false;
+    for (int i = 0; i < students_sort_by_id.size(); i++)
     {
-        if (name_sort_ids[i]>to_remove_vector_id) 
+        if (!is_found_sort_id)
         {
-            name_sort_ids[i] = name_sort_ids[i] - 1;
-        }        
+            if (students_sort_by_id[i]==to_remove_student_id)
+            {
+                students_sort_by_id.erase(students_sort_by_id.begin()+i);
+                is_found_sort_id = true;
+            }
+        }
+        if (!is_found_sort_name)
+        {
+            if (students_sort_by_name[i]==to_remove_student_id)
+            {
+                students_sort_by_name.erase(students_sort_by_name.begin()+i);
+                is_found_sort_name = true;
+            }
+        }
     }
+    return is_found_sort_id && is_found_sort_name;
 }
 
-Group::Group()
+Group::Group(std::vector<Student>* students_list)
 {
-    group_max_id++;
-    id = group_max_id;
+    Group::all_students = students_list;
 }

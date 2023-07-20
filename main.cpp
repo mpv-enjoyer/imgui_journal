@@ -159,7 +159,9 @@ int main(int, char**)
             ImGui::SameLine();
             ImGui::Button("Справка");
             ImGui::SameLine();
-            ImGui::Text("%i fps", io.Framerate);
+            icu::UnicodeString test1 = u8"test1";
+            icu::UnicodeString test2 = u8"test2";
+            ImGui::Text("%i", test1==test2);
 
             ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
             for (int j = 0; j < 10; j++)
