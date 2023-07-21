@@ -26,7 +26,9 @@
 #include <unicode/ustream.h>
 #include <unicode/locid.h>
 
-struct JTime //TODO: adaptation for AM PM view
+#include <ctime>
+
+struct JTime //used separately with ctime.
 {
     unsigned int hours; //0-23
     unsigned int minutes; //0-59
@@ -90,3 +92,8 @@ public:
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     int get_lessons_size();
 };
+
+class Calendar
+{
+    std::vector<std::vector<int>>
+}
