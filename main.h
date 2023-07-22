@@ -51,6 +51,7 @@ struct Lesson_Pair
 class Student
 {
 private:
+    bool deleted = 0;
     int contract;
     icu::UnicodeString name;
     std::vector<int> lesson_info_ids; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
@@ -65,6 +66,7 @@ public:
 class Group
 {
 private:
+    bool deleted = 0;
     int number;
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
@@ -81,9 +83,9 @@ public:
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
 {
 private:
+    bool deleted = 0;
     std::vector<Group>* all_groups;
     int group;
-    int day_of_the_week; //0-6 (Currently starting from Monday. TODO: add configuration for other calendar layout)
     std::vector<Lesson_Pair> lesson_pairs;
 public:
     Lesson_Info(std::vector<Group>* all_groups);
@@ -93,7 +95,31 @@ public:
     int get_lessons_size();
 };
 
-class Calendar
+struct Student_Status
 {
-    std::vector<std::vector<int>>
-}
+    int student_id;
+    std::vector<int> status;
+    std::vector<std::tm> workouts_time;
+    std::vector<int> workouts_group;
+};
+
+class Calendar_Day
+{
+private:
+    std::vector<Lesson_Info>* lessons;
+    std::vector<Group>* all_groups;
+    std::vector<Student>* all_students;
+    std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student]
+    std::vector<std::vector<std::vector<int>>> workout_students_id; //[merged_lesson][internal_lesson][new_student]
+    std::vector<std::vector<std::vector<int>>> workout_students_merged_lesson;
+    std::vector<std::vector<std::vector<int>>> workout_students_internal_lesson;
+    std::vector<std::vector<std::vector<Calendar_Day*>>> workout_students_date;
+public:
+    Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students);
+    bool set_status(int merged_lesson_id, int internal_lesson_id, int internal_student_id, int status);
+    Student_Status get_status(int merged_lesson_id, int internal_lesson_id, int internal_student_id);
+    bool add_workout(int merged_lesson_id, int internal_lesson_id, int student_id, Calendar_Day* workout_date, int workout_merged_lesson, int workout_internal_lesson);
+    int get_workout_size(int merged_lesson_id, int internal_lesson_id);
+    int get_workout_student_id(int merged_lesson_id, int internal_lesson_id, int workout_id);
+    bool delete_workout(int merged_lesson_id, int internal_lesson_id, int student_id);
+};
