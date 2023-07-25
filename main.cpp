@@ -90,6 +90,24 @@ int main(int, char**)
     //IM_ASSERT(font != nullptr);
     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/NotoMonoNerdFont-Regular.ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
     // Our state
+    std::vector<Student> all_students;
+    std::vector<Group> all_groups;
+    std::vector<std::vector<Lesson_Info>> all_lessons; //[day_of_the_week][]
+    std::vector<std::vector<Calendar_Day>> all_days;
+    all_students.push_back(Student());
+    all_students[0].set_name(u8"Настоящая Фамилия Чувака");
+    all_students[0].set_contract(1);
+    all_students.push_back(Student());
+    all_students[1].set_name(u8"Настоящая Фамилия Чувака 2");
+    all_students[1].set_contract(21);
+    all_students.push_back(Student());
+    all_students[2].set_name(u8"Настоящая Фамилия Чувака 3");
+    all_students[2].set_contract(100);
+    all_groups.push_back(Group(&all_students));
+    all_groups[0].add_student(1);
+    all_groups[0].add_student(2);
+    all_groups[0].set_number(7);
+
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
     std::vector<std::string> lessons{"ИЗО+Лепка", "ИЗО", "Лепка", "Спецкурс", "Черчение"};
     std::vector<int> prices{300, 200, 100, 44, 500};
@@ -158,11 +176,6 @@ int main(int, char**)
             ImGui::Button("Журнал оплаты");
             ImGui::SameLine();
             ImGui::Button("Справка");
-            ImGui::SameLine();
-            icu::UnicodeString test1 = u8"test1";
-            icu::UnicodeString test2 = u8"test2";
-            ImGui::Text("%i", test1==test2);
-
             ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
             for (int j = 0; j < 10; j++)
             {
@@ -176,12 +189,12 @@ int main(int, char**)
             ImVec2(std::numeric_limits<float>::max(),(0.0F))))
 
             {
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < all_students.size(); i++)
                 {
                     ImGui::TableNextColumn();
-                    ImGui::Text("# договора?");
+                    ImGui::Text("%i");
                     ImGui::TableNextColumn();
-                    ImGui::Text("ФИО ученика %i группы 1      ", i);
+                    ImGui::Text(all_students[i].get_name().c_str());
                     ImGui::TableNextColumn();
                     ImGui::Text(" ");
                     ImGui::TableNextColumn();

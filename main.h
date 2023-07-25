@@ -26,7 +26,8 @@
 #include <unicode/ustream.h>
 #include <unicode/locid.h>
 
-#include <ctime>
+#include <ctime> //std::tm is used ONLY for YY.MM.DD
+
 
 struct JTime //used separately with ctime.
 {
@@ -48,18 +49,24 @@ struct Lesson_Pair
     int lesson_name_id;
 };
 
+struct Lesson
+{
+    int merged_lesson_id;
+    int internal_lesson_id;
+};
+
 class Student
 {
 private:
     bool deleted = 0;
     int contract;
-    icu::UnicodeString name;
-    std::vector<int> lesson_info_ids; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
+    std::string name;
+    std::vector<Lesson> lesson_info_ignore_ids; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
     int get_contract(); bool set_contract(int new_contract);
-    icu::UnicodeString get_name(); bool set_name(icu::UnicodeString new_name);
-    std::vector<int> get_lesson_info_ids(); bool add_lesson_info_id(int new_lesson_info_id); bool delete_lesson_info_id(int lesson_info_id_to_delete); 
+    std::string get_name(); bool set_name(std::string new_name);
+    bool is_ignored(Lesson lesson); bool add_lesson_ignore_id(Lesson new_lesson); bool delete_lesson_ignore_id(Lesson lesson_to_delete); 
     int get_lessons_size();
 };
 
@@ -70,14 +77,12 @@ private:
     int number;
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
-    std::vector<int> students_sort_by_name;
 public:
     Group(std::vector<Student>* students_list);
-    icu::UnicodeString comment;
+    std::string comment;
     int get_size();
     int get_number(); bool set_number(int new_number);
     int get_student_sort_id(int student); bool add_student(int student_id); bool delete_student(int student_id);
-    int get_student_sort_name(int student);
 };
 
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
@@ -90,17 +95,49 @@ private:
 public:
     Lesson_Info(std::vector<Group>* all_groups);
     int get_group(); bool set_group(int new_group_id);
-    int get_day_of_the_week(); bool set_day_of_the_week(int new_day);
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     int get_lessons_size();
 };
 
 struct Student_Status
 {
+    int status;
+    std::tm workout_day;
+    Lesson workout_lesson;
+};
+
+struct Workout_Info
+{
     int student_id;
-    std::vector<int> status;
-    std::vector<std::tm> workouts_time;
-    std::vector<int> workouts_group;
+    Lesson lesson;
+    std::tm date;
+};
+
+struct Archive_Student
+{
+    Student data;
+    std::tm edit_date;
+    std::string comment;
+};
+
+struct Archive_Group
+{
+    Group data;
+    std::tm edit_date;
+    std::string comment;
+};
+
+struct Archive_Lesson_Info
+{
+    Lesson_Info data;
+    std::tm edit_date;
+    std::string comment;
+};
+
+struct Archive
+{
+    std::vector<Archive_Group> archive_group;
+    std::vector<Archive_Student> archive_student;
 };
 
 class Calendar_Day
@@ -109,17 +146,21 @@ private:
     std::vector<Lesson_Info>* lessons;
     std::vector<Group>* all_groups;
     std::vector<Student>* all_students;
-    std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student]
-    std::vector<std::vector<std::vector<int>>> workout_students_id; //[merged_lesson][internal_lesson][new_student]
-    std::vector<std::vector<std::vector<int>>> workout_students_merged_lesson;
-    std::vector<std::vector<std::vector<int>>> workout_students_internal_lesson;
-    std::vector<std::vector<std::vector<Calendar_Day*>>> workout_students_date;
+    std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student_in_group]
+    std::vector<std::vector<std::vector<Workout_Info>>> workouts; //[merged_lesson][internal_lesson][new_student]
 public:
     Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students);
-    bool set_status(int merged_lesson_id, int internal_lesson_id, int internal_student_id, int status);
-    Student_Status get_status(int merged_lesson_id, int internal_lesson_id, int internal_student_id);
-    bool add_workout(int merged_lesson_id, int internal_lesson_id, int student_id, Calendar_Day* workout_date, int workout_merged_lesson, int workout_internal_lesson);
-    int get_workout_size(int merged_lesson_id, int internal_lesson_id);
-    int get_workout_student_id(int merged_lesson_id, int internal_lesson_id, int workout_id);
-    bool delete_workout(int merged_lesson_id, int internal_lesson_id, int student_id);
+    bool set_status(Lesson lesson, int internal_student_id, int status);
+    Student_Status get_status(Lesson lesson, int internal_student_id);
+    bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson workout_lesson);
+    int get_workout_size(Lesson lesson);
+    int get_workout_student_id(Lesson lesson, int workout_id);
+    bool delete_workout(Lesson lesson, int student_id);
+
+    //the following is needed to properly update the journal
+
+    bool add_student_from_group(int group_id, int student_id);
+    bool delete_student_to_group(int group_id, int student_id);
+    bool change_group(Lesson lesson, int new_group_id);
+    //...
 };
