@@ -26,7 +26,7 @@ bool Lesson_Info::set_group(int new_group_id)
     return true;
 }
 
-bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair) //TODO: restrict time overlap
+bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
 {
     int new_lesson_pair_id = get_lessons_size();
     if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;

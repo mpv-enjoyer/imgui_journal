@@ -21,7 +21,8 @@ int Group::get_size()
     return students_sort_by_id.size();
 }
 
-bool Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
+int Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
+//returns his internal id
 {
     int new_student_sort_by_id_id = all_students->size(); //ascending
 
@@ -29,7 +30,7 @@ bool Group::add_student(int new_student_id) //in case name is equal to someone e
     {
         if (new_student_id == students_sort_by_id[i])
         {
-            return false; //already in the list
+            return -1; //already in the list
         }
         if (new_student_id < students_sort_by_id[i])
         {
@@ -38,7 +39,7 @@ bool Group::add_student(int new_student_id) //in case name is equal to someone e
     }
 
     students_sort_by_id.insert(students_sort_by_id.begin()+new_student_sort_by_id_id, new_student_id);
-    return true;
+    return new_student_sort_by_id_id;
 };
 
 bool Group::delete_student(int to_remove_student_id)
