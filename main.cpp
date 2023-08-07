@@ -20,6 +20,24 @@ int journal_get_lesson() //to replace int with custom structure which will defin
     ImGui::EndPopup();
 } 
 
+int getNumberOfDays(int month, int year)
+{
+    month++;
+    // leap year condition, if month is 2
+    if (month == 2) {
+        if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
+            return 29;
+        else
+            return 28;
+    }
+    // months which has 31 days
+    else if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8
+        || month == 10 || month == 12)
+        return 31;
+    else
+        return 30;
+}
+
 // Main code
 int main(int, char**)
 {
@@ -89,27 +107,49 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/NotoMonoNerdFont-Regular.ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
-    // Our state
+
+    time_t current_time_temp = time(NULL);
+    const std::tm* current_time = std::localtime(&current_time_temp);
+    int current_month = current_time->tm_mon;
+    int current_day_of_the_week = current_time->tm_wday;
+    int day_of_the_week_first_in_month = (current_day_of_the_week - current_time->tm_mday + 1) % 7;
+
     std::vector<Student> all_students;
     std::vector<Group> all_groups;
-    std::vector<std::vector<Lesson_Info>> all_lessons; //[day_of_the_week][]
-    std::vector<std::vector<Calendar_Day>> all_days;
+    std::vector<std::vector<Lesson_Info>> all_lessons(7, std::vector<Lesson_Info>(1, Lesson_Info(&all_groups))); //[day_of_the_week][]
+    std::vector<Calendar_Day> all_days;
+    for (int i = 0; i < getNumberOfDays(current_month, current_time->tm_year); i++)
+    {
+       all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students));
+    }
+
     all_students.push_back(Student());
-    all_students[0].set_name(u8"Настоящая Фамилия Чувака");
+    all_students[0].set_name(u8"Фамилия Имя Отчество 1");
     all_students[0].set_contract(1);
     all_students.push_back(Student());
-    all_students[1].set_name(u8"Настоящая Фамилия Чувака 2");
+    all_students[1].set_name(u8"Фамилия Имя Отчество 2");
     all_students[1].set_contract(21);
     all_students.push_back(Student());
-    all_students[2].set_name(u8"Настоящая Фамилия Чувака 3");
+    all_students[2].set_name(u8"Фамилия Имя Отчество 3");
     all_students[2].set_contract(100);
     all_groups.push_back(Group(&all_students));
     all_groups[0].add_student(1);
     all_groups[0].add_student(2);
     all_groups[0].set_number(7);
+    Lesson_Info temp_lesson = Lesson_Info(&all_groups);
+    Lesson_Pair temp_lesson_pair;
+    temp_lesson_pair.lesson_name_id = 1;
+    JTime temp_begin;
+    JTime temp_end;
+    temp_begin.hours = 9; temp_begin.minutes = 10;
+    temp_end.hours = 10; temp_end.minutes = 50;
+    temp_lesson_pair.time_begin = temp_begin;
+    temp_lesson_pair.time_end = temp_end;
+    temp_lesson.add_lesson_pair(temp_lesson_pair);
+    all_lessons[4].push_back(temp_lesson);
 
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
-    std::vector<std::string> lessons{"ИЗО+Лепка", "ИЗО", "Лепка", "Спецкурс", "Черчение"};
+    std::vector<std::string> lesson_names{"ИЗО", "Лепка", "Спецкурс", "Черчение"};
     std::vector<int> prices{300, 200, 100, 44, 500};
 
             static int is_here[15][15];

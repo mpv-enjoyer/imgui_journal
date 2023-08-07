@@ -68,7 +68,7 @@ inline bool operator!=(const Lesson& lhs, const Lesson& rhs) { return !(lhs==rhs
 class Student
 {
 private:
-    bool deleted = 0;
+    bool removed = 0;
     int contract;
     std::string name;
     std::vector<Lesson> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
@@ -83,7 +83,7 @@ public:
 class Group
 {
 private:
-    bool deleted = 0;
+    bool removed = 0;
     int number;
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
@@ -98,7 +98,7 @@ public:
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
 {
 private:
-    bool deleted = 0;
+    bool removed = 0;
     std::vector<Group>* all_groups;
     int group;
     std::vector<Lesson_Pair> lesson_pairs;
@@ -106,6 +106,7 @@ public:
     Lesson_Info(std::vector<Group>* all_groups);
     int get_group(); bool set_group(int new_group_id);
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
+    bool remove();
     int get_lessons_size();
 };
 
