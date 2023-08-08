@@ -48,3 +48,15 @@ bool Lesson_Info::delete_lesson_pair(int id)
     lesson_pairs.erase(lesson_pairs.begin()+id);
     return true;
 }
+
+std::string Lesson_Info::get_description()
+{
+    std::string to_return = "Группа " + std::to_string(group);
+    for (int i = 0; i < get_lessons_size(); i++)
+    {
+        to_return.append(", ");
+        Lesson_Pair pair = get_lesson_pair(i);
+        to_return.append(Lessons_Names[pair.lesson_name_id] + " ");
+        to_return.append(std::to_string(pair.time_begin.hours) + ":" + std::to_string(pair.time_begin.minutes));
+    }
+}

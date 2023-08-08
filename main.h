@@ -36,6 +36,10 @@
 #define STATUS_SKIPPED      3
 #define STATUS_WORKED_OUT   4
 
+#define MDAY_DIFF           1
+
+#define DEFAULT_COLUMN_COUNT 5
+
 struct JTime //used separately with ctime.
 {
     unsigned int hours; //0-23
@@ -48,6 +52,9 @@ inline bool operator< (const JTime& lhs, const JTime& rhs) { return lhs.hours < 
 inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
+
+const std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
+      int         Lessons_Prices[][] = {{100, 200, 300, 400}, {99, 199, 299, 399}, {98, 198, 298, 398}};     
 
 struct Lesson_Pair
 {
@@ -108,6 +115,7 @@ public:
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool remove();
     int get_lessons_size();
+    std::string get_description();
 };
 
 struct Student_Status
@@ -116,6 +124,7 @@ struct Student_Status
     int status;
     std::tm workout_day;
     Lesson workout_lesson;
+    int discount_status;
 };
 
 struct Workout_Info
