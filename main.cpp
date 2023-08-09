@@ -289,7 +289,7 @@ int main(int, char**)
                 ImGui::TableSetupColumn("Цена");
                 for (int i = 0; i < count_visible_days; i++)
                 {
-                    std::string day_temp = "[" + std::to_string(visible_table_columns[i]) + "]";
+                    std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
                     ImGui::TableSetupColumn(day_temp.c_str());
                 }
                 ImGui::TableHeadersRow();
