@@ -59,4 +59,5 @@ std::string Lesson_Info::get_description()
         to_return.append(Lessons_Names[pair.lesson_name_id] + " ");
         to_return.append(std::to_string(pair.time_begin.hours) + ":" + std::to_string(pair.time_begin.minutes));
     }
+    return to_return;
 }

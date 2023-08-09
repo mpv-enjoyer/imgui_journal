@@ -24,9 +24,9 @@ int Group::get_size()
 int Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
 //returns his internal id
 {
-    int new_student_sort_by_id_id = all_students->size(); //ascending
+    int new_student_sort_by_id_id = students_sort_by_id.size(); //ascending
 
-    for (int i = 0; i < (all_students->size()); i++)
+    for (int i = 0; i < (students_sort_by_id.size()); i++)
     {
         if (new_student_id == students_sort_by_id[i])
         {

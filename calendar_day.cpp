@@ -14,8 +14,8 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
     Student_Status default_status;
     default_status.status = STATUS_NO_DATA;
 
-    std::vector<std::vector<std::vector<Student_Status>>> student_status(lessons_in_this_day->size(), std::vector<std::vector<Student_Status>>(max_merged, std::vector<Student_Status>()));
-    std::vector<std::vector<std::vector<Workout_Info>>> workouts(lessons_in_this_day->size(), std::vector<std::vector<Workout_Info>>(max_merged, std::vector<Workout_Info>()));
+    Calendar_Day::student_status = std::vector<std::vector<std::vector<Student_Status>>>(lessons_in_this_day->size(), std::vector<std::vector<Student_Status>>(max_merged, std::vector<Student_Status>()));
+    //std::vector<std::vector<std::vector<Workout_Info>>> workouts(lessons_in_this_day->size(), std::vector<std::vector<Workout_Info>>(max_merged, std::vector<Workout_Info>()));
     for (int i = 0; i < lessons_in_this_day->size(); i++)
     {
         for (int j = 0; j < lessons_in_this_day->at(i).get_lessons_size(); j++)
@@ -25,15 +25,19 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
             current_lesson.internal_lesson_id = j;
             for (int k = 0; k < all_groups->at(lessons_in_this_day->at(i).get_group()).get_size(); k++)
             {
-                student_status[i][j][k].student_id = all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k);
+                Student_Status new_status;
+                
+                new_status.student_id = all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k);
                 if (all_students->at(all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k)).is_ignored(current_lesson))
                 {
-                    student_status[i][j][k].status = STATUS_NOT_AWAITED;
+                    new_status.status = STATUS_NOT_AWAITED;
                 }
                 else
                 {
-                    student_status[i][j][k].status = STATUS_NO_DATA;
+                    new_status.status = STATUS_NO_DATA;
                 }
+                student_status[i][j].push_back(new_status);
+                int y = 9;
             }
         }
     }

@@ -53,8 +53,8 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
-const std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
-      int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
+const  std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
+inline int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 
 struct Lesson_Pair
 {
