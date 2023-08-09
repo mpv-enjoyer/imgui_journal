@@ -128,22 +128,26 @@ int main(int, char**)
     std::vector<Calendar_Day> all_days;
 
     all_students.push_back(Student());
-    all_students[0].set_name("Фамилия Имя Отчество 1");
+    all_students[0].set_name("Фамилия Имя 1");
     all_students[0].set_contract(1);
     all_students.push_back(Student());
-    all_students[1].set_name("Фамилия Имя Отчество 2");
+    all_students[1].set_name("Фамилия Имя 2");
     all_students[1].set_contract(21);
     all_students.push_back(Student());
-    all_students[2].set_name("Фамилия Имя Отчество 3");
+    all_students[2].set_name("Фамилия Имя 3");
     all_students[2].set_contract(100);
     all_students.push_back(Student());
-    all_students[3].set_name("Фамилия Имя Отчество 4");
+    all_students[3].set_name("Фамилия Имя 4");
     all_students[3].set_contract(100);
     all_groups.push_back(Group(&all_students));
     all_groups[0].add_student(1);
     all_groups[0].add_student(2);
     all_groups[0].add_student(3);
     all_groups[0].set_number(7);
+    all_groups.push_back(Group(&all_students));
+    all_groups[1].add_student(0);
+    all_groups[1].add_student(3);
+    all_groups[1].set_number(2);
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;
@@ -156,6 +160,18 @@ int main(int, char**)
     temp_lesson.set_group(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
     all_lessons[current_day_of_the_week].push_back(temp_lesson);
+
+    temp_lesson_pair.lesson_name_id = 0;
+    temp_begin.hours = 11; temp_begin.minutes = 10;
+    temp_end.hours = 12; temp_end.minutes = 50;
+    temp_lesson_pair.time_begin = temp_begin;
+    temp_lesson_pair.time_end = temp_end;
+    temp_lesson.add_lesson_pair(temp_lesson_pair);
+    temp_lesson.set_group(1);
+    all_lessons[current_day_of_the_week].push_back(temp_lesson);
+
+    Lesson ignored_ = {1,0};
+    all_students[3].add_lesson_ignore_id(ignored_);
 
     int current_month_days_num = get_number_of_days(current_month, current_time->tm_year);
     for (int i = 0; i < current_month_days_num; i++)
@@ -324,14 +340,15 @@ int main(int, char**)
                         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
                         for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                         {
+                            current_lesson.internal_lesson_id = current_internal_lesson;
                             Student_Status current_status = all_days[visible_table_columns[current_day_cell]].get_status(current_lesson, current_student_id);
                             if (current_status.status == STATUS_INVALID) 
                             {
-                                ImGui::TextDisabled("INV"); continue;
+                                ImGui::TextDisabled("ERR"); ImGui::SameLine(); continue;
                             }
                             if (current_status.status == STATUS_NOT_AWAITED)
                             {
-                                ImGui::TextDisabled("NAW"); continue;
+                                ImGui::TextDisabled("NAW"); ImGui::SameLine(); continue;
                             }
                             std::string combo_name = "##" + std::to_string(current_merged_lesson) + " "
                              + std::to_string(current_internal_lesson) + " "
@@ -354,7 +371,7 @@ int main(int, char**)
         }
     }
 
-     
+     //the following code is kept for reference
 
     for (int j = 0; j < 10; j++)
     {
