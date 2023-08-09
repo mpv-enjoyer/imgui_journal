@@ -54,7 +54,7 @@ inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs)
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
 const std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
-      int         Lessons_Prices[][] = {{100, 200, 300, 400}, {99, 199, 299, 399}, {98, 198, 298, 398}};     
+      int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 
 struct Lesson_Pair
 {
@@ -85,6 +85,7 @@ public:
     std::string get_name(); bool set_name(std::string new_name);
     bool is_ignored(Lesson lesson); bool add_lesson_ignore_id(Lesson new_lesson); bool delete_lesson_ignore(Lesson lesson_to_delete); 
     int get_lessons_size();
+    bool is_removed(); bool remove();
 };
 
 class Group

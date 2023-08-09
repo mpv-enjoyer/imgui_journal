@@ -56,6 +56,17 @@ bool Student::delete_lesson_ignore(Lesson to_delete)
     return false;
 }
 
+bool Student::is_removed()
+{
+    return removed;
+}
+
+bool Student::remove()
+{
+    removed = true;
+    return true;
+}
+
 Student::Student()
 {
 
