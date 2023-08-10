@@ -18,7 +18,7 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGuiTextFilter name_filter;
-        name_filter.Draw();
+        name_filter.Draw("<");
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
             if (!name_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
@@ -41,6 +41,14 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
         ImGui::SetItemDefaultFocus();
         if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1)
         {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена", ImVec2(0, 0)))
+        {
+            *selected_to_add=-1;
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
             return true;
