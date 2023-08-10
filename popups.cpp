@@ -17,11 +17,13 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
     if (possible_student_ids.size() == 0) return false;
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGuiTextFilter name_filter;
-        name_filter.Draw("<");
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        popup_add_student_to_group_filter.Draw("##Text");
+        ImGui::PopStyleColor(1);
+        bool select_visible = false;
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
-            if (!name_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
+            if (!popup_add_student_to_group_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
             if (*selected_to_add == possible_student_ids[i])
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
@@ -29,6 +31,7 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
                 ImGui::Button(("Выбран.##"+std::to_string(i)).c_str());
                 ImGui::PopStyleColor(3);
+                select_visible = true;
             }
             else
             {
@@ -39,16 +42,18 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
             ImGui::Text(possible_student_descriptions[i].c_str());
         }
         ImGui::SetItemDefaultFocus();
-        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1)
+        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_visible)
         {
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
+            popup_add_student_to_group_filter.Clear();
             return true;
         } 
         ImGui::SameLine();
         if (ImGui::Button("Отмена", ImVec2(0, 0)))
         {
             *selected_to_add=-1;
+            popup_add_student_to_group_filter.Clear();
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
             return true;

@@ -56,6 +56,7 @@ inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs)
 const  std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
 const  int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 
+
 struct Lesson_Pair
 {
     JTime time_begin;
@@ -190,5 +191,5 @@ public:
 };
 
 //Popups
-
+static ImGuiTextFilter popup_add_student_to_group_filter;
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);

@@ -406,7 +406,6 @@ int main(int, char**)
                 ImGui::TableSetColumnIndex(1);
                 if (ImGui::Button(("Добавить ученика##" + std::to_string(current_merged_lesson)).c_str()))
                 {
-                    int new_guy = -1;
                     popup_add_student_to_group_is_open = true;
                     popup_add_student_to_group_select = -1;
                     popup_add_student_to_group_merged_lesson = current_merged_lesson;
