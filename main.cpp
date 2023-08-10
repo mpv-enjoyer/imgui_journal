@@ -141,13 +141,13 @@ int main(int, char**)
     all_students[3].set_name("Фамилия Имя 4");
     all_students[3].set_contract(100);
     all_groups.push_back(Group(&all_students));
-    all_groups[0].add_student(1);
-    all_groups[0].add_student(2);
-    all_groups[0].add_student(3);
+    //all_groups[0].add_student(1);
+    //all_groups[0].add_student(2);
+    //all_groups[0].add_student(3);
     all_groups[0].set_number(7);
     all_groups.push_back(Group(&all_students));
-    all_groups[1].add_student(0);
-    all_groups[1].add_student(3);
+    //all_groups[1].add_student(0);
+    //all_groups[1].add_student(3);
     all_groups[1].set_number(2);
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
@@ -169,6 +169,7 @@ int main(int, char**)
     temp_lesson_pair.time_end = temp_end;
     temp_lesson.add_lesson_pair(temp_lesson_pair);
     temp_lesson.set_group(1);
+    all_lessons[current_day_of_the_week].push_back(temp_lesson);
     all_lessons[current_day_of_the_week].push_back(temp_lesson);
 
     Lesson ignored_ = {1,0};
@@ -209,8 +210,8 @@ int main(int, char**)
 #endif
     {
 
-    //glfwWaitEvents();
-    glfwPollEvents();
+    glfwWaitEvents();
+    //glfwPollEvents();
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -273,7 +274,6 @@ int main(int, char**)
                 for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
                 {
                     all_days[visible_table_columns[current_day_cell]].add_student_to_group(all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_group(), popup_add_student_to_group_select, new_student_id);
-                    //most likely there will be a lot of suppressed errors and I do not care for now. TODO <<--
                     for (int internal_lesson_id = 0; internal_lesson_id < all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_lessons_size(); internal_lesson_id++)
                     {
                         Lesson current_lesson = {popup_add_student_to_group_merged_lesson, internal_lesson_id};
@@ -304,7 +304,10 @@ int main(int, char**)
 
         for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
         {
-            if (previous == all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin) ImGui::SameLine();
+            if (previous == all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin) 
+            {
+                ImGui::SameLine();
+            }
             previous = all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin;
             current_lesson.merged_lesson_id = current_merged_lesson;
             ImGui::BeginGroup();
@@ -318,7 +321,7 @@ int main(int, char**)
             ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
             ImVec2(std::numeric_limits<float>::max(),(0.0F))))
             {
-                ImGui::TableSetupColumn("No");
+                /*ImGui::TableSetupColumn("No");
                 ImGui::TableSetupColumn("ФИО ученика");
                 ImGui::TableSetupColumn("No договора");
                 ImGui::TableSetupColumn("Программа");
@@ -328,7 +331,7 @@ int main(int, char**)
                     std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
                     ImGui::TableSetupColumn(day_temp.c_str());
                 }
-                ImGui::TableHeadersRow();
+                ImGui::TableHeadersRow();*/
                 int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
                 for (int current_student_group_id = 0; current_student_group_id < all_groups[current_group].get_size(); current_student_group_id++)
                 {
@@ -390,6 +393,7 @@ int main(int, char**)
                              + std::to_string(current_internal_lesson) + " "
                              + std::to_string(current_day_cell) + " "
                              + std::to_string(current_student_id);
+                            //ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWWW").x);
                             if(ImGui::Combo(combo_name.c_str(), &current_status.status, " \0+\0Б\0-\0О\0\0"))
                             {
                                 if (current_status.status != STATUS_WORKED_OUT)
@@ -420,6 +424,7 @@ int main(int, char**)
 
      //the following code is kept for reference
 
+    /*
     for (int j = 0; j < 10; j++)
     {
     ImGui::BeginGroup();
@@ -613,7 +618,9 @@ int main(int, char**)
     ImGui::EndGroup();
 
     }
+    */
     ImGui::PopStyleVar();
+
     ImGui::EndChild();
 
 
