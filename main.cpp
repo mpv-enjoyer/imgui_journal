@@ -7,7 +7,7 @@ static void glfw_error_callback(int error, const char* description)
 
 int journal_get_lesson() //to replace int with custom structure which will define date + lesson
 {
-
+    int test = 0;
     ImGui::OpenPopup("Отработка");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -15,6 +15,7 @@ int journal_get_lesson() //to replace int with custom structure which will defin
     {
         ImGui::Text("отработка за ФИО ученика ** группы *, **:00", 1,1+8);
         ImGui::Text("<самодельный календарь, с подсветкой дней, в которые этот человек должен был прийти>");
+        ImGui::Text(std::to_string(test).c_str()); if (ImGui::Button("make test 1")) test = 1;
         if (ImGui::Button("OK", ImVec2(0, 0))) ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
@@ -178,7 +179,7 @@ int main(int, char**)
     {
        all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students));
     }
-
+    bool opened_otr = false;
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
     std::vector<std::string> lesson_names{"ИЗО", "Лепка", "Спецкурс", "Черчение"};
     std::vector<std::string> lessons{"ИЗО", "Лепка", "Спецкурс", "Черчение"}; 
@@ -193,6 +194,10 @@ int main(int, char**)
             }
     static bool is_calendar_open = false;
     static bool is_working_out_open = false;
+    int popup_add_student_to_group_select = -1;
+    int popup_add_student_to_group_merged_lesson = -1;
+    bool popup_add_student_to_group_is_open = false;
+
     // Main loop
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -204,8 +209,8 @@ int main(int, char**)
 #endif
     {
 
-    glfwWaitEvents();
-
+    //glfwWaitEvents();
+    glfwPollEvents();
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -217,6 +222,17 @@ int main(int, char**)
     ImGui::SetNextWindowSize(viewport->WorkSize);
     
     ImGui::Begin("The Journal itself", nullptr, flags);
+
+    int count_visible_days = 0;
+    int first_visible_day = ((current_time->tm_mday-1) % 7) + 1;
+    int first_visible_day_copy = first_visible_day;
+    std::vector<int> visible_table_columns;
+    for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=7)
+    {
+        count_visible_days++;
+        visible_table_columns.push_back(first_visible_day_copy-MDAY_DIFF);
+    }
+
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 
@@ -245,6 +261,34 @@ int main(int, char**)
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();
     ImGui::Button("Справка");
+
+    if (popup_add_student_to_group_is_open)
+    {
+        bool pressed_ok = popup_add_student_to_group(&all_students, &all_groups, &all_days, all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_group(), &popup_add_student_to_group_select);
+        if (pressed_ok)
+        {
+            if (popup_add_student_to_group_select != -1)
+            {
+                int new_student_id = all_groups[all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_group()].add_student(popup_add_student_to_group_select);
+                for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
+                {
+                    all_days[visible_table_columns[current_day_cell]].add_student_to_group(all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_group(), popup_add_student_to_group_select, new_student_id);
+                    //most likely there will be a lot of suppressed errors and I do not care for now. TODO <<--
+                    for (int internal_lesson_id = 0; internal_lesson_id < all_lessons[current_day_of_the_week][popup_add_student_to_group_merged_lesson].get_lessons_size(); internal_lesson_id++)
+                    {
+                        Lesson current_lesson = {popup_add_student_to_group_merged_lesson, internal_lesson_id};
+                        int status = STATUS_NO_DATA;
+                        if (visible_table_columns[current_day_cell] + 1 <= current_time->tm_mday) status = STATUS_NOT_AWAITED;
+                        all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, popup_add_student_to_group_select, status);
+                    }
+                }
+            } 
+            popup_add_student_to_group_is_open = false;
+            popup_add_student_to_group_select = -1;
+            popup_add_student_to_group_merged_lesson = -1;
+        }
+    }
+
     ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
 
     if (all_lessons[current_day_of_the_week].size()==0)
@@ -256,15 +300,7 @@ int main(int, char**)
 
         JTime previous = {0, 0};//all_lessons[current_day_of_the_week][0].get_lesson_pair(0).time_begin;
         Lesson current_lesson;
-        int count_visible_days = 0;
-        int first_visible_day = ((current_time->tm_mday-1) % 7) + 1;
-        int first_visible_day_copy = first_visible_day;
-        std::vector<int> visible_table_columns;
-        for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=7)
-        {
-            count_visible_days++;
-            visible_table_columns.push_back(first_visible_day_copy-MDAY_DIFF);
-        }
+
 
         for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
         {
@@ -365,8 +401,20 @@ int main(int, char**)
                         }
                     }
                 }
+                
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(1);
+                if (ImGui::Button(("Добавить ученика##" + std::to_string(current_merged_lesson)).c_str()))
+                {
+                    int new_guy = -1;
+                    popup_add_student_to_group_is_open = true;
+                    popup_add_student_to_group_select = -1;
+                    popup_add_student_to_group_merged_lesson = current_merged_lesson;
+                    popup_add_student_to_group(&all_students, &all_groups, &all_days, current_group, &popup_add_student_to_group_select);
+                }
                 ImGui::EndTable();
                 ImGui::EndGroup();
+
             }
         }
     }
@@ -520,7 +568,12 @@ int main(int, char**)
         ImGui::TableNextColumn();
         ImGui::TextDisabled("11");
         ImGui::TableNextColumn();
-        ImGui::Button("Добавить на отработку");
+        
+        if(ImGui::Button("Добавить на отработку") || opened_otr) 
+        {
+            opened_otr = true;
+        }
+        else opened_otr = false;
         ImGui::TableNextColumn();
         ImGui::TextDisabled("...");
         ImGui::TableNextColumn();
@@ -563,6 +616,7 @@ int main(int, char**)
     }
     ImGui::PopStyleVar();
     ImGui::EndChild();
+
 
     ImGui::End();        
 

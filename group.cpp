@@ -63,3 +63,12 @@ Group::Group(std::vector<Student>* students_list)
 {
     Group::all_students = students_list;
 }
+
+bool Group::is_in_group(int student)
+{
+    for (int i = 0; i < students_sort_by_id.size(); i++)
+    {
+        if (students_sort_by_id[i]==student) return true;
+    }
+    return false;
+}

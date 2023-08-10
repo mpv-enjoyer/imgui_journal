@@ -98,9 +98,9 @@ bool Calendar_Day::delete_workout(Lesson lesson, int workout_id)
     return true;
 }
 
-bool Calendar_Day::add_student_to_group(int group_id, int student_id)
+bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_student_id) //TODO: stop making group operations here because they tend to repeat and cause errors.
 {
-    int new_student_id = all_groups->at(group_id).add_student(student_id);
+    //int new_student_id = all_groups->at(group_id).add_student(student_id);
     if (new_student_id == -1) return false;
     Student_Status empty_status;
     empty_status.student_id = student_id;

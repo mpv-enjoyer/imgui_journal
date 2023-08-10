@@ -54,7 +54,7 @@ inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs)
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
 const  std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
-inline int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
+const  int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 
 struct Lesson_Pair
 {
@@ -101,6 +101,7 @@ public:
     int get_size();
     int get_number(); bool set_number(int new_number);
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
+    bool is_in_group(int student);
 };
 
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
@@ -121,7 +122,7 @@ public:
 
 struct Student_Status
 {
-    int student_id;
+    int student_id; //DO NOT USE
     int status;
     std::tm workout_day;
     Lesson workout_lesson;
@@ -181,9 +182,13 @@ public:
 
     //the following is needed to properly update the journal
 
-    bool add_student_to_group(int group_id, int student_id);
+    bool add_student_to_group(int group_id, int student_id, int new_student_id);
     bool delete_student_from_group(int group_id, int student_id); //not needed?
     bool change_group(Lesson lesson, int new_group_id);
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
     //...
 };
+
+//Popups
+
+bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
