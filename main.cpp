@@ -185,7 +185,6 @@ int main(int, char**)
     std::vector<std::string> lesson_names{"ИЗО", "Лепка", "Спецкурс", "Черчение"};
     std::vector<std::string> lessons{"ИЗО", "Лепка", "Спецкурс", "Черчение"}; 
     std::vector<int> prices{300, 200, 100, 44, 500}; //to be deleted
-
             static int is_here[15][15];
 
             for (int i = 0; i < 225; i++)
@@ -321,6 +320,21 @@ int main(int, char**)
             ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
             ImVec2(std::numeric_limits<float>::max(),(0.0F))))
             {
+                ImU32 row_bg_color = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, row_bg_color);
+                //ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.1f));
+                ImGui::TableNextColumn(); ImGui::Text("No");
+                ImGui::TableNextColumn(); ImGui::Text("ФИ ученика");
+                ImGui::TableNextColumn(); ImGui::Text("д-р");
+                ImGui::TableNextColumn(); ImGui::Text("Программа");
+                ImGui::TableNextColumn(); ImGui::Text("Цена");
+                for (int i = 0; i < count_visible_days; i++)
+                {
+                    std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
+                    ImGui::TableNextColumn(); ImGui::Text(day_temp.c_str());
+                }
+                
+                //ImGui::PopStyleColor(1);
                 /*ImGui::TableSetupColumn("No");
                 ImGui::TableSetupColumn("ФИО ученика");
                 ImGui::TableSetupColumn("No договора");
@@ -330,8 +344,8 @@ int main(int, char**)
                 {
                     std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
                     ImGui::TableSetupColumn(day_temp.c_str());
-                }
-                ImGui::TableHeadersRow();*/
+                }*/
+                //ImGui::TableHeadersRow();
                 int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
                 for (int current_student_group_id = 0; current_student_group_id < all_groups[current_group].get_size(); current_student_group_id++)
                 {
