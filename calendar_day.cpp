@@ -67,6 +67,33 @@ bool Calendar_Day::set_status(Lesson lesson, int student_id, int status)
     return false;
 }
 
+bool Calendar_Day::set_discount_status(Lesson lesson, int student_id, int discount_status)
+{
+    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
+    {
+        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
+        if (current_student == student_id)
+        {
+            student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status = discount_status;
+            return true;
+        }
+    }
+    return false;
+}
+
+int Calendar_Day::get_discount_status(Lesson lesson, int student_id)
+{
+    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
+    {
+        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
+        if (current_student == student_id)
+        {
+            return student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status;
+        }
+    }
+    return -1;
+}
+
 Student_Status Calendar_Day::get_status(Lesson lesson, int student_id)
 {
     for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
@@ -105,6 +132,7 @@ bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_st
     Student_Status empty_status;
     empty_status.student_id = student_id;
     empty_status.status = STATUS_NO_DATA;
+    empty_status.discount_status = -1;
     for (int i = 0; i < lessons->size(); i++)
     {
         if (lessons->at(i).get_group()==group_id)

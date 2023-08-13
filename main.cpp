@@ -239,7 +239,7 @@ int main(int, char**)
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 
-    ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month]);
+    ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month].c_str());
     ImGui::SameLine();
     if(ImGui::Button("Изменить день"))
     {
@@ -256,6 +256,13 @@ int main(int, char**)
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();
     ImGui::Button("Справка");
+
+    if(ImGui::Button("ADD_STUDENT_WITH_CONTRACT_5"))
+    {
+        all_students.push_back(Student());
+        all_students[all_students.size()-1].set_contract(5);
+        all_students[all_students.size()-1].set_name("STUDENT_CONTRACT_5");
+    }
 
     if (popup_add_student_to_group_is_open)
     {
@@ -396,10 +403,14 @@ int main(int, char**)
                     for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
                     {
                         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
+
                         for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                         {
+
                             current_lesson.internal_lesson_id = current_internal_lesson;
                             Student_Status current_status = all_days[visible_table_columns[current_day_cell]].get_status(current_lesson, current_student_id);
+                            int current_lesson_discount_status = all_days[visible_table_columns[current_day_cell]].get_discount_status(current_lesson, current_student_id);
+
                             if (current_status.status == STATUS_INVALID) 
                             {
                                 ImGui::TextDisabled("ERR"); ImGui::SameLine(); continue;
@@ -412,14 +423,34 @@ int main(int, char**)
                              + std::to_string(current_internal_lesson) + " "
                              + std::to_string(current_day_cell) + " "
                              + std::to_string(current_student_id);
-                            //ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWWW").x);
+                            ImGui::BeginGroup();
                             if(ImGui::Combo(combo_name.c_str(), &current_status.status, " \0+\0Б\0-\0О\0\0"))
                             {
                                 if (current_status.status != STATUS_WORKED_OUT)
                                 {
                                     all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, current_student_id, current_status.status);
+                                    all_days[visible_table_columns[current_day_cell]].set_discount_status(current_lesson, current_student_id, current_discount_level);
                                 }
                             }
+
+                            if ((current_lesson_discount_status>=0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
+                            {
+                                int current_lesson_price = -1;
+                                if (current_status.status == STATUS_ON_LESSON || current_status.status == STATUS_WORKED_OUT || current_status.status == STATUS_SKIPPED)
+                                {
+                                    current_lesson_price = Lesson_Prices[all_lessons[current_day_of_the_week][current_lesson.merged_lesson_id].get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id][current_lesson_discount_status];
+                                }
+                                if (current_status.status == STATUS_WAS_ILL)
+                                {
+                                    current_lesson_price = 0;
+                                }
+                                if (current_lesson_price != -1)
+                                {
+                                    ImGui::TextDisabled(std::to_string(current_lesson_price).c_str());
+                                }
+                            }
+
+                            ImGui::EndGroup();
                             ImGui::SameLine();
                         }
                     }

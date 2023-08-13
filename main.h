@@ -182,6 +182,8 @@ public:
     int get_workout_size(Lesson lesson);
     int get_workout_student_id(Lesson lesson, int workout_id);
     bool delete_workout(Lesson lesson, int student_id);
+    bool set_discount_status(Lesson lesson, int student_id, int discount_status);
+    int get_discount_status(Lesson lesson, int student_id);
 
     //the following is needed to properly update the journal
 
