@@ -53,8 +53,10 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
-const  std::string Lessons_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
-const  int         Lessons_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
+const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
+const  int         Lesson_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
+const  std::string Month_Names[] = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
+const  std::string Day_Names[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
 
 
 struct Lesson_Pair
@@ -193,3 +195,4 @@ public:
 //Popups
 static ImGuiTextFilter popup_add_student_to_group_filter;
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
+bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);

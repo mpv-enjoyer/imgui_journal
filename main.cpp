@@ -197,7 +197,9 @@ int main(int, char**)
     int popup_add_student_to_group_select = -1;
     int popup_add_student_to_group_merged_lesson = -1;
     bool popup_add_student_to_group_is_open = false;
-
+    int popup_select_day_of_the_week_day_of_the_week = -1;
+    int popup_select_day_of_the_week_month = -1;
+    bool popup_select_day_of_the_week_is_open = false;
     // Main loop
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -211,6 +213,7 @@ int main(int, char**)
 
     glfwWaitEvents();
     //glfwPollEvents();
+
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -236,22 +239,14 @@ int main(int, char**)
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 
-    ImGui::Text("Выбран день 14 июля 2023");
+    ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month]);
     ImGui::SameLine();
-    if(ImGui::Button("Изменить день") || is_calendar_open)
+    if(ImGui::Button("Изменить день"))
     {
         glfwPostEmptyEvent();
-        is_calendar_open = true;
-        ImGui::OpenPopup("Календарь");
-        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        ImGui::SetNextWindowBgAlpha(1.0F);
-        if (ImGui::BeginPopupModal("Календарь", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-        {
-            ImGui::Text("<самодельный календарь>");
-            if (ImGui::Button("Ок")) { ImGui::CloseCurrentPopup(); is_calendar_open = false; }        
-        }
-        ImGui::EndPopup();
+        popup_select_day_of_the_week_day_of_the_week = current_day_of_the_week;
+        popup_select_day_of_the_week_is_open = true;
+        popup_select_day_of_the_week_month = current_month;
     };
     ImGui::SameLine();
     ImGui::Button("Редактировать расписание занятий");
@@ -285,6 +280,16 @@ int main(int, char**)
             popup_add_student_to_group_is_open = false;
             popup_add_student_to_group_select = -1;
             popup_add_student_to_group_merged_lesson = -1;
+        }
+    }
+
+    if (popup_select_day_of_the_week_is_open && popup_select_day_of_the_week(&popup_select_day_of_the_week_day_of_the_week, &popup_select_day_of_the_week_month))
+    {
+        popup_select_day_of_the_week_is_open = false;
+        if (popup_select_day_of_the_week_day_of_the_week != -1 && popup_select_day_of_the_week_month != -1)
+        {
+            current_day_of_the_week = popup_select_day_of_the_week_day_of_the_week;
+            current_month = popup_select_day_of_the_week_month;
         }
     }
 
@@ -382,8 +387,8 @@ int main(int, char**)
                     {
                         if (is_relevant[i]) 
                         {
-                            show_price.append("+" + std::to_string(Lessons_Prices[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id][current_discount_level]));
-                            show_lesson_names.append("+" + Lessons_Names[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id]);
+                            show_price.append("+" + std::to_string(Lesson_Prices[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id][current_discount_level]));
+                            show_lesson_names.append("+" + Lesson_Names[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id]);
                         }
                     }
                     ImGui::TableSetColumnIndex(3); ImGui::Text(show_lesson_names.c_str());

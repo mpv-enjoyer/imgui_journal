@@ -62,3 +62,70 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
     }
     return false;
 }
+
+bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month)
+{
+    ImGui::OpenPopup("Выбрать день недели");
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopupModal("Выбрать день недели", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+
+
+        for (int i = 1; i < 7; i++)
+        {
+            bool is_selected = false;
+            if (*selected_day_of_the_week == i)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+                is_selected = true;
+            }
+
+            if (ImGui::Button(Day_Names[i].c_str()))
+            {
+                *selected_day_of_the_week = i;
+            }
+
+            if (is_selected) ImGui::PopStyleColor(3);                
+
+            ImGui::SameLine();
+        }
+        bool is_selected = false;
+        if (*selected_day_of_the_week == 0)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+            is_selected = true;
+        }
+
+        if (ImGui::Button(Day_Names[0].c_str()))
+        {
+            *selected_day_of_the_week = 0;
+        }
+        
+        if (is_selected) ImGui::PopStyleColor(3);
+
+        ImGui::Combo("##Month", selected_month, "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0");
+
+        if (ImGui::Button("OK"))
+        {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена"))
+        {
+            *selected_month = -1;
+            *selected_day_of_the_week = -1;
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        } 
+        ImGui::EndPopup();
+    }
+    return false;
+}
