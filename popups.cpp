@@ -21,6 +21,7 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
         popup_add_student_to_group_filter.Draw("##Text");
         ImGui::PopStyleColor(1);
         bool select_visible = false;
+        ImGui::BeginChild("Scrolling + Clipping", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
             if (!popup_add_student_to_group_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
@@ -41,6 +42,7 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
             ImGui::SameLine();
             ImGui::Text(possible_student_descriptions[i].c_str());
         }
+        ImGui::EndChild();
         ImGui::SetItemDefaultFocus();
         if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_visible)
         {

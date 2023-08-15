@@ -198,3 +198,4 @@ public:
 static ImGuiTextFilter popup_add_student_to_group_filter;
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
 bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
+bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups);

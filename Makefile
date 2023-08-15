@@ -17,7 +17,7 @@
 EXE = journal
 IMGUI_DIR = imgui
 SOURCES = main.cpp
-SOURCES += group.cpp student.cpp lesson_info.cpp calendar_day.cpp popups.cpp
+SOURCES += group.cpp student.cpp lesson_info.cpp calendar_day.cpp popups.cpp secondary_windows.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))

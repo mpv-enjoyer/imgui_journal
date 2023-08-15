@@ -194,12 +194,15 @@ int main(int, char**)
             }
     static bool is_calendar_open = false;
     static bool is_working_out_open = false;
+
     int popup_add_student_to_group_select = -1;
     int popup_add_student_to_group_merged_lesson = -1;
     bool popup_add_student_to_group_is_open = false;
     int popup_select_day_of_the_week_day_of_the_week = -1;
     int popup_select_day_of_the_week_month = -1;
     bool popup_select_day_of_the_week_is_open = false;
+
+    bool window_add_student_list_is_open = false;
     // Main loop
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -224,6 +227,14 @@ int main(int, char**)
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     
+    if (window_add_student_list_is_open)
+    {
+        if (students_list(&all_students, &all_groups))
+        {
+            window_add_student_list_is_open = false;
+        }
+    }
+
     ImGui::Begin("The Journal itself", nullptr, flags);
 
     int count_visible_days = 0;
@@ -251,7 +262,10 @@ int main(int, char**)
     ImGui::SameLine();
     ImGui::Button("Редактировать расписание занятий");
     ImGui::SameLine();
-    ImGui::Button("Добавить ученика");
+    if(ImGui::Button("Список учеников") )
+    {
+        window_add_student_list_is_open = true;
+    }
     ImGui::SameLine();
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();
@@ -674,8 +688,7 @@ int main(int, char**)
     ImGui::EndChild();
 
 
-    ImGui::End();        
-
+    ImGui::End();
     // Rendering
     ImGui::Render();
     int display_w, display_h;
@@ -701,11 +714,3 @@ int main(int, char**)
 
     return 0;
 }
-
-
-/*
-  - Ниже всех полей количество учеников (ИЗО отдельно от Лепки)
-  - Добавление отработчиков снизу, а в группу выше
-  - Даты: отображение месяца для данного дня недели (вид как в журнале)
-  № | ФИО | #дог | Программа | Цена | Даты (посещения)
-*/
