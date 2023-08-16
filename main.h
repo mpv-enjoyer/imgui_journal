@@ -72,6 +72,12 @@ struct Lesson
     int internal_lesson_id;
 };
 
+struct Lesson_Full
+{
+    Lesson lesson;
+    int day_of_the_week;
+};
+
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
 inline bool operator!=(const Lesson& lhs, const Lesson& rhs) { return !(lhs==rhs);}
 
@@ -81,12 +87,12 @@ private:
     bool removed = 0;
     int contract;
     std::string name;
-    std::vector<Lesson> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
+    std::vector<Lesson_Full> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
     int get_contract(); bool set_contract(int new_contract);
     std::string get_name(); bool set_name(std::string new_name);
-    bool is_ignored(Lesson lesson); bool add_lesson_ignore_id(Lesson new_lesson); bool delete_lesson_ignore(Lesson lesson_to_delete); 
+    bool is_ignored(Lesson_Full lesson_full); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
     int get_lessons_size();
     bool is_removed(); bool remove();
 };
