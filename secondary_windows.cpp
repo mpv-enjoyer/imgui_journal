@@ -44,7 +44,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_name().c_str());
             ImGui::TableNextColumn(); ImGui::Text(std::to_string(all_students->at(student_id).get_contract()).c_str());
             ImGui::TableNextColumn();
-            for (int group_id = 0; group_id < all_groups->size(); group_id++) //TODO: literally doing twice as much sork.
+            for (int group_id = 0; group_id < all_groups->size(); group_id++) //TODO: literally doing twice as much work.
             {
                 if (all_groups->at(group_id).is_in_group(student_id)) 
                 {
