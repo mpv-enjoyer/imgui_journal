@@ -11,3 +11,7 @@ TODO:
 - All_Students button, which will allow to add, edit and hide students. (make sure that hidden students will appear in read-only mode in the journal)
 - Workouts.
 - All_Groups.
+
+- Указать возрастную группу вместо даты рождения (сами значения позже)
+- Поле ФИ можно изменять всегда
+- Поле договора менять по отдельной кнопке
