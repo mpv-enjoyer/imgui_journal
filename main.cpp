@@ -167,9 +167,9 @@ int main(int, char**)
     temp_end.hours = 12; temp_end.minutes = 50;
     temp_lesson_pair.time_begin = temp_begin;
     temp_lesson_pair.time_end = temp_end;
+    temp_lesson.delete_lesson_pair(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
     temp_lesson.set_group(1);
-    all_lessons[current_day_of_the_week].push_back(temp_lesson);
     all_lessons[current_day_of_the_week].push_back(temp_lesson);
 
     Lesson ignored_ = {1,0};
@@ -325,10 +325,21 @@ int main(int, char**)
 
         JTime previous = {0, 0};//all_lessons[current_day_of_the_week][0].get_lesson_pair(0).time_begin;
         Lesson current_lesson;
+        std::vector<bool> sort_ignore_lessons(all_lessons[current_day_of_the_week].size(), false);
 
-
-        for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
+        for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of_the_week].size(); sort_merged_lesson++)
         {
+            int current_merged_lesson = -1;
+            for (int temp_sort = 0; temp_sort < all_lessons[current_day_of_the_week].size(); temp_sort++)
+            {
+                if (sort_ignore_lessons[temp_sort]) continue;
+                if (current_merged_lesson == -1) current_merged_lesson = temp_sort;
+                if (all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin >= all_lessons[current_day_of_the_week][temp_sort].get_lesson_pair(0).time_begin)
+                {
+                    current_merged_lesson = temp_sort;
+                }
+            }
+            sort_ignore_lessons[current_merged_lesson] = true;
             if (previous == all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin) 
             {
                 ImGui::SameLine();
