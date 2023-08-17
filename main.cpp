@@ -173,12 +173,12 @@ int main(int, char**)
     all_lessons[current_day_of_the_week].push_back(temp_lesson);
 
     Lesson ignored_ = {1,0};
-    all_students[3].add_lesson_ignore_id(ignored_);
+    all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
 
     int current_month_days_num = get_number_of_days(current_month, current_time->tm_year);
     for (int i = 0; i < current_month_days_num; i++)
     {
-       all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students));
+       all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students, (day_of_the_week_first_in_month + i) % 7));
     }
     bool opened_otr = false;
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
@@ -214,9 +214,9 @@ int main(int, char**)
 #endif
     {
 
-    glfwWaitEvents();
+    //glfwWaitEvents();
     //glfwPollEvents();
-
+    glfwWaitEventsTimeout(0.2F);
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -343,7 +343,7 @@ int main(int, char**)
             if (ImGui::BeginTable(
             table_name, 
             DEFAULT_COLUMN_COUNT+count_visible_days, 
-            ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
+            ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
             ImVec2(std::numeric_limits<float>::max(),(0.0F))))
             {
                 ImU32 row_bg_color = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
@@ -393,7 +393,7 @@ int main(int, char**)
                     for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                     {
                         current_lesson.internal_lesson_id = current_internal_lesson;
-                        if (all_students[current_student_id].is_ignored(current_lesson))
+                        if (all_students[current_student_id].is_ignored(current_lesson, current_day_of_the_week))
                         {
                             is_relevant.push_back(false);
                         }
@@ -485,208 +485,8 @@ int main(int, char**)
             }
         }
     }
-
-     //the following code is kept for reference
-
-    /*
-    for (int j = 0; j < 10; j++)
-    {
-    ImGui::BeginGroup();
-    std::string fake_time = "Группа 1, " + std::to_string(j+8)+":00";
-    ImGui::Text(fake_time.c_str());
-    if (ImGui::BeginTable(
-    fake_time.c_str(), 
-    4, 
-    ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
-    ImVec2(std::numeric_limits<float>::max(),(0.0F))))
-
-    {
-        for (int i = 0; i < all_students.size(); i++)
-        {
-            ImGui::TableNextColumn();
-            ImGui::Text("%i");
-            ImGui::TableNextColumn();
-            ImGui::Text(all_students[i].get_name().c_str());
-            ImGui::TableNextColumn();
-            ImGui::Text(" ");
-            ImGui::TableNextColumn();
-            //ImGui::Combo("combo", &is_here[i][j], " \0+\0Б\0-\0\0");
-        }
-        ImGui::EndTable();
-    }
-    ImGui::EndGroup();
-    ImGui::SameLine();
-    ImGui::BeginGroup();
-    if (j%2!=1)
-    {
-        int on_lesson = 0;
-        for (int i = 0; i < 10; i++)
-        {
-            if (is_here[i][j]==1 || is_here[i][j]==4) on_lesson++;
-        }
-    std::string fake_time2 = "Группа 2, " + std::to_string(j+8)+":00 - "+ std::to_string(j+10)+":00, есть ";
-    ImGui::Text(fake_time2.c_str());
-    
-    //if (ImGui::BeginTable(fake_time2.c_str(), 3, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_NoHostExtendX))
-    if (ImGui::BeginTable(fake_time2.c_str(),
-    9, 
-    ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX,
-    ImVec2(std::numeric_limits<float>::max(),(0.0F)))) 
-    //numeric_limit max is a bad way to avoid clipping issue
-    {
-        ImGui::TableNextColumn(); ImGui::Text("#");
-        ImGui::TableNextColumn(); ImGui::Text("ФИО ученика");
-        ImGui::TableNextColumn(); ImGui::Text("# договора");
-        ImGui::TableNextColumn(); ImGui::Text("Программа");
-        ImGui::TableNextColumn(); ImGui::Text("Цена");
-        ImGui::TableNextColumn(); ImGui::Text("07.07");
-        //ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.8f, 1.0f)));
-        
-        ImGui::TableNextColumn(); ImGui::Text("14.07");
-        ImGui::TableNextColumn(); ImGui::Text("21.07");
-        ImGui::TableNextColumn(); ImGui::Text("28.07");
-
-        std::u16string hh;
-
-        for (int i = 0; i < 10; i++)
-        {
-            ImGui::PushID(i);
-            ImGui::TableNextColumn();
-            ImGui::Text((std::to_string(i+1)).c_str());
-            ImGui::TableNextColumn();
-            ImGui::Text(names[(i+j)%20].c_str());
-            ImGui::TableNextColumn();
-            ImGui::Text("123");
-
-            ImGui::TableNextColumn();
-            //ImGui::SetNextItemWidth(120);
-            //ImGui::Combo("\0", &lol, "ИЗО+Лепка\0ИЗО\0Лепка\0");
-            ImGuiComboFlags comboflags = ImGuiComboFlags_None;
-            if (ImGui::BeginCombo("##2", lessons[i%3].c_str(), comboflags))
-            {
-                glfwPostEmptyEvent();
-                for (int n = 0; n < (int)(lessons.size()); n++)
-                {
-
-                    static int item_current_idx = is_here[i][n];
-                    const bool is_selected = (item_current_idx == n);
-                    if (ImGui::Selectable(lessons[n].c_str(), is_selected))
-                        item_current_idx = n;
-
-                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::TableNextColumn();
-            ImGui::Text("%iр.", prices[i%3]);
-
-            for (int k = 0; k < 4; k++)
-            {
-                ImGui::TableNextColumn();
-                if(ImGui::Combo("##1", &is_here[i][j], " \0+\0Б\0-\0О\0\0")) is_working_out_open = true;
-                ImGui::SameLine();
-                if(ImGui::Combo("##3", &is_here[i][j], " \0+\0Б\0-\0О\0\0")) is_working_out_open = true;
-            }
-
-            switch (is_here[i][j])
-            {
-            case 1:
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.8f, 0.0f, 0.8f)));
-                break;
-            case 2:
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.8f, 0.0f, 0.8f)));
-                break;
-            case 3:
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.8f, 0.0f, 0.0f, 0.8f)));
-                break;
-            case 4:
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.8f, 0.8f))); 
-                break;
-            default:
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImVec4(0.4f, 0.4f, 0.4f, 0.8f)));
-                break;
-            }
-            
-            //ImGui::SetItemTooltip("14 Июля 2023, 09:00, с группой 61");
-
-            ImGui::PopID();
-        }
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("11");
-        ImGui::TableNextColumn();
-        ImGui::Button("Добавить в группу");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("11");
-        ImGui::TableNextColumn();
-        
-        if(ImGui::Button("Добавить на отработку") || opened_otr) 
-        {
-            opened_otr = true;
-        }
-        else opened_otr = false;
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled("...");
-
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled(" ");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled(" ");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled(" ");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled(" ");
-        ImGui::TableNextColumn();
-        ImGui::TextDisabled(" ");
-        ImGui::TableNextColumn();
-        ImGui::Text("%i", on_lesson);
-        ImGui::TableNextColumn();
-        ImGui::Text("%i", on_lesson);
-        ImGui::TableNextColumn();
-        ImGui::Text("%i", on_lesson);
-        ImGui::TableNextColumn();
-        ImGui::Text("%i", on_lesson);
-
-        ImGui::EndTable();
-    }
-    }
-    ImGui::EndGroup();
-
-    }
-    */
     ImGui::PopStyleVar();
-
     ImGui::EndChild();
-
 
     ImGui::End();
     // Rendering

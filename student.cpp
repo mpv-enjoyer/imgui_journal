@@ -21,11 +21,11 @@ bool Student::add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_
     return true;
 }
 
-bool Student::is_ignored(Lesson_Full lesson)
+bool Student::is_ignored(Lesson lesson, int lesson_day_of_the_week)
 {
     for (int i = 0; i < lessons_ignore.size(); i++)
     {
-        if (lessons_ignore[i].day_of_the_week == lesson.day_of_the_week && lessons_ignore[i].lesson == lesson.lesson) return true;
+        if (lessons_ignore[i].day_of_the_week == lesson_day_of_the_week && lessons_ignore[i].lesson == lesson) return true;
     }
     return false;
 }
@@ -67,7 +67,27 @@ bool Student::remove()
     return true;
 }
 
+bool Student::set_birth_date(int year, int month, int day)
+{
+    if (year <= 1900) return false;
+    if (month >= 12 || month < 0) return false;
+    if (day >= 32 || day <= 0) return false;
+    birth_date.tm_year = year;
+    birth_date.tm_mon = month;
+    birth_date.tm_mday = day;
+    return true;
+}
+
+std::string Student::get_birth_date_string()
+{
+    if (birth_date.tm_mday == -1 || birth_date.tm_mon == -1 || birth_date.tm_year == -1) return "не задана";
+    return std::to_string(birth_date.tm_mday) + " " + Month_Names[birth_date.tm_mon] + " " + std::to_string(birth_date.tm_year);
+}
+
 Student::Student()
 {
-
+    contract = -1;
+    birth_date.tm_year = -1;
+    birth_date.tm_mon = -1;
+    birth_date.tm_mday = -1;
 }

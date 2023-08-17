@@ -18,10 +18,10 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        popup_add_student_to_group_filter.Draw("##Text");
+        popup_add_student_to_group_filter.Draw("Поиск по ученикам");
         ImGui::PopStyleColor(1);
         bool select_visible = false;
-        ImGui::BeginChild("Scrolling + Clipping", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
             if (!popup_add_student_to_group_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
@@ -127,6 +127,72 @@ bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_m
             ImGui::EndPopup();
             return true;
         } 
+        ImGui::EndPopup();
+    }
+    return false;
+}
+
+bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input)
+{
+    ImGui::OpenPopup("Добавить ученика в базу");
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopupModal("Добавить ученика в базу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        bool is_date_visible = false;
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        static std::string new_student_name;
+        if (erase_input) new_student_name = "";
+        ImGui::InputText("ФИ ученика", &new_student_name);
+        static int new_student_contract = 0; 
+        if(erase_input) new_student_contract = 0;
+        if (ImGui::InputInt("No договора", &new_student_contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
+        {
+            if (new_student_contract < 0) new_student_contract = 0;
+        }
+
+        static int year = 2000; 
+        static int month = 0;
+        static int day = 1;
+        if (erase_input) 
+        {
+            year = 2000;
+            month = 0;
+            day = 1;
+        }
+        if (ImGui::TreeNode("Указать дату рождения"))
+        {
+            is_date_visible = true;
+            ImGui::InputInt("День", &day, 1, 100, ImGuiInputTextFlags_CharsNoBlank);
+            ImGui::Combo("Месяц", &month, "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0");
+            ImGui::InputInt("Год", &year, 1, 100, ImGuiInputTextFlags_CharsNoBlank);
+            ImGui::TreePop();
+        }
+        ImGui::PopStyleColor(1);
+        if (ImGui::Button("OK"))
+        {
+            if (new_student_contract < 0) return false;
+            new_student->set_contract(new_student_contract);
+            new_student->set_name(new_student_name);
+            if (is_date_visible)
+            {
+                if (day > 31 || day <= 0) return false;
+                if (year <= 1800) return false;
+                new_student->set_birth_date(year, month, day);
+            }
+            *ignore = false;
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена"))
+        {
+            *ignore = true;
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        }
         ImGui::EndPopup();
     }
     return false;

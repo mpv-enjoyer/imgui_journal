@@ -1,7 +1,7 @@
 #include "main.h"
 
 
-Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students)
+Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week)
 {
     Calendar_Day::lessons = lessons_in_this_day;
     Calendar_Day::all_groups = all_groups;
@@ -28,7 +28,7 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
                 Student_Status new_status;
                 
                 new_status.student_id = all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k);
-                if (all_students->at(all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k)).is_ignored(current_lesson))
+                if (all_students->at(all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k)).is_ignored(current_lesson, current_day_of_the_week))
                 {
                     new_status.status = STATUS_NOT_AWAITED;
                 }

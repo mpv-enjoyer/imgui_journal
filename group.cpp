@@ -59,11 +59,6 @@ bool Group::delete_student(int to_remove_student_id)
     return is_found_sort_id;
 }
 
-Group::Group(std::vector<Student>* students_list)
-{
-    Group::all_students = students_list;
-}
-
 bool Group::is_in_group(int student)
 {
     for (int i = 0; i < students_sort_by_id.size(); i++)
@@ -72,3 +67,20 @@ bool Group::is_in_group(int student)
     }
     return false;
 }
+
+bool Group::set_comment(std::string new_comment)
+{
+    comment = new_comment;
+    return true;
+}
+
+std::string Group::get_comment()
+{
+    return comment;
+}
+
+Group::Group(std::vector<Student>* students_list)
+{
+    Group::all_students = students_list;
+}
+

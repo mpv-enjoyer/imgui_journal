@@ -25,6 +25,7 @@
 #include <unicode/unistr.h>
 #include <unicode/ustream.h>
 #include <unicode/locid.h>
+#include "imgui/misc/cpp/imgui_stdlib.h"
 
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
 
@@ -87,12 +88,14 @@ private:
     bool removed = 0;
     int contract;
     std::string name;
+    std::tm birth_date; //YEAR, MONTH, DAY
     std::vector<Lesson_Full> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
     int get_contract(); bool set_contract(int new_contract);
     std::string get_name(); bool set_name(std::string new_name);
-    bool is_ignored(Lesson_Full lesson_full); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
+    std::string get_birth_date_string(); bool set_birth_date(int year, int month, int day);
+    bool is_ignored(Lesson lesson, int lesson_day_of_the_week); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
     int get_lessons_size();
     bool is_removed(); bool remove();
 };
@@ -104,12 +107,13 @@ private:
     int number;
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
+    std::string comment;
 public:
     Group(std::vector<Student>* students_list);
-    std::string comment;
     int get_size();
     int get_number(); bool set_number(int new_number);
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
+    std::string get_comment(); bool set_comment(std::string new_comment);
     bool is_in_group(int student);
 };
 
@@ -181,7 +185,7 @@ private:
     std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student_in_group]
     std::vector<std::vector<std::vector<Workout_Info>>> workouts; //[merged_lesson][internal_lesson][new_student]
 public:
-    Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students);
+    Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
     bool set_status(Lesson lesson, int student_id, int status);
     Student_Status get_status(Lesson lesson, int student_id);
     bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson workout_lesson);
@@ -205,3 +209,4 @@ static ImGuiTextFilter popup_add_student_to_group_filter;
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
 bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups);
+bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
