@@ -367,9 +367,17 @@ int main(int, char**)
                 for (int current_student_group_id = 0; current_student_group_id < all_groups[current_group].get_size(); current_student_group_id++)
                 {
                     int current_student_id = all_groups[current_group].get_student_sort_id(current_student_group_id);
-                    if (all_students.at(current_student_id).is_removed()) ImGui::BeginDisabled();
+
                     ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
+                    if (all_students.at(current_student_id).is_removed()) 
+                    {
+                        ImGui::BeginDisabled();
+                        ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"X");
+                    }
+                    else
+                    {
+                        ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
+                    }
                     ImGui::TableSetColumnIndex(1); ImGui::Text(all_students[current_student_id].get_name().c_str());
                     ImGui::TableSetColumnIndex(2); ImGui::Text("%i", all_students[current_student_id].get_contract());
                     int current_student_contract = all_students[current_student_id].get_contract();
