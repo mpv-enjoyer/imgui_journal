@@ -75,7 +75,15 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             {
                 if (all_groups->at(group_id).is_in_group(student_id)) 
                 {
-                    ImGui::Text(std::to_string(group_id).c_str()); ImGui::SameLine();
+                    ImGui::BeginGroup();
+                    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.9F, 0.0F, 0.0F, 1.0F));
+                    ImGui::Text(std::to_string(group_id).c_str()); 
+                    ImGui::SameLine();
+                    
+                    ImGui::Button("-");
+                    ImGui::PopStyleColor();
+                    ImGui::EndGroup();
+                    ImGui::SameLine();
                 }
             }
             ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_age_group().c_str());

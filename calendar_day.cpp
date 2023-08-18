@@ -15,7 +15,6 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
     default_status.status = STATUS_NO_DATA;
 
     Calendar_Day::student_status = std::vector<std::vector<std::vector<Student_Status>>>(lessons_in_this_day->size(), std::vector<std::vector<Student_Status>>(max_merged, std::vector<Student_Status>()));
-    //std::vector<std::vector<std::vector<Workout_Info>>> workouts(lessons_in_this_day->size(), std::vector<std::vector<Workout_Info>>(max_merged, std::vector<Workout_Info>()));
     for (int i = 0; i < lessons_in_this_day->size(); i++)
     {
         for (int j = 0; j < lessons_in_this_day->at(i).get_lessons_size(); j++)
@@ -37,7 +36,6 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
                     new_status.status = STATUS_NO_DATA;
                 }
                 student_status[i][j].push_back(new_status);
-                int y = 9;
             }
         }
     }

@@ -352,10 +352,9 @@ int main(int, char**)
             {
                 ImU32 row_bg_color = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
                 ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, row_bg_color);
-                //ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.1f));
                 ImGui::TableNextColumn(); ImGui::Text("No");
                 ImGui::TableNextColumn(); ImGui::Text("ФИ ученика");
-                ImGui::TableNextColumn(); ImGui::Text("д-р");
+                ImGui::TableNextColumn(); ImGui::Text("Д-р");
                 ImGui::TableNextColumn(); ImGui::Text("Программа");
                 ImGui::TableNextColumn(); ImGui::Text("Цена");
                 for (int i = 0; i < count_visible_days; i++)
