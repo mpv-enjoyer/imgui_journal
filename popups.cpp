@@ -14,7 +14,11 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
         possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
-    if (possible_student_ids.size() == 0) return false;
+    if (possible_student_ids.size() == 0) 
+    {
+        *selected_to_add=-1;
+        return true;
+    }
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
@@ -139,7 +143,7 @@ bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_in
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
     if (ImGui::BeginPopupModal("Добавить ученика в базу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        bool is_date_visible = false;
+        static bool is_date_visible = false;
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         static std::string new_student_name;
         if (erase_input) new_student_name = "";
@@ -150,23 +154,15 @@ bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_in
         {
             if (new_student_contract < 0) new_student_contract = 0;
         }
-
-        static int year = 2000; 
-        static int month = 0;
-        static int day = 1;
+        static int age_group = 0;
         if (erase_input) 
         {
-            year = 2000;
-            month = 0;
-            day = 1;
+            age_group = 0;
         }
-        if (ImGui::TreeNode("Указать дату рождения"))
+        ImGui::Checkbox("Указать возрастную группу", &is_date_visible);
+        if (is_date_visible)
         {
-            is_date_visible = true;
-            ImGui::InputInt("День", &day, 1, 100, ImGuiInputTextFlags_CharsNoBlank);
-            ImGui::Combo("Месяц", &month, "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0");
-            ImGui::InputInt("Год", &year, 1, 100, ImGuiInputTextFlags_CharsNoBlank);
-            ImGui::TreePop();
+            ImGui::Combo("##Возрастная группа", &age_group, " 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0");
         }
         ImGui::PopStyleColor(1);
         if (ImGui::Button("OK"))
@@ -176,9 +172,7 @@ bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_in
             new_student->set_name(new_student_name);
             if (is_date_visible)
             {
-                if (day > 31 || day <= 0) return false;
-                if (year <= 1800) return false;
-                new_student->set_birth_date(year, month, day);
+                new_student->set_age_group(age_group);
             }
             *ignore = false;
             ImGui::CloseCurrentPopup();

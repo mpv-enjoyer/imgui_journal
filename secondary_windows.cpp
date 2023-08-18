@@ -7,8 +7,8 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 
     static bool add_student = false;
     static Student* new_student;
-
-    if (ImGui::Button("Добавить ученика") || add_student)
+    static bool edit_contract = false;
+    if (ImGui::Button("Добавить ученика##в общий список") || add_student)
     {
         if (add_student == false)
         {
@@ -29,20 +29,47 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
         ImGui::End();
         return true;
     }
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+    ImGui::Checkbox("Редактировать номера договоров", &edit_contract);
+    ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
     if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn("ID[dbg]");
-        ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("No договора");
         ImGui::TableSetupColumn("Группы");
-        ImGui::TableSetupColumn("Дата рождения");
+        ImGui::TableSetupColumn("Возрастная группа");
+        ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
+        std::string name_input_buffer;
+        int contract_input_buffer;
+        bool is_removed_input_buffer;
         for (int student_id = 0; student_id < all_students->size(); student_id++)
         {
-            ImGui::TableNextColumn(); ImGui::Text(std::to_string(student_id).c_str());
-            ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_name().c_str());
-            ImGui::TableNextColumn(); ImGui::Text(std::to_string(all_students->at(student_id).get_contract()).c_str());
+            ImGui::PushID(student_id);
+            name_input_buffer = all_students->at(student_id).get_name();
+            contract_input_buffer = all_students->at(student_id).get_contract();
+            is_removed_input_buffer = all_students->at(student_id).is_removed();
+            ImGui::TableNextColumn(); 
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+            ImGui::SetNextItemWidth(-1);
+            if (ImGui::InputText("##ФИ", &name_input_buffer))
+            {
+                all_students->at(student_id).set_name(name_input_buffer);
+            };
+            ImGui::TableNextColumn(); 
+            if (!edit_contract) 
+            {
+                ImGui::Text(std::to_string(all_students->at(student_id).get_contract()).c_str());
+            }
+            else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
+            {
+                if (contract_input_buffer < 0) contract_input_buffer = 0;
+                all_students->at(student_id).set_contract(contract_input_buffer);
+                
+            }
+            ImGui::PopStyleColor();
             ImGui::TableNextColumn();
             for (int group_id = 0; group_id < all_groups->size(); group_id++) //TODO: literally doing twice as much work.
             {
@@ -51,7 +78,18 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                     ImGui::Text(std::to_string(group_id).c_str()); ImGui::SameLine();
                 }
             }
-            ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_birth_date_string().c_str());
+            ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_age_group().c_str());
+            ImGui::TableNextColumn(); ImGui::Button("Посещение"); ImGui::SameLine();
+            HelpMarker("Здесь можно указать, на\nкакие уроки ученик должен\nи не должен ходить. \nНапример: ученик состоит в группе,\nно в соответствии с договором\nходит не на все её занятия.");
+            ImGui::SameLine(); 
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+            if (ImGui::Checkbox("Выбыл", &is_removed_input_buffer))
+            {
+                if (is_removed_input_buffer) all_students->at(student_id).remove();
+                if (!is_removed_input_buffer) all_students->at(student_id).restore();
+            }
+            ImGui::PopStyleColor();
+            ImGui::PopID();
         }
         ImGui::EndTable();
     }

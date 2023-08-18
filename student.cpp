@@ -67,27 +67,27 @@ bool Student::remove()
     return true;
 }
 
-bool Student::set_birth_date(int year, int month, int day)
+bool Student::set_age_group(int new_age_group)
 {
-    if (year <= 1900) return false;
-    if (month >= 12 || month < 0) return false;
-    if (day >= 32 || day <= 0) return false;
-    birth_date.tm_year = year;
-    birth_date.tm_mon = month;
-    birth_date.tm_mday = day;
+    if (new_age_group >= AGE_GROUP_COUNT) return false;
+    age_group = new_age_group;
     return true;
 }
 
-std::string Student::get_birth_date_string()
+std::string Student::get_age_group()
 {
-    if (birth_date.tm_mday == -1 || birth_date.tm_mon == -1 || birth_date.tm_year == -1) return "не задана";
-    return std::to_string(birth_date.tm_mday) + " " + Month_Names[birth_date.tm_mon] + " " + std::to_string(birth_date.tm_year);
+    if (age_group == -1) return "не задана";
+    return Age_Group_Names[age_group];
+}
+
+bool Student::restore()
+{
+    removed = false;
+    return true;
 }
 
 Student::Student()
 {
     contract = -1;
-    birth_date.tm_year = -1;
-    birth_date.tm_mon = -1;
-    birth_date.tm_mday = -1;
+    age_group = -1;
 }

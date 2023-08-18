@@ -128,7 +128,7 @@ int main(int, char**)
     std::vector<std::vector<Lesson_Info>> all_lessons(7, std::vector<Lesson_Info>(0, Lesson_Info(&all_groups))); //[day_of_the_week][]
     std::vector<Calendar_Day> all_days;
 
-    all_students.push_back(Student());
+    /*all_students.push_back(Student());
     all_students[0].set_name("Фамилия Имя 1");
     all_students[0].set_contract(1);
     all_students.push_back(Student());
@@ -140,6 +140,7 @@ int main(int, char**)
     all_students.push_back(Student());
     all_students[3].set_name("Фамилия Имя 4");
     all_students[3].set_contract(100);
+    all_students[3].set_age_group(5);*/
     all_groups.push_back(Group(&all_students));
     //all_groups[0].add_student(1);
     //all_groups[0].add_student(2);
@@ -172,8 +173,8 @@ int main(int, char**)
     temp_lesson.set_group(1);
     all_lessons[current_day_of_the_week].push_back(temp_lesson);
 
-    Lesson ignored_ = {1,0};
-    all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
+    //Lesson ignored_ = {1,0};
+    //all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
 
     int current_month_days_num = get_number_of_days(current_month, current_time->tm_year);
     for (int i = 0; i < current_month_days_num; i++)
@@ -213,10 +214,9 @@ int main(int, char**)
     while (!glfwWindowShouldClose(window))
 #endif
     {
-
     //glfwWaitEvents();
-    //glfwPollEvents();
-    glfwWaitEventsTimeout(0.2F);
+    glfwPollEvents();
+    //glfwWaitEventsTimeout(0.2F);
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -270,13 +270,6 @@ int main(int, char**)
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();
     ImGui::Button("Справка");
-
-    if(ImGui::Button("ADD_STUDENT_WITH_CONTRACT_5"))
-    {
-        all_students.push_back(Student());
-        all_students[all_students.size()-1].set_contract(5);
-        all_students[all_students.size()-1].set_name("STUDENT_CONTRACT_5");
-    }
 
     if (popup_add_student_to_group_is_open)
     {
@@ -370,36 +363,25 @@ int main(int, char**)
                     std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
                     ImGui::TableNextColumn(); ImGui::Text(day_temp.c_str());
                 }
-                
-                //ImGui::PopStyleColor(1);
-                /*ImGui::TableSetupColumn("No");
-                ImGui::TableSetupColumn("ФИО ученика");
-                ImGui::TableSetupColumn("No договора");
-                ImGui::TableSetupColumn("Программа");
-                ImGui::TableSetupColumn("Цена");
-                for (int i = 0; i < count_visible_days; i++)
-                {
-                    std::string day_temp = std::to_string(visible_table_columns[i] + 1) + "." + std::to_string(current_time->tm_mon + 1);
-                    ImGui::TableSetupColumn(day_temp.c_str());
-                }*/
-                //ImGui::TableHeadersRow();
                 int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
                 for (int current_student_group_id = 0; current_student_group_id < all_groups[current_group].get_size(); current_student_group_id++)
                 {
                     int current_student_id = all_groups[current_group].get_student_sort_id(current_student_group_id);
+                    if (all_students.at(current_student_id).is_removed()) ImGui::BeginDisabled();
                     ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("%i(%i)", current_student_group_id+1, current_student_id);
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
                     ImGui::TableSetColumnIndex(1); ImGui::Text(all_students[current_student_id].get_name().c_str());
                     ImGui::TableSetColumnIndex(2); ImGui::Text("%i", all_students[current_student_id].get_contract());
                     int current_student_contract = all_students[current_student_id].get_contract();
                     int current_discount_level = -1;
                     for (int i = 0; i < all_students.size(); i++)
                     {
-                        if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2)
+                        if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2 && !all_students[i].is_removed())
                         {
                             current_discount_level++;
                         }
                     }
+                    if (current_discount_level == -1) current_discount_level = 0; //TODO: restructure
                     std::vector<bool> is_relevant;
                     for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                     {
@@ -479,6 +461,7 @@ int main(int, char**)
                             ImGui::SameLine();
                         }
                     }
+                    if (all_students.at(current_student_id).is_removed()) ImGui::EndDisabled();
                 }
                 
                 ImGui::TableNextRow();

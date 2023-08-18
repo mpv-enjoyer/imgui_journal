@@ -40,6 +40,7 @@
 #define MDAY_DIFF           1
 
 #define DEFAULT_COLUMN_COUNT 5
+#define AGE_GROUP_COUNT      8
 
 struct JTime //used separately with ctime.
 {
@@ -58,7 +59,19 @@ const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Спецкурс",
 const  int         Lesson_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 const  std::string Month_Names[] = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 const  std::string Day_Names[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
+const  std::string Age_Group_Names[] = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
 
+static void HelpMarker(const char* desc) //TODO: possible problems with different fonts.
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
 
 struct Lesson_Pair
 {
@@ -88,16 +101,16 @@ private:
     bool removed = 0;
     int contract;
     std::string name;
-    std::tm birth_date; //YEAR, MONTH, DAY
+    int age_group = -1;
     std::vector<Lesson_Full> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
     int get_contract(); bool set_contract(int new_contract);
     std::string get_name(); bool set_name(std::string new_name);
-    std::string get_birth_date_string(); bool set_birth_date(int year, int month, int day);
+    std::string get_age_group(); bool set_age_group(int new_age_group);
     bool is_ignored(Lesson lesson, int lesson_day_of_the_week); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
     int get_lessons_size();
-    bool is_removed(); bool remove();
+    bool is_removed(); bool remove(); bool restore();
 };
 
 class Group
