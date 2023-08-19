@@ -16,7 +16,7 @@ bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<
     }
     if (possible_student_ids.size() == 0) 
     {
-        *selected_to_add=-1;
+        *selected_to_add = -1;
         return true;
     }
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))

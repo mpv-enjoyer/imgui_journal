@@ -214,6 +214,7 @@ public:
     bool delete_student_from_group(int group_id, int student_id); //not needed?
     bool change_group(Lesson lesson, int new_group_id);
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
+    bool add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one);
     //...
 };
 
