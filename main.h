@@ -216,13 +216,14 @@ public:
     bool delete_student_from_group(int group_id, int student_id); //not needed?
     bool change_group(Lesson lesson, int new_group_id);
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
-    bool add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one);
+    bool add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id);
     //...
 };
 
-//Popups
+//Popups & secondary windows
 static ImGuiTextFilter popup_add_student_to_group_filter;
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
 bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups);
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
+bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, int current_day_of_the_week, bool* ignore, bool erase_input);

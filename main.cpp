@@ -202,6 +202,7 @@ int main(int, char**)
     int popup_select_day_of_the_week_day_of_the_week = -1;
     int popup_select_day_of_the_week_month = -1;
     bool popup_select_day_of_the_week_is_open = false;
+    bool popup_add_merged_lesson_to_journal_is_open = false;
 
     bool window_add_student_list_is_open = false;
     // Main loop
@@ -260,7 +261,11 @@ int main(int, char**)
         popup_select_day_of_the_week_month = current_month;
     };
     ImGui::SameLine();
-    ImGui::Button("Редактировать расписание занятий");
+    //ImGui::Button("Редактировать расписание занятий");
+    if (ImGui::Button("Добавить урок"))
+    {
+        popup_add_merged_lesson_to_journal_is_open = true;
+    }
     ImGui::SameLine();
     if(ImGui::Button("Список учеников") )
     {
@@ -304,6 +309,21 @@ int main(int, char**)
         {
             current_day_of_the_week = popup_select_day_of_the_week_day_of_the_week;
             current_month = popup_select_day_of_the_week_month;
+        }
+    }
+
+    if (popup_add_merged_lesson_to_journal_is_open)
+    {
+        Lesson_Info new_lesson_info = Lesson_Info(&all_groups);
+        bool ignore = false;
+        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, current_day_of_the_week, &ignore, false) && !ignore)
+        {
+            all_lessons[current_day_of_the_week].push_back(new_lesson_info);
+            int new_lesson_id = all_lessons[current_day_of_the_week].size() - 1;
+            for (int i = 0; i < count_visible_days; i++)
+            {
+                //FIX DAY COUNTING THEN PROCEED
+            }
         }
     }
 

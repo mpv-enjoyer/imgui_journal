@@ -159,14 +159,13 @@ bool Calendar_Day::change_group(Lesson lesson, int new_group_id)
     }
 }
 
-bool Calendar_Day::add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one)
+bool Calendar_Day::add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id)
 {
     student_status.push_back(std::vector<std::vector<Student_Status>>(new_lesson_info.get_lessons_size()));
-    lessons->push_back(new_lesson_info);
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {
         Lesson current_lesson;
-        current_lesson.merged_lesson_id = lessons->size() - 1;
+        current_lesson.merged_lesson_id = merged_lesson_id;
         current_lesson.internal_lesson_id = j;
         for (int k = 0; k < all_groups->at(new_lesson_info.get_group()).get_size(); k++)
         {
