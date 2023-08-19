@@ -41,11 +41,12 @@
 
 #define DEFAULT_COLUMN_COUNT 5
 #define AGE_GROUP_COUNT      8
+#define MAX_MERGED_LESSONS   2
 
 struct JTime //used separately with ctime.
 {
-    unsigned int hours; //0-23
-    unsigned int minutes; //0-59
+    int hours; //0-23
+    int minutes; //0-59
 };
 
 inline bool operator==(const JTime& lhs, const JTime& rhs) { return lhs.hours==rhs.hours && lhs.minutes==rhs.minutes; }
@@ -55,7 +56,7 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
-const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Спецкурс", "Черчение"};
+const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const  int         Lesson_Prices[4][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}};
 const  std::string Month_Names[] = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 const  std::string Day_Names[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
@@ -127,6 +128,7 @@ public:
     int get_number(); bool set_number(int new_number);
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
     std::string get_comment(); bool set_comment(std::string new_comment);
+    std::string get_description();
     bool is_in_group(int student);
 };
 

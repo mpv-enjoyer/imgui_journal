@@ -79,6 +79,11 @@ std::string Group::get_comment()
     return comment;
 }
 
+std::string Group::get_description()
+{
+    return "#" + std::to_string(get_number()) + ", " + get_comment();
+}
+
 Group::Group(std::vector<Student>* students_list)
 {
     Group::all_students = students_list;
