@@ -11,3 +11,7 @@ TODO:
 - All_Students button, which will allow to add, edit and hide students. (make sure that hidden students will appear in read-only mode in the journal)
 - Workouts.
 - All_Groups.
+
+BUGS:
+- current_time bugs out.
+- add lesson, if begin_lesson_time > end_lesson_time, everything crashes (probably implement exceptions)

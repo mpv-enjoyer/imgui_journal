@@ -2,7 +2,7 @@
 
 bool validate_time_int(std::string input_string, int awaited_symbols, int upper_limit)
 {
-    if (input_string.size() > awaited_symbols) return false;
+    if (input_string.size() > awaited_symbols || input_string.size() == 0) return false;
     for (int i = 0; i < input_string.size(); i++)
     {
         if (input_string[i] < '0' || input_string[i] > '9') return false;
@@ -274,6 +274,12 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
             if (new_combo_lesson_name_id >= 2) current_pair_name_id -= 2;
             new_lesson_pairs[0].lesson_name_id = current_pair_name_id;
             new_lesson_info->add_lesson_pair(new_lesson_pairs[0]);
+            if (new_lesson_group_id == -1) 
+            {
+                ImGui::EndPopup();
+                return false;
+            }
+            new_lesson_info->set_group(new_lesson_group_id);
             if (new_combo_lesson_name_id == 2)
             {
                 new_lesson_pairs[1].lesson_name_id = 1;

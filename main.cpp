@@ -46,6 +46,21 @@ int calculate_first_mwday(int current_mday, int current_wday)
     return (current_wday - diff + 7) % 7;
 }
 
+int get_first_wday(int month, int year, int wday)
+{
+  std::tm time_in = { 0, 0, 0, // second, minute, hour
+      1, month, year}; // 1-based day, 0-based month, year since 1900
+
+  std::time_t time_temp = std::mktime(&time_in);
+
+  //Note: Return value of localtime is not threadsafe, because it might be
+  // (and will be) reused in subsequent calls to std::localtime!
+  const std::tm * time_out = std::localtime(&time_temp);
+  int first_mday_wday = time_out->tm_wday;
+  int diff = ( ( wday - first_mday_wday ) + 7 ) % 7;
+  return diff + 1;
+}
+
 // Main code
 int main(int, char**)
 {
@@ -77,7 +92,7 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "The journal itself", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -118,9 +133,10 @@ int main(int, char**)
 
     time_t current_time_temp = time(NULL);
     const std::tm* current_time = std::localtime(&current_time_temp);
+    
     int current_month = current_time->tm_mon;
     int current_day_of_the_week = current_time->tm_wday;
-
+    int current_year = current_time->tm_year;
     int day_of_the_week_first_in_month = calculate_first_mwday(current_time->tm_mday, current_day_of_the_week);
 
     std::vector<Student> all_students;
@@ -128,7 +144,7 @@ int main(int, char**)
     std::vector<std::vector<Lesson_Info>> all_lessons(7, std::vector<Lesson_Info>(0, Lesson_Info(&all_groups))); //[day_of_the_week][]
     std::vector<Calendar_Day> all_days;
 
-    /*all_students.push_back(Student());
+    all_students.push_back(Student());
     all_students[0].set_name("Фамилия Имя 1");
     all_students[0].set_contract(1);
     all_students.push_back(Student());
@@ -140,11 +156,11 @@ int main(int, char**)
     all_students.push_back(Student());
     all_students[3].set_name("Фамилия Имя 4");
     all_students[3].set_contract(100);
-    all_students[3].set_age_group(5);*/
+    all_students[3].set_age_group(5);
     all_groups.push_back(Group(&all_students));
-    //all_groups[0].add_student(1);
-    //all_groups[0].add_student(2);
-    //all_groups[0].add_student(3);
+    all_groups[0].add_student(1);
+    all_groups[0].add_student(2);
+    all_groups[0].add_student(3);
     all_groups[0].set_number(7);
     all_groups.push_back(Group(&all_students));
     //all_groups[1].add_student(0);
@@ -161,7 +177,7 @@ int main(int, char**)
     temp_lesson_pair.time_end = temp_end;
     temp_lesson.set_group(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
-    all_lessons[current_day_of_the_week].push_back(temp_lesson);
+    all_lessons[0].push_back(temp_lesson);
 
     temp_lesson_pair.lesson_name_id = 0;
     temp_begin.hours = 11; temp_begin.minutes = 10;
@@ -171,12 +187,12 @@ int main(int, char**)
     temp_lesson.delete_lesson_pair(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
     temp_lesson.set_group(1);
-    all_lessons[current_day_of_the_week].push_back(temp_lesson);
+    all_lessons[1].push_back(temp_lesson);
 
     //Lesson ignored_ = {1,0};
     //all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
 
-    int current_month_days_num = get_number_of_days(current_month, current_time->tm_year);
+    int current_month_days_num = get_number_of_days(current_month, current_year + 1900);
     for (int i = 0; i < current_month_days_num; i++)
     {
        all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students, (day_of_the_week_first_in_month + i) % 7));
@@ -236,10 +252,11 @@ int main(int, char**)
         }
     }
 
-    ImGui::Begin("The Journal itself", nullptr, flags);
+    ImGui::Begin("Журнал версии 0.0.1", nullptr, flags);
 
     int count_visible_days = 0;
-    int first_visible_day = ((current_time->tm_mday-1) % 7) + 1;
+    //int first_visible_day = ((current_time->tm_mday-1) % 7) + 1;
+    int first_visible_day = get_first_wday(current_month, current_year, current_day_of_the_week);
     int first_visible_day_copy = first_visible_day;
     std::vector<int> visible_table_columns;
     for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=7)
@@ -312,18 +329,24 @@ int main(int, char**)
         }
     }
 
-    if (popup_add_merged_lesson_to_journal_is_open)
+    if (popup_add_merged_lesson_to_journal_is_open) //Possible problems when working with previous months
     {
         Lesson_Info new_lesson_info = Lesson_Info(&all_groups);
         bool ignore = false;
-        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, current_day_of_the_week, &ignore, false) && !ignore)
+        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, current_day_of_the_week, &ignore, false))
         {
-            all_lessons[current_day_of_the_week].push_back(new_lesson_info);
-            int new_lesson_id = all_lessons[current_day_of_the_week].size() - 1;
-            for (int i = 0; i < count_visible_days; i++)
+            if (!ignore)
             {
-                //FIX DAY COUNTING THEN PROCEED
+                all_lessons[current_day_of_the_week].push_back(new_lesson_info);
+                int new_lesson_id = all_lessons[current_day_of_the_week].size() - 1;
+                for (int i = 0; i < count_visible_days; i++)
+                {
+                    bool await_no_one = false;
+                    if (current_time->tm_mday < visible_table_columns[i]) await_no_one = true;
+                    all_days[visible_table_columns[i]].add_merged_lesson(current_day_of_the_week, new_lesson_info, await_no_one, all_lessons[current_day_of_the_week].size()-1);
+                }
             }
+            popup_add_merged_lesson_to_journal_is_open = false;
         }
     }
 
@@ -444,15 +467,17 @@ int main(int, char**)
                             current_lesson.internal_lesson_id = current_internal_lesson;
                             Student_Status current_status = all_days[visible_table_columns[current_day_cell]].get_status(current_lesson, current_student_id);
                             int current_lesson_discount_status = all_days[visible_table_columns[current_day_cell]].get_discount_status(current_lesson, current_student_id);
-
+                            int dummy = 0; //use ONLY in fake combos
+                            ImGui::BeginDisabled();
                             if (current_status.status == STATUS_INVALID) 
                             {
-                                ImGui::TextDisabled("ERR"); ImGui::SameLine(); continue;
+                                ImGui::Combo("##dummy1", &dummy, "!?"); ImGui::SameLine(); ImGui::EndDisabled(); continue;
                             }
                             if (current_status.status == STATUS_NOT_AWAITED)
                             {
-                                ImGui::TextDisabled("NAW"); ImGui::SameLine(); continue;
+                                ImGui::Combo("##dummy2", &dummy, ".."); ImGui::SameLine(); ImGui::EndDisabled(); continue;
                             }
+                            ImGui::EndDisabled();
                             std::string combo_name = "##" + std::to_string(current_merged_lesson) + " "
                              + std::to_string(current_internal_lesson) + " "
                              + std::to_string(current_day_cell) + " "
