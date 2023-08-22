@@ -57,7 +57,13 @@ std::string Lesson_Info::get_description()
         to_return.append(", ");
         Lesson_Pair pair = get_lesson_pair(i);
         to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
-        to_return.append(std::to_string(pair.time_begin.hours) + ":" + std::to_string(pair.time_begin.minutes));
+        to_return.append(std::to_string(pair.time_begin.hours) + ":");
+        if (pair.time_begin.minutes < 10) to_return.append("0");
+        to_return.append(std::to_string(pair.time_begin.minutes));
+        to_return.append(" - ");
+        to_return.append(std::to_string(pair.time_end.hours) + ":");
+        if (pair.time_end.minutes < 10) to_return.append("0");
+        to_return.append(std::to_string(pair.time_end.minutes));
     }
     return to_return;
 }

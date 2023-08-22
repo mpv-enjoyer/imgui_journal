@@ -274,7 +274,7 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
             if (new_combo_lesson_name_id >= 2) current_pair_name_id -= 2;
             new_lesson_pairs[0].lesson_name_id = current_pair_name_id;
             new_lesson_info->add_lesson_pair(new_lesson_pairs[0]);
-            if (new_lesson_group_id == -1) 
+            if (new_lesson_group_id == -1 || new_lesson_pairs[0].time_begin >= new_lesson_pairs[0].time_end) 
             {
                 ImGui::EndPopup();
                 return false;
