@@ -22,9 +22,6 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
-#include <unicode/unistr.h>
-#include <unicode/ustream.h>
-#include <unicode/locid.h>
 #include "imgui/misc/cpp/imgui_stdlib.h"
 
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
