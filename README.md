@@ -7,11 +7,12 @@
 - main.h file is dumb and needs to be renamed
 
 TODO:
-- [IMPORTANT] Right now all the month info is coming from current time --> switching month doesn't actually change anything in the journal itself.
-- All_Students button, which will allow to add, edit and hide students. (make sure that hidden students will appear in read-only mode in the journal)
+- switching month doesn't actually change anything in the all_days[] thing itself.
 - Workouts.
-- All_Groups.
+- All_Groups edit.
+- additional shortcuts for editing
+- saving/importing everything to a file
+- cross-month actions
 
 BUGS:
-- current_time bugs out.
 - add lesson, if begin_lesson_time > end_lesson_time, everything crashes (probably implement exceptions)

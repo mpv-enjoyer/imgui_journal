@@ -71,6 +71,12 @@ static void HelpMarker(const char* desc) //TODO: possible problems with differen
     }
 }
 
+struct Group_Pair
+{
+    int day_of_the_week; //right now it's completely cosmetic, but I will probably implement some filters using this.
+    int number;
+};
+
 struct Lesson_Pair
 {
     JTime time_begin;
@@ -105,7 +111,7 @@ public:
     Student();
     int get_contract(); bool set_contract(int new_contract);
     std::string get_name(); bool set_name(std::string new_name);
-    std::string get_age_group(); bool set_age_group(int new_age_group);
+    int get_age_group(); std::string get_age_group_string(); bool set_age_group(int new_age_group);
     bool is_ignored(Lesson lesson, int lesson_day_of_the_week); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
     int get_lessons_size();
     bool is_removed(); bool remove(); bool restore();
@@ -115,7 +121,7 @@ class Group
 {
 private:
     bool removed = 0;
-    int number;
+    Group_Pair group_info;
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
     std::string comment;
@@ -123,6 +129,8 @@ public:
     Group(std::vector<Student>* students_list);
     int get_size();
     int get_number(); bool set_number(int new_number);
+    int get_cosmetic_day_of_the_week();
+    bool set_cosmetic_day_of_the_week(int new_day);
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();

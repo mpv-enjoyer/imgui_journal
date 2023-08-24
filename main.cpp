@@ -170,6 +170,8 @@ int main(int, char**)
     //all_groups[1].add_student(0);
     //all_groups[1].add_student(3);
     all_groups[1].set_number(2);
+    all_groups[1].set_cosmetic_day_of_the_week(1);
+    all_groups[1].set_comment("дошкольники");
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;

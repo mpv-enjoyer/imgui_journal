@@ -31,7 +31,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
     }
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-    ImGui::Checkbox("Редактировать номера договоров", &edit_contract);
+    ImGui::Checkbox("Режим редактирования", &edit_contract);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
     if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg))
@@ -44,6 +44,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
         int contract_input_buffer;
+        int lesson_name_input_buffer;
         bool is_removed_input_buffer;
         for (int student_id = 0; student_id < all_students->size(); student_id++)
         {
@@ -54,10 +55,17 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             ImGui::SetNextItemWidth(-1);
-            if (ImGui::InputText("##ФИ", &name_input_buffer))
+            if (edit_contract)
             {
-                all_students->at(student_id).set_name(name_input_buffer);
-            };
+                if (ImGui::InputText("##ФИ", &name_input_buffer))
+                {
+                    all_students->at(student_id).set_name(name_input_buffer);
+                };
+            }
+            else
+            {
+                ImGui::Text(name_input_buffer.c_str());
+            }
             ImGui::TableNextColumn(); 
             if (!edit_contract) 
             {
@@ -72,6 +80,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
             for (int group_id = 0; group_id < all_groups->size(); group_id++) //TODO: literally doing twice as much work.
+            //TODO: wrapping
             {
                 if (all_groups->at(group_id).is_in_group(student_id)) 
                 {
@@ -86,12 +95,26 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                     ImGui::SameLine();
                 }
             }
-            ImGui::TableNextColumn(); ImGui::Text(all_students->at(student_id).get_age_group().c_str());
+
+            ImGui::TableNextColumn(); 
+            if (edit_contract) 
+            {
+                lesson_name_input_buffer = all_students->at(student_id).get_age_group() + 1; // plus one for a "not assigned" placeholder
+                if (ImGui::Combo("##возрастная группа", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
+                {
+                    all_students->at(student_id).set_age_group(lesson_name_input_buffer - 1);
+                }
+            }
+            else
+            {
+                ImGui::Text(all_students->at(student_id).get_age_group_string().c_str());
+            }
+
             ImGui::TableNextColumn(); ImGui::Button("Посещение"); ImGui::SameLine();
-            HelpMarker("Здесь можно указать, на\nкакие уроки ученик должен\nи не должен ходить. \nНапример: ученик состоит в группе,\nно в соответствии с договором\nходит не на все её занятия.");
+            HelpMarker("student ignore help placeholder");
             ImGui::SameLine(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-            if (ImGui::Checkbox("Выбыл", &is_removed_input_buffer))
+            if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 if (is_removed_input_buffer) all_students->at(student_id).remove();
                 if (!is_removed_input_buffer) all_students->at(student_id).restore();

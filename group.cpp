@@ -7,18 +7,30 @@ int Group::get_student_sort_id(int student)
 
 int Group::get_number()
 {
-    return number;
+    return group_info.number;
 }
 
 bool Group::set_number(int new_number)
 {
-    number = new_number;
+    group_info.number = new_number;
     return true;
 }
 
 int Group::get_size()
 {
     return students_sort_by_id.size();
+}
+
+int Group::get_cosmetic_day_of_the_week()
+{
+    return group_info.day_of_the_week;
+}
+
+bool Group::set_cosmetic_day_of_the_week(int new_day)
+{
+    if (new_day < -1 || new_day >= 7) return false;
+    group_info.day_of_the_week = new_day;
+    return true;
 }
 
 int Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
@@ -81,11 +93,15 @@ std::string Group::get_comment()
 
 std::string Group::get_description()
 {
-    return "#" + std::to_string(get_number()) + ", " + get_comment();
+    std::string output = "#" + std::to_string(get_number());
+    if (get_cosmetic_day_of_the_week() != -1) output.append(", " + Day_Names[get_cosmetic_day_of_the_week()]);
+    if (comment.size() != 0) output.append(", " + get_comment());
+    return output;
 }
 
 Group::Group(std::vector<Student>* students_list)
 {
     Group::all_students = students_list;
+    group_info.day_of_the_week = -1;
 }
 
