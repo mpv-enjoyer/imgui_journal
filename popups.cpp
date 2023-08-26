@@ -307,3 +307,41 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
     }
     return false;
 }
+
+bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, int* ignore)
+{
+    ImGui::OpenPopup("Редактировать список посещения ученика (placeholder)");
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    if (ImGui::BeginPopupModal("Редактировать список посещения ученика (placeholder)", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        for (int day_of_the_week = 0; day_of_the_week < 7; day_of_the_week++)
+        {
+            int day_of_the_week_ru = ( day_of_the_week + 1 ) % 7;
+            for (int merged_lesson_id = 0; merged_lesson_id < lessons_in_a_week->at(day_of_the_week_ru).size(); merged_lesson_id++)
+            {
+                for (int internal_lesson_id = 0; internal_lesson_id < lessons_in_a_week->at(day_of_the_week_ru)[merged_lesson_id].get_lessons_size(); internal_lesson_id++)
+                {
+                    
+                }
+            }
+        }
+        if (ImGui::Button("OK"))
+        {
+            *ignore = false;
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена"))
+        {
+            *ignore = true;
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        }
+        ImGui::EndPopup();
+    }
+    return false;
+}

@@ -38,7 +38,7 @@
 
 #define DEFAULT_COLUMN_COUNT 5
 #define AGE_GROUP_COUNT      8
-#define MAX_MERGED_LESSONS   2
+#define MAX_INTERNAL_LESSONS   2
 
 struct JTime //used separately with ctime.
 {
@@ -149,6 +149,7 @@ public:
     int get_group(); bool set_group(int new_group_id);
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool remove();
+    bool should_attend(int student);
     int get_lessons_size();
     std::string get_description();
 };
@@ -232,3 +233,9 @@ bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_m
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups);
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, int current_day_of_the_week, bool* ignore, bool erase_input);
+bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id);
+
+//Date & time things
+int calculate_first_mwday(int current_mday, int current_wday);
+int get_first_wday(int month, int year, int wday);
+

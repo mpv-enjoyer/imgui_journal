@@ -89,7 +89,10 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                     ImGui::Text(std::to_string(group_id).c_str()); 
                     ImGui::SameLine();
                     
-                    ImGui::Button("-");
+                    if (ImGui::Button("-"))
+                    {
+                        all_groups->at(group_id).delete_student(student_id);
+                    }
                     ImGui::PopStyleColor();
                     ImGui::EndGroup();
                     ImGui::SameLine();

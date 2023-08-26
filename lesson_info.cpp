@@ -49,6 +49,11 @@ bool Lesson_Info::delete_lesson_pair(int id)
     return true;
 }
 
+bool Lesson_Info::should_attend(int student)
+{
+    return all_groups->at(group).is_in_group(student);
+}
+
 std::string Lesson_Info::get_description()
 {
     std::string to_return = "Группа " + std::to_string(group);
