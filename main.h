@@ -228,14 +228,15 @@ public:
 
 //Popups & secondary windows
 static ImGuiTextFilter popup_add_student_to_group_filter;
+static int popup_edit_ignore_lessons_is_open = -1;
+
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
 bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
-bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups);
+bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, int current_day_of_the_week, bool* ignore, bool erase_input);
-bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id);
+bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 
 //Date & time things
 int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);
-

@@ -1,8 +1,7 @@
 #include "main.h"
 
-bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups)
+bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open)
 {
-
     ImGui::Begin("Список всех учеников", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
 
     static bool add_student = false;
@@ -10,7 +9,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
     static bool edit_contract = false;
     if (ImGui::Button("Добавить ученика##в общий список") || add_student)
     {
-        if (add_student == false)
+        if (!add_student)
         {
             new_student = new Student();
         }
@@ -86,7 +85,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                 {
                     ImGui::BeginGroup();
                     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.9F, 0.0F, 0.0F, 1.0F));
-                    ImGui::Text(std::to_string(group_id).c_str()); 
+                    ImGui::Text((std::to_string(group_id) + ", " + Day_Names[all_groups->at(group_id).get_cosmetic_day_of_the_week()]).c_str()); 
                     ImGui::SameLine();
                     
                     if (ImGui::Button("-"))
@@ -95,7 +94,6 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                     }
                     ImGui::PopStyleColor();
                     ImGui::EndGroup();
-                    ImGui::SameLine();
                 }
             }
 
@@ -113,7 +111,12 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                 ImGui::Text(all_students->at(student_id).get_age_group_string().c_str());
             }
 
-            ImGui::TableNextColumn(); ImGui::Button("Посещение"); ImGui::SameLine();
+            ImGui::TableNextColumn(); 
+            if (ImGui::Button("Посещение"))
+            {
+                *popup_edit_ignore_lessons_is_open = student_id;
+            } 
+            ImGui::SameLine();
             HelpMarker("student ignore help placeholder");
             ImGui::SameLine(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
@@ -130,4 +133,3 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
     ImGui::End();
     return false;
 }
-

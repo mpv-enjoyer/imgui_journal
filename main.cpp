@@ -172,12 +172,14 @@ int main(int, char**)
     all_groups[0].add_student(2);
     all_groups[0].add_student(3);
     all_groups[0].set_number(7);
+    all_groups[0].set_cosmetic_day_of_the_week(2);
     all_groups.push_back(Group(&all_students));
     //all_groups[1].add_student(0);
     //all_groups[1].add_student(3);
     all_groups[1].set_number(2);
     all_groups[1].set_cosmetic_day_of_the_week(1);
     all_groups[1].set_comment("дошкольники");
+    all_groups[1].set_cosmetic_day_of_the_week(2);
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;
@@ -211,18 +213,6 @@ int main(int, char**)
     }
     bool opened_otr = false;
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
-    std::vector<std::string> lesson_names{"ИЗО", "Лепка", "Спецкурс", "Черчение"};
-    std::vector<std::string> lessons{"ИЗО", "Лепка", "Спецкурс", "Черчение"}; 
-    std::vector<int> prices{300, 200, 100, 44, 500}; //to be deleted
-            static int is_here[15][15];
-
-            for (int i = 0; i < 225; i++)
-            {
-                is_here[i%15][i/15] = 0;
-
-            }
-    static bool is_calendar_open = false;
-    static bool is_working_out_open = false;
 
     int popup_add_student_to_group_select = -1;
     int popup_add_student_to_group_merged_lesson = -1;
@@ -233,6 +223,8 @@ int main(int, char**)
     bool popup_add_merged_lesson_to_journal_is_open = false;
 
     bool window_add_student_list_is_open = false;
+    int popup_edit_ignore_lessons_is_open = -1;
+
     // Main loop
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -258,9 +250,17 @@ int main(int, char**)
     
     if (window_add_student_list_is_open)
     {
-        if (students_list(&all_students, &all_groups))
+        if (students_list(&all_students, &all_groups, &popup_edit_ignore_lessons_is_open))
         {
             window_add_student_list_is_open = false;
+        }
+        if (popup_edit_ignore_lessons_is_open != -1)
+        {
+            bool ignore = false; //TODO: usable cancel button
+            if (popup_edit_ignore_lessons(&all_lessons, &all_students, popup_edit_ignore_lessons_is_open, &ignore))
+            {
+                popup_edit_ignore_lessons_is_open = -1;
+            }
         }
     }
 
@@ -398,7 +398,6 @@ int main(int, char**)
             ImGui::Text(all_lessons[current_day_of_the_week][current_merged_lesson].get_description().c_str());
             const char* table_name = std::to_string(current_merged_lesson).c_str();
 
-
             if (ImGui::BeginTable(
             table_name, 
             DEFAULT_COLUMN_COUNT+count_visible_days, 
@@ -477,8 +476,18 @@ int main(int, char**)
                             show_lesson_names.append(Lesson_Names[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id]);
                         }
                     }
-                    ImGui::TableSetColumnIndex(3); ImGui::Text(show_lesson_names.c_str());
-                    ImGui::TableSetColumnIndex(4); ImGui::Text(show_price.c_str());
+                    if (temp_first) //TODO: hide them entirely if they never were on the lesson
+                    {
+                        ImGui::BeginDisabled();
+                        ImGui::TableSetColumnIndex(3); ImGui::Text("---");
+                        ImGui::TableSetColumnIndex(4); ImGui::Text("---");
+                        ImGui::EndDisabled();
+                    }
+                    else
+                    {
+                        ImGui::TableSetColumnIndex(3); ImGui::Text(show_lesson_names.c_str());
+                        ImGui::TableSetColumnIndex(4); ImGui::Text(show_price.c_str());
+                    }
                     for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
                     {
                         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);

@@ -57,6 +57,10 @@ bool Lesson_Info::should_attend(int student)
 std::string Lesson_Info::get_description()
 {
     std::string to_return = "Группа " + std::to_string(group);
+    if (all_groups->at(group).get_cosmetic_day_of_the_week() >= 0)
+    {
+        to_return.append(" " + Day_Names[all_groups->at(group).get_cosmetic_day_of_the_week()]);
+    }
     for (int i = 0; i < get_lessons_size(); i++)
     {
         to_return.append(", ");
@@ -70,5 +74,6 @@ std::string Lesson_Info::get_description()
         if (pair.time_end.minutes < 10) to_return.append("0");
         to_return.append(std::to_string(pair.time_end.minutes));
     }
+
     return to_return;
 }

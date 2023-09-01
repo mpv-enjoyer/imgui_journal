@@ -236,7 +236,6 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
             ImGui::EndCombo();
         }
         ImGui::Combo("Программа", &new_combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
-        //ImGui::Combo("День недели", &new_lesson_day_of_the_week, "Понедельник\0Вторник\0Среда\0Четверг\0Пятница\0Суббота\0Воскресенье");
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         for (int i = 0; i < 2; i++)
         {
@@ -308,21 +307,32 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
     return false;
 }
 
-bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, int* ignore)
+bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore)
 {
     ImGui::OpenPopup("Редактировать список посещения ученика (placeholder)");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
     if (ImGui::BeginPopupModal("Редактировать список посещения ученика (placeholder)", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        bool temp_lesson_ignore;
+        Lesson current_lesson;
         for (int day_of_the_week = 0; day_of_the_week < 7; day_of_the_week++)
         {
             int day_of_the_week_ru = ( day_of_the_week + 1 ) % 7;
+            ImGui::SeparatorText(Day_Names[day_of_the_week_ru].c_str());
             for (int merged_lesson_id = 0; merged_lesson_id < lessons_in_a_week->at(day_of_the_week_ru).size(); merged_lesson_id++)
             {
+                current_lesson.merged_lesson_id = merged_lesson_id;
                 for (int internal_lesson_id = 0; internal_lesson_id < lessons_in_a_week->at(day_of_the_week_ru)[merged_lesson_id].get_lessons_size(); internal_lesson_id++)
                 {
-                    
+                    if (!lessons_in_a_week->at(day_of_the_week_ru)[merged_lesson_id].should_attend(current_student_id)) continue;
+                    current_lesson.internal_lesson_id = internal_lesson_id;
+                    temp_lesson_ignore = all_students->at(current_student_id).is_ignored(current_lesson, day_of_the_week_ru);
+                    if (ImGui::Checkbox(lessons_in_a_week->at(day_of_the_week_ru)[merged_lesson_id].get_description().c_str(), &temp_lesson_ignore))
+                    {
+                        if (temp_lesson_ignore) all_students->at(current_student_id).add_lesson_ignore_id(current_lesson, day_of_the_week_ru);
+                        if (!temp_lesson_ignore) all_students->at(current_student_id).delete_lesson_ignore(current_lesson, day_of_the_week_ru);
+                    }
                 }
             }
         }
@@ -334,6 +344,7 @@ bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_w
             return true;
         }
         ImGui::SameLine();
+        ImGui::BeginDisabled();
         if (ImGui::Button("Отмена"))
         {
             *ignore = true;
@@ -341,6 +352,7 @@ bool popup_calendar_select(std::vector<std::vector<Lesson_Info>>* lessons_in_a_w
             ImGui::EndPopup();
             return true;
         }
+        ImGui::EndDisabled();
         ImGui::EndPopup();
     }
     return false;
