@@ -125,6 +125,7 @@ private:
     std::vector<Student>* all_students;
     std::vector<int> students_sort_by_id;
     std::string comment;
+    std::vector<int> deleted_students_sort_by_id;
 public:
     Group(std::vector<Student>* students_list);
     int get_size();

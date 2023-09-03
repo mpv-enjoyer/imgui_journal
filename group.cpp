@@ -49,7 +49,7 @@ int Group::add_student(int new_student_id) //in case name is equal to someone el
             new_student_sort_by_id_id = i; break;
         }
     }
-
+    //use deleted_students_sort_by_id ????????
     students_sort_by_id.insert(students_sort_by_id.begin()+new_student_sort_by_id_id, new_student_id);
     return new_student_sort_by_id_id;
 };
@@ -63,6 +63,7 @@ bool Group::delete_student(int to_remove_student_id)
         {
             if (students_sort_by_id[i]==to_remove_student_id)
             {
+                deleted_students_sort_by_id.push_back(to_remove_student_id);
                 students_sort_by_id.erase(students_sort_by_id.begin()+i);
                 is_found_sort_id = true;
             }

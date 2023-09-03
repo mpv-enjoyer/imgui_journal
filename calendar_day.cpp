@@ -123,9 +123,8 @@ bool Calendar_Day::delete_workout(Lesson lesson, int workout_id)
     return true;
 }
 
-bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_student_id) //TODO: stop making group operations here because they tend to repeat and cause errors.
+bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_student_id)
 {
-    //int new_student_id = all_groups->at(group_id).add_student(student_id);
     if (new_student_id == -1) return false;
     Student_Status empty_status;
     empty_status.student_id = student_id;
@@ -162,8 +161,6 @@ bool Calendar_Day::change_group(Lesson lesson, int new_group_id)
 bool Calendar_Day::add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id)
 {
     std::vector<std::vector<Student_Status>> thingy = std::vector<std::vector<Student_Status>>(new_lesson_info.get_lessons_size(), std::vector<Student_Status>());
-    int y = 0;
-    y++;
     student_status.push_back(thingy);
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {

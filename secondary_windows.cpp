@@ -6,7 +6,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 
     static bool add_student = false;
     static Student* new_student;
-    static bool edit_contract = false;
+    static bool edit_mode = false;
     if (ImGui::Button("Добавить ученика##в общий список") || add_student)
     {
         if (!add_student)
@@ -30,7 +30,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
     }
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-    ImGui::Checkbox("Режим редактирования", &edit_contract);
+    ImGui::Checkbox("Режим редактирования", &edit_mode);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
     if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg))
@@ -54,7 +54,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             ImGui::SetNextItemWidth(-1);
-            if (edit_contract)
+            if (edit_mode)
             {
                 if (ImGui::InputText("##ФИ", &name_input_buffer))
                 {
@@ -66,7 +66,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                 ImGui::Text(name_input_buffer.c_str());
             }
             ImGui::TableNextColumn(); 
-            if (!edit_contract) 
+            if (!edit_mode) 
             {
                 ImGui::Text(std::to_string(all_students->at(student_id).get_contract()).c_str());
             }
@@ -84,21 +84,13 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                 if (all_groups->at(group_id).is_in_group(student_id)) 
                 {
                     ImGui::BeginGroup();
-                    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.9F, 0.0F, 0.0F, 1.0F));
                     ImGui::Text((std::to_string(group_id) + ", " + Day_Names[all_groups->at(group_id).get_cosmetic_day_of_the_week()]).c_str()); 
-                    ImGui::SameLine();
-                    
-                    if (ImGui::Button("-"))
-                    {
-                        all_groups->at(group_id).delete_student(student_id);
-                    }
-                    ImGui::PopStyleColor();
                     ImGui::EndGroup();
                 }
             }
 
             ImGui::TableNextColumn(); 
-            if (edit_contract) 
+            if (edit_mode) 
             {
                 lesson_name_input_buffer = all_students->at(student_id).get_age_group() + 1; // plus one for a "not assigned" placeholder
                 if (ImGui::Combo("##возрастная группа", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
@@ -129,6 +121,22 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::PopID();
         }
         ImGui::EndTable();
+    }
+    ImGui::End();
+    return false;
+}
+
+bool groups_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days)
+{
+    ImGui::Begin("Список всех групп", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+    static bool edit_mode = false;
+    if (ImGui::Button("Вернуться к журналу")) return true;
+    ImGui::SameLine();
+    ImGui::Checkbox("Режим редактирования", &edit_mode);
+    ImGui::Text("Список всех групп");
+    for (int i = 0; i < all_groups->size(); i++)
+    {
+        
     }
     ImGui::End();
     return false;
