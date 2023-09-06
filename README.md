@@ -17,3 +17,5 @@ TODO:
 BUGS:
 - add lesson, if begin_lesson_time > end_lesson_time, everything crashes (probably implement exceptions)
 - removed students from groups should not be actually removed (because their attendance dissappears)
+- ignored lessons still can be attended
+- cannot ignore second internal lessons + bad descriptions
