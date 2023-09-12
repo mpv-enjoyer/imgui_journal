@@ -143,7 +143,7 @@ bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_st
     return true;
 }
 
-bool Calendar_Day::change_group(Lesson lesson, int new_group_id)
+bool Calendar_Day::change_group(Lesson lesson, int new_group_id) //this function is so broken LOL DO NOT USE
 {
     int new_group_size = all_groups->at(new_group_id).get_size();
     lessons->at(lesson.merged_lesson_id).set_group(new_group_id);

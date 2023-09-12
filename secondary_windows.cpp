@@ -84,7 +84,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
                 if (all_groups->at(group_id).is_in_group(student_id)) 
                 {
                     ImGui::BeginGroup();
-                    ImGui::Text((std::to_string(group_id) + ", " + Day_Names[all_groups->at(group_id).get_cosmetic_day_of_the_week()]).c_str()); 
+                    ImGui::Text((std::to_string(all_groups->at(group_id).get_number()) + ", " + Day_Names[all_groups->at(group_id).get_day_of_the_week()]).c_str()); 
                     ImGui::EndGroup();
                 }
             }

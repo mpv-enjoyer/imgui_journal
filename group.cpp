@@ -21,12 +21,12 @@ int Group::get_size()
     return students_sort_by_id.size();
 }
 
-int Group::get_cosmetic_day_of_the_week()
+int Group::get_day_of_the_week()
 {
     return group_info.day_of_the_week;
 }
 
-bool Group::set_cosmetic_day_of_the_week(int new_day)
+bool Group::set_day_of_the_week(int new_day)
 {
     if (new_day < -1 || new_day >= 7) return false;
     group_info.day_of_the_week = new_day;
@@ -95,7 +95,7 @@ std::string Group::get_comment()
 std::string Group::get_description()
 {
     std::string output = "#" + std::to_string(get_number());
-    if (get_cosmetic_day_of_the_week() != -1) output.append(", " + Day_Names[get_cosmetic_day_of_the_week()]);
+    if (get_day_of_the_week() != -1) output.append(", " + Day_Names[get_day_of_the_week()]);
     if (comment.size() != 0) output.append(", " + get_comment());
     return output;
 }

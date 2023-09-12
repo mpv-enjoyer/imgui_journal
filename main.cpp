@@ -172,14 +172,14 @@ int main(int, char**)
     all_groups[0].add_student(2);
     all_groups[0].add_student(3);
     all_groups[0].set_number(7);
-    all_groups[0].set_cosmetic_day_of_the_week(2);
+    all_groups[0].set_day_of_the_week(2);
     all_groups.push_back(Group(&all_students));
     //all_groups[1].add_student(0);
     //all_groups[1].add_student(3);
     all_groups[1].set_number(2);
-    all_groups[1].set_cosmetic_day_of_the_week(1);
+    all_groups[1].set_day_of_the_week(1);
     all_groups[1].set_comment("дошкольники");
-    all_groups[1].set_cosmetic_day_of_the_week(2);
+    all_groups[1].set_day_of_the_week(2);
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;
@@ -344,12 +344,16 @@ int main(int, char**)
     if (popup_add_merged_lesson_to_journal_is_open) //Possible problems when working with previous months
     {
         Lesson_Info new_lesson_info = Lesson_Info(&all_groups);
+        Group new_group = Group(&all_students);
+        new_group.set_number(-1);
         bool ignore = false;
-        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, current_day_of_the_week, &ignore, false))
+        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, &new_group, current_day_of_the_week, &ignore, false))
         {
             if (!ignore)
             {
+                all_groups.push_back(new_group);
                 all_lessons[current_day_of_the_week].push_back(new_lesson_info);
+                all_lessons[current_day_of_the_week][all_lessons[current_day_of_the_week].size() - 1].set_group(all_groups.size() - 1);
                 int new_lesson_id = all_lessons[current_day_of_the_week].size() - 1;
                 for (int i = 0; i < count_visible_days; i++)
                 {
@@ -370,7 +374,6 @@ int main(int, char**)
     }
     else
     {
-
         JTime previous = {0, 0};//all_lessons[current_day_of_the_week][0].get_lesson_pair(0).time_begin;
         Lesson current_lesson;
         std::vector<bool> sort_ignore_lessons(all_lessons[current_day_of_the_week].size(), false);
