@@ -377,7 +377,8 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
     return false;
 }
 
-bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int* selected_to_add, int first_mwday, int number_of_days)
+bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons,
+ int* selected_to_add, int first_mwday, int number_of_days)
 {
     ImGui::OpenPopup("Добавление ученика в группу");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -398,13 +399,13 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
     if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        popup_add_student_to_group_filter.Draw("Поиск по ученикам");
+        popup_add_working_out_filter.Draw("Поиск по ученикам");
         ImGui::PopStyleColor(1);
         bool select_student_visible = false;
-        ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        ImGui::BeginChild("Child window", ImVec2(0,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
-            if (!popup_add_student_to_group_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
+            if (!popup_add_working_out_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
             if (*selected_to_add == possible_student_ids[i])
             {
                 ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
@@ -441,19 +442,37 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
                 ImGui::Text(table_upper_name);
                 ImGui::TableNextColumn();
             }
-            ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(first_mwday_ru);
             for (int i = 0; i < number_of_days; i++)
             {
                 if (select_student_visible)
                 {
                     bool should_attend = false;
-                    for (int j = 0; j < all_days[i].size(); j++)
+                    for (int j = 0; j < all_lessons->at((first_mwday + i) % 7).size(); j++)
                     {
-                        if 
+                        should_attend = should_attend || all_lessons->at((first_mwday + i) % 7)[j].should_attend(*selected_to_add);
+                    }
+                    if (should_attend) 
+                    {
+                        if (popup_add_working_out_select_day == i)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+                            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+                            if (ImGui::SmallButton(std::to_string(i + 1).c_str())) popup_add_working_out_select_day = -1;
+                            ImGui::PopStyleColor(3);
+                        }
+                        else 
+                        if (ImGui::SmallButton(std::to_string(i + 1).c_str()))
+                        {
+                            popup_add_working_out_select_day = i;
+                        }
                     }
                 }
-                ImGui::SmallButton(std::to_string(i + 1).c_str());
+                else
+                {
+                    ImGui::SmallButton(std::to_string(i + 1).c_str());
+                }
                 ImGui::TableNextColumn();
             }
             ImGui::EndTable();
@@ -467,14 +486,14 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
         {
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
-            popup_add_student_to_group_filter.Clear();
+            popup_add_working_out_filter.Clear();
             return true;
         } 
         ImGui::SameLine();
         if (ImGui::Button("Отмена", ImVec2(0, 0)))
         {
             *selected_to_add=-1;
-            popup_add_student_to_group_filter.Clear();
+            popup_add_working_out_filter.Clear();
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
             return true;
