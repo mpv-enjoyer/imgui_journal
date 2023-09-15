@@ -214,6 +214,8 @@ int main(int, char**)
     bool opened_otr = false;
     std::vector<std::string> names{"Петухова Таисия Данииловна", "Рыжова Милана Андреевна", "Кузина Александра Сергеевна", "Лебедева Варвара Давидовна", "Куликов Дмитрий Ильич", "Петрова Вера Михайловна", "Панов Кирилл Иванович", "Дубровина Анна Никитична", "Михайлов Владимир Иванович", "Миронова Елизавета Алексеевна", "Пономарев Андрей Артёмович", "Никулина Дарья Степановна", "Иванов Ян Иванович", "Морозова Есения Марковна", "Мухина Ирина Михайловна", "Леонова Владислава Романовна", "Романов Владимир Владимирович", "Смирнов Роман Вадимович", "Кудряшов Иван Лукич", "Гусев Ростислав Давидович"};
 
+    bool edit_mode = false;
+
     int popup_add_student_to_group_select = -1;
     int popup_add_student_to_group_merged_lesson = -1;
     bool popup_add_student_to_group_is_open = false;
@@ -221,7 +223,8 @@ int main(int, char**)
     int popup_select_day_of_the_week_month = -1;
     bool popup_select_day_of_the_week_is_open = false;
     bool popup_add_merged_lesson_to_journal_is_open = false;
-
+    bool popup_add_working_out_is_open = false;
+    int popup_add_working_out_select = -1;   
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
 
@@ -314,6 +317,8 @@ int main(int, char**)
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();
     ImGui::Button("Справка");
+    ImGui::SameLine();
+    ImGui::Checkbox("Режим редактирования", &edit_mode);
 
     if (popup_add_student_to_group_is_open)
     {
@@ -338,6 +343,20 @@ int main(int, char**)
             popup_add_student_to_group_is_open = false;
             popup_add_student_to_group_select = -1;
             popup_add_student_to_group_merged_lesson = -1;
+        }
+    }
+
+    if (popup_add_working_out_is_open)
+    {
+        bool pressed_ok = popup_add_working_out(&all_students, &all_groups, &all_days, &popup_add_working_out_select, day_of_the_week_first_in_month, current_month_days_num);
+        if (pressed_ok)
+        {
+            if (popup_add_working_out_select != -1)
+            {
+
+            } 
+            popup_add_student_to_group_is_open = false;
+            popup_add_working_out_select = -1;
         }
     }
 
@@ -549,19 +568,28 @@ int main(int, char**)
                     }
                     if (all_students.at(current_student_id).is_removed()) ImGui::EndDisabled();
                 }
-                
+                if (edit_mode)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(1);
+                    if (ImGui::Button(("Добавить ученика##" + std::to_string(current_merged_lesson)).c_str()))
+                    {
+                        popup_add_student_to_group_is_open = true;
+                        popup_add_student_to_group_select = -1;
+                        popup_add_student_to_group_merged_lesson = current_merged_lesson;
+                        popup_add_student_to_group(&all_students, &all_groups, &all_days, current_group, &popup_add_student_to_group_select);
+                    }
+                }
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(1);
-                if (ImGui::Button(("Добавить ученика##" + std::to_string(current_merged_lesson)).c_str()))
+                if (ImGui::Button(("Добавить отработку##" + std::to_string(current_merged_lesson)).c_str()))
                 {
-                    popup_add_student_to_group_is_open = true;
-                    popup_add_student_to_group_select = -1;
-                    popup_add_student_to_group_merged_lesson = current_merged_lesson;
-                    popup_add_student_to_group(&all_students, &all_groups, &all_days, current_group, &popup_add_student_to_group_select);
+                    popup_add_working_out_is_open = true;
+                    popup_add_working_out_select = -1;
                 }
+
                 ImGui::EndTable();
                 ImGui::EndGroup();
-
             }
         }
     }

@@ -252,20 +252,24 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
             else if (i == 1) break; 
             ImGui::PushID(i);
             time_buffer = std::to_string(new_lesson_pairs[i].time_begin.hours); if (time_buffer.size()==1) time_buffer = "0" + time_buffer; 
+            ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
             if (ImGui::InputText("##HoursBegin", &time_buffer, ImGuiInputTextFlags_AlwaysOverwrite) && validate_time_int(time_buffer, 2, 24)) new_lesson_pairs[i].time_begin.hours = std::stoi(time_buffer);
             ImGui::SameLine();
             ImGui::Text(":");
             ImGui::SameLine();
+            ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
             time_buffer = std::to_string(new_lesson_pairs[i].time_begin.minutes); if (time_buffer.size()==1) time_buffer = "0" + time_buffer; 
             if (ImGui::InputText("##MinutesBegin", &time_buffer, ImGuiInputTextFlags_AlwaysOverwrite) && validate_time_int(time_buffer, 2, 60)) new_lesson_pairs[i].time_begin.minutes = std::stoi(time_buffer);
             ImGui::SameLine();
             ImGui::Text(" - ");
             ImGui::SameLine();
+            ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
             time_buffer = std::to_string(new_lesson_pairs[i].time_end.hours); if (time_buffer.size()==1) time_buffer = "0" + time_buffer; 
             if (ImGui::InputText("##HoursEnd", &time_buffer, ImGuiInputTextFlags_AlwaysOverwrite) && validate_time_int(time_buffer, 2, 24)) new_lesson_pairs[i].time_end.hours = std::stoi(time_buffer);
             ImGui::SameLine();
             ImGui::Text(":");
             ImGui::SameLine();
+            ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
             time_buffer = std::to_string(new_lesson_pairs[i].time_end.minutes); if (time_buffer.size()==1) time_buffer = "0" + time_buffer; 
             if (ImGui::InputText("##MinutesEnd", &time_buffer, ImGuiInputTextFlags_AlwaysOverwrite) && validate_time_int(time_buffer, 2, 60)) new_lesson_pairs[i].time_end.minutes = std::stoi(time_buffer);
             ImGui::PopID();
@@ -368,6 +372,113 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
             return true;
         }
         ImGui::EndDisabled();
+        ImGui::EndPopup();
+    }
+    return false;
+}
+
+bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int* selected_to_add, int first_mwday, int number_of_days)
+{
+    ImGui::OpenPopup("Добавление ученика в группу");
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    std::vector<std::string> possible_student_descriptions;
+    std::vector<int> possible_student_ids;
+    for (int i = 0; i < all_students->size(); i++)
+    {
+        if (all_students->at(i).is_removed()) continue;
+        possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
+        possible_student_ids.push_back(i);
+    }
+    if (possible_student_ids.size() == 0) 
+    {
+        *selected_to_add = -1;
+        return true;
+    }
+    if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        popup_add_student_to_group_filter.Draw("Поиск по ученикам");
+        ImGui::PopStyleColor(1);
+        bool select_student_visible = false;
+        ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        for (int i = 0; i < possible_student_descriptions.size(); i++)
+        {
+            if (!popup_add_student_to_group_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
+            if (*selected_to_add == possible_student_ids[i])
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+                ImGui::Button(("Выбран.##"+std::to_string(i)).c_str());
+                ImGui::PopStyleColor(3);
+                select_student_visible = true;
+            }
+            else
+            {
+                if (ImGui::Button(("Выбрать##"+std::to_string(i)).c_str())) *selected_to_add = possible_student_ids[i];
+            }
+
+            ImGui::SameLine();
+            ImGui::Text(possible_student_descriptions[i].c_str());
+        }
+        ImGui::EndChild();
+        if (!select_student_visible)
+        {
+            ImGui::BeginDisabled();
+        }
+        ImGui::Separator();
+
+        //calendar
+        int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
+        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableRowFlags_Headers | ImGuiTableFlags_NoHostExtendX))
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            for (int i = 0; i < 7; i++)
+            {
+                const char* table_upper_name = Day_Names_Abbreviated[ ( (i + 1) + 7 ) % 7].c_str();
+                ImGui::Text(table_upper_name);
+                ImGui::TableNextColumn();
+            }
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(first_mwday_ru);
+            for (int i = 0; i < number_of_days; i++)
+            {
+                if (select_student_visible)
+                {
+                    bool should_attend = false;
+                    for (int j = 0; j < all_days[i].size(); j++)
+                    {
+                        if 
+                    }
+                }
+                ImGui::SmallButton(std::to_string(i + 1).c_str());
+                ImGui::TableNextColumn();
+            }
+            ImGui::EndTable();
+        }
+        if (!select_student_visible)
+        {
+            ImGui::EndDisabled();
+        }
+
+        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_student_visible)
+        {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            popup_add_student_to_group_filter.Clear();
+            return true;
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена", ImVec2(0, 0)))
+        {
+            *selected_to_add=-1;
+            popup_add_student_to_group_filter.Clear();
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            return true;
+        } 
         ImGui::EndPopup();
     }
     return false;

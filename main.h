@@ -57,6 +57,7 @@ const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Дизайн", "Ч
 const  int         Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
 const  std::string Month_Names[] = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 const  std::string Day_Names[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
+const  std::string Day_Names_Abbreviated[] = {"Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"};
 const  std::string Age_Group_Names[] = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
 
 static void HelpMarker(const char* desc) //TODO: possible problems with different fonts.
@@ -205,6 +206,7 @@ private:
     std::vector<Group>* all_groups;
     std::vector<Student>* all_students;
     std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student_in_group]
+    //TODO: change student_status structure to ID-based? (for stability)
     std::vector<std::vector<std::vector<Workout_Info>>> workouts; //[merged_lesson][internal_lesson][new_student]
 public:
     Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
@@ -237,7 +239,9 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
+bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int* selected_to_add, int first_mwday, int number_of_days);
 
 //Date & time things
 int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);
+int get_number_of_days(int month, int year);
