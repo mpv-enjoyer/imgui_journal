@@ -54,11 +54,28 @@ bool Lesson_Info::should_attend(int student)
     return all_groups->at(group).is_in_group(student);
 }
 
-std::string Lesson_Info::get_description()
+std::string Lesson_Info::get_description(int current_internal_lesson)
 {
     std::string to_return = "Группа " + all_groups->at(group).get_description();
-    for (int i = 0; i < get_lessons_size(); i++)
+    if (current_internal_lesson == -1)
     {
+        for (int i = 0; i < get_lessons_size(); i++)
+        {
+            to_return.append(", ");
+            Lesson_Pair pair = get_lesson_pair(i);
+            to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
+            to_return.append(std::to_string(pair.time_begin.hours) + ":");
+            if (pair.time_begin.minutes < 10) to_return.append("0");
+            to_return.append(std::to_string(pair.time_begin.minutes));
+            to_return.append(" - ");
+            to_return.append(std::to_string(pair.time_end.hours) + ":");
+            if (pair.time_end.minutes < 10) to_return.append("0");
+            to_return.append(std::to_string(pair.time_end.minutes));
+        }
+    }
+    else
+    {
+        int i = current_internal_lesson;
         to_return.append(", ");
         Lesson_Pair pair = get_lesson_pair(i);
         to_return.append(Lesson_Names[pair.lesson_name_id] + " ");

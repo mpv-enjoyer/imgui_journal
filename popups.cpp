@@ -378,7 +378,7 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
 }
 
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons,
- int* selected_to_add, int first_mwday, int number_of_days)
+int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Lesson* lesson_to_workout)
 {
     ImGui::OpenPopup("Добавление ученика в группу");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -388,6 +388,7 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
     for (int i = 0; i < all_students->size(); i++)
     {
         if (all_students->at(i).is_removed()) continue;
+        if (all_groups->at(current_group_id).is_in_group(i)) continue;
         possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
@@ -402,7 +403,7 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
         popup_add_working_out_filter.Draw("Поиск по ученикам");
         ImGui::PopStyleColor(1);
         bool select_student_visible = false;
-        ImGui::BeginChild("Child window", ImVec2(0,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
             if (!popup_add_working_out_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
@@ -428,8 +429,8 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
         {
             ImGui::BeginDisabled();
         }
-        ImGui::Separator();
-
+        ImGui::SameLine();
+        ImGui::BeginGroup();
         //calendar
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
         if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableRowFlags_Headers | ImGuiTableFlags_NoHostExtendX))
@@ -481,6 +482,24 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
         {
             ImGui::EndDisabled();
         }
+
+        for (int current_merged_lesson = 0; current_merged_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7).size(); current_merged_lesson++)
+        {
+            for (int current_internal_lesson = 0; current_internal_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_lessons_size(); current_internal_lesson++)
+            {
+                if (all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].should_attend(*selected_to_add))
+                {
+                    bool checkbox_value = popup_add_working_out_select_lesson.internal_lesson_id == current_internal_lesson && popup_add_working_out_select_lesson.merged_lesson_id == current_merged_lesson;
+                    if (ImGui::Checkbox(all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
+                    {
+                        popup_add_working_out_select_lesson.internal_lesson_id = current_internal_lesson;
+                        popup_add_working_out_select_lesson.merged_lesson_id = current_merged_lesson;
+                    }
+                }
+            }
+        }
+        ImGui::EndGroup();
+        
 
         if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_student_visible)
         {

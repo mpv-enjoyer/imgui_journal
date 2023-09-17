@@ -225,6 +225,7 @@ int main(int, char**)
     bool popup_add_merged_lesson_to_journal_is_open = false;
     bool popup_add_working_out_is_open = false;
     int popup_add_working_out_select = -1;   
+    int popup_add_working_out_merged_lesson = -1;
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
 
@@ -348,7 +349,8 @@ int main(int, char**)
 
     if (popup_add_working_out_is_open)
     {
-        bool pressed_ok = popup_add_working_out(&all_students, &all_groups, &all_days, &all_lessons, &popup_add_working_out_select, day_of_the_week_first_in_month, current_month_days_num);
+        Lesson workout_lesson;
+        bool pressed_ok = popup_add_working_out(&all_students, &all_groups, &all_days, &all_lessons, all_lessons[current_day_of_the_week][popup_add_working_out_merged_lesson].get_group(), &popup_add_working_out_select, day_of_the_week_first_in_month, current_month_days_num, &workout_lesson);
         if (pressed_ok)
         {
             if (popup_add_working_out_select != -1)
@@ -583,6 +585,7 @@ int main(int, char**)
                 {
                     popup_add_working_out_is_open = true;
                     popup_add_working_out_select = -1;
+                    popup_add_working_out_merged_lesson = current_lesson.merged_lesson_id;
                 }
 
                 ImGui::EndTable();
