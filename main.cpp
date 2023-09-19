@@ -540,6 +540,7 @@ int main(int, char**)
                                 ImGui::Combo("##dummy2", &dummy, ".."); ImGui::SameLine(); ImGui::EndDisabled(); continue;
                             }
                             ImGui::EndDisabled();
+
                             std::string combo_name = "##" + std::to_string(current_merged_lesson) + " "
                              + std::to_string(current_internal_lesson) + " "
                              + std::to_string(current_day_cell) + " "
@@ -547,19 +548,17 @@ int main(int, char**)
                             ImGui::BeginGroup();
                             if(ImGui::Combo(combo_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
                             {
-                                printf("550");
                                 if (current_status.status != STATUS_WORKED_OUT)
                                 {
-                                    printf("553");
                                     all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, current_student_id, current_status.status);
                                     all_days[visible_table_columns[current_day_cell]].set_discount_status(current_lesson, current_student_id, current_discount_level);
                                 }
+                                if (current_lesson_discount_status == -1) current_lesson_discount_status = current_discount_level;
                             }
-
-                            if ((current_lesson_discount_status>=0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
+                            if ((current_lesson_discount_status >=0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
                             {
                                 int current_lesson_price = -1;
-                                if (current_status.status == STATUS_ON_LESSON || current_status.status == STATUS_WORKED_OUT || current_status.status == STATUS_SKIPPED)
+                                if ((current_status.status == STATUS_ON_LESSON) || (current_status.status == STATUS_WORKED_OUT) || (current_status.status == STATUS_SKIPPED))
                                 {
                                     current_lesson_price = Lesson_Prices[all_lessons[current_day_of_the_week][current_lesson.merged_lesson_id].get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id][current_lesson_discount_status];
                                 }
@@ -572,7 +571,6 @@ int main(int, char**)
                                     ImGui::TextDisabled(std::to_string(current_lesson_price).c_str());
                                 }
                             }
-
                             ImGui::EndGroup();
                             ImGui::SameLine();
                         }
@@ -611,6 +609,8 @@ int main(int, char**)
     }
     ImGui::PopStyleVar();
     ImGui::EndChild();
+
+
 
     ImGui::End();
     // Rendering

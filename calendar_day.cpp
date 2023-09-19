@@ -90,6 +90,10 @@ int Calendar_Day::get_discount_status(Lesson lesson, int student_id)
     for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
     {
         int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
+        if (student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].status <= STATUS_NO_DATA)
+        {
+            return -1;
+        }
         if (current_student == student_id)
         {
             return student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status;
