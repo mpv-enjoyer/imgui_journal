@@ -74,7 +74,7 @@ static void HelpMarker(const char* desc) //TODO: possible problems with differen
 
 struct Group_Pair
 {
-    int day_of_the_week; //right now it's completely cosmetic, but I will probably implement some filters using this.
+    int day_of_the_week;
     int number;
 };
 
@@ -168,35 +168,8 @@ struct Student_Status
 struct Workout_Info
 {
     int student_id;
-    Lesson lesson;
-    std::tm date;
-};
-
-struct Archive_Student
-{
-    Student data;
-    std::tm edit_date;
-    std::string comment;
-};
-
-struct Archive_Group
-{
-    Group data;
-    std::tm edit_date;
-    std::string comment;
-};
-
-struct Archive_Lesson_Info
-{
-    Lesson_Info data;
-    std::tm edit_date;
-    std::string comment;
-};
-
-struct Archive
-{
-    std::vector<Archive_Group> archive_group;
-    std::vector<Archive_Student> archive_student;
+    Lesson_Pair lesson_pair;
+    std::tm date; //day
 };
 
 class Calendar_Day
@@ -212,7 +185,8 @@ public:
     Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
     bool set_status(Lesson lesson, int student_id, int status);
     Student_Status get_status(Lesson lesson, int student_id);
-    bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson workout_lesson);
+    bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson);
+    bool add_workout(Lesson lesson, Workout_Info new_workout_info);
     int get_workout_size(Lesson lesson);
     int get_workout_student_id(Lesson lesson, int workout_id);
     bool delete_workout(Lesson lesson, int student_id);
@@ -244,7 +218,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
-bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Lesson* lesson_to_workout);
+bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
 
 //Date & time things
 int calculate_first_mwday(int current_mday, int current_wday);

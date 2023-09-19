@@ -226,6 +226,9 @@ int main(int, char**)
     bool popup_add_working_out_is_open = false;
     int popup_add_working_out_select = -1;   
     int popup_add_working_out_merged_lesson = -1;
+    int popup_add_working_out_internal_lesson = -1;
+    int popup_add_working_out_mday = -1;
+
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
 
@@ -349,16 +352,20 @@ int main(int, char**)
 
     if (popup_add_working_out_is_open)
     {
-        Lesson workout_lesson;
+        Workout_Info workout_lesson;
         bool pressed_ok = popup_add_working_out(&all_students, &all_groups, &all_days, &all_lessons, all_lessons[current_day_of_the_week][popup_add_working_out_merged_lesson].get_group(), &popup_add_working_out_select, day_of_the_week_first_in_month, current_month_days_num, &workout_lesson);
         if (pressed_ok)
         {
             if (popup_add_working_out_select != -1)
             {
-
-            } 
+                Lesson current_lesson = {popup_add_working_out_merged_lesson, popup_add_working_out_internal_lesson};
+                all_days[popup_add_working_out_mday].add_workout(current_lesson, workout_lesson);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
+            }
             popup_add_working_out_is_open = false;
             popup_add_working_out_select = -1;
+            popup_add_working_out_select_day = -1;
+            popup_add_working_out_select_month = -1;
+            popup_add_working_out_select_year = -1;
         }
     }
 
@@ -395,7 +402,7 @@ int main(int, char**)
     }
     else
     {
-        JTime previous = {0, 0};//all_lessons[current_day_of_the_week][0].get_lesson_pair(0).time_begin;
+        JTime previous = {0, 0};
         Lesson current_lesson;
         std::vector<bool> sort_ignore_lessons(all_lessons[current_day_of_the_week].size(), false);
 
@@ -538,10 +545,12 @@ int main(int, char**)
                              + std::to_string(current_day_cell) + " "
                              + std::to_string(current_student_id);
                             ImGui::BeginGroup();
-                            if(ImGui::Combo(combo_name.c_str(), &current_status.status, " \0+\0Б\0-\0О\0\0"))
+                            if(ImGui::Combo(combo_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
                             {
+                                printf("550");
                                 if (current_status.status != STATUS_WORKED_OUT)
                                 {
+                                    printf("553");
                                     all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, current_student_id, current_status.status);
                                     all_days[visible_table_columns[current_day_cell]].set_discount_status(current_lesson, current_student_id, current_discount_level);
                                 }
@@ -580,13 +589,20 @@ int main(int, char**)
                     popup_add_student_to_group(&all_students, &all_groups, &all_days, current_group, &popup_add_student_to_group_select);
                 }
                 ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(1);
-                if (ImGui::Button(("Добавить отработку##" + std::to_string(current_merged_lesson)).c_str()))
+                for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
                 {
-                    popup_add_working_out_is_open = true;
-                    popup_add_working_out_select = -1;
-                    popup_add_working_out_merged_lesson = current_lesson.merged_lesson_id;
+                    ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
+                    if (ImGui::Button(("O##" + std::to_string(current_merged_lesson) + "+" + std::to_string(current_day_cell)).c_str()))
+                    {
+                        popup_add_working_out_is_open = true;
+                        popup_add_working_out_select = -1;
+                        popup_add_working_out_merged_lesson = current_lesson.merged_lesson_id;
+                        popup_add_working_out_internal_lesson = current_lesson.internal_lesson_id;
+                        popup_add_working_out_mday = visible_table_columns[current_day_cell];
+                    }
+                    
                 }
+
 
                 ImGui::EndTable();
                 ImGui::EndGroup();

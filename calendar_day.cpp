@@ -41,12 +41,18 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
     }
 }
 
-bool Calendar_Day::add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson workout_lesson)
+bool Calendar_Day::add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson)
 {
     Workout_Info new_workout_info;
     new_workout_info.date = workout_date;
-    new_workout_info.lesson = workout_lesson;
+    new_workout_info.lesson_pair = workout_lesson;
     new_workout_info.student_id = student_id;
+    workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].push_back(new_workout_info);
+    return true;
+}
+
+bool Calendar_Day::add_workout(Lesson lesson, Workout_Info new_workout_info)
+{
     workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].push_back(new_workout_info);
     return true;
 }

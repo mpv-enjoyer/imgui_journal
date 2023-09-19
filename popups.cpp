@@ -378,7 +378,7 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
 }
 
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons,
-int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Lesson* lesson_to_workout)
+int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout)
 {
     ImGui::OpenPopup("Добавление ученика в группу");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -501,8 +501,17 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
         ImGui::EndGroup();
         
 
-        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_student_visible)
+        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_student_visible && popup_add_working_out_select_day != -1)
         {
+            lesson_to_workout->lesson_pair = all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[popup_add_working_out_select_lesson.merged_lesson_id].get_lesson_pair(popup_add_working_out_select_lesson.internal_lesson_id);
+
+            lesson_to_workout->date = { 0, 0, 0, // second, minute, hour
+            popup_add_working_out_select_day + 1, 8, 2023 - 1900}; // 1-based day, 0-based month, year since 1900 
+
+            //TODO: (IMPORTANT) MONTH IS HARD CODED.
+
+            lesson_to_workout->student_id = *selected_to_add;
+
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
             popup_add_working_out_filter.Clear();

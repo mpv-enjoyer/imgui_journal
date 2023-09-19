@@ -7,7 +7,6 @@
 - main.h file is dumb and needs to be renamed
 
 TODO:
-- switching month doesn't actually change anything in the all_days[] thing itself.
 - Workouts.
 - All_Groups edit.
 - additional shortcuts for editing
@@ -15,7 +14,7 @@ TODO:
 - cross-month actions
 
 BUGS:
-- add lesson, if begin_lesson_time > end_lesson_time, everything crashes (probably implement exceptions)
+IMPORTANT: there's a horrendous bug. It happens randomly and it never happened during GDB debugging sessions. Old versions of this program are affected.
+My guess is that some library isn't loading properly.
+
 - removed students from groups should not be actually removed (because their attendance dissappears)
-- ignored lessons still can be attended
-- cannot ignore second internal lessons + bad descriptions
