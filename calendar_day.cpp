@@ -15,6 +15,7 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
     default_status.status = STATUS_NO_DATA;
 
     Calendar_Day::student_status = std::vector<std::vector<std::vector<Student_Status>>>(lessons_in_this_day->size(), std::vector<std::vector<Student_Status>>(max_merged, std::vector<Student_Status>()));
+    Calendar_Day::workouts = std::vector<std::vector<std::vector<Workout_Info>>>(lessons_in_this_day->size(), std::vector<std::vector<Workout_Info>>(max_merged, std::vector<Workout_Info>()));
     for (int i = 0; i < lessons_in_this_day->size(); i++)
     {
         for (int j = 0; j < lessons_in_this_day->at(i).get_lessons_size(); j++)
@@ -90,12 +91,12 @@ int Calendar_Day::get_discount_status(Lesson lesson, int student_id)
     for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
     {
         int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
-        if (student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].status <= STATUS_NO_DATA)
-        {
-            return -1;
-        }
         if (current_student == student_id)
         {
+            if (student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].status <= STATUS_NO_DATA)
+            {
+                return -1;
+            }
             return student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status;
         }
     }
@@ -170,8 +171,10 @@ bool Calendar_Day::change_group(Lesson lesson, int new_group_id) //this function
 
 bool Calendar_Day::add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id)
 {
-    std::vector<std::vector<Student_Status>> thingy = std::vector<std::vector<Student_Status>>(new_lesson_info.get_lessons_size(), std::vector<Student_Status>());
-    student_status.push_back(thingy);
+    std::vector<std::vector<Student_Status>> temp_1 = std::vector<std::vector<Student_Status>>(new_lesson_info.get_lessons_size(), std::vector<Student_Status>());
+    student_status.push_back(temp_1);
+    std::vector<std::vector<Workout_Info>> temp_2 = std::vector<std::vector<Workout_Info>>(new_lesson_info.get_lessons_size(), std::vector<Workout_Info>());
+    workouts.push_back(temp_2);
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {
         Lesson current_lesson;

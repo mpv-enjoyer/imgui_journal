@@ -380,7 +380,7 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons,
 int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout)
 {
-    ImGui::OpenPopup("Добавление ученика в группу");
+    ImGui::OpenPopup("Добавление отработки");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
     std::vector<std::string> possible_student_descriptions;
@@ -397,7 +397,7 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
         *selected_to_add = -1;
         return true;
     }
-    if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    if (ImGui::BeginPopupModal("Добавление отработки", NULL, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         popup_add_working_out_filter.Draw("Поиск по ученикам");

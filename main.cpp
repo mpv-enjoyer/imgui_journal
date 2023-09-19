@@ -5,22 +5,6 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-int journal_get_lesson() //to replace int with custom structure which will define date + lesson
-{
-    int test = 0;
-    ImGui::OpenPopup("Отработка");
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    if (ImGui::BeginPopupModal("Отработка", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        ImGui::Text("отработка за ФИО ученика ** группы *, **:00", 1,1+8);
-        ImGui::Text("<самодельный календарь, с подсветкой дней, в которые этот человек должен был прийти>");
-        ImGui::Text(std::to_string(test).c_str()); if (ImGui::Button("make test 1")) test = 1;
-        if (ImGui::Button("OK", ImVec2(0, 0))) ImGui::CloseCurrentPopup();
-    }
-    ImGui::EndPopup();
-} 
-
 int get_number_of_days(int month, int year)
 {
     month++;
@@ -360,6 +344,18 @@ int main(int, char**)
             {
                 Lesson current_lesson = {popup_add_working_out_merged_lesson, popup_add_working_out_internal_lesson};
                 all_days[popup_add_working_out_mday].add_workout(current_lesson, workout_lesson);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
+                all_days[workout_lesson.date.tm_mday - 1].set_status(popup_add_working_out_select_lesson, popup_add_working_out_select, STATUS_WORKED_OUT);
+                int current_student_contract = all_students[popup_add_working_out_select].get_contract();
+                int current_discount_level = -1;
+                for (int i = 0; i < all_students.size(); i++)
+                {
+                    if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2 && !all_students[i].is_removed())
+                    {
+                        current_discount_level++;
+                    }
+                }
+                if (current_discount_level == -1) current_discount_level = 0;
+                all_days[workout_lesson.date.tm_mday - 1].set_discount_status(popup_add_working_out_select_lesson, popup_add_working_out_select, current_discount_level);
             }
             popup_add_working_out_is_open = false;
             popup_add_working_out_select = -1;
@@ -546,7 +542,8 @@ int main(int, char**)
                              + std::to_string(current_day_cell) + " "
                              + std::to_string(current_student_id);
                             ImGui::BeginGroup();
-                            if(ImGui::Combo(combo_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
+                            if (current_status.status == STATUS_WORKED_OUT) ImGui::Text("OTR");
+                            else if(ImGui::Combo(combo_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
                             {
                                 if (current_status.status != STATUS_WORKED_OUT)
                                 {
@@ -555,7 +552,7 @@ int main(int, char**)
                                 }
                                 if (current_lesson_discount_status == -1) current_lesson_discount_status = current_discount_level;
                             }
-                            if ((current_lesson_discount_status >=0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
+                            if ((current_lesson_discount_status >= 0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
                             {
                                 int current_lesson_price = -1;
                                 if ((current_status.status == STATUS_ON_LESSON) || (current_status.status == STATUS_WORKED_OUT) || (current_status.status == STATUS_SKIPPED))
@@ -598,7 +595,6 @@ int main(int, char**)
                         popup_add_working_out_internal_lesson = current_lesson.internal_lesson_id;
                         popup_add_working_out_mday = visible_table_columns[current_day_cell];
                     }
-                    
                 }
 
 
