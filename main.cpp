@@ -355,7 +355,6 @@ int main(int, char**)
                     }
                 }
                 if (current_discount_level == -1) current_discount_level = 0;
-                all_days[workout_lesson.date.tm_mday - 1].set_discount_status(popup_add_working_out_select_lesson, popup_add_working_out_select, current_discount_level);
             }
             popup_add_working_out_is_open = false;
             popup_add_working_out_select = -1;

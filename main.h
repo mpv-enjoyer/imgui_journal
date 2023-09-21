@@ -60,7 +60,7 @@ const  std::string Day_Names[] = {"Воскресенье", "Понедельн�
 const  std::string Day_Names_Abbreviated[] = {"Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"};
 const  std::string Age_Group_Names[] = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
 
-static void HelpMarker(const char* desc) //TODO: possible problems with different fonts.
+static void HelpMarker(const char* desc)
 {
     ImGui::TextDisabled("(?)");
     if (ImGui::BeginItemTooltip())
@@ -162,7 +162,7 @@ struct Student_Status
     int status;
     std::tm workout_day;
     Lesson workout_lesson;
-    int discount_status;
+    int discount_status = -1;
 };
 
 struct Workout_Info
