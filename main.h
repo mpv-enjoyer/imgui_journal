@@ -220,6 +220,64 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
 
+class Popup
+{
+private:
+    int active = false;
+    bool accept_edit = false;
+protected:
+    bool activate() { active = true; return true; }
+public:
+    Popup() {;};
+    bool check_active() { return active; }
+    bool check_ok() { return accept_edit; }
+    bool cancel() { active = false; accept_edit = false; return true; }
+    bool ok() { active = false; accept_edit = true; return true; }
+};
+
+class Popup_Add_Student_To_Group : public Popup
+{
+private:
+    int current_group_id = -1;
+    int merged_lesson = -1;
+    int current_selected_student = -1;
+    ImGuiTextFilter text_filter;
+    std::vector<Student>* all_students = nullptr;
+    std::vector<Group>* all_groups = nullptr;
+    std::vector<std::string> possible_student_descriptions;
+    std::vector<int> possible_student_ids;
+public:
+    Popup_Add_Student_To_Group()
+    {        
+        activate();
+        for (int i = 0; i < all_students->size(); i++)
+        {
+            if (all_students->at(i).is_removed()) continue;
+            if (all_groups->at(current_group_id).is_in_group(i)) continue;
+            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
+            possible_student_ids.push_back(i);
+        }
+    };
+    Popup_Add_Student_To_Group(int current_group_id, std::vector<Student>* all_students, std::vector<Group>* all_groups, int merged_lesson) 
+    : current_group_id(current_group_id), all_students(all_students), all_groups(all_groups), merged_lesson(merged_lesson)
+    {
+        IM_ASSERT(!(current_group_id >= all_groups->size() || current_group_id < 0 || merged_lesson < 0));
+        activate();
+        for (int i = 0; i < all_students->size(); i++)
+        {
+            if (all_students->at(i).is_removed()) continue;
+            if (all_groups->at(current_group_id).is_in_group(i)) continue;
+            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
+            possible_student_ids.push_back(i);
+        }
+
+    };
+    int get_merged_lesson() { return merged_lesson; };
+    int get_added_student() { return current_selected_student; };
+    int get_current_group_id() { return current_group_id; };
+    bool show_frame();
+};
+
 //Date & time things
 int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);

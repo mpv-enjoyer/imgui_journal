@@ -11,6 +11,66 @@ bool validate_time_int(std::string input_string, int awaited_symbols, int upper_
     return true;
 }
 
+bool Popup_Add_Student_To_Group::show_frame()
+{
+    ImGui::OpenPopup("Добавление ученика в группу");
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+    if (possible_student_ids.size() == 0) 
+    {
+        cancel();
+    }
+
+    if (ImGui::BeginPopupModal("Добавление ученика в группу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        text_filter.Draw("Поиск по ученикам");
+        ImGui::PopStyleColor(1);
+        bool select_visible = false;
+        ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+        for (int i = 0; i < possible_student_descriptions.size(); i++)
+        {
+            if (!text_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
+            if (current_selected_student == possible_student_ids[i])
+            {
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+                ImGui::Button(("Выбран.##"+std::to_string(i)).c_str());
+                ImGui::PopStyleColor(3);
+                select_visible = true;
+            }
+            else
+            {
+                if (ImGui::Button(("Выбрать##"+std::to_string(i)).c_str())) current_selected_student = possible_student_ids[i];
+            }
+
+            ImGui::SameLine();
+            ImGui::Text(possible_student_descriptions[i].c_str());
+        }
+        ImGui::EndChild();
+        ImGui::SetItemDefaultFocus();
+        if (ImGui::Button("OK") && current_selected_student!=-1 && select_visible)
+        {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            ok();
+            return true;
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("Отмена"))
+        {
+            ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+            cancel();
+            return true;
+        } 
+        ImGui::EndPopup();
+    }
+    return false;
+}
+
 bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add)
 {
     ImGui::OpenPopup("Добавление ученика в группу");
