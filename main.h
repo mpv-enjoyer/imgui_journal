@@ -189,6 +189,7 @@ public:
     bool add_workout(Lesson lesson, Workout_Info new_workout_info);
     int get_workout_size(Lesson lesson);
     int get_workout_student_id(Lesson lesson, int workout_id);
+    Workout_Info get_workout_info(Lesson lesson, int student_id);
     bool delete_workout(Lesson lesson, int student_id);
     bool set_discount_status(Lesson lesson, int student_id, int discount_status);
     int get_discount_status(Lesson lesson, int student_id);
@@ -223,16 +224,12 @@ bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group
 class Popup
 {
 private:
-    int active = false;
     bool accept_edit = false;
-protected:
-    bool activate() { active = true; return true; }
 public:
     Popup() {;};
-    bool check_active() { return active; }
     bool check_ok() { return accept_edit; }
-    bool cancel() { active = false; accept_edit = false; return true; }
-    bool ok() { active = false; accept_edit = true; return true; }
+    bool cancel() { accept_edit = false; return true; }
+    bool ok() { accept_edit = true; return true; }
 };
 
 class Popup_Add_Student_To_Group : public Popup
@@ -249,7 +246,6 @@ private:
 public:
     Popup_Add_Student_To_Group()
     {        
-        activate();
         for (int i = 0; i < all_students->size(); i++)
         {
             if (all_students->at(i).is_removed()) continue;
@@ -262,7 +258,6 @@ public:
     : current_group_id(current_group_id), all_students(all_students), all_groups(all_groups), merged_lesson(merged_lesson)
     {
         IM_ASSERT(!(current_group_id >= all_groups->size() || current_group_id < 0 || merged_lesson < 0));
-        activate();
         for (int i = 0; i < all_students->size(); i++)
         {
             if (all_students->at(i).is_removed()) continue;
@@ -282,3 +277,16 @@ public:
 int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);
 int get_number_of_days(int month, int year);
+
+//to replace with actual algorithms
+template <typename T = int>
+bool is_in_vector(std::vector<T> vector, T to_find)
+{
+    for (int i = 0; i < vector.size(); i++)
+    {
+        if (to_find == vector[i]) return true;
+    }
+    return false;
+};
+
+const char* c_str_int(int num);

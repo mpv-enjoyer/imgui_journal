@@ -197,3 +197,18 @@ bool Calendar_Day::add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson
     }
     return true;
 }
+
+Workout_Info Calendar_Day::get_workout_info(Lesson lesson, int student_id)
+{
+    int wsize = get_workout_size(lesson);
+    for (int i = 0; i < wsize; i++)
+    {
+        if (workouts[lesson.merged_lesson_id][lesson.internal_lesson_id][i].student_id == student_id) 
+        {
+            return workouts[lesson.merged_lesson_id][lesson.internal_lesson_id][i];
+        }
+    }
+    Workout_Info error_info;
+    error_info.student_id = -1;
+    return error_info;
+}
