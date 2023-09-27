@@ -38,7 +38,7 @@
 
 #define DEFAULT_COLUMN_COUNT 5
 #define AGE_GROUP_COUNT      8
-#define MAX_INTERNAL_LESSONS   2
+#define MAX_INTERNAL_LESSONS 2
 
 struct JTime //used separately with ctime.
 {
@@ -226,7 +226,7 @@ class Popup
 private:
     bool accept_edit = false;
 public:
-    Popup() {;};
+    Popup() { };
     bool check_ok() { return accept_edit; }
     bool cancel() { accept_edit = false; return true; }
     bool ok() { accept_edit = true; return true; }
@@ -290,3 +290,22 @@ bool is_in_vector(std::vector<T> vector, T to_find)
 };
 
 const char* c_str_int(int num);
+std::string to_string(JTime value);
+std::string to_string(JTime begin, JTime end);
+std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
+std::string generate_label(const std::string prefix, std::vector<int> unique);
+
+/*
+
+Currently used labels:
+
+ ##combo_attendance
+ O##add_workout_button
+ ##workout_info_radio_tooltip
+ ##fake_radio
+ Добавить ученика##
+ ##dummy1
+ ##dummy2
+ ##
+
+ */

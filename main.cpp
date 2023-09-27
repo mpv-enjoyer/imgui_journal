@@ -532,14 +532,10 @@ int main(int, char**)
                                 ImGui::Combo("##dummy2", &dummy, ".."); ImGui::SameLine(); ImGui::EndDisabled(); continue;
                             }
                             ImGui::EndDisabled();
-
-                            std::string combo_name = "##" + std::to_string(current_merged_lesson) + " "
-                             + std::to_string(current_internal_lesson) + " "
-                             + std::to_string(current_day_cell) + " "
-                             + std::to_string(current_student_id);
                             ImGui::BeginGroup();
+                            std::string combo_attendance_name = generate_label("##combo_attendance", {current_merged_lesson, current_internal_lesson, current_day_cell, current_student_id});
                             if (current_status.status == STATUS_WORKED_OUT) ImGui::Text("OTR");
-                            else if(ImGui::Combo(combo_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
+                            else if(ImGui::Combo(combo_attendance_name.c_str(), &(current_status.status), " \0+\0Б\0-\0О\0\0"))
                             {
                                 if (current_status.status != STATUS_WORKED_OUT)
                                 {
@@ -574,7 +570,8 @@ int main(int, char**)
                 ImGui::TableNextRow();
                 ImGui::TextDisabled(c_str_int(current_group_size + 1));
                 ImGui::TableSetColumnIndex(1);
-                if (ImGui::Button(("Добавить ученика##" + std::to_string(current_merged_lesson)).c_str()))
+                std::string add_student_button_name = generate_label("Добавить ученика##", {current_merged_lesson});
+                if (ImGui::Button(add_student_button_name.c_str()))
                 {
                     popup_add_student_to_group = new Popup_Add_Student_To_Group(current_group, &all_students, &all_groups, current_merged_lesson);
                 }
@@ -592,7 +589,8 @@ int main(int, char**)
                             int current_workout_student_id = all_days[visible_table_columns[current_day_cell]].get_workout_student_id(current_lesson, workout_num);
                             if (!is_in_vector(working_out_students_id, current_workout_student_id)) working_out_students_id.push_back(current_workout_student_id);
                         }
-                        if (ImGui::Button(("O##" + std::to_string(current_merged_lesson) + "+" + std::to_string(current_day_cell)).c_str()))
+                        std::string add_workout_button_name = generate_label("O##add_workout_button", {current_merged_lesson, current_day_cell, current_internal_lesson});
+                        if (ImGui::Button(add_workout_button_name.c_str()))
                         {
                             popup_add_working_out_is_open = true;
                             popup_add_working_out_select = -1;
@@ -620,18 +618,15 @@ int main(int, char**)
                             Workout_Info current_workout_info = all_days[visible_table_columns[current_day_cell]].get_workout_info(current_lesson, working_out_students_id[current_workout_student_id]);
                             if (current_workout_info.student_id == -1) continue;
                             if (current_internal_lesson == 0) first_skipped = false;
-                            if (current_internal_lesson != 0 && first_skipped)
+                            bool create_fake_radio = current_internal_lesson != 0 && first_skipped;
+                            std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {current_day_cell, 1, current_internal_lesson, current_day_cell}).c_str();
+                            if (create_fake_radio)
                             {
-                                ImGui::RadioButton(("##radio" + std::to_string(current_day_cell) + " 0DIS " + std::to_string(current_day_cell)).c_str(), false);
+                                std::string fake_radio_name = generate_label("##fake_radio", {current_day_cell, 0, current_internal_lesson, current_day_cell}).c_str();
+                                ImGui::RadioButton(fake_radio_name.c_str(), false);
                             }
-                            
-                            std::string tooltip;
-                            tooltip.append(std::to_string(current_workout_info.date.tm_mday)); tooltip.append(".");
-                            tooltip.append(std::to_string(current_workout_info.date.tm_mon)); tooltip.append(" , ");
-                            tooltip.append(std::to_string(current_workout_info.lesson_pair.time_begin.hours)); tooltip.append(":");
-                            tooltip.append(std::to_string(current_workout_info.lesson_pair.time_begin.minutes));
-                            ImGui::RadioButton(("##radio" + std::to_string(current_day_cell) + " " + std::to_string(current_internal_lesson) + " " + std::to_string(current_day_cell)).c_str(), true);
-                            ImGui::SetItemTooltip(tooltip.c_str());
+                            ImGui::RadioButton(workout_info_radio_tooltip_name.c_str(), true);
+                            ImGui::SetItemTooltip(to_string(current_workout_info.date, current_workout_info.lesson_pair.time_begin, current_workout_info.lesson_pair.time_end).c_str());
                         }
                     }
                 }
