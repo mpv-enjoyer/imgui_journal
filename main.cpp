@@ -207,6 +207,7 @@ int main(int, char**)
     int popup_add_working_out_mday = -1;
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
+    Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
 
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
@@ -251,19 +252,19 @@ int main(int, char**)
     }
 
     ImGui::Begin("Журнал версии 0.0.1", nullptr, flags);
-
-    if (popup_select_day_of_the_week_is_open && popup_select_day_of_the_week(&popup_select_day_of_the_week_day_of_the_week, &popup_select_day_of_the_week_month))
+    if (popup_select_day_of_the_week)
     {
-        popup_select_day_of_the_week_is_open = false;
-        if (popup_select_day_of_the_week_day_of_the_week != -1 && popup_select_day_of_the_week_month != -1)
+        bool is_done = popup_select_day_of_the_week->show_frame();
+        if (is_done && popup_select_day_of_the_week->check_ok())
         {
-            current_day_of_the_week = popup_select_day_of_the_week_day_of_the_week;
-            current_month = popup_select_day_of_the_week_month;
+            current_day_of_the_week = popup_select_day_of_the_week->get_day_of_the_week();
+            current_month = popup_select_day_of_the_week->get_month();
+            //TODO: here I should update this month's current days num and some other currents probably
         }
+        if (is_done) popup_select_day_of_the_week = nullptr;
     }
 
     int count_visible_days = 0;
-    //int first_visible_day = ((current_time->tm_mday-1) % 7) + 1;
     int first_visible_day = get_first_wday(current_month, current_year, current_day_of_the_week);
     int first_visible_day_copy = first_visible_day;
     std::vector<int> visible_table_columns;
@@ -281,12 +282,9 @@ int main(int, char**)
     if(ImGui::Button("Изменить день"))
     {
         glfwPostEmptyEvent();
-        popup_select_day_of_the_week_day_of_the_week = current_day_of_the_week;
-        popup_select_day_of_the_week_is_open = true;
-        popup_select_day_of_the_week_month = current_month;
+        popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(current_day_of_the_week, current_month, current_year);
     };
     ImGui::SameLine();
-    //ImGui::Button("Редактировать расписание занятий");
     if (ImGui::Button("Добавить урок"))
     {
         popup_add_merged_lesson_to_journal_is_open = true;

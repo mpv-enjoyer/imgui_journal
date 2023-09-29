@@ -40,6 +40,10 @@
 #define AGE_GROUP_COUNT      8
 #define MAX_INTERNAL_LESSONS 2
 
+#define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); ImVec2 center = ImGui::GetMainViewport()->GetCenter(); ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f)); if (ImGui::BeginPopupModal(POPUP_NAME, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+#define POPUP_OK                     { ok(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
+#define POPUP_CANCEL                 { cancel(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
+
 struct JTime //used separately with ctime.
 {
     int hours; //0-23
@@ -213,8 +217,8 @@ static int popup_add_working_out_select_month = -1;
 static int popup_add_working_out_select_year = -1;
 static Lesson popup_add_working_out_select_lesson = {0,0};
 
-bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
-bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
+//bool popup_add_student_to_group(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, int current_group_id, int* selected_to_add);
+//bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month);
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
 bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
@@ -267,10 +271,32 @@ public:
         }
 
     };
-    int get_merged_lesson() { return merged_lesson; };
-    int get_added_student() { return current_selected_student; };
-    int get_current_group_id() { return current_group_id; };
+    int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson; };
+    int get_added_student() { IM_ASSERT(check_ok()); return current_selected_student; };
+    int get_current_group_id() { IM_ASSERT(check_ok()); return current_group_id; };
     bool show_frame();
+    bool is_ok_possible(bool select_visible) { return select_visible && current_selected_student!=-1; }
+};
+
+class Popup_Select_Day_Of_The_Week : public Popup
+{
+private:
+    int day_of_the_week = 0;
+    int month = 0;
+    int year = 0;
+public:
+    Popup_Select_Day_Of_The_Week() {};
+    Popup_Select_Day_Of_The_Week(int current_day_of_the_week, int current_month, int current_year)
+    {
+        day_of_the_week = current_day_of_the_week;
+        month = current_month;
+        year = current_year;
+    }
+    bool show_frame();
+    bool is_ok_possible() { return true; }
+    int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
+    int get_month() { IM_ASSERT(check_ok()); return month; }
+    int get_year() { IM_ASSERT(check_ok()); return 2023; } //TODO: HARDCODED YEAR
 };
 
 //Date & time things
@@ -294,9 +320,9 @@ std::string to_string(JTime value);
 std::string to_string(JTime begin, JTime end);
 std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
 std::string generate_label(const std::string prefix, std::vector<int> unique);
+bool j_button_selectable(const char* label, bool selected);
 
 /*
-
 Currently used labels:
 
  ##combo_attendance
@@ -306,6 +332,6 @@ Currently used labels:
  Добавить ученика##
  ##dummy1
  ##dummy2
- ##
+ Day_Names[i]##change_day_button
 
- */
+*/
