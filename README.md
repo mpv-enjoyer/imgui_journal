@@ -15,3 +15,4 @@ TODO:
 
 BUGS:
 - removed students from groups should not be actually removed (because their attendance dissappears)
+- workout is possible to set for a non-learning student
