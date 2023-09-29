@@ -10,4 +10,10 @@
 /main.o
 /student.o
 /lesson_info.o
-group.o
+/group.o
+/popups.o
+/calendar_day.o
+/helper_functions.o
+/secondary_windows.o
+/journal
+/imgui_stdlib.o

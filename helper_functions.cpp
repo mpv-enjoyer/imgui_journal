@@ -48,14 +48,11 @@ bool j_button_selectable(const char* label, bool selected)
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
     }
-
     bool output = ImGui::Button(label);
-
     if (selected)
     {
         ImGui::PopStyleColor(3);
     }
-
     return output;
 }
 

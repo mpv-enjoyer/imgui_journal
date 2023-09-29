@@ -33,7 +33,6 @@ bool Popup_Add_Student_To_Group::show_frame()
             else
             {
                 std::string next_button_name = generate_label("Выбрать##", { i });
-                ImGui::Button(next_button_name.c_str());
                 if (ImGui::Button(next_button_name.c_str())) current_selected_student = possible_student_ids[i];
             }
             ImGui::SameLine();
@@ -68,46 +67,6 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
-        ImGui::EndPopup();
-    }
-    return false;
-}
-
-bool popup_select_day_of_the_week(int* selected_day_of_the_week, int* selected_month)
-{
-    ImGui::OpenPopup("Выбрать день недели");
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    if (ImGui::BeginPopupModal("Выбрать день недели", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-    {
-        for (int i = 1; i < 7; i++)
-        {
-            std::string button_name = generate_label(Day_Names[i] + "##change_day_button", {});
-            if (j_button_selectable(button_name.c_str(), *selected_day_of_the_week == i)) *selected_day_of_the_week = i;
-            ImGui::SameLine();
-        }
-
-        std::string button_name = generate_label(Day_Names[0] + "##change_day_button", {});
-        if (j_button_selectable(button_name.c_str(), *selected_day_of_the_week)) *selected_day_of_the_week = 0;
-        //for russian-styled calendar
-
-        ImGui::Combo("##Month", selected_month, "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0");
-
-        if (ImGui::Button("OK"))
-        {
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        } 
-        ImGui::SameLine();
-        if (ImGui::Button("Отмена"))
-        {
-            *selected_month = -1;
-            *selected_day_of_the_week = -1;
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        } 
         ImGui::EndPopup();
     }
     return false;

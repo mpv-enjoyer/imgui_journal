@@ -196,9 +196,6 @@ int main(int, char**)
        all_days.push_back(Calendar_Day(&all_lessons[(day_of_the_week_first_in_month + i) % 7], &all_groups, &all_students, (day_of_the_week_first_in_month + i) % 7));
     }
 
-    int popup_select_day_of_the_week_day_of_the_week = -1;
-    int popup_select_day_of_the_week_month = -1;
-    bool popup_select_day_of_the_week_is_open = false;
     bool popup_add_merged_lesson_to_journal_is_open = false;
     bool popup_add_working_out_is_open = false;
     int popup_add_working_out_select = -1;   
