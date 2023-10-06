@@ -4,24 +4,26 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 {
     ImGui::Begin("Список всех учеников", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
 
-    static bool add_student = false;
-    static Student* new_student;
+    static Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
     static bool edit_mode = false;
-    if (ImGui::Button("Добавить ученика##в общий список") || add_student)
+    if (popup_add_student_to_base)
     {
-        if (!add_student)
+        bool result = popup_add_student_to_base->show_frame();
+        if (result && popup_add_student_to_base->check_ok())
         {
-            new_student = new Student();
+            all_students->push_back(popup_add_student_to_base->get_new_student());
         }
-        bool ignore = false;
-        bool result = popup_add_student_to_base(new_student, &ignore, !add_student);
-        add_student = true;
         if (result)
         {
-            add_student = false;
-            if (!ignore) all_students->push_back(*new_student);
+            free(popup_add_student_to_base);
+            popup_add_student_to_base = nullptr;
         }
     }
+
+    if (ImGui::Button("Добавить ученика##в общий список"))
+    {
+        popup_add_student_to_base = new Popup_Add_Student_To_Base();
+    } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))
     {

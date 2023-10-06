@@ -258,7 +258,11 @@ int main(int, char**)
             current_month = popup_select_day_of_the_week->get_month();
             //TODO: here I should update this month's current days num and some other currents probably
         }
-        if (is_done) popup_select_day_of_the_week = nullptr;
+        if (is_done)
+        {
+            free(popup_select_day_of_the_week);
+            popup_select_day_of_the_week = nullptr;
+        }
     }
 
     int count_visible_days = 0;
@@ -319,7 +323,11 @@ int main(int, char**)
                 }
             }
         };
-        if (is_done) popup_add_student_to_group = nullptr;
+        if (is_done) 
+        {
+            free(popup_add_student_to_group);
+            popup_add_student_to_group = nullptr;
+        }
     }
 
     if (popup_add_working_out_is_open)

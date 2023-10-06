@@ -40,6 +40,7 @@
 #define AGE_GROUP_COUNT      8
 #define MAX_INTERNAL_LESSONS 2
 
+#define ONE_LINE(STD_STRINGS)        one_line(STD_STRINGS).c_str()
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); ImVec2 center = ImGui::GetMainViewport()->GetCenter(); ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f)); if (ImGui::BeginPopupModal(POPUP_NAME, NULL, ImGuiWindowFlags_AlwaysAutoResize))
 #define POPUP_OK                     { ok(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
 #define POPUP_CANCEL                 { cancel(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
@@ -57,12 +58,17 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
-const  std::string Lesson_Names[] = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
-const  int         Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
-const  std::string Month_Names[] = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
-const  std::string Day_Names[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
-const  std::string Day_Names_Abbreviated[] = {"Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"};
-const  std::string Age_Group_Names[] = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
+const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
+const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
+const int                      Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
+const std::vector<std::string> Month_Names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
+const char                     Month_Names_Combo[] = "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0";
+const std::vector<std::string> Day_Names = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
+const char                     Day_Names_Combo[] = "Воскресенье\0Понедельник\0Вторник\0Среда\0Четверг\0Пятница\0Суббот\0\0";
+const std::vector<std::string> Day_Names_Abbreviated = {"Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"};
+const char                     Day_Names_Abbreviated_Combo[] = "Вс\0Пн\0Вт\0Ср\0Чт\0Пт\0Сб\n\n";
+const std::vector<std::string> Age_Group_Names = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
+const char                     Age_Group_Names_Combo[] = " 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0";
 
 static void HelpMarker(const char* desc)
 {
@@ -217,7 +223,7 @@ static int popup_add_working_out_select_year = -1;
 static Lesson popup_add_working_out_select_lesson = {0,0};
 
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
+//bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
@@ -294,6 +300,28 @@ public:
     int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
     int get_month() { IM_ASSERT(check_ok()); return month; }
     int get_year() { IM_ASSERT(check_ok()); return 2023; } //TODO: HARDCODED YEAR
+};
+
+class Popup_Add_Student_To_Base : public Popup
+{
+private:
+    std::string name = "";
+    bool is_date_visible = false;
+    int contract = 0;
+    int age_group = 0;
+public:
+    Popup_Add_Student_To_Base() {};
+    bool show_frame();
+    Student get_new_student()
+    {
+        IM_ASSERT(check_ok());
+        Student output;
+        output.set_name(name);
+        output.set_contract(contract);
+        if (is_date_visible) output.set_age_group(age_group);
+        return output;
+    }
+    bool is_ok_possible() { return contract >= 0; }
 };
 
 //Date & time things

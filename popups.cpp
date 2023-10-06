@@ -50,7 +50,7 @@ bool Popup_Add_Student_To_Group::show_frame()
 
 bool Popup_Select_Day_Of_The_Week::show_frame()
 {
-    POPUP_INIT_FRAME("Выбрать день недели");
+    POPUP_INIT_FRAME("Выбрать день недели")
     {
         for (int i = 1; i < 7; i++)
         {
@@ -62,7 +62,7 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
         std::string button_name = generate_label(Day_Names[0] + "##change_day_button", {});
         if (j_button_selectable(button_name.c_str(), day_of_the_week == 0)) day_of_the_week = 0;
 
-        ImGui::Combo("##Month", &month, "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0");
+        ImGui::Combo("##Month", &month, Month_Names_Combo);
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
@@ -72,57 +72,25 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
     return false;
 }
 
-bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input)
+bool Popup_Add_Student_To_Base::show_frame()
 {
-    ImGui::OpenPopup("Добавить ученика в базу");
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    if (ImGui::BeginPopupModal("Добавить ученика в базу", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    POPUP_INIT_FRAME("Добавить ученика в базу")
     {
-        static bool is_date_visible = false;
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        static std::string new_student_name;
-        if (erase_input) new_student_name = "";
-        ImGui::InputText("ФИ ученика", &new_student_name);
-        static int new_student_contract = 0; 
-        if (erase_input) new_student_contract = 0;
-        if (ImGui::InputInt("No договора", &new_student_contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
+        ImGui::InputText("ФИ ученика", &name);
+        if (ImGui::InputInt("No договора", &contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
         {
-            if (new_student_contract < 0) new_student_contract = 0;
-        }
-        static int age_group = 0;
-        if (erase_input) 
-        {
-            age_group = 0;
+            if (contract < 0) contract = 0;
         }
         ImGui::Checkbox("Указать возрастную группу", &is_date_visible);
         if (is_date_visible)
         {
-            ImGui::Combo("##Возрастная группа", &age_group, " 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0");
+            ImGui::Combo("##Возрастная группа", &age_group, Lesson_Names_Combo);
         }
         ImGui::PopStyleColor(1);
-        if (ImGui::Button("OK"))
-        {
-            if (new_student_contract < 0) return false;
-            new_student->set_contract(new_student_contract);
-            new_student->set_name(new_student_name);
-            if (is_date_visible)
-            {
-                new_student->set_age_group(age_group);
-            }
-            *ignore = false;
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        } 
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена"))
-        {
-            *ignore = true;
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        }
+        if (ImGui::Button("Отмена")) POPUP_CANCEL;
         ImGui::EndPopup();
     }
     return false;
@@ -167,7 +135,7 @@ bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_I
         }
         ImGui::EndDisabled();
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        ImGui::Combo("Программа", &new_combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
+        ImGui::Combo("Программа", &new_combo_lesson_name_id, Lesson_Names_Combo);
         for (int i = 0; i < 2; i++)
         {
             if (new_combo_lesson_name_id == 2 || new_combo_lesson_name_id == 3) 
@@ -407,22 +375,27 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
         {
             ImGui::EndDisabled();
         }
-
-        for (int current_merged_lesson = 0; current_merged_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7).size(); current_merged_lesson++)
+        
+        if (select_student_visible && popup_add_working_out_select_day != -1)
         {
-            for (int current_internal_lesson = 0; current_internal_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_lessons_size(); current_internal_lesson++)
+            for (int current_merged_lesson = 0; current_merged_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7).size(); current_merged_lesson++)
             {
-                if (all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].should_attend(*selected_to_add))
+                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                 {
-                    bool checkbox_value = popup_add_working_out_select_lesson.internal_lesson_id == current_internal_lesson && popup_add_working_out_select_lesson.merged_lesson_id == current_merged_lesson;
-                    if (ImGui::Checkbox(all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
+                    if (all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].should_attend(*selected_to_add))
                     {
-                        popup_add_working_out_select_lesson.internal_lesson_id = current_internal_lesson;
-                        popup_add_working_out_select_lesson.merged_lesson_id = current_merged_lesson;
+                        bool checkbox_value = popup_add_working_out_select_lesson.internal_lesson_id == current_internal_lesson && popup_add_working_out_select_lesson.merged_lesson_id == current_merged_lesson;
+                        if (ImGui::Checkbox(all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
+                        {
+                            popup_add_working_out_select_lesson.internal_lesson_id = current_internal_lesson;
+                            popup_add_working_out_select_lesson.merged_lesson_id = current_merged_lesson;
+                        }
                     }
                 }
             }
         }
+
+
         ImGui::EndGroup();
         
 
@@ -431,7 +404,7 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
             lesson_to_workout->lesson_pair = all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[popup_add_working_out_select_lesson.merged_lesson_id].get_lesson_pair(popup_add_working_out_select_lesson.internal_lesson_id);
 
             lesson_to_workout->date = { 0, 0, 0, // second, minute, hour
-            popup_add_working_out_select_day + 1, 8, 2023 - 1900}; // 1-based day, 0-based month, year since 1900 
+            popup_add_working_out_select_day + 1, 9, 2023 - 1900}; // 1-based day, 0-based month, year since 1900 
 
             //TODO: (IMPORTANT) MONTH IS HARD CODED.
 
