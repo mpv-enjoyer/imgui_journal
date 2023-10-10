@@ -1686,6 +1686,7 @@ bool ImGui::BeginCombo(const char* label, const char* preview_value, ImGuiComboF
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
     //const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size : CalcItemWidth();
     const float w = (flags & ImGuiComboFlags_NoPreview) ? arrow_size : arrow_size + CalcTextSize(preview_value, NULL, true).x + style.ItemInnerSpacing.x * 2; //the hack itself
+    //fixed in original engine (need to upgrade later)
     const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
     const ImRect total_bb(bb.Min, bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
     ItemSize(total_bb, style.FramePadding.y);

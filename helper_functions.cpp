@@ -56,6 +56,33 @@ bool j_button_selectable(const char* label, bool selected)
     return output;
 }
 
+bool j_input_time(std::string label, JTime& time)
+{
+    if (ImGui::BeginTable(label.c_str(), 3, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_PreciseWidths | ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX))
+    {
+        ImGui::TableNextColumn();
+        std::string hours_name = generate_label(label, { 0 });
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWW").x);
+        if (ImGui::InputInt(hours_name.c_str(), &(time.hours), 0, 0, ImGuiInputTextFlags_None))
+        {
+            if (time.hours > 23) time.hours = 23;
+            if (time.hours < 0 ) time.hours = 0;
+        }
+        ImGui::TableNextColumn();
+        ImGui::Text(":");
+        ImGui::TableNextColumn();
+        std::string minutes_name = generate_label(label, { 1 });
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWW").x);
+        if (ImGui::InputInt(minutes_name.c_str(), &(time.minutes), 0, 0, ImGuiInputTextFlags_None))
+        {
+            if (time.minutes > 59) time.minutes = 59;
+            if (time.minutes < 0 ) time.minutes = 0;
+        }
+        ImGui::EndTable();
+    }
+    return true;
+}
+
 std::string generate_label(const std::string prefix, std::vector<int> unique)
 {
     std::string output = prefix;
@@ -64,4 +91,43 @@ std::string generate_label(const std::string prefix, std::vector<int> unique)
         output.append("." + std::to_string(unique[i]));
     }
     return output;
+}
+
+bool j_attendance_combo(const char* label, int* status)
+{
+    int dummy = 0;
+    const char* items[] = { " ", "+", "Б", "-" };
+    if (*status == STATUS_WORKED_OUT)
+    {
+        ImGui::BeginDisabled();
+        if (ImGui::BeginCombo("##OTR", "OTP", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
+        ImGui::EndDisabled();
+        return false;
+    }
+    if (*status == STATUS_NOT_AWAITED)
+    {
+        ImGui::BeginDisabled();
+        if (ImGui::BeginCombo("##NAW", "...", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
+        ImGui::EndDisabled();
+        return false;
+    }
+    const char* combo_preview_value = items[*status];  // Pass in the preview value visible before opening the combo (it could be anything)
+    if (ImGui::BeginCombo(label, combo_preview_value))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        {
+            const bool is_selected = (*status == n);
+            if (ImGui::Selectable(items[n], is_selected))
+            {
+                *status = n;
+                ImGui::EndCombo();
+                return true;
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    return false;
 }

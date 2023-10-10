@@ -272,7 +272,6 @@ public:
             possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
-
     };
     int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson; };
     int get_added_student() { IM_ASSERT(check_ok()); return current_selected_student; };
@@ -293,13 +292,13 @@ public:
     {
         day_of_the_week = current_day_of_the_week;
         month = current_month;
-        year = current_year;
+        year = current_year + 1900;
     }
     bool show_frame();
     bool is_ok_possible() { return true; }
     int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
     int get_month() { IM_ASSERT(check_ok()); return month; }
-    int get_year() { IM_ASSERT(check_ok()); return 2023; } //TODO: HARDCODED YEAR
+    int get_year() { IM_ASSERT(check_ok()); return year - 1900; }
 };
 
 class Popup_Add_Student_To_Base : public Popup
@@ -346,7 +345,8 @@ std::string to_string(JTime begin, JTime end);
 std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
 std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected);
-
+bool j_input_time(std::string label, JTime& time);
+bool j_attendance_combo(const char* label, int* status);
 /*
 Currently used labels:
 
