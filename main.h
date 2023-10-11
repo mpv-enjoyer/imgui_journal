@@ -223,7 +223,6 @@ static int popup_add_working_out_select_year = -1;
 static Lesson popup_add_working_out_select_lesson = {0,0};
 
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-//bool popup_add_student_to_base(Student* new_student, bool* ignore, bool erase_input);
 bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
@@ -321,6 +320,17 @@ public:
         return output;
     }
     bool is_ok_possible() { return contract >= 0; }
+};
+
+class Popup_Add_Merged_Lesson_To_Journal : public Popup
+{
+private:
+    int group_number = 0;
+    std::string group_comment;
+    int group_id = -1;
+    int combo_lesson_name_id = 0;
+    Lesson_Pair new_lesson_pairs[];
+    //TODO:
 };
 
 //Date & time things

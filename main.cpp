@@ -374,7 +374,6 @@ int main(int, char**)
         {
             if (!ignore)
             {
-
                 all_groups.push_back(new_group);
                 new_lesson_info.set_group(all_groups.size()-1);
                 all_lessons[current_day_of_the_week].push_back(new_lesson_info);
@@ -505,7 +504,7 @@ int main(int, char**)
                             show_lesson_names.append(Lesson_Names[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id]);
                         }
                     }
-                    if (temp_first) //TODO: hide them entirely if they never were on the lesson
+                    if (temp_first) // This should never happen.
                     {
                         ImGui::BeginDisabled();
                         ImGui::TableSetColumnIndex(3); ImGui::Text("---");
@@ -554,7 +553,7 @@ int main(int, char**)
                                 }
                             }
                             ImGui::EndGroup();
-                            ImGui::SameLine();
+                            ImGui::SameLine(0.0f, 2.0f);
                         }
                         if ((visible_table_columns[current_day_cell] != current_time.tm_mday - MDAY_DIFF) && !edit_mode) ImGui::EndDisabled();
                     }

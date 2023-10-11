@@ -1,16 +1,5 @@
 #include "main.h"
 
-bool validate_time_int(std::string input_string, int awaited_symbols, int upper_limit)
-{
-    if (input_string.size() > awaited_symbols || input_string.size() == 0) return false;
-    for (int i = 0; i < input_string.size(); i++)
-    {
-        if (input_string[i] < '0' || input_string[i] > '9') return false;
-    }
-    if (std::stoi(input_string) >= upper_limit) return false;
-    return true;
-}
-
 bool Popup_Add_Student_To_Group::show_frame()
 {
     POPUP_INIT_FRAME("Добавление ученика в группу")
@@ -315,7 +304,7 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
         ImGui::BeginGroup();
         //calendar
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
-        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableRowFlags_Headers | ImGuiTableFlags_NoHostExtendX))
+        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
@@ -350,6 +339,12 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
                         {
                             popup_add_working_out_select_day = i;
                         }
+                    }
+                    else 
+                    {
+                        ImGui::BeginDisabled();
+                        ImGui::SmallButton(std::to_string(i + 1).c_str());
+                        ImGui::EndDisabled();
                     }
                 }
                 else

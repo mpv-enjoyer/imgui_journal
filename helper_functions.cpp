@@ -56,27 +56,50 @@ bool j_button_selectable(const char* label, bool selected)
     return output;
 }
 
+int validate_time_int(std::string input_string, int upper_limit)
+{
+    if (input_string.size() == 0) return -1;
+    for (int i = 0; i < input_string.size(); i++)
+    {
+        if (input_string[i] < '0' || input_string[i] > '9') return -1;
+    }
+    int output = std::stoi(input_string);
+    if (output >= upper_limit) return upper_limit - 1;
+    if (output < 0) return 0;
+    return output;
+}
+
 bool j_input_time(std::string label, JTime& time)
 {
+    std::string pre_input_buffer;
+    char input_buffer[3];
     if (ImGui::BeginTable(label.c_str(), 3, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_PreciseWidths | ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX))
     {
         ImGui::TableNextColumn();
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
+        pre_input_buffer = std::to_string(time.hours); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
+        strcpy(input_buffer, pre_input_buffer.c_str());
+        //TODO: I don't know whether this strcpy command is safe or not, I've heard complains.
+        //      This might lead to unknown bugs
         std::string hours_name = generate_label(label, { 0 });
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWW").x);
-        if (ImGui::InputInt(hours_name.c_str(), &(time.hours), 0, 0, ImGuiInputTextFlags_None))
+        if (ImGui::InputText(hours_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
-            if (time.hours > 23) time.hours = 23;
-            if (time.hours < 0 ) time.hours = 0;
+            int new_hours = validate_time_int(std::string(input_buffer), 24);
+            if (new_hours != -1) time.hours = new_hours;
         }
         ImGui::TableNextColumn();
         ImGui::Text(":");
         ImGui::TableNextColumn();
+        ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
+        pre_input_buffer = std::to_string(time.minutes); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
+        strcpy(input_buffer, pre_input_buffer.c_str());
+        //TODO: I don't know whether this strcpy command is safe or not, I've heard complains.
+        //      This might lead to unknown bugs
         std::string minutes_name = generate_label(label, { 1 });
-        ImGui::SetNextItemWidth(ImGui::CalcTextSize("WWWW").x);
-        if (ImGui::InputInt(minutes_name.c_str(), &(time.minutes), 0, 0, ImGuiInputTextFlags_None))
+        if (ImGui::InputText(minutes_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
-            if (time.minutes > 59) time.minutes = 59;
-            if (time.minutes < 0 ) time.minutes = 0;
+            int new_minutes = validate_time_int(std::string(input_buffer), 60);
+            if (new_minutes != -1) time.minutes = new_minutes;
         }
         ImGui::EndTable();
     }
