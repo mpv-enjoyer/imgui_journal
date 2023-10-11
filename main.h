@@ -34,11 +34,11 @@
 #define STATUS_SKIPPED      3
 #define STATUS_WORKED_OUT   4
 
-#define MDAY_DIFF           1
-
+#define MDAY_DIFF            1
 #define DEFAULT_COLUMN_COUNT 5
 #define AGE_GROUP_COUNT      8
 #define MAX_INTERNAL_LESSONS 2
+#define SUBCOLUMN_WIDTH_PXLS 30
 
 #define ONE_LINE(STD_STRINGS)        one_line(STD_STRINGS).c_str()
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); ImVec2 center = ImGui::GetMainViewport()->GetCenter(); ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f)); if (ImGui::BeginPopupModal(POPUP_NAME, NULL, ImGuiWindowFlags_AlwaysAutoResize))
@@ -357,6 +357,7 @@ std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected);
 bool j_input_time(std::string label, JTime& time);
 bool j_attendance_combo(const char* label, int* status);
+
 /*
 Currently used labels:
 

@@ -288,7 +288,7 @@ int main(int, char**)
         popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(current_day_of_the_week, current_month, current_year);
     };
     ImGui::SameLine();
-    if (ImGui::Button("Добавить урок"))
+    if (ImGui::Button("Добавить группу"))
     {
         popup_add_merged_lesson_to_journal_is_open = true;
     }

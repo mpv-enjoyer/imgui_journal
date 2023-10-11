@@ -118,6 +118,7 @@ std::string generate_label(const std::string prefix, std::vector<int> unique)
 
 bool j_attendance_combo(const char* label, int* status)
 {
+    ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
     int dummy = 0;
     const char* items[] = { " ", "+", "Б", "-" };
     if (*status == STATUS_WORKED_OUT)
