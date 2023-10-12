@@ -156,14 +156,14 @@ int main(int, char**)
     all_groups[0].add_student(2);
     all_groups[0].add_student(3);
     all_groups[0].set_number(7);
-    all_groups[0].set_day_of_the_week(2);
+    all_groups[0].set_day_of_the_week(4);
     all_groups.push_back(Group(&all_students));
     //all_groups[1].add_student(0);
     //all_groups[1].add_student(3);
     all_groups[1].set_number(2);
-    all_groups[1].set_day_of_the_week(1);
+    all_groups[1].set_day_of_the_week(4);
     all_groups[1].set_comment("дошкольники");
-    all_groups[1].set_day_of_the_week(2);
+    all_groups[1].set_day_of_the_week(4);
     Lesson_Info temp_lesson = Lesson_Info(&all_groups);
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;
@@ -175,7 +175,7 @@ int main(int, char**)
     temp_lesson_pair.time_end = temp_end;
     temp_lesson.set_group(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
-    all_lessons[3].push_back(temp_lesson);
+    all_lessons[4].push_back(temp_lesson);
 
     temp_lesson_pair.lesson_name_id = 0;
     temp_begin.hours = 11; temp_begin.minutes = 10;
@@ -185,7 +185,7 @@ int main(int, char**)
     temp_lesson.delete_lesson_pair(0);
     temp_lesson.add_lesson_pair(temp_lesson_pair);
     temp_lesson.set_group(1);
-    all_lessons[3].push_back(temp_lesson);
+    all_lessons[4].push_back(temp_lesson);
 
     //Lesson ignored_ = {1,0};
     //all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
@@ -197,7 +197,6 @@ int main(int, char**)
     }
     bool selected_foreign_month = false;
 
-    bool popup_add_merged_lesson_to_journal_is_open = false;
     bool popup_add_working_out_is_open = false;
     int popup_add_working_out_select = -1;   
     int popup_add_working_out_merged_lesson = -1;
@@ -206,6 +205,7 @@ int main(int, char**)
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
+    Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
 
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
@@ -258,7 +258,7 @@ int main(int, char**)
             current_day_of_the_week = popup_select_day_of_the_week->get_day_of_the_week();
             current_month = popup_select_day_of_the_week->get_month();
             current_year = popup_select_day_of_the_week->get_year();
-            //TODO: here I should update this month's current days num and some other currents probably
+            //TODO: here I should update some other currents probably
         }
         if (is_done)
         {
@@ -290,7 +290,7 @@ int main(int, char**)
     ImGui::SameLine();
     if (ImGui::Button("Добавить группу"))
     {
-        popup_add_merged_lesson_to_journal_is_open = true;
+        popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(all_groups, current_day_of_the_week);
     }
     ImGui::SameLine();
     if(ImGui::Button("Список учеников") )
@@ -364,29 +364,17 @@ int main(int, char**)
         }
     }
 
-    if (popup_add_merged_lesson_to_journal_is_open) //Possible problems when working with previous months
+    if (popup_add_merged_lesson_to_journal)
     {
-        Lesson_Info new_lesson_info = Lesson_Info(&all_groups);
-        Group new_group = Group(&all_students);
-        new_group.set_number(-1);
-        bool ignore = false;
-        if (popup_add_merged_lesson_to_journal(&all_groups, &new_lesson_info, &new_group, current_day_of_the_week, &ignore, false))
+        bool is_done = popup_add_merged_lesson_to_journal->show_frame();
+        if (is_done && popup_add_merged_lesson_to_journal->check_ok())
         {
-            if (!ignore)
-            {
-                all_groups.push_back(new_group);
-                new_lesson_info.set_group(all_groups.size()-1);
-                all_lessons[current_day_of_the_week].push_back(new_lesson_info);
-                all_lessons[current_day_of_the_week][all_lessons[current_day_of_the_week].size() - 1].set_group(all_groups.size() - 1);
-                int new_lesson_id = all_lessons[current_day_of_the_week].size() - 1;
-                for (int i = 0; i < count_visible_days; i++)
-                {
-                    bool await_no_one = false;
-                    if (current_time.tm_mday >= visible_table_columns[i]) await_no_one = true;
-                    all_days[visible_table_columns[i]].add_merged_lesson(current_day_of_the_week, new_lesson_info, await_no_one, all_lessons[current_day_of_the_week].size()-1);
-                }
-            }
-            popup_add_merged_lesson_to_journal_is_open = false;
+            popup_add_merged_lesson_to_journal->accept_changes(&all_groups, &all_students, &all_lessons, &all_days, visible_table_columns, current_time.tm_mday);
+        }
+        if (is_done)
+        {
+            free(popup_add_merged_lesson_to_journal);
+            popup_add_merged_lesson_to_journal = nullptr;
         }
     }
 

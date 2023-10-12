@@ -139,9 +139,9 @@ private:
     std::vector<int> deleted_students_sort_by_id;
 public:
     Group(std::vector<Student>* students_list);
-    int get_size();
-    int get_number(); bool set_number(int new_number);
-    int get_day_of_the_week();
+    int get_size() const;
+    int get_number() const; bool set_number(int new_number);
+    int get_day_of_the_week() const;
     bool set_day_of_the_week(int new_day);
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
     std::string get_comment(); bool set_comment(std::string new_comment);
@@ -223,7 +223,6 @@ static int popup_add_working_out_select_year = -1;
 static Lesson popup_add_working_out_select_lesson = {0,0};
 
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
 
@@ -325,12 +324,34 @@ public:
 class Popup_Add_Merged_Lesson_To_Journal : public Popup
 {
 private:
+    int day_of_the_week;
+    const std::vector<Group>& all_groups;
     int group_number = 0;
     std::string group_comment;
-    int group_id = -1;
     int combo_lesson_name_id = 0;
-    Lesson_Pair new_lesson_pairs[];
-    //TODO:
+    std::vector<Lesson_Pair> lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
+public:
+    Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group>& all_groups, int current_day_of_the_week)
+    : all_groups(all_groups), day_of_the_week(current_day_of_the_week) {}; 
+    bool show_frame();
+    bool is_ok_possible()
+    {
+        for (int i = 0; i < all_groups.size(); i++)
+        {
+            if (all_groups[i].get_number() == group_number && all_groups[i].get_day_of_the_week() == day_of_the_week) return false;
+        }
+        if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3)
+        {
+            bool insane_time = false;
+            insane_time = insane_time || lesson_pairs[0].time_begin >= lesson_pairs[0].time_end;
+            insane_time = insane_time || lesson_pairs[0].time_end > lesson_pairs[1].time_begin;
+            insane_time = insane_time || lesson_pairs[1].time_begin >= lesson_pairs[1].time_end;
+            return !insane_time;
+        }
+        else return lesson_pairs[0].time_begin < lesson_pairs[0].time_end;
+    };
+    void accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
+    std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday);
 };
 
 //Date & time things

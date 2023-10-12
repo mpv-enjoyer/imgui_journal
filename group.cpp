@@ -5,7 +5,7 @@ int Group::get_student_sort_id(int student)
     return students_sort_by_id[student];
 }
 
-int Group::get_number()
+int Group::get_number() const
 {
     return group_info.number;
 }
@@ -16,12 +16,12 @@ bool Group::set_number(int new_number)
     return true;
 }
 
-int Group::get_size()
+int Group::get_size() const
 {
     return students_sort_by_id.size();
 }
 
-int Group::get_day_of_the_week()
+int Group::get_day_of_the_week() const
 {
     return group_info.day_of_the_week;
 }

@@ -76,7 +76,7 @@ bool Popup_Add_Student_To_Base::show_frame()
         ImGui::Checkbox("Указать возрастную группу", &is_date_visible);
         if (is_date_visible)
         {
-            ImGui::Combo("##Возрастная группа", &age_group, Lesson_Names_Combo);
+            ImGui::Combo("##Возрастная группа", &age_group, Age_Group_Names_Combo);
         }
         ImGui::PopStyleColor(1);
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
@@ -87,114 +87,80 @@ bool Popup_Add_Student_To_Base::show_frame()
     return false;
 }
 
-bool popup_add_merged_lesson_to_journal(std::vector<Group>* all_groups, Lesson_Info* new_lesson_info, Group* new_group, int current_day_of_the_week, bool* ignore, bool erase_input)
+
+
+bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 {
-    ImGui::OpenPopup(("Добавить группу на " + Day_Names[current_day_of_the_week]).c_str());
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    static Lesson_Pair new_lesson_pairs[] = {{0,0,0}, {0,0,0}};
-    std::string time_buffer;
-
-    if (ImGui::BeginPopupModal(("Добавить группу на " + Day_Names[current_day_of_the_week]).c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    POPUP_INIT_FRAME(("Добавить группу на " + Day_Names[day_of_the_week]).c_str())
     {
-        static int new_group_number = 0;
-        static std::string new_group_comment;
-        static int new_lesson_group_id = -1;
-        static int new_combo_lesson_name_id = 0;
-        if (erase_input)
-        {
-            new_lesson_group_id = -1;
-            new_combo_lesson_name_id = 0;
-            new_lesson_pairs[0] = {0,0,0};
-            new_lesson_pairs[1] = {0,0,0};
-        }
-        std::string preview_value = "";
-        if (new_lesson_group_id != -1) preview_value = all_groups->at(new_lesson_group_id).get_description();
-
-        ImGui::BeginDisabled();
-        if (ImGui::BeginCombo("Группа", preview_value.c_str()))
-        {
-            for (int n = 0; n < all_groups->size(); n++)
-            {
-                const bool is_selected = (new_lesson_group_id == n);
-                if (ImGui::Selectable(all_groups->at(n).get_description().c_str(), is_selected))
-                    new_lesson_group_id = n;
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-        ImGui::EndDisabled();
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        ImGui::Combo("Программа", &new_combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
+        ImGui::Combo("Программа", &combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
         for (int i = 0; i < 2; i++)
         {
-            if (new_combo_lesson_name_id == 2 || new_combo_lesson_name_id == 3) 
+            if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3) 
             {
                 std::string lesson_name;
-                if (i == 0) lesson_name = Lesson_Names[new_combo_lesson_name_id - 2];
-                else lesson_name = Lesson_Names[3 - new_combo_lesson_name_id]; //mirrored
+                if (i == 0) lesson_name = Lesson_Names[combo_lesson_name_id - 2];
+                else lesson_name = Lesson_Names[3 - combo_lesson_name_id]; //mirrored
                 ImGui::Text("%i. %s", i, lesson_name.c_str());
             }
             else if (i == 1) break; 
             ImGui::PushID(i);
-            j_input_time("##LessonBegin", new_lesson_pairs[i].time_begin);
+            j_input_time("##LessonBegin", lesson_pairs[i].time_begin);
             ImGui::SameLine();
             ImGui::Text(" _ ");
             ImGui::SameLine();
-            j_input_time("##LessonEnd", new_lesson_pairs[i].time_end);
+            j_input_time("##LessonEnd", lesson_pairs[i].time_end);
             ImGui::PopID();
         }
         ImGui::SeparatorText("Данные новой группы");
-        if (ImGui::InputInt("Номер", &new_group_number))
+        if (ImGui::InputInt("Номер", &group_number))
         {
-            if (new_group_number < 0) new_group_number = 0;
+            if (group_number < 0) group_number = 0;
         };
-        ImGui::InputText("Описание", &new_group_comment);
+        ImGui::InputText("Описание", &group_comment);
         ImGui::PopStyleColor();
 
-        if (ImGui::Button("OK"))
-        {
-            *ignore = false;
-            new_group->set_number(new_group_number);
-            new_group->set_day_of_the_week(current_day_of_the_week);
-            new_group->set_comment(new_group_comment);
-            int current_pair_name_id = new_combo_lesson_name_id;
-            if (new_combo_lesson_name_id >= 2) current_pair_name_id -= 2;
-            new_lesson_pairs[0].lesson_name_id = current_pair_name_id;
-            new_lesson_info->add_lesson_pair(new_lesson_pairs[0]);
-            if (new_lesson_pairs[0].time_begin >= new_lesson_pairs[0].time_end || (new_lesson_pairs[1].time_begin >= new_lesson_pairs[1].time_end && (new_combo_lesson_name_id == 2 || new_combo_lesson_name_id == 3))) 
-            //TODO: this.
-            {
-                ImGui::EndPopup();
-                return false;
-            }
-            //new_lesson_info->set_group(new_lesson_group_id);
-            if (new_combo_lesson_name_id == 2)
-            {
-                new_lesson_pairs[1].lesson_name_id = 1;
-                new_lesson_info->add_lesson_pair(new_lesson_pairs[1]);
-            } 
-            if (new_combo_lesson_name_id == 3)
-            {
-                new_lesson_pairs[1].lesson_name_id = 0;
-                new_lesson_info->add_lesson_pair(new_lesson_pairs[1]);
-            } 
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        } 
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
         ImGui::SameLine();
-        if (ImGui::Button("Отмена"))
-        {
-            *ignore = true;
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        }
+        if (ImGui::Button("Отмена")) POPUP_CANCEL;
         ImGui::EndPopup();
     }
     return false;
+}
+
+void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
+    std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday)
+{
+    Lesson_Info lesson_info = Lesson_Info(all_groups);
+    Group new_group = Group(all_students);
+    new_group.set_number(group_number);
+    new_group.set_day_of_the_week(day_of_the_week);
+    new_group.set_comment(group_comment);
+    int current_pair_name_id = combo_lesson_name_id;
+    if (combo_lesson_name_id >= 2) current_pair_name_id -= 2;
+    lesson_pairs[0].lesson_name_id = current_pair_name_id;
+    lesson_info.add_lesson_pair(lesson_pairs[0]);
+    if (combo_lesson_name_id == 2)
+    {
+        lesson_pairs[1].lesson_name_id = 1;
+        lesson_info.add_lesson_pair(lesson_pairs[1]);
+    } 
+    if (combo_lesson_name_id == 3)
+    {
+        lesson_pairs[1].lesson_name_id = 0;
+        lesson_info.add_lesson_pair(lesson_pairs[1]);
+    } 
+    all_groups->push_back(new_group);
+    lesson_info.set_group(all_groups->size()-1);
+    (*all_lessons)[day_of_the_week].push_back(lesson_info);
+    (*all_lessons)[day_of_the_week][all_lessons[day_of_the_week].size() - 1].set_group(all_groups->size() - 1);
+    for (int i = 0; i < visible_table_columns.size(); i++)
+    {
+        bool await_no_one = false;
+        if (current_mday >= visible_table_columns[i]) await_no_one = true;
+        (*all_days)[visible_table_columns[i]].add_merged_lesson(day_of_the_week, lesson_info, await_no_one, all_lessons[day_of_the_week].size() - 1);
+    }
 }
 
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore)
