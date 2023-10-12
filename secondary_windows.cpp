@@ -6,12 +6,13 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 
     static Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
     static bool edit_mode = false;
+    
     if (popup_add_student_to_base)
     {
-        bool result = popup_add_student_to_base->show_frame();
+        const bool result = popup_add_student_to_base->show_frame();
         if (result && popup_add_student_to_base->check_ok())
         {
-            all_students->push_back(popup_add_student_to_base->get_new_student());
+            popup_add_student_to_base->accept_changes(*all_students);
         }
         if (result)
         {

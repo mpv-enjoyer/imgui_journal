@@ -37,6 +37,25 @@ bool Popup_Add_Student_To_Group::show_frame()
     return false;
 }
 
+void Popup_Add_Student_To_Group::accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
+    std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week)
+{
+    int current_group = get_current_group_id();
+    int current_merged_lesson = get_merged_lesson();
+    int new_student_id = (*all_groups)[current_group].add_student(get_added_student());
+    for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
+    {
+        all_days[visible_table_columns[current_day_cell]].add_student_to_group(current_group, get_added_student(), new_student_id);
+        for (int internal_lesson_id = 0; internal_lesson_id < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); internal_lesson_id++)
+        {
+            Lesson current_lesson = {current_merged_lesson, internal_lesson_id};
+            int status = STATUS_NO_DATA;
+            if (visible_table_columns[current_day_cell] < current_mday - MDAY_DIFF) status = STATUS_NOT_AWAITED;
+            all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, get_added_student(), status);
+        }
+    }
+}
+
 bool Popup_Select_Day_Of_The_Week::show_frame()
 {
     POPUP_INIT_FRAME("Выбрать день недели")
@@ -50,17 +69,24 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
         //now for russian-styled calendar
         std::string button_name = generate_label(Day_Names[0] + "##change_day_button", {});
         if (j_button_selectable(button_name.c_str(), day_of_the_week == 0)) day_of_the_week = 0;
-
         ImGui::Combo("##Month", &month, Month_Names_Combo);
         ImGui::SameLine();
         ImGui::InputInt("##Year", &year, 0, 0);
-
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
         ImGui::EndPopup();
     }
     return false;
+}
+
+void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week, int& current_month, int& current_year)
+{
+    current_day_of_the_week = get_day_of_the_week();
+    current_month = get_month();
+    current_year = get_year();
+    //current month days num is unsynced
+    //...
 }
 
 bool Popup_Add_Student_To_Base::show_frame()
@@ -87,7 +113,15 @@ bool Popup_Add_Student_To_Base::show_frame()
     return false;
 }
 
-
+void Popup_Add_Student_To_Base::accept_changes(std::vector<Student>& all_students)
+{
+    IM_ASSERT(check_ok());
+    Student output;
+    output.set_name(name);
+    output.set_contract(contract);
+    if (is_date_visible) output.set_age_group(age_group);
+    all_students.push_back(output);
+}
 
 bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 {
@@ -132,6 +166,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
     std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday)
 {
+    IM_ASSERT(check_ok());
     Lesson_Info lesson_info = Lesson_Info(all_groups);
     Group new_group = Group(all_students);
     new_group.set_number(group_number);

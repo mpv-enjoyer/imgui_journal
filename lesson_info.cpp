@@ -15,7 +15,7 @@ Lesson_Pair Lesson_Info::get_lesson_pair(int id)
     return lesson_pairs[id];
 }
 
-int Lesson_Info::get_lessons_size()
+int Lesson_Info::get_lessons_size() const
 {
     return lesson_pairs.size();
 }

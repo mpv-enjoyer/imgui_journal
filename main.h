@@ -162,7 +162,7 @@ public:
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool remove();
     bool should_attend(int student);
-    int get_lessons_size();
+    int get_lessons_size() const;
     std::string get_description(int current_internal_lesson = -1);
 };
 
@@ -276,6 +276,8 @@ public:
     int get_current_group_id() { IM_ASSERT(check_ok()); return current_group_id; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) { return select_visible && current_selected_student!=-1; }
+    void accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
+        std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week);
 };
 
 class Popup_Select_Day_Of_The_Week : public Popup
@@ -297,6 +299,7 @@ public:
     int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
     int get_month() { IM_ASSERT(check_ok()); return month; }
     int get_year() { IM_ASSERT(check_ok()); return year - 1900; }
+    void accept_changes(int& current_day_of_the_week, int& current_month, int& current_year); //TODO: here I should update some other currents
 };
 
 class Popup_Add_Student_To_Base : public Popup
@@ -309,16 +312,8 @@ private:
 public:
     Popup_Add_Student_To_Base() {};
     bool show_frame();
-    Student get_new_student()
-    {
-        IM_ASSERT(check_ok());
-        Student output;
-        output.set_name(name);
-        output.set_contract(contract);
-        if (is_date_visible) output.set_age_group(age_group);
-        return output;
-    }
     bool is_ok_possible() { return contract >= 0; }
+    void accept_changes(std::vector<Student>& all_students);
 };
 
 class Popup_Add_Merged_Lesson_To_Journal : public Popup

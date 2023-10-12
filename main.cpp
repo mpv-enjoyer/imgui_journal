@@ -255,10 +255,7 @@ int main(int, char**)
         bool is_done = popup_select_day_of_the_week->show_frame();
         if (is_done && popup_select_day_of_the_week->check_ok())
         {
-            current_day_of_the_week = popup_select_day_of_the_week->get_day_of_the_week();
-            current_month = popup_select_day_of_the_week->get_month();
-            current_year = popup_select_day_of_the_week->get_year();
-            //TODO: here I should update some other currents probably
+            popup_select_day_of_the_week->accept_changes(current_day_of_the_week, current_month, current_year);
         }
         if (is_done)
         {
@@ -310,20 +307,7 @@ int main(int, char**)
         bool is_done = popup_add_student_to_group->show_frame();
         if (is_done && popup_add_student_to_group->check_ok())
         {
-            int current_group = popup_add_student_to_group->get_current_group_id();
-            int current_merged_lesson = popup_add_student_to_group->get_merged_lesson();
-            int new_student_id = all_groups[all_lessons[current_day_of_the_week][current_merged_lesson].get_group()].add_student(popup_add_student_to_group->get_added_student());
-            for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
-            {
-                all_days[visible_table_columns[current_day_cell]].add_student_to_group(all_lessons[current_day_of_the_week][current_merged_lesson].get_group(), popup_add_student_to_group->get_added_student(), new_student_id);
-                for (int internal_lesson_id = 0; internal_lesson_id < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); internal_lesson_id++)
-                {
-                    Lesson current_lesson = {current_merged_lesson, internal_lesson_id};
-                    int status = STATUS_NO_DATA;
-                    if (visible_table_columns[current_day_cell] < current_time.tm_mday - MDAY_DIFF) status = STATUS_NOT_AWAITED;
-                    all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, popup_add_student_to_group->get_added_student(), status);
-                }
-            }
+            popup_add_student_to_group->accept_changes(all_lessons, all_days, current_time.tm_mday, visible_table_columns, current_day_of_the_week);
         };
         if (is_done) 
         {
