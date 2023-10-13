@@ -1,4 +1,5 @@
-#include "main.h"
+#include "popups.h"
+#include "helper_functions.h"
 
 bool Popup_Add_Student_To_Group::show_frame()
 {
@@ -249,50 +250,34 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
     return false;
 }
 
-bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons,
-int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout)
+bool Popup_Add_Working_Out::show_frame()
 {
-    ImGui::OpenPopup("Добавление отработки");
-    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    std::vector<std::string> possible_student_descriptions;
-    std::vector<int> possible_student_ids;
-    for (int i = 0; i < all_students->size(); i++)
+    if (possible_student_ids.size() == 0)
     {
-        if (all_students->at(i).is_removed()) continue;
-        if (all_groups->at(current_group_id).is_in_group(i)) continue;
-        possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
-        possible_student_ids.push_back(i);
+        cancel();
+        return false;
     }
-    if (possible_student_ids.size() == 0) 
-    {
-        *selected_to_add = -1;
-        return true;
-    }
-    if (ImGui::BeginPopupModal("Добавление отработки", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    POPUP_INIT_FRAME("Добавление отработки")
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        popup_add_working_out_filter.Draw("Поиск по ученикам");
+        filter.Draw("Поиск по ученикам");
         ImGui::PopStyleColor(1);
         bool select_student_visible = false;
         ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
-            if (!popup_add_working_out_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
-            if (*selected_to_add == possible_student_ids[i])
+            if (!filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
+            if (select_student == possible_student_ids[i])
             {
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
-                ImGui::Button(("Выбран.##"+std::to_string(i)).c_str());
-                ImGui::PopStyleColor(3);
+                std::string student_button_name = generate_label("Выбран.##", { i });
+                j_button_selectable(student_button_name.c_str(), true);
                 select_student_visible = true;
             }
             else
             {
-                if (ImGui::Button(("Выбрать##"+std::to_string(i)).c_str())) *selected_to_add = possible_student_ids[i];
+                std::string student_button_name = generate_label("Выбрать##", { i });
+                if (ImGui::Button(student_button_name.c_str())) select_student = possible_student_ids[i];
             }
-
             ImGui::SameLine();
             ImGui::Text(possible_student_descriptions[i].c_str());
         }
@@ -316,41 +301,37 @@ int current_group_id, int* selected_to_add, int first_mwday, int number_of_days,
                 ImGui::TableNextColumn();
             }
             ImGui::TableSetColumnIndex(first_mwday_ru);
-            for (int i = 0; i < number_of_days; i++)
+            for (int i = 0; i < count_mday; i++)
             {
                 if (select_student_visible)
                 {
                     bool should_attend = false;
-                    for (int j = 0; j < all_lessons->at((first_mwday + i) % 7).size(); j++)
+                    for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
                     {
-                        should_attend = should_attend || all_lessons->at((first_mwday + i) % 7)[j].should_attend(*selected_to_add);
+                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j].should_attend(select_student);
                     }
                     if (should_attend) 
                     {
-                        if (popup_add_working_out_select_day == i)
+                        if (select_day == i)
                         {
-                            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
-                            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
-                            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
-                            if (ImGui::SmallButton(std::to_string(i + 1).c_str())) popup_add_working_out_select_day = -1;
-                            ImGui::PopStyleColor(3);
+                            if (j_button_selectable(c_str_int(i + 1), true, true)) select_day = -1;
                         }
                         else 
-                        if (ImGui::SmallButton(std::to_string(i + 1).c_str()))
+                        if (ImGui::SmallButton(c_str_int(i + 1)))
                         {
-                            popup_add_working_out_select_day = i;
+                            select_day = i;
                         }
                     }
                     else 
                     {
                         ImGui::BeginDisabled();
-                        ImGui::SmallButton(std::to_string(i + 1).c_str());
+                        ImGui::SmallButton(c_str_int(i + 1));
                         ImGui::EndDisabled();
                     }
                 }
                 else
                 {
-                    ImGui::SmallButton(std::to_string(i + 1).c_str());
+                    ImGui::SmallButton(c_str_int(i + 1));
                 }
                 ImGui::TableNextColumn();
             }

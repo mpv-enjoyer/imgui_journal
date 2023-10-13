@@ -1,11 +1,11 @@
 #include "main.h"
 
-int Student::get_contract() 
+int Student::get_contract() const
 {
     return contract;
 }
 
-std::string Student::get_name()
+std::string Student::get_name() const
 {
     return name;
 }
@@ -56,7 +56,7 @@ bool Student::delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week)
     return false;
 }
 
-bool Student::is_removed()
+bool Student::is_removed() const
 {
     return removed;
 }

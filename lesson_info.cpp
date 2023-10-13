@@ -49,7 +49,7 @@ bool Lesson_Info::delete_lesson_pair(int id)
     return true;
 }
 
-bool Lesson_Info::should_attend(int student)
+bool Lesson_Info::should_attend(int student) const
 {
     return all_groups->at(group).is_in_group(student);
 }

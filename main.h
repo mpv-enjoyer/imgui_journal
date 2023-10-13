@@ -1,3 +1,4 @@
+#pragma once
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -70,18 +71,6 @@ const char                     Day_Names_Abbreviated_Combo[] = "Вс\0Пн\0Вт
 const std::vector<std::string> Age_Group_Names = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
 const char                     Age_Group_Names_Combo[] = " 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0";
 
-static void HelpMarker(const char* desc)
-{
-    ImGui::TextDisabled("(?)");
-    if (ImGui::BeginItemTooltip())
-    {
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(desc);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
-}
-
 struct Group_Pair
 {
     int day_of_the_week;
@@ -120,12 +109,12 @@ private:
     std::vector<Lesson_Full> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
 public:
     Student();
-    int get_contract(); bool set_contract(int new_contract);
-    std::string get_name(); bool set_name(std::string new_name);
+    int get_contract() const; bool set_contract(int new_contract);
+    std::string get_name() const; bool set_name(std::string new_name);
     int get_age_group(); std::string get_age_group_string(); bool set_age_group(int new_age_group);
     bool is_ignored(Lesson lesson, int lesson_day_of_the_week); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
     int get_lessons_size();
-    bool is_removed(); bool remove(); bool restore();
+    bool is_removed() const; bool remove(); bool restore();
 };
 
 class Group
@@ -146,7 +135,7 @@ public:
     int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
-    bool is_in_group(int student);
+    bool is_in_group(int student) const;
 };
 
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
@@ -161,7 +150,7 @@ public:
     int get_group(); bool set_group(int new_group_id);
     Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool remove();
-    bool should_attend(int student);
+    bool should_attend(int student) const;
     int get_lessons_size() const;
     std::string get_description(int current_internal_lesson = -1);
 };
@@ -226,155 +215,8 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
 
-class Popup
-{
-private:
-    bool accept_edit = false;
-public:
-    Popup() { };
-    bool check_ok() { return accept_edit; }
-    bool cancel() { accept_edit = false; return true; }
-    bool ok() { accept_edit = true; return true; }
-};
-
-class Popup_Add_Student_To_Group : public Popup
-{
-private:
-    int current_group_id = -1;
-    int merged_lesson = -1;
-    int current_selected_student = -1;
-    ImGuiTextFilter text_filter;
-    std::vector<Student>* all_students = nullptr;
-    std::vector<Group>* all_groups = nullptr;
-    std::vector<std::string> possible_student_descriptions;
-    std::vector<int> possible_student_ids;
-public:
-    Popup_Add_Student_To_Group()
-    {        
-        for (int i = 0; i < all_students->size(); i++)
-        {
-            if (all_students->at(i).is_removed()) continue;
-            if (all_groups->at(current_group_id).is_in_group(i)) continue;
-            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
-            possible_student_ids.push_back(i);
-        }
-    };
-    Popup_Add_Student_To_Group(int current_group_id, std::vector<Student>* all_students, std::vector<Group>* all_groups, int merged_lesson) 
-    : current_group_id(current_group_id), all_students(all_students), all_groups(all_groups), merged_lesson(merged_lesson)
-    {
-        IM_ASSERT(!(current_group_id >= all_groups->size() || current_group_id < 0 || merged_lesson < 0));
-        for (int i = 0; i < all_students->size(); i++)
-        {
-            if (all_students->at(i).is_removed()) continue;
-            if (all_groups->at(current_group_id).is_in_group(i)) continue;
-            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
-            possible_student_ids.push_back(i);
-        }
-    };
-    int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson; };
-    int get_added_student() { IM_ASSERT(check_ok()); return current_selected_student; };
-    int get_current_group_id() { IM_ASSERT(check_ok()); return current_group_id; };
-    bool show_frame();
-    bool is_ok_possible(bool select_visible) { return select_visible && current_selected_student!=-1; }
-    void accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
-        std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week);
-};
-
-class Popup_Select_Day_Of_The_Week : public Popup
-{
-private:
-    int day_of_the_week = 0;
-    int month = 0;
-    int year = 0;
-public:
-    Popup_Select_Day_Of_The_Week() {};
-    Popup_Select_Day_Of_The_Week(int current_day_of_the_week, int current_month, int current_year)
-    {
-        day_of_the_week = current_day_of_the_week;
-        month = current_month;
-        year = current_year + 1900;
-    }
-    bool show_frame();
-    bool is_ok_possible() { return true; }
-    int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
-    int get_month() { IM_ASSERT(check_ok()); return month; }
-    int get_year() { IM_ASSERT(check_ok()); return year - 1900; }
-    void accept_changes(int& current_day_of_the_week, int& current_month, int& current_year); //TODO: here I should update some other currents
-};
-
-class Popup_Add_Student_To_Base : public Popup
-{
-private:
-    std::string name = "";
-    bool is_date_visible = false;
-    int contract = 0;
-    int age_group = 0;
-public:
-    Popup_Add_Student_To_Base() {};
-    bool show_frame();
-    bool is_ok_possible() { return contract >= 0; }
-    void accept_changes(std::vector<Student>& all_students);
-};
-
-class Popup_Add_Merged_Lesson_To_Journal : public Popup
-{
-private:
-    int day_of_the_week;
-    const std::vector<Group>& all_groups;
-    int group_number = 0;
-    std::string group_comment;
-    int combo_lesson_name_id = 0;
-    std::vector<Lesson_Pair> lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
-public:
-    Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group>& all_groups, int current_day_of_the_week)
-    : all_groups(all_groups), day_of_the_week(current_day_of_the_week) {}; 
-    bool show_frame();
-    bool is_ok_possible()
-    {
-        for (int i = 0; i < all_groups.size(); i++)
-        {
-            if (all_groups[i].get_number() == group_number && all_groups[i].get_day_of_the_week() == day_of_the_week) return false;
-        }
-        if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3)
-        {
-            bool insane_time = false;
-            insane_time = insane_time || lesson_pairs[0].time_begin >= lesson_pairs[0].time_end;
-            insane_time = insane_time || lesson_pairs[0].time_end > lesson_pairs[1].time_begin;
-            insane_time = insane_time || lesson_pairs[1].time_begin >= lesson_pairs[1].time_end;
-            return !insane_time;
-        }
-        else return lesson_pairs[0].time_begin < lesson_pairs[0].time_end;
-    };
-    void accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
-    std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday);
-};
-
-//Date & time things
-int calculate_first_mwday(int current_mday, int current_wday);
-int get_first_wday(int month, int year, int wday);
-int get_number_of_days(int month, int year);
-
-//to replace with actual algorithms
-template <typename T = int>
-bool is_in_vector(std::vector<T> vector, T to_find)
-{
-    for (int i = 0; i < vector.size(); i++)
-    {
-        if (to_find == vector[i]) return true;
-    }
-    return false;
-};
-
-const char* c_str_int(int num);
-std::string to_string(JTime value);
-std::string to_string(JTime begin, JTime end);
-std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
-std::string generate_label(const std::string prefix, std::vector<int> unique);
-bool j_button_selectable(const char* label, bool selected);
-bool j_input_time(std::string label, JTime& time);
-bool j_attendance_combo(const char* label, int* status);
-
 /*
+
 Currently used labels:
 
  ##combo_attendance

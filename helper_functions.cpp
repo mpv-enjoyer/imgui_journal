@@ -1,4 +1,5 @@
 #include "main.h"
+#include "helper_functions.h"
 
 const char* c_str_int(int num)
 {
@@ -40,7 +41,7 @@ std::string to_string(std::tm day, JTime begin, JTime end, bool abbreviate)
     return output;
 }
 
-bool j_button_selectable(const char* label, bool selected)
+bool j_button_selectable(const char* label, bool selected, bool small)
 {
     if (selected)
     {
@@ -48,7 +49,9 @@ bool j_button_selectable(const char* label, bool selected)
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
     }
-    bool output = ImGui::Button(label);
+    bool output;
+    if (!small) output = ImGui::Button(label);
+    else output = ImGui::SmallButton(label);
     if (selected)
     {
         ImGui::PopStyleColor(3);
@@ -154,4 +157,65 @@ bool j_attendance_combo(const char* label, int* status)
         ImGui::EndCombo();
     }
     return false;
+};
+
+bool is_in_vector(std::vector<int> vector, int to_find)
+{
+    for (int i = 0; i < vector.size(); i++)
+    {
+        if (to_find == vector[i]) return true;
+    }
+    return false;
+};
+
+void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+};
+
+int get_number_of_days(int month, int year)
+{
+    month++;
+    // leap year condition, if month is 2
+    if (month == 2) {
+        if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
+            return 29;
+        else
+            return 28;
+    }
+    // months which have 31 days
+    else if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8
+        || month == 10 || month == 12)
+        return 31;
+    else
+        return 30;
+}
+
+int calculate_first_mwday(int current_mday, int current_wday)
+{
+    int first_same = ((current_mday-1) % 7) + 1;
+    int diff = first_same - 1;
+    return (current_wday - diff + 7) % 7;
+}
+
+int get_first_wday(int month, int year, int wday)
+{
+  std::tm time_in = { 0, 0, 0, // second, minute, hour
+      1, month, year}; // 1-based day, 0-based month, year since 1900
+
+  std::time_t time_temp = std::mktime(&time_in);
+
+  //Note: Return value of localtime is not threadsafe, because it might be
+  // (and will be) reused in subsequent calls to std::localtime!
+  const std::tm time_out = *std::localtime(&time_temp);
+  int first_mday_wday = time_out.tm_wday;
+  int diff = ( ( wday - first_mday_wday ) + 7 ) % 7;
+  return diff + 1;
 }
