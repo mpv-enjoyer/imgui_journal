@@ -200,7 +200,7 @@ int get_number_of_days(int month, int year)
 
 int calculate_first_mwday(int current_mday, int current_wday)
 {
-    int first_same = ((current_mday-1) % 7) + 1;
+    int first_same = ((current_mday - 1) % 7) + 1;
     int diff = first_same - 1;
     return (current_wday - diff + 7) % 7;
 }
@@ -218,4 +218,15 @@ int get_first_wday(int month, int year, int wday)
   int first_mday_wday = time_out.tm_wday;
   int diff = ( ( wday - first_mday_wday ) + 7 ) % 7;
   return diff + 1;
+}
+
+int get_wday(int day, int month, int year)
+{
+  std::tm time_in = { 0, 0, 0, // second, minute, hour
+      day + 1, month, year }; // 1-based day, 0-based month, year since 1900
+  std::time_t time_temp = std::mktime(&time_in);
+  //Note: Return value of localtime is not threadsafe, because it might be
+  // (and will be) reused in subsequent calls to std::localtime!
+  const std::tm * time_out = std::localtime(&time_temp);
+  return time_out->tm_wday;
 }

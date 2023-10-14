@@ -276,7 +276,11 @@ bool Popup_Add_Working_Out::show_frame()
             else
             {
                 std::string student_button_name = generate_label("Выбрать##", { i });
-                if (ImGui::Button(student_button_name.c_str())) select_student = possible_student_ids[i];
+                if (ImGui::Button(student_button_name.c_str())) 
+                {
+                    select_student = possible_student_ids[i];
+                    select_student_visible = true;
+                }
             }
             ImGui::SameLine();
             ImGui::Text(possible_student_descriptions[i].c_str());
@@ -315,7 +319,7 @@ bool Popup_Add_Working_Out::show_frame()
                     {
                         if (select_day == i)
                         {
-                            if (j_button_selectable(c_str_int(i + 1), true, true)) select_day = -1;
+                            if (j_button_selectable(std::to_string(i + 1).c_str(), true, true)) select_day = -1;
                         }
                         else 
                         if (ImGui::SmallButton(c_str_int(i + 1)))
@@ -357,8 +361,10 @@ bool Popup_Add_Working_Out::show_frame()
                     {
                         bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
                         is_visible = is_visible || checkbox_value;
-                        if (ImGui::Checkbox(all_lessons[(first_mwday + popup_add_working_out_select_day) % 7][current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
+                        const std::string checkbox_description = all_lessons[(first_mwday + select_day) % 7][current_merged_lesson].get_description(current_internal_lesson);
+                        if (ImGui::Checkbox(checkbox_description.c_str(), &checkbox_value) && checkbox_value) 
                         {
+                            is_visible = true;
                             select_lesson.internal_lesson_id = current_internal_lesson;
                             select_lesson.merged_lesson_id = current_merged_lesson;
                         }
@@ -368,21 +374,9 @@ bool Popup_Add_Working_Out::show_frame()
             if (!is_visible) select_lesson = {-1, -1};
         }
         ImGui::EndGroup();
-        if (ImGui::Button("OK") && is_ok_possible())
-        {
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            popup_add_working_out_filter.Clear();
-            return true;
-        } 
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена"))
-        {
-            popup_add_working_out_filter.Clear();
-            ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
-            return true;
-        } 
+        if (ImGui::Button("Отмена")) POPUP_CANCEL;
         ImGui::EndPopup();
     }
     return false;
@@ -395,6 +389,7 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day>& all_days)
     lesson_to_workout.lesson_pair = all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id].get_lesson_pair(select_lesson.internal_lesson_id);
     lesson_to_workout.date = { 0, 0, 0, // second, minute, hour
     select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
+    lesson_to_workout.date.tm_wday = get_wday(select_day, select_month, select_year);
     lesson_to_workout.student_id = select_student;
     all_days[caller_mday].add_workout(caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
     all_days[select_day].set_status(select_lesson, select_student, STATUS_WORKED_OUT);

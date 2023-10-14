@@ -13,4 +13,5 @@ bool is_in_vector(std::vector<int> vector, int to_find);
 int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);
 int get_number_of_days(int month, int year);
+int get_wday(int day, int month, int year);
 void HelpMarker(const char* desc);

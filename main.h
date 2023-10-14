@@ -204,16 +204,10 @@ public:
 };
 
 //Popups & secondary windows
-static ImGuiTextFilter popup_add_working_out_filter;
 static int popup_edit_ignore_lessons_is_open = -1;
-static int popup_add_working_out_select_day = -1;
-static int popup_add_working_out_select_month = -1;
-static int popup_add_working_out_select_year = -1;
-static Lesson popup_add_working_out_select_lesson = {0,0};
 
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
-bool popup_add_working_out(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<Calendar_Day>* all_days, std::vector<std::vector<Lesson_Info>>* all_lessons, int current_group_id, int* selected_to_add, int first_mwday, int number_of_days, Workout_Info* lesson_to_workout);
 
 /*
 

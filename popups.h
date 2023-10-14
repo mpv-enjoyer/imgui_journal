@@ -173,7 +173,7 @@ public:
         if (select_day == -1) return false;
         if (select_student == -1) return false;
         if (select_lesson == Lesson {-1, -1}) return false;
-        Student_Status requested_status = all_days[select_day].get_status(caller_lesson, select_student);
+        Student_Status requested_status = all_days[select_day].get_status(select_lesson, select_student);
         if (requested_status.status == STATUS_WORKED_OUT) return false;
         if (requested_status.status == STATUS_NOT_AWAITED) return false; 
         if (requested_status.status == STATUS_SKIPPED) return false; //STATUS_INVALID will be excluded

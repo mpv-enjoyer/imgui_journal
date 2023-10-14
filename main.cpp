@@ -159,12 +159,6 @@ int main(int, char**)
     }
     bool selected_foreign_month = false;
 
-    bool popup_add_working_out_is_open = false;
-    int popup_add_working_out_select = -1;   
-    int popup_add_working_out_merged_lesson = -1;
-    int popup_add_working_out_internal_lesson = -1;
-    int popup_add_working_out_mday = -1;
-
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
@@ -281,7 +275,6 @@ int main(int, char**)
 
     if (popup_add_working_out)
     {
-        Workout_Info workout_lesson;
         bool pressed_ok = popup_add_working_out->show_frame();
         if (pressed_ok && popup_add_working_out->check_ok())
         {
@@ -517,12 +510,7 @@ int main(int, char**)
                             int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
                             std::tm current_lesson_time = { 0, 0, 0,
                                                             visible_table_columns[current_day_cell], current_month, current_year };
-                            Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
-                            popup_add_working_out_is_open = true;
-                            popup_add_working_out_select = -1;
-                            popup_add_working_out_merged_lesson = current_lesson.merged_lesson_id;
-                            popup_add_working_out_internal_lesson = current_lesson.internal_lesson_id;
-                            popup_add_working_out_mday = visible_table_columns[current_day_cell];
+                            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
                         }
                     }
                 }
