@@ -494,6 +494,7 @@ int main(int, char**)
                 std::vector<int> working_out_students_id;
                 for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
                 {
+                    if (visible_table_columns[current_day_cell] > current_time.tm_mday) break;
                     for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                     {
                         current_lesson.internal_lesson_id = current_internal_lesson;
@@ -509,7 +510,7 @@ int main(int, char**)
                         {
                             int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
                             std::tm current_lesson_time = { 0, 0, 0,
-                                                            visible_table_columns[current_day_cell], current_month, current_year };
+                                    visible_table_columns[current_day_cell], current_month, current_year };
                             popup_add_working_out = new Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
                         }
                     }
@@ -551,8 +552,6 @@ int main(int, char**)
     }
     ImGui::PopStyleVar();
     ImGui::EndChild();
-
-
 
     ImGui::End();
     // Rendering

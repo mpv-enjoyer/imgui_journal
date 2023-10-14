@@ -33,6 +33,7 @@ bool Popup_Add_Student_To_Group::show_frame()
         if (ImGui::Button("OK") && is_ok_possible(select_visible)) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }
     return false;
@@ -76,6 +77,7 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }
     return false;
@@ -109,6 +111,7 @@ bool Popup_Add_Student_To_Base::show_frame()
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }
     return false;
@@ -159,6 +162,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }
     return false;
@@ -295,6 +299,7 @@ bool Popup_Add_Working_Out::show_frame()
         ImGui::BeginGroup();
         //calendar
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
+        bool is_calendar_filled = false;
         if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame))
         {
             ImGui::TableNextRow();
@@ -317,6 +322,7 @@ bool Popup_Add_Working_Out::show_frame()
                     }
                     if (should_attend) 
                     {
+                        is_calendar_filled = true;
                         if (select_day == i)
                         {
                             if (j_button_selectable(std::to_string(i + 1).c_str(), true, true)) select_day = -1;
@@ -339,6 +345,10 @@ bool Popup_Add_Working_Out::show_frame()
                     ImGui::SmallButton(c_str_int(i + 1));
                 }
                 ImGui::TableNextColumn();
+            }
+            if (!is_calendar_filled && select_student_visible)
+            {
+                select_day = -1;
             }
             ImGui::EndTable();
         }
@@ -374,9 +384,10 @@ bool Popup_Add_Working_Out::show_frame()
             if (!is_visible) select_lesson = {-1, -1};
         }
         ImGui::EndGroup();
-        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
+        if (ImGui::Button("OK") && is_ok_possible(is_calendar_filled)) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }
     return false;

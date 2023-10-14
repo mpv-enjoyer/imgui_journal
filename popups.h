@@ -6,11 +6,14 @@ class Popup
 {
 private:
     bool accept_edit = false;
+    std::string last_error = "";
 public:
     Popup() { };
     bool check_ok() { return accept_edit; }
     bool cancel() { accept_edit = false; return true; }
     bool ok() { accept_edit = true; return true; }
+    void error(std::string desc) { last_error = "ошибка: " + desc; }
+    void print_error() { ImGui::TextDisabled(last_error.c_str()); }
 };
 
 class Popup_Add_Student_To_Group : public Popup
@@ -51,7 +54,10 @@ public:
     int get_added_student() { IM_ASSERT(check_ok()); return current_selected_student; };
     int get_current_group_id() { IM_ASSERT(check_ok()); return current_group_id; };
     bool show_frame();
-    bool is_ok_possible(bool select_visible) { return select_visible && current_selected_student!=-1; }
+    bool is_ok_possible(bool select_visible) 
+    { 
+        if (!select_visible || current_selected_student!=-1) error("Выберите ученика");
+        return select_visible && current_selected_student!=-1; }
     void accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
         std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week);
 };
@@ -88,7 +94,11 @@ private:
 public:
     Popup_Add_Student_To_Base() {};
     bool show_frame();
-    bool is_ok_possible() { return contract >= 0; }
+    bool is_ok_possible() 
+    {
+        if (contract < 0) error("SYSTEM_NEGATIVE_CONTRACT");
+        return contract >= 0;
+    }
     void accept_changes(std::vector<Student>& all_students);
 };
 
@@ -109,7 +119,11 @@ public:
     {
         for (int i = 0; i < all_groups.size(); i++)
         {
-            if (all_groups[i].get_number() == group_number && all_groups[i].get_day_of_the_week() == day_of_the_week) return false;
+            if (all_groups[i].get_number() == group_number && all_groups[i].get_day_of_the_week() == day_of_the_week) 
+            {
+                error("Такая группа уже существует");
+                return false;
+            }
         }
         if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3)
         {
@@ -117,9 +131,12 @@ public:
             insane_time = insane_time || lesson_pairs[0].time_begin >= lesson_pairs[0].time_end;
             insane_time = insane_time || lesson_pairs[0].time_end > lesson_pairs[1].time_begin;
             insane_time = insane_time || lesson_pairs[1].time_begin >= lesson_pairs[1].time_end;
+            if (insane_time) error("Недопустимое время");
             return !insane_time;
         }
-        else return lesson_pairs[0].time_begin < lesson_pairs[0].time_end;
+        else 
+            if (lesson_pairs[0].time_begin >= lesson_pairs[0].time_end) { error("Недопустимое время"); return false; }
+            return true;
     };
     void accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
     std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday);
@@ -168,15 +185,17 @@ public:
         caller_year = current_lesson_time.tm_year;
     }
     bool show_frame();
-    bool is_ok_possible() 
+    bool is_ok_possible(bool is_calendar_filled) 
     {
-        if (select_day == -1) return false;
-        if (select_student == -1) return false;
-        if (select_lesson == Lesson {-1, -1}) return false;
+        if (select_student == -1) { error("Выберите ученика"); return false; }
+        if (!is_calendar_filled) {error("Для выбранного ученика нет доступных отработок"); return false; }
+        if (select_day == -1) { error("Выберите день"); return false; }
+        if (select_lesson == Lesson {-1, -1}) { error("Выберите урок"); return false; }
         Student_Status requested_status = all_days[select_day].get_status(select_lesson, select_student);
-        if (requested_status.status == STATUS_WORKED_OUT) return false;
-        if (requested_status.status == STATUS_NOT_AWAITED) return false; 
-        if (requested_status.status == STATUS_SKIPPED) return false; //STATUS_INVALID will be excluded
+        if (requested_status.status == STATUS_WORKED_OUT) { error("Отработка уже назначена"); return false; }
+        if (requested_status.status == STATUS_NOT_AWAITED) { error("Ученик не должен приходить на этот урок"); return false; }
+        if (requested_status.status == STATUS_ON_LESSON) { error("Ученик присутствовал на этом уроке"); return false; }
+        if (requested_status.status == STATUS_INVALID) { error("SYSTEM_STATUS_INVALID"); return false; }
         return true;
     };
     void accept_changes(std::vector<Calendar_Day>& all_days);
