@@ -404,7 +404,9 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
             {
                 ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
-                if ((visible_table_columns[current_day_cell] != current_time.tm_mday - MDAY_DIFF) && !edit_mode) ImGui::BeginDisabled();
+                bool is_current_cell_disabled = (visible_table_columns[current_day_cell] != current_time.tm_mday - MDAY_DIFF) && !edit_mode;
+                is_current_cell_disabled = is_current_cell_disabled || (visible_table_columns[current_day_cell] > current_time.tm_mday - MDAY_DIFF) && edit_mode;
+                if (is_current_cell_disabled) ImGui::BeginDisabled();
                 for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                 {
                     current_lesson.internal_lesson_id = current_internal_lesson;
@@ -440,7 +442,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     ImGui::EndGroup();
                     ImGui::SameLine(0.0f, 2.0f);
                 }
-                if ((visible_table_columns[current_day_cell] != current_time.tm_mday - MDAY_DIFF) && !edit_mode) ImGui::EndDisabled();
+                if (is_current_cell_disabled) ImGui::EndDisabled();
             }
             if (all_students.at(current_student_id).is_removed()) ImGui::EndDisabled();
         }
@@ -470,7 +472,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         std::vector<int> working_out_students_id;
         for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
         {
-            if (visible_table_columns[current_day_cell] > current_time.tm_mday) break;
+            if (visible_table_columns[current_day_cell] >= current_time.tm_mday) break;
             for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
             {
                 current_lesson.internal_lesson_id = current_internal_lesson;

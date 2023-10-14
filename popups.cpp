@@ -194,7 +194,7 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>* all_
     all_groups->push_back(new_group);
     lesson_info.set_group(all_groups->size()-1);
     (*all_lessons)[day_of_the_week].push_back(lesson_info);
-    (*all_lessons)[day_of_the_week][all_lessons[day_of_the_week].size() - 1].set_group(all_groups->size() - 1);
+    (*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups->size() - 1);
     for (int i = 0; i < visible_table_columns.size(); i++)
     {
         bool await_no_one = false;
