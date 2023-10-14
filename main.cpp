@@ -376,7 +376,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     is_relevant.push_back(true);
                 }
             }
-            std::string show_price;
+            int show_price = 0;
             std::string show_lesson_names;
             bool temp_first = true;
             for (int i = 0; i < is_relevant.size(); i++)
@@ -389,17 +389,16 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     }
                     else
                     {
-                        show_price.append("+");
                         show_lesson_names.append("+");
                     }
-                    show_price.append(std::to_string(Lesson_Prices[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id][current_discount_level]));
+                    show_price += Lesson_Prices[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id][current_discount_level];
                     show_lesson_names.append(Lesson_Names[all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(i).lesson_name_id]);
                 }
             }
             if (!temp_first)
             {
                 ImGui::TableSetColumnIndex(3); ImGui::Text(show_lesson_names.c_str());
-                ImGui::TableSetColumnIndex(4); ImGui::Text(show_price.c_str());
+                ImGui::TableSetColumnIndex(4); ImGui::Text(c_str_int(show_price));
             }
             for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
             {

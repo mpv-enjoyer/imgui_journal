@@ -7,6 +7,7 @@
 - main.h file is dumb and needs to be renamed
 
 TODO:
+- gray out every STATUS_NOT_AWAITED
 - removed students from groups should not be actually removed (because their attendance dissappears)
 - Restrict all edits for future days (including workouts)
 - Fix adding workouts for current day
