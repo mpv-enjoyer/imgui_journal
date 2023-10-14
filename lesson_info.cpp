@@ -10,7 +10,7 @@ int Lesson_Info::get_group()
     return group;
 }
 
-Lesson_Pair Lesson_Info::get_lesson_pair(int id)
+Lesson_Pair Lesson_Info::get_lesson_pair(int id) const
 {
     return lesson_pairs[id];
 }
@@ -54,7 +54,7 @@ bool Lesson_Info::should_attend(int student) const
     return all_groups->at(group).is_in_group(student);
 }
 
-std::string Lesson_Info::get_description(int current_internal_lesson)
+std::string Lesson_Info::get_description(int current_internal_lesson) const
 {
     std::string to_return = "Группа " + all_groups->at(group).get_description();
     if (current_internal_lesson == -1)

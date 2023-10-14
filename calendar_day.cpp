@@ -103,7 +103,7 @@ int Calendar_Day::get_discount_status(Lesson lesson, int student_id)
     return -1;
 }
 
-Student_Status Calendar_Day::get_status(Lesson lesson, int student_id)
+Student_Status Calendar_Day::get_status(Lesson lesson, int student_id) const
 {
     for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
     {

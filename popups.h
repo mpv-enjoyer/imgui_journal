@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "helper_functions.h"
 
 class Popup
 {
@@ -132,6 +133,7 @@ private:
     const std::vector<Student>& all_students;
     const std::vector<Group>& all_groups;
     const std::vector<std::vector<Lesson_Info>>& all_lessons;
+    const std::vector<Calendar_Day>& all_days;
     int first_mwday = -1;
     int count_mday = -1;
     int select_student = -1;
@@ -139,10 +141,15 @@ private:
     int select_month = -1;
     int select_year = -1;
     Lesson select_lesson = {-1, -1};
+    int caller_month = -1;
+    int caller_mday = -1;
+    int caller_year = -1;
+    Lesson caller_lesson;
     ImGuiTextFilter filter;
 public:
     Popup_Add_Working_Out(const std::vector<Student>& all_students, const std::vector<Group>& all_groups, const std::vector<std::vector<Lesson_Info>>& all_lessons, 
-    int current_group_id, const std::tm& current_time) : all_students(all_students), all_groups(all_groups), all_lessons(all_lessons)
+    const std::vector<Calendar_Day>& all_days, int current_group_id, const std::tm& current_time, const std::tm& current_lesson_time, const Lesson& current_lesson) :
+    all_students(all_students), all_groups(all_groups), all_lessons(all_lessons), all_days(all_days)
     {
         for (int i = 0; i < all_students.size(); i++)
         {
@@ -155,6 +162,22 @@ public:
         count_mday = get_number_of_days(current_time.tm_mon, current_time.tm_year + 1900);
         select_month = current_time.tm_mon;
         select_year = current_time.tm_year;
+        caller_lesson = current_lesson;
+        caller_mday = current_lesson_time.tm_mday;
+        caller_month = current_lesson_time.tm_mon;
+        caller_year = current_lesson_time.tm_year;
     }
     bool show_frame();
+    bool is_ok_possible() 
+    {
+        if (select_day == -1) return false;
+        if (select_student == -1) return false;
+        if (select_lesson == Lesson {-1, -1}) return false;
+        Student_Status requested_status = all_days[select_day].get_status(caller_lesson, select_student);
+        if (requested_status.status == STATUS_WORKED_OUT) return false;
+        if (requested_status.status == STATUS_NOT_AWAITED) return false; 
+        if (requested_status.status == STATUS_SKIPPED) return false; //STATUS_INVALID will be excluded
+        return true;
+    };
+    void accept_changes(std::vector<Calendar_Day>& all_days);
 };

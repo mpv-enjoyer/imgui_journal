@@ -255,7 +255,7 @@ bool Popup_Add_Working_Out::show_frame()
     if (possible_student_ids.size() == 0)
     {
         cancel();
-        return false;
+        return true;
     }
     POPUP_INIT_FRAME("Добавление отработки")
     {
@@ -284,6 +284,7 @@ bool Popup_Add_Working_Out::show_frame()
         ImGui::EndChild();
         if (!select_student_visible)
         {
+            select_student = -1;
             ImGui::BeginDisabled();
         }
         ImGui::SameLine();
@@ -341,50 +342,42 @@ bool Popup_Add_Working_Out::show_frame()
         {
             ImGui::EndDisabled();
         }
-        
-        if (select_student_visible && popup_add_working_out_select_day != -1)
+        if (select_student_visible && select_day != -1)
         {
-            for (int current_merged_lesson = 0; current_merged_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7).size(); current_merged_lesson++)
+            bool is_visible = false;
+            Lesson current_lesson;
+            for (int current_merged_lesson = 0; current_merged_lesson < all_lessons.at((first_mwday + select_day) % 7).size(); current_merged_lesson++)
             {
-                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_lessons_size(); current_internal_lesson++)
+                current_lesson.merged_lesson_id = current_merged_lesson;
+                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[(first_mwday + select_day) % 7][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
                 {
-                    if (all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].should_attend(*selected_to_add))
+                    current_lesson.internal_lesson_id = current_internal_lesson;
+                    if (select_month == caller_month && select_year == caller_year && select_day == caller_mday && current_lesson == caller_lesson) continue;
+                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson].should_attend(select_student))
                     {
-                        bool checkbox_value = popup_add_working_out_select_lesson.internal_lesson_id == current_internal_lesson && popup_add_working_out_select_lesson.merged_lesson_id == current_merged_lesson;
-                        if (ImGui::Checkbox(all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
+                        bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
+                        is_visible = is_visible || checkbox_value;
+                        if (ImGui::Checkbox(all_lessons[(first_mwday + popup_add_working_out_select_day) % 7][current_merged_lesson].get_description(current_internal_lesson).c_str(), &checkbox_value) && checkbox_value) 
                         {
-                            popup_add_working_out_select_lesson.internal_lesson_id = current_internal_lesson;
-                            popup_add_working_out_select_lesson.merged_lesson_id = current_merged_lesson;
+                            select_lesson.internal_lesson_id = current_internal_lesson;
+                            select_lesson.merged_lesson_id = current_merged_lesson;
                         }
                     }
                 }
             }
+            if (!is_visible) select_lesson = {-1, -1};
         }
-
-
         ImGui::EndGroup();
-        
-
-        if (ImGui::Button("OK", ImVec2(0, 0)) && *selected_to_add!=-1 && select_student_visible && popup_add_working_out_select_day != -1)
+        if (ImGui::Button("OK") && is_ok_possible())
         {
-            lesson_to_workout->lesson_pair = all_lessons->at((first_mwday + popup_add_working_out_select_day) % 7)[popup_add_working_out_select_lesson.merged_lesson_id].get_lesson_pair(popup_add_working_out_select_lesson.internal_lesson_id);
-
-            lesson_to_workout->date = { 0, 0, 0, // second, minute, hour
-            popup_add_working_out_select_day + 1, 9, 2023 - 1900}; // 1-based day, 0-based month, year since 1900 
-
-            //TODO: (IMPORTANT) MONTH IS HARD CODED.
-
-            lesson_to_workout->student_id = *selected_to_add;
-
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
             popup_add_working_out_filter.Clear();
             return true;
         } 
         ImGui::SameLine();
-        if (ImGui::Button("Отмена", ImVec2(0, 0)))
+        if (ImGui::Button("Отмена"))
         {
-            *selected_to_add=-1;
             popup_add_working_out_filter.Clear();
             ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
@@ -393,4 +386,27 @@ bool Popup_Add_Working_Out::show_frame()
         ImGui::EndPopup();
     }
     return false;
+}
+
+void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day>& all_days)
+{
+    IM_ASSERT(check_ok());
+    Workout_Info lesson_to_workout;
+    lesson_to_workout.lesson_pair = all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id].get_lesson_pair(select_lesson.internal_lesson_id);
+    lesson_to_workout.date = { 0, 0, 0, // second, minute, hour
+    select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
+    lesson_to_workout.student_id = select_student;
+    all_days[caller_mday].add_workout(caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
+    all_days[select_day].set_status(select_lesson, select_student, STATUS_WORKED_OUT);
+    int current_student_contract = all_students[select_student].get_contract();
+    int current_discount_level = -1;
+    for (int i = 0; i < all_students.size(); i++)
+    {
+        if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2 && !all_students[i].is_removed())
+        {
+            current_discount_level++;
+        }
+    }
+    if (current_discount_level == -1) current_discount_level = 0;
+    all_days[select_day].set_discount_status(select_lesson, select_student, current_discount_level);
 }

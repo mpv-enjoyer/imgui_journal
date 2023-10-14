@@ -148,11 +148,11 @@ private:
 public:
     Lesson_Info(std::vector<Group>* all_groups);
     int get_group(); bool set_group(int new_group_id);
-    Lesson_Pair get_lesson_pair(int id); bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
+    Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool remove();
     bool should_attend(int student) const;
     int get_lessons_size() const;
-    std::string get_description(int current_internal_lesson = -1);
+    std::string get_description(int current_internal_lesson = -1) const;
 };
 
 struct Student_Status
@@ -183,7 +183,7 @@ private:
 public:
     Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
     bool set_status(Lesson lesson, int student_id, int status);
-    Student_Status get_status(Lesson lesson, int student_id);
+    Student_Status get_status(Lesson lesson, int student_id) const;
     bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson);
     bool add_workout(Lesson lesson, Workout_Info new_workout_info);
     int get_workout_size(Lesson lesson);

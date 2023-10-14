@@ -168,6 +168,7 @@ int main(int, char**)
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
+    Popup_Add_Working_Out* popup_add_working_out = nullptr;
 
     bool window_add_student_list_is_open = false;
     int popup_edit_ignore_lessons_is_open = -1;
@@ -278,35 +279,18 @@ int main(int, char**)
         }
     }
 
-    if (popup_add_working_out_is_open)
+    if (popup_add_working_out)
     {
         Workout_Info workout_lesson;
-        bool pressed_ok = popup_add_working_out(&all_students, &all_groups, &all_days, &all_lessons, all_lessons[current_day_of_the_week][popup_add_working_out_merged_lesson].get_group(), &popup_add_working_out_select, day_of_the_week_first_in_month, current_month_days_num, &workout_lesson);
+        bool pressed_ok = popup_add_working_out->show_frame();
+        if (pressed_ok && popup_add_working_out->check_ok())
+        {
+            popup_add_working_out->accept_changes(all_days);
+        }
         if (pressed_ok)
         {
-            if (popup_add_working_out_select != -1)
-            {
-                Lesson current_lesson = {popup_add_working_out_merged_lesson, popup_add_working_out_internal_lesson};
-                all_days[popup_add_working_out_mday].add_workout(current_lesson, workout_lesson);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
-                all_days[workout_lesson.date.tm_mday - 1].set_status(popup_add_working_out_select_lesson, popup_add_working_out_select, STATUS_WORKED_OUT);
-                int current_student_contract = all_students[popup_add_working_out_select].get_contract();
-                int current_discount_level = -1;
-                for (int i = 0; i < all_students.size(); i++)
-                {
-                    if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2 && !all_students[i].is_removed())
-                    {
-                        current_discount_level++;
-                    }
-                }
-                if (current_discount_level == -1) current_discount_level = 0;
-                all_days[workout_lesson.date.tm_mday - 1].set_discount_status(popup_add_working_out_select_lesson, popup_add_working_out_select, current_discount_level);
-                //not needed?
-            }
-            popup_add_working_out_is_open = false;
-            popup_add_working_out_select = -1;
-            popup_add_working_out_select_day = -1;
-            popup_add_working_out_select_month = -1;
-            popup_add_working_out_select_year = -1;
+            free(popup_add_working_out);
+            popup_add_working_out = nullptr;
         }
     }
 
@@ -530,6 +514,10 @@ int main(int, char**)
                         std::string add_workout_button_name = generate_label("O##add_workout_button", {current_merged_lesson, current_day_cell, current_internal_lesson});
                         if (edit_mode && ImGui::Button(add_workout_button_name.c_str()))
                         {
+                            int current_group = all_lessons[current_day_of_the_week][current_merged_lesson].get_group();
+                            std::tm current_lesson_time = { 0, 0, 0,
+                                                            visible_table_columns[current_day_cell], current_month, current_year };
+                            Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
                             popup_add_working_out_is_open = true;
                             popup_add_working_out_select = -1;
                             popup_add_working_out_merged_lesson = current_lesson.merged_lesson_id;
