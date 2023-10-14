@@ -309,7 +309,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         }
     }
     sort_ignore_lessons[current_merged_lesson] = true;
-    if (previous == all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin) 
+    if (sort_merged_lesson != 0 && previous == all_lessons[current_day_of_the_week][current_merged_lesson].get_lesson_pair(0).time_begin) 
     {
         ImGui::SameLine();
     }
