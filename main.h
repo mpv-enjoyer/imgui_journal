@@ -205,7 +205,6 @@ public:
 
 //Popups & secondary windows
 static int popup_edit_ignore_lessons_is_open = -1;
-
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
 bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 
