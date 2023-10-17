@@ -15,17 +15,17 @@ int Student::get_lessons_size()
     return lessons_ignore.size();
 }
 
-bool Student::add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week)
+bool Student::add_lesson_ignore(Lesson_Info& new_lesson, int internal_lesson_id)
 {
-    lessons_ignore.push_back(Lesson_Full{new_lesson, new_lesson_day_of_the_week});
+    lessons_ignore.push_back(Lesson_Ignore { new_lesson, internal_lesson_id });
     return true;
 }
 
-bool Student::is_ignored(Lesson lesson, int lesson_day_of_the_week)
+bool Student::is_ignored(Lesson_Info& lesson, int internal_lesson)
 {
     for (int i = 0; i < lessons_ignore.size(); i++)
     {
-        if (lessons_ignore[i].day_of_the_week == lesson_day_of_the_week && lessons_ignore[i].lesson == lesson) return true;
+        if (&lesson == &(lessons_ignore[i].merged_lesson) && internal_lesson == lessons_ignore[i].internal_lesson_id) return true;
     }
     return false;
 }
@@ -43,11 +43,11 @@ bool Student::set_name(std::string new_name)
     return true;
 }
 
-bool Student::delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week)
+bool Student::delete_lesson_ignore(Lesson_Info& lesson_to_delete, int internal_lesson)
 {
     for (int i = 0; i < lessons_ignore.size(); i++)
     {
-        if (lessons_ignore[i].day_of_the_week == day_of_the_week && lessons_ignore[i].lesson == lesson_to_delete) 
+        if (&(lessons_ignore[i].merged_lesson) == &lesson_to_delete && lessons_ignore[i].internal_lesson_id == internal_lesson) 
         {
             lessons_ignore.erase(lessons_ignore.begin()+i);
             return true;
