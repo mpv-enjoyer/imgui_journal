@@ -1,6 +1,10 @@
 #include "main.h"
 #include "popups.h"
 #include "helper_functions.h"
+#include "student.h"
+#include "group.h"
+#include "lesson_info.h"
+#include "calendar_day.h"
 
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open)
 {

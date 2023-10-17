@@ -1,5 +1,9 @@
 #include "popups.h"
 #include "helper_functions.h"
+#include "student.h"
+#include "group.h"
+#include "lesson_info.h"
+#include "calendar_day.h"
 
 bool Popup_Add_Student_To_Group::show_frame()
 {

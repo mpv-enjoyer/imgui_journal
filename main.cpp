@@ -1,6 +1,10 @@
 #include "main.h"
 #include "popups.h"
 #include "helper_functions.h"
+#include "group.h"
+#include "lesson_info.h"
+#include "calendar_day.h"
+#include "student.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -95,14 +99,16 @@ int main(int, char**)
     int current_year = current_time.tm_year;
     int day_of_the_week_first_in_month = calculate_first_mwday(current_time.tm_mday, current_day_of_the_week);
 
-    std::vector<Student> all_students;
-    std::vector<Group> all_groups;
-    std::vector<std::vector<Lesson_Info>> all_lessons(7, std::vector<Lesson_Info>(0, Lesson_Info(&all_groups))); //[day_of_the_week][]
-    std::vector<Calendar_Day> all_days;
+    std::vector<Student&> all_students;
+    std::vector<Group&> all_groups;
+    std::vector<std::vector<Lesson_Info&>> all_lessons(7, std::vector<Lesson_Info&>()); //[day_of_the_week][]
+    std::vector<Calendar_Day&> all_days;
 
-    all_students.push_back(Student());
-    all_students[0].set_name("Фамилия Имя 1");
-    all_students[0].set_contract(1);
+    Student& first_student = std::ref(*(new Student()));
+    
+    all_students.push_back(first_student);
+    first_student.set_name("Фамилия Имя 1");
+    first_student.set_contract(1);
     all_students.push_back(Student());
     all_students[1].set_name("Фамилия Имя 2");
     all_students[1].set_contract(21);
@@ -113,7 +119,7 @@ int main(int, char**)
     all_students[3].set_name("Фамилия Имя 4");
     all_students[3].set_contract(100);
     all_students[3].set_age_group(5);
-    all_groups.push_back(Group(&all_students));
+    all_groups.push_back(Group());
     all_groups[0].add_student(1);
     all_groups[0].add_student(2);
     all_groups[0].add_student(3);

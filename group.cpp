@@ -2,9 +2,9 @@
 #include "group.h"
 #include "student.h"
 
-const Student& Group::get_student(int student_internal_id) const
+const Student& Group::get_student(int known_student_id) const
 {   
-    return students[student_internal_id].student;
+    return students[known_student_id].student;
 }
 
 int Group::get_number() const
@@ -114,8 +114,7 @@ std::string Group::get_description()
     return output;
 }
 
-Group::Group(std::vector<Student>* students_list)
+Group::Group()
 {
     group_info.day_of_the_week = -1;
 }
-

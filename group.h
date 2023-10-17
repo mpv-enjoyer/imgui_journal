@@ -8,7 +8,7 @@ private:
     std::vector<Students_List> students;
     std::string comment;
 public:
-    Group(std::vector<Student>* students_list);
+    Group();
     int get_size() const;
     int get_number() const; bool set_number(int new_number);
     int find_student(Student& student) const;
