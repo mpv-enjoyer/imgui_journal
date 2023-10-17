@@ -2,7 +2,7 @@
 #include "group.h"
 #include "student.h"
 
-Student& Group::get_student(int student_internal_id)
+const Student& Group::get_student(int student_internal_id)
 {   
     return students[student_internal_id].student;
 }
@@ -35,8 +35,7 @@ bool Group::set_day_of_the_week(int new_day)
     return true;
 }
 
-int Group::add_student(Student& new_student) //in case name is equal to someone else's: less student_id comes first
-//returns his internal id
+int Group::add_student(Student& new_student) //returns his internal id
 {
     int new_student_sort_by_name_id = students.size(); //ascending
     for (int i = 0; i < (students.size()); i++)
@@ -77,7 +76,12 @@ bool Group::is_in_group(Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {
-        if (student==students[i].student) return true;
+        if (student==students[i].student) 
+        {
+            if (students[i].is_deleted) return false;
+            if (student.is_removed()) return false;
+            return true;
+        }
     }
     return false;
 }

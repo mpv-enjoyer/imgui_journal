@@ -1,12 +1,9 @@
 #include "main.h"
 #include "lesson_info.h"
 
-Lesson_Info::Lesson_Info(std::vector<Group>* all_groups)
-{
-    Lesson_Info::all_groups = all_groups;
-}
+Lesson_Info::Lesson_Info(Group& connected_group) : group(connected_group) {};
 
-int Lesson_Info::get_group() const
+const Group& Lesson_Info::get_group() const
 {
     return group;
 }
@@ -21,9 +18,9 @@ int Lesson_Info::get_lessons_size() const
     return lesson_pairs.size();
 }
 
-bool Lesson_Info::set_group(int new_group_id)
+bool Lesson_Info::set_group(Group& new_group)
 {
-    group = new_group_id;
+    group = new_group;
     return true;
 }
 
@@ -50,14 +47,14 @@ bool Lesson_Info::delete_lesson_pair(int id)
     return true;
 }
 
-bool Lesson_Info::should_attend(int student) const
+bool Lesson_Info::should_attend(Student& student) const
 {
-    return all_groups->at(group).is_in_group(student);
+    return group.is_in_group(student);
 }
 
 std::string Lesson_Info::get_description(int current_internal_lesson) const
 {
-    std::string to_return = "Группа " + all_groups->at(group).get_description();
+    std::string to_return = "Группа " + group.get_description();
     if (current_internal_lesson == -1)
     {
         for (int i = 0; i < get_lessons_size(); i++)
@@ -90,4 +87,14 @@ std::string Lesson_Info::get_description(int current_internal_lesson) const
     }
 
     return to_return;
+}
+
+bool Lesson_Info::discontinue()
+{
+    removed = true;
+}
+
+bool Lesson_Info::is_discontinued() 
+{
+    return removed;
 }

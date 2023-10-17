@@ -1,5 +1,5 @@
 #include "main.h"
-
+#include "calendar_day.h"
 
 Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week)
 {
