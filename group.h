@@ -18,4 +18,5 @@ public:
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
     bool is_in_group(Student& student) const;
+    bool operator==(const Group& rhs) const { return this == &rhs; };
 };

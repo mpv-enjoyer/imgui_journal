@@ -3,7 +3,7 @@
 
 Lesson_Info::Lesson_Info(Group& connected_group) : group(connected_group) {};
 
-const Group& Lesson_Info::get_group() const
+Group& Lesson_Info::get_group() const
 {
     return group;
 }

@@ -1,10 +1,7 @@
 # imgui_journal
 
-- ImGui::BeginCombo(...) modified to calculate width better
-
-- jcombo is meant to replace original combo to calculate MAX value width.
-
-- main.h file is dumb and needs to be renamed
+NOTES:
+- arguments started with known_ require you to know the location of the item in the internal vector.
 
 TODO:
 - gray out every STATUS_NOT_AWAITED
@@ -17,9 +14,7 @@ TODO:
 - saving/importing everything to a file
 - cross-month actions
 
-BUGS:
-
-none known currently
+BUGS: none known currently
 
 Structural TODO:
 - Add hash table lookup instead of manually checking everything (probably done already as my == operators work on reference addresses)

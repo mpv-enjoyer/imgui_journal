@@ -126,7 +126,7 @@ struct Student_Status
 
 struct Workout_Info
 {
-    Student& student;
+    const Student& student;
     Lesson_Info& lesson_info;
     int internal_lesson;
 };

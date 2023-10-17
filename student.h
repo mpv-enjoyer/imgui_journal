@@ -19,8 +19,8 @@ public:
     bool delete_lesson_ignore(Lesson_Info& lesson_to_delete, int internal_lesson); 
     int get_lessons_size();
     bool is_removed() const; bool remove(); bool restore();
-    bool operator==(const Student& rhs) { return this == &rhs; }
-    bool operator!=(const Student& rhs) { return !(this == &rhs); }
-    bool operator< (const Student& rhs) { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
-    bool operator> (const Student& rhs) { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }
+    bool operator==(const Student& rhs) const { return this == &rhs; }
+    bool operator!=(const Student& rhs) const { return !(this == &rhs); }
+    bool operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
+    bool operator> (const Student& rhs) const { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }
 };
