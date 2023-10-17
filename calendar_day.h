@@ -17,7 +17,8 @@ public:
     int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson);
     int get_workout_size(int known_merged_lesson_id, int internal_lesson);
     const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int workout_id);
-    Workout_Info get_workout_info(Lesson lesson, int student_id);
+    Workout_Info get_workout_info(int known_merged_lesson_id, int internal_lesson_id, int known_workout_id);
+    Workout_Info get_workout_info(int known_merged_lesson_id, int internal_lesson_id, Student& student);
     bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
     bool set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status);
     int get_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
@@ -29,6 +30,6 @@ public:
     bool delete_student_from_group(int group_id, int student_id); //not needed?
     bool change_group(Lesson lesson, int new_group_id);
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
-    bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_merged_lesson_id)
+    bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_merged_lesson_id);
     //...
 };
