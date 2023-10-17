@@ -1,8 +1,10 @@
 #include "main.h"
+#include "group.h"
+#include "student.h"
 
-int Group::get_student_sort_id(int student)
+Student& Group::get_student(int student_internal_id)
 {   
-    return students_sort_by_id[student];
+    return students[student_internal_id].student;
 }
 
 int Group::get_number() const
@@ -18,7 +20,7 @@ bool Group::set_number(int new_number)
 
 int Group::get_size() const
 {
-    return students_sort_by_id.size();
+    return students.size();
 }
 
 int Group::get_day_of_the_week() const
@@ -33,50 +35,49 @@ bool Group::set_day_of_the_week(int new_day)
     return true;
 }
 
-int Group::add_student(int new_student_id) //in case name is equal to someone else's: less student_id comes first
+int Group::add_student(Student& new_student) //in case name is equal to someone else's: less student_id comes first
 //returns his internal id
 {
-    int new_student_sort_by_id_id = students_sort_by_id.size(); //ascending
-
-    for (int i = 0; i < (students_sort_by_id.size()); i++)
+    int new_student_sort_by_name_id = students.size(); //ascending
+    for (int i = 0; i < (students.size()); i++)
     {
-        if (new_student_id == students_sort_by_id[i])
+        if (new_student == students[i].student)
         {
             return -1; //already in the list
         }
-        if (new_student_id < students_sort_by_id[i])
+        if (new_student < students[i].student)
         {
-            new_student_sort_by_id_id = i; break;
+            new_student_sort_by_name_id = i; break;
         }
     }
-    //use deleted_students_sort_by_id ????????
-    students_sort_by_id.insert(students_sort_by_id.begin()+new_student_sort_by_id_id, new_student_id);
-    return new_student_sort_by_id_id;
+    students.insert(students.begin()+new_student_sort_by_name_id, {new_student, false});
+    return new_student_sort_by_name_id;
 };
 
-bool Group::delete_student(int to_remove_student_id)
+bool Group::delete_student(Student& to_remove_student)
 {
     bool is_found_sort_id = false;
-    for (int i = 0; i < students_sort_by_id.size(); i++)
+    for (int i = 0; i < students.size(); i++)
     {
         if (!is_found_sort_id)
         {
-            if (students_sort_by_id[i]==to_remove_student_id)
+            if (to_remove_student==students[i].student)
             {
-                deleted_students_sort_by_id.push_back(to_remove_student_id);
-                students_sort_by_id.erase(students_sort_by_id.begin()+i);
+                if (students[i].is_deleted) break;
+                students[i].is_deleted = true;
                 is_found_sort_id = true;
+                break;
             }
         }
     }
     return is_found_sort_id;
 }
 
-bool Group::is_in_group(int student) const
+bool Group::is_in_group(Student& student) const
 {
-    for (int i = 0; i < students_sort_by_id.size(); i++)
+    for (int i = 0; i < students.size(); i++)
     {
-        if (students_sort_by_id[i]==student) return true;
+        if (student==students[i].student) return true;
     }
     return false;
 }
@@ -102,7 +103,6 @@ std::string Group::get_description()
 
 Group::Group(std::vector<Student>* students_list)
 {
-    Group::all_students = students_list;
     group_info.day_of_the_week = -1;
 }
 

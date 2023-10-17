@@ -105,64 +105,15 @@ struct Lesson_Ignore
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
 inline bool operator!=(const Lesson& lhs, const Lesson& rhs) { return !(lhs == rhs); }
 
+class Student;
+class Group;
 class Lesson_Info;
+class Calendar_Day;
 
-class Student
+struct Students_List
 {
-private:
-    bool removed = 0;
-    int contract;
-    std::string name;
-    int age_group = -1;
-    std::vector<Lesson_Ignore> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
-public:
-    Student();
-    int get_contract() const; bool set_contract(int new_contract);
-    std::string get_name() const; bool set_name(std::string new_name);
-    int get_age_group(); std::string get_age_group_string(); bool set_age_group(int new_age_group);
-    bool is_ignored(Lesson_Info& lesson, int lesson_day_of_the_week);
-    bool add_lesson_ignore(Lesson_Info& new_lesson, int internal_lesson);
-    bool delete_lesson_ignore(Lesson_Info& lesson_to_delete, int internal_lesson); 
-    int get_lessons_size();
-    bool is_removed() const; bool remove(); bool restore();
-};
-
-class Group
-{
-private:
-    bool removed = 0;
-    Group_Pair group_info;
-    std::vector<Student>* all_students;
-    std::vector<int> students_sort_by_id;
-    std::string comment;
-    std::vector<int> deleted_students_sort_by_id;
-public:
-    Group(std::vector<Student>* students_list);
-    int get_size() const;
-    int get_number() const; bool set_number(int new_number);
-    int get_day_of_the_week() const;
-    bool set_day_of_the_week(int new_day);
-    int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
-    std::string get_comment(); bool set_comment(std::string new_comment);
-    std::string get_description();
-    bool is_in_group(int student) const;
-};
-
-class Lesson_Info //can contain multiple lessons which will be merged in the table.
-{
-private:
-    bool removed = 0;
-    std::vector<Group>* all_groups;
-    int group;
-    std::vector<Lesson_Pair> lesson_pairs;
-public:
-    Lesson_Info(std::vector<Group>* all_groups);
-    int get_group(); bool set_group(int new_group_id);
-    Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
-    bool remove();
-    bool should_attend(int student) const;
-    int get_lessons_size() const;
-    std::string get_description(int current_internal_lesson = -1) const;
+    Student& student;
+    bool is_deleted;
 };
 
 struct Student_Status
@@ -179,38 +130,6 @@ struct Workout_Info
     int student_id;
     Lesson_Pair lesson_pair;
     std::tm date; //day
-};
-
-class Calendar_Day
-{
-private:
-    std::vector<Lesson_Info>* lessons;
-    std::vector<Group>* all_groups;
-    std::vector<Student>* all_students;
-    std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student_in_group]
-    //TODO: change student_status structure to ID-based? (for stability)
-    std::vector<std::vector<std::vector<Workout_Info>>> workouts; //[merged_lesson][internal_lesson][new_student]
-public:
-    Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
-    bool set_status(Lesson lesson, int student_id, int status);
-    Student_Status get_status(Lesson lesson, int student_id) const;
-    bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson);
-    bool add_workout(Lesson lesson, Workout_Info new_workout_info);
-    int get_workout_size(Lesson lesson);
-    int get_workout_student_id(Lesson lesson, int workout_id);
-    Workout_Info get_workout_info(Lesson lesson, int student_id);
-    bool delete_workout(Lesson lesson, int student_id);
-    bool set_discount_status(Lesson lesson, int student_id, int discount_status);
-    int get_discount_status(Lesson lesson, int student_id);
-
-    //the following is needed to properly update the journal
-
-    bool add_student_to_group(int group_id, int student_id, int new_student_id);
-    bool delete_student_from_group(int group_id, int student_id); //not needed?
-    bool change_group(Lesson lesson, int new_group_id);
-    bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
-    bool add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id);
-    //...
 };
 
 //Popups & secondary windows

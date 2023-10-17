@@ -1,11 +1,12 @@
 #include "main.h"
+#include "lesson_info.h"
 
 Lesson_Info::Lesson_Info(std::vector<Group>* all_groups)
 {
     Lesson_Info::all_groups = all_groups;
 }
 
-int Lesson_Info::get_group()
+int Lesson_Info::get_group() const
 {
     return group;
 }
