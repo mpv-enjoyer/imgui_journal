@@ -1,34 +1,29 @@
 #include "main.h"
 #include "calendar_day.h"
+#include "lesson_info.h"
+#include "group.h"
+#include "student.h"
 
-Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week)
+Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day) : lessons(lessons_in_this_day)
 {
-    Calendar_Day::lessons = lessons_in_this_day;
-    Calendar_Day::all_groups = all_groups;
-    Calendar_Day::all_students = all_students;
     int max_merged = 0;
-    for (int i = 0; i < lessons_in_this_day->size(); i++)
+    for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
-        if (lessons_in_this_day->at(i).get_lessons_size() > max_merged) max_merged = lessons_in_this_day->at(i).get_lessons_size();
+        if (lessons_in_this_day[i].get_lessons_size() > max_merged) max_merged = lessons_in_this_day[i].get_lessons_size();
     }
     Student_Status default_status;
     default_status.status = STATUS_NO_DATA;
 
-    Calendar_Day::student_status = std::vector<std::vector<std::vector<Student_Status>>>(lessons_in_this_day->size(), std::vector<std::vector<Student_Status>>(max_merged, std::vector<Student_Status>()));
-    Calendar_Day::workouts = std::vector<std::vector<std::vector<Workout_Info>>>(lessons_in_this_day->size(), std::vector<std::vector<Workout_Info>>(max_merged, std::vector<Workout_Info>()));
-    for (int i = 0; i < lessons_in_this_day->size(); i++)
+    attendance_info = std::vector<std::vector<Internal_Attendance_Status>>();
+    for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
-        for (int j = 0; j < lessons_in_this_day->at(i).get_lessons_size(); j++)
+        attendance_info.push_back(std::vector<Internal_Attendance_Status>(lessons_in_this_day[i].get_lessons_size()));
+        for (int j = 0; j < lessons_in_this_day[i].get_lessons_size(); j++)
         {
-            Lesson current_lesson;
-            current_lesson.merged_lesson_id = i;
-            current_lesson.internal_lesson_id = j;
-            for (int k = 0; k < all_groups->at(lessons_in_this_day->at(i).get_group()).get_size(); k++)
+            for (int k = 0; k < lessons_in_this_day[i].get_group().get_size(); k++)
             {
                 Student_Status new_status;
-                
-                new_status.student_id = all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k);
-                if (all_students->at(all_groups->at(lessons_in_this_day->at(i).get_group()).get_student_sort_id(k)).is_ignored(current_lesson, current_day_of_the_week))
+                if (lessons_in_this_day[i].get_group().get_student(k).is_ignored(lessons_in_this_day[i], j))
                 {
                     new_status.status = STATUS_NOT_AWAITED;
                 }
@@ -36,114 +31,122 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::v
                 {
                     new_status.status = STATUS_NO_DATA;
                 }
-                student_status[i][j].push_back(new_status);
+                attendance_info[i][j].planned.push_back(new_status);
             }
         }
     }
 }
 
-bool Calendar_Day::add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson)
+int Calendar_Day::find_merged_lesson(Lesson_Info& l_info) const
 {
-    Workout_Info new_workout_info;
-    new_workout_info.date = workout_date;
-    new_workout_info.lesson_pair = workout_lesson;
-    new_workout_info.student_id = student_id;
-    workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].push_back(new_workout_info);
-    return true;
-}
-
-bool Calendar_Day::add_workout(Lesson lesson, Workout_Info new_workout_info)
-{
-    workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].push_back(new_workout_info);
-    return true;
-}
-
-bool Calendar_Day::set_status(Lesson lesson, int student_id, int status)
-{
-    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
+    for (int current_merged_lesson = 0; current_merged_lesson < lessons.size(); current_merged_lesson++)
     {
-        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
-        if (current_student == student_id)
+        if (l_info == lessons[current_merged_lesson])
         {
-            student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].status = status;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Calendar_Day::set_discount_status(Lesson lesson, int student_id, int discount_status)
-{
-    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
-    {
-        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
-        if (current_student == student_id)
-        {
-            student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status = discount_status;
-            return true;
-        }
-    }
-    return false;
-}
-
-int Calendar_Day::get_discount_status(Lesson lesson, int student_id)
-{
-    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
-    {
-        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
-        if (current_student == student_id)
-        {
-            if (student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].status <= STATUS_NO_DATA)
-            {
-                return -1;
-            }
-            return student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i].discount_status;
+            return current_merged_lesson;
         }
     }
     return -1;
 }
 
-Student_Status Calendar_Day::get_status(Lesson lesson, int student_id) const
+bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to)
 {
-    for (int i = 0; i < all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_size(); i++)
+    Workout_Info new_workout_info{student_to_workout, merged_to, internal_to};
+    int appropriate_merged_lesson = -1;
+    for (int current_merged_lesson = 0; current_merged_lesson < lessons.size(); current_merged_lesson++)
     {
-        int current_student = all_groups->at(lessons->at(lesson.merged_lesson_id).get_group()).get_student_sort_id(i);
-        if (current_student == student_id)
+        if (merged_from == lessons[current_merged_lesson] && internal_from < lessons[current_merged_lesson].get_lessons_size())
         {
-            return student_status[lesson.merged_lesson_id][lesson.internal_lesson_id][i];
+            appropriate_merged_lesson = current_merged_lesson;
+            break;
         }
     }
-    Student_Status error_status;
-    error_status.status = STATUS_INVALID;
-    return error_status;
-}
-
-int Calendar_Day::get_workout_size(Lesson lesson)
-{
-    return workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].size();
-}
-
-int Calendar_Day::get_workout_student_id(Lesson lesson, int workout_id)
-{
-    return workouts[lesson.merged_lesson_id][lesson.internal_lesson_id][workout_id].student_id;
-}
-
-bool Calendar_Day::delete_workout(Lesson lesson, int workout_id)
-{
-    workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].erase(workouts[lesson.merged_lesson_id][lesson.internal_lesson_id].begin() + workout_id);
+    if (appropriate_merged_lesson == -1) return false;
+    for (int current_workout = 0; current_workout < attendance_info[appropriate_merged_lesson][internal_from].workouts.size(); current_workout++)
+    {
+        if (attendance_info[appropriate_merged_lesson][internal_from].workouts[current_workout].student == student_to_workout) return false;
+    }
+    attendance_info[appropriate_merged_lesson][internal_from].workouts.push_back(new_workout_info);
     return true;
 }
 
-bool Calendar_Day::add_student_to_group(int group_id, int student_id, int new_student_id)
+bool Calendar_Day::set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return false;
+    int student_id = merged_lesson.get_group().find_student(student);
+    if (student_id == -1) return false;
+    attendance_info[merged_lesson_id][internal_lesson].planned[student_id].status = status;
+    return true;
+}
+
+bool Calendar_Day::set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return false;
+    int student_id = merged_lesson.get_group().find_student(student);
+    if (student_id == -1) return false;
+    attendance_info[merged_lesson_id][internal_lesson].planned[student_id].discount_status = discount_status;
+    return true;
+}
+
+int Calendar_Day::get_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return -1;
+    int student_id = merged_lesson.get_group().find_student(student);
+    if (student_id == -1) return -1;
+    return attendance_info[merged_lesson_id][internal_lesson].planned[student_id].discount_status;
+}
+
+Student_Status Calendar_Day::get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const
+{
+    Student_Status error_status;
+    error_status.status = STATUS_INVALID;
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return error_status;
+    int student_id = merged_lesson.get_group().find_student(student);
+    if (student_id == -1) return error_status;
+    return attendance_info[merged_lesson_id][internal_lesson].planned[student_id];
+}
+
+int Calendar_Day::get_workout_size(Lesson_Info& merged_lesson, int internal_lesson)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return -1;
+    return attendance_info[merged_lesson_id][internal_lesson].workouts.size();
+}
+
+Student& Calendar_Day::get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int workout_id)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    //this must throw an exception if merged_lesson wasn't found anyway
+    return attendance_info[merged_lesson_id][merged_lesson_id].workouts[workout_id].student;
+}
+
+bool Calendar_Day::delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student)
+{
+    int merged_lesson_id = find_merged_lesson(merged_lesson);
+    if (merged_lesson_id == -1) return false;
+    int workout_id = -1;
+    for (int i = 0; i < attendance_info[merged_lesson_id][internal_lesson].workouts.size(); i++)
+    {
+        if (attendance_info[merged_lesson_id][internal_lesson].workouts[i].student == student) workout_id = i;
+    }
+    if (workout_id == -1) return false;
+    attendance_info[merged_lesson_id][internal_lesson].workouts.erase(attendance_info[merged_lesson_id][internal_lesson].workouts.begin() + workout_id);
+    return true;
+}
+
+bool Calendar_Day::add_student_to_group(Group& group, Student& new_student, int new_student_id)
 {
     if (new_student_id == -1) return false;
     Student_Status empty_status;
-    empty_status.student_id = student_id;
     empty_status.status = STATUS_NO_DATA;
     empty_status.discount_status = -1;
-    for (int i = 0; i < lessons->size(); i++)
+    for (int i = 0; i < lessons.size(); i++)
     {
-        if (lessons->at(i).get_group()==group_id)
+        if (lessons[i].get_group()==group)
         {
             for (int j = 0; j < lessons->at(i).get_lessons_size(); j++)
             {

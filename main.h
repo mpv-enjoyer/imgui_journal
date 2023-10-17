@@ -118,7 +118,6 @@ struct Students_List
 
 struct Student_Status
 {
-    int student_id; //DO NOT USE
     int status;
     std::tm workout_day;
     Lesson workout_lesson;
@@ -127,9 +126,15 @@ struct Student_Status
 
 struct Workout_Info
 {
-    int student_id;
-    Lesson_Pair lesson_pair;
-    std::tm date; //day
+    Student& student;
+    Lesson_Info& lesson_info;
+    int internal_lesson;
+};
+
+struct Internal_Attendance_Status
+{
+    std::vector<Student_Status> planned;
+    std::vector<Workout_Info>  workouts;
 };
 
 //Popups & secondary windows

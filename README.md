@@ -20,3 +20,7 @@ TODO:
 BUGS:
 
 none known currently
+
+Structural TODO:
+- Add hash table lookup instead of manually checking everything (probably done already as my == operators work on reference addresses)
+- Add overloads for Calendar_Day::get_status etc... for id input (must be much faster)

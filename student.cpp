@@ -1,4 +1,5 @@
 #include "main.h"
+#include "student.h"
 
 int Student::get_contract() const
 {
@@ -21,7 +22,7 @@ bool Student::add_lesson_ignore(Lesson_Info& new_lesson, int internal_lesson_id)
     return true;
 }
 
-bool Student::is_ignored(Lesson_Info& lesson, int internal_lesson)
+bool Student::is_ignored(Lesson_Info& lesson, int internal_lesson) const
 {
     for (int i = 0; i < lessons_ignore.size(); i++)
     {

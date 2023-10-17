@@ -2,7 +2,7 @@
 #include "group.h"
 #include "student.h"
 
-const Student& Group::get_student(int student_internal_id)
+const Student& Group::get_student(int student_internal_id) const
 {   
     return students[student_internal_id].student;
 }
@@ -33,6 +33,15 @@ bool Group::set_day_of_the_week(int new_day)
     if (new_day < -1 || new_day >= 7) return false;
     group_info.day_of_the_week = new_day;
     return true;
+}
+
+int Group::find_student(Student& student) const
+{
+    for (int i = 0; i < students.size(); i++)
+    {
+        if (students[i].student == student) return i;
+    }
+    return -1;
 }
 
 int Group::add_student(Student& new_student) //returns his internal id

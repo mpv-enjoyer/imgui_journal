@@ -11,9 +11,10 @@ public:
     Group(std::vector<Student>* students_list);
     int get_size() const;
     int get_number() const; bool set_number(int new_number);
+    int find_student(Student& student) const;
     int get_day_of_the_week() const;
     bool set_day_of_the_week(int new_day);
-    const Student& get_student(int student); int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
+    const Student& get_student(int student) const; int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
     bool is_in_group(Student& student) const;
