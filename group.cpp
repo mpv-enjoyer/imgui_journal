@@ -2,8 +2,8 @@
 #include "group.h"
 #include "student.h"
 
-const Student& Group::get_student(int known_student_id) const
-{   
+Student& Group::get_student(int known_student_id) const
+{
     return students[known_student_id].student;
 }
 

@@ -159,7 +159,8 @@ bool j_attendance_combo(const char* label, int* status)
     return false;
 };
 
-bool is_in_vector(std::vector<int> vector, int to_find)
+template <typename T = int>
+bool is_in_vector(std::vector<T> vector, T to_find)
 {
     for (int i = 0; i < vector.size(); i++)
     {

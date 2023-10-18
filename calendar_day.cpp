@@ -70,15 +70,15 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_
     return true;
 }
 
-bool Calendar_Day::add_workout(int known_id_student, int known_id_merged_from, int internal_from, Lesson_Info& merged_to, int internal_to)
+bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to)
 {
-    const Student& student_to_workout = lessons[known_id_merged_from].get_group().get_student(known_id_student);
+    const Student& student_to_workout = lessons[known_lesson_from.merged_lesson_id].get_group().get_student(known_id_student);
     Workout_Info new_workout_info{student_to_workout, merged_to, internal_to};
-    for (int current_workout = 0; current_workout < attendance_info[known_id_merged_from][internal_from].workouts.size(); current_workout++)
+    for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
-        if (attendance_info[known_id_merged_from][internal_from].workouts[current_workout].student == student_to_workout) return false;
+        if (attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts[current_workout].student == student_to_workout) return false;
     }
-    attendance_info[known_id_merged_from][internal_from].workouts.push_back(new_workout_info);
+    attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.push_back(new_workout_info);
     return true;
 }
 
@@ -92,9 +92,9 @@ bool Calendar_Day::set_status(Lesson_Info& merged_lesson, int internal_lesson, S
     return true;
 }
 
-bool Calendar_Day::set_status(int known_id_merged_lesson, int internal_lesson, int known_id_student, int status)
+bool Calendar_Day::set_status(Lesson known_lesson, int known_id_student, int status)
 {
-    attendance_info[known_id_merged_lesson][internal_lesson].planned[known_id_student].status = status;
+    attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student].status = status;
     return true;
 }
 
@@ -117,6 +117,11 @@ int Calendar_Day::get_discount_status(Lesson_Info& merged_lesson, int internal_l
     return attendance_info[merged_lesson_id][internal_lesson].planned[student_id].discount_status;
 }
 
+int Calendar_Day::get_discount_status(Lesson known_lesson, int known_id_student)
+{
+    return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student].discount_status;
+}
+
 Student_Status Calendar_Day::get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const
 {
     Student_Status error_status;
@@ -128,9 +133,9 @@ Student_Status Calendar_Day::get_status(Lesson_Info& merged_lesson, int internal
     return attendance_info[merged_lesson_id][internal_lesson].planned[student_id];
 }
 
-Student_Status Calendar_Day::get_status(int known_id_merged_lesson, int internal_lesson, int known_id_student)
+Student_Status Calendar_Day::get_status(Lesson known_lesson, int known_id_student)
 {
-    return attendance_info[known_id_merged_lesson][internal_lesson].planned[known_id_student];
+    return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student];
 }
 
 int Calendar_Day::get_workout_size(Lesson_Info& merged_lesson, int internal_lesson)
@@ -140,9 +145,9 @@ int Calendar_Day::get_workout_size(Lesson_Info& merged_lesson, int internal_less
     return attendance_info[merged_lesson_id][internal_lesson].workouts.size();
 }
 
-int Calendar_Day::get_workout_size(int known_merged_lesson_id, int internal_lesson)
+int Calendar_Day::get_workout_size(Lesson known_lesson)
 {
-    return attendance_info[known_merged_lesson_id][internal_lesson].workouts.size();
+    return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts.size();
 }
 
 const Student& Calendar_Day::get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int workout_id)
@@ -211,7 +216,7 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
     }
 }*/
 
-bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_merged_lesson_id)
+bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id)
 {
     attendance_info.push_back(std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
@@ -221,25 +226,25 @@ bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no
         else new_status.status = STATUS_NO_DATA;
         for (int k = 0; k < new_lesson_info.get_group().get_size(); k++)
         {
-            attendance_info[known_merged_lesson_id][j].planned[k] = new_status;
+            attendance_info[known_new_merged_lesson_id][j].planned[k] = new_status;
         }
     }
     return true;
 }
 
-Workout_Info Calendar_Day::get_workout_info(int known_merged_lesson_id, int internal_lesson_id, int known_workout_id)
+Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, int known_workout_id)
 {
-    return attendance_info[known_merged_lesson_id][internal_lesson_id].workouts[known_merged_lesson_id];
+    return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[known_workout_id];
 }
 
-Workout_Info Calendar_Day::get_workout_info(int known_merged_lesson_id, int internal_lesson_id, Student& student)
+Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, Student& student)
 {
-    int workout_size = get_workout_size(known_merged_lesson_id, internal_lesson_id);
+    int workout_size = attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts.size();
     for (int i = 0; i < workout_size; i++)
     {
-        if (attendance_info[known_merged_lesson_id][internal_lesson_id].workouts[i].student == student) 
+        if (attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[i].student == student) 
         {
-            return attendance_info[known_merged_lesson_id][internal_lesson_id].workouts[i];
+            return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[i];
         }
     }
 }
