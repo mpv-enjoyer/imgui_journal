@@ -139,6 +139,14 @@ struct Internal_Attendance_Status
     std::vector<Workout_Info>  workouts;
 };
 
+struct Visible_Day
+{
+    int number; //WARNING: THIS STARTS WITH 1
+    Calendar_Day& day;
+    bool is_future;
+    bool is_today;
+};
+
 //Popups & secondary windows
 static int popup_edit_ignore_lessons_is_open = -1;
 bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);

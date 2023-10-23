@@ -25,6 +25,7 @@ private:
     ImGuiTextFilter text_filter;
     std::vector<Student&>& all_students;
     Group& current_group;
+    Lesson_Info& current_lesson;
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
 public:
@@ -38,8 +39,8 @@ public:
             possible_student_ids.push_back(i);
         }
     };*/ //this is probably unneeded (uncomment if it doesn't compile)
-    Popup_Add_Student_To_Group(Group& current_group, std::vector<Student&>& all_students, int merged_lesson_known_id) 
-    : current_group(current_group), all_students(all_students), merged_lesson_known_id(merged_lesson_known_id)
+    Popup_Add_Student_To_Group(Lesson_Info& current_lesson, std::vector<Student&>& all_students, int merged_lesson_known_id) 
+    : current_group(current_lesson.get_group()), all_students(all_students), merged_lesson_known_id(merged_lesson_known_id), current_lesson(current_lesson)
     {
         for (int i = 0; i < all_students.size(); i++)
         {
@@ -49,7 +50,7 @@ public:
             possible_student_ids.push_back(i);
         }
     };
-    int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
+    int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
     Student& get_added_student() { IM_ASSERT(check_ok()); return all_students[current_selected_student]; };
     Group& get_current_group() { IM_ASSERT(check_ok()); return current_group; };
     bool show_frame();
@@ -57,8 +58,7 @@ public:
     { 
         if (!select_visible || current_selected_student!=-1) error("Выберите ученика");
         return select_visible && current_selected_student!=-1; }
-    void accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
-        std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week);
+    void accept_changes(const std::vector<Visible_Day>& visible_days);
 };
 
 class Popup_Select_Day_Of_The_Week : public Popup
@@ -98,20 +98,20 @@ public:
         if (contract < 0) error("SYSTEM_NEGATIVE_CONTRACT");
         return contract >= 0;
     }
-    void accept_changes(std::vector<Student>& all_students);
+    void accept_changes(std::vector<Student&>& all_students);
 };
 
 class Popup_Add_Merged_Lesson_To_Journal : public Popup
 {
 private:
     int day_of_the_week;
-    const std::vector<Group>& all_groups;
+    const std::vector<Group&>& all_groups;
     int group_number = 0;
     std::string group_comment;
     int combo_lesson_name_id = 0;
     std::vector<Lesson_Pair> lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
 public:
-    Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group>& all_groups, int current_day_of_the_week)
+    Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group&>& all_groups, int current_day_of_the_week)
     : all_groups(all_groups), day_of_the_week(current_day_of_the_week) {}; 
     bool show_frame();
     bool is_ok_possible()

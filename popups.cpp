@@ -43,24 +43,23 @@ bool Popup_Add_Student_To_Group::show_frame()
     return false;
 }
 
-void Popup_Add_Student_To_Group::accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
-    std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week)
+void Popup_Add_Student_To_Group::accept_changes(const std::vector<Visible_Day>& visible_days)
 //this function might lead to SEGFAULT if trying to add student to a group which has multiple lessons in a week.
 //shouldn't be a problem for me though because my project assumes that every group has exactly one lesson
 //but in case someone else wants to use it, please rewrite this
 {
     Group& current_group = get_current_group();
-    int current_merged_lesson = get_merged_lesson();
+    int current_merged_lesson_id = get_merged_lesson_known_id();
     int new_student_id = current_group.add_student(get_added_student());
-    for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
+    for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
     {
-        all_days[visible_table_columns[current_day_cell]].add_student_to_group(current_group, get_added_student(), new_student_id);
-        for (int internal_lesson_id = 0; internal_lesson_id < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); internal_lesson_id++)
+        visible_days[current_day_cell].day.add_student_to_group(current_group, get_added_student(), new_student_id);
+        for (int internal_lesson_id = 0; internal_lesson_id < current_lesson.get_lessons_size(); internal_lesson_id++)
         {
-            Lesson current_lesson = {current_merged_lesson, internal_lesson_id};
+            Lesson current_known_lesson = {current_merged_lesson_id, internal_lesson_id};
             int status = STATUS_NO_DATA;
-            if (visible_table_columns[current_day_cell] < current_mday - MDAY_DIFF) status = STATUS_NOT_AWAITED;
-            all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, new_student_id, status);
+            if (!(visible_days[current_day_cell].is_future || visible_days[current_day_cell].is_today)) status = STATUS_NOT_AWAITED;
+            visible_days[current_day_cell].day.set_status(current_known_lesson, new_student_id, status);
         }
     }
 }
@@ -124,7 +123,7 @@ bool Popup_Add_Student_To_Base::show_frame()
     return false;
 }
 
-void Popup_Add_Student_To_Base::accept_changes(std::vector<Student>& all_students)
+void Popup_Add_Student_To_Base::accept_changes(std::vector<Student&>& all_students)
 {
     IM_ASSERT(check_ok());
     Student output;
@@ -175,12 +174,12 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
     return false;
 }
 
-void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
+void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>& all_groups, std::vector<Student>* all_students,
     std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday)
 {
     IM_ASSERT(check_ok());
-    Lesson_Info lesson_info = Lesson_Info(all_groups);
-    Group new_group = Group(all_students);
+    Group new_group = Group();
+    Lesson_Info lesson_info = Lesson_Info(new_group);
     new_group.set_number(group_number);
     new_group.set_day_of_the_week(day_of_the_week);
     new_group.set_comment(group_comment);
@@ -198,8 +197,8 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>* all_
         lesson_pairs[1].lesson_name_id = 0;
         lesson_info.add_lesson_pair(lesson_pairs[1]);
     } 
-    all_groups->push_back(new_group);
-    lesson_info.set_group(all_groups->size()-1);
+    all_groups.push_back(new_group);
+    lesson_info.set_group(all_groups.size()-1);
     (*all_lessons)[day_of_the_week].push_back(lesson_info);
     (*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups->size() - 1);
     for (int i = 0; i < visible_table_columns.size(); i++)
