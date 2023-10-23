@@ -137,8 +137,7 @@ public:
             if (lesson_pairs[0].time_begin >= lesson_pairs[0].time_end) { error("Недопустимое время"); return false; }
             return true;
     };
-    void accept_changes(std::vector<Group>* all_groups, std::vector<Student>* all_students,
-    std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday);
+    void accept_changes(std::vector<Group&>& all_groups, std::vector<Lesson_Info&>& lessons_in_this_day, const std::vector<Visible_Day>& visible_days);
 };
 
 class Popup_Add_Working_Out : public Popup

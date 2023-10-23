@@ -174,8 +174,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
     return false;
 }
 
-void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>& all_groups, std::vector<Student>* all_students,
-    std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days, const std::vector<int>& visible_table_columns, int current_mday)
+void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group&>& all_groups, std::vector<Lesson_Info&>& lessons_in_this_day, const std::vector<Visible_Day>& visible_days)
 {
     IM_ASSERT(check_ok());
     Group new_group = Group();
@@ -198,14 +197,23 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group>& all_
         lesson_info.add_lesson_pair(lesson_pairs[1]);
     } 
     all_groups.push_back(new_group);
-    lesson_info.set_group(all_groups.size()-1);
-    (*all_lessons)[day_of_the_week].push_back(lesson_info);
-    (*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups->size() - 1);
-    for (int i = 0; i < visible_table_columns.size(); i++)
+    lesson_info.set_group(new_group);
+    int new_merged_lesson_known_id = lessons_in_this_day.size();
+    for (int i = 0; i < lessons_in_this_day.size(); i++)
+    {
+        if (lessons_in_this_day[i] < lesson_info)
+        {
+            new_merged_lesson_known_id = i;
+            break;
+        }
+    }
+    lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, lesson_info);
+    //(*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups[all_groups.size() - 1]); useless?
+    for (int i = 0; i < visible_days.size(); i++)
     {
         bool await_no_one = false;
-        if (current_mday >= visible_table_columns[i]) await_no_one = true;
-        (*all_days)[visible_table_columns[i]].add_merged_lesson(day_of_the_week, lesson_info, await_no_one, all_lessons[day_of_the_week].size() - 1);
+        if (!(visible_days[i].is_future || visible_days[i].is_today)) await_no_one = true;
+        visible_days[i].day.add_merged_lesson(lesson_info, await_no_one, new_merged_lesson_known_id);
     }
 }
 

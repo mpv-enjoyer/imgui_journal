@@ -289,7 +289,7 @@ if (popup_add_merged_lesson_to_journal)
     bool is_done = popup_add_merged_lesson_to_journal->show_frame();
     if (is_done && popup_add_merged_lesson_to_journal->check_ok())
     {
-        popup_add_merged_lesson_to_journal->accept_changes(&all_groups, &all_students, &all_lessons, &all_days, visible_table_columns, current_time.tm_mday - 1);
+        popup_add_merged_lesson_to_journal->accept_changes(all_groups, all_lessons[current_day_of_the_week], visible_days);
     }
     if (is_done)
     {
