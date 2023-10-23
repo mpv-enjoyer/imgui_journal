@@ -8,7 +8,7 @@ private:
     int contract;
     std::string name;
     int age_group = -1;
-    std::vector<Lesson_Ignore> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
+    std::vector<Lesson_Ignore> lessons_ignore;
 public:
     Student();
     int get_contract() const; bool set_contract(int new_contract);
@@ -19,6 +19,12 @@ public:
     bool delete_lesson_ignore(Lesson_Info& lesson_to_delete, int internal_lesson); 
     int get_lessons_size();
     bool is_removed() const; bool remove(); bool restore();
+    bool is_identical(const Student& rhs) const //this is an entry check. Once there is an identical student for some reason, do nothing about it.
+    {
+        if (removed) return false;
+        if (name == rhs.name && contract == rhs.contract) return true;
+        return false;
+    }
     bool operator==(const Student& rhs) const { return this == &rhs; }
     bool operator!=(const Student& rhs) const { return !(this == &rhs); }
     bool operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }

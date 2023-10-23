@@ -7,19 +7,19 @@ private:
     std::vector<Lesson_Info&>& lessons;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
-    Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day); //LESSONS MUST BE SORTED.
+    Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
     Student_Status get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const;
     Student_Status get_status(Lesson known_lesson, int known_id_student);
-    bool add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to);
-    bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to);
+    bool add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
+    bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
     int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson);
     int get_workout_size(Lesson known_lesson);
     const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int known_workout_id);
     const Student& get_workout_student(Lesson known_lesson, int known_workout_id);
     Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id);
-    Workout_Info get_workout_info(Lesson known_lesson, Student& student);
+    Workout_Info get_workout_info(Lesson known_lesson, const Student& student);
     bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
     bool delete_workout(Lesson known_lesson, int known_workout_id);
     bool set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status);

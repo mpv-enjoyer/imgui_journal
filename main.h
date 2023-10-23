@@ -130,6 +130,7 @@ struct Workout_Info
     const Student& student;
     Lesson_Info& lesson_info;
     int internal_lesson;
+    std::tm cached_date;
 };
 
 struct Internal_Attendance_Status

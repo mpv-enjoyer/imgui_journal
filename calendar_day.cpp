@@ -49,9 +49,9 @@ int Calendar_Day::find_merged_lesson(Lesson_Info& l_info) const
     return -1;
 }
 
-bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to)
+bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
-    Workout_Info new_workout_info{student_to_workout, merged_to, internal_to};
+    Workout_Info new_workout_info{student_to_workout, merged_to, internal_to, cached_time_to};
     int appropriate_merged_lesson = -1;
     for (int current_merged_lesson = 0; current_merged_lesson < lessons.size(); current_merged_lesson++)
     {
@@ -70,10 +70,10 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_
     return true;
 }
 
-bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to)
+bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
     const Student& student_to_workout = lessons[known_lesson_from.merged_lesson_id].get_group().get_student(known_id_student);
-    Workout_Info new_workout_info{student_to_workout, merged_to, internal_to};
+    Workout_Info new_workout_info{student_to_workout, merged_to, internal_to, cached_time_to};
     for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
         if (attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts[current_workout].student == student_to_workout) return false;
@@ -237,7 +237,7 @@ Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, int known_worko
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[known_workout_id];
 }
 
-Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, Student& student)
+Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, const Student& student)
 {
     int workout_size = attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts.size();
     for (int i = 0; i < workout_size; i++)

@@ -16,13 +16,13 @@ public:
     bool Lesson_Info::should_attend(Student& student) const;
     int get_lessons_size() const;
     std::string get_description(int current_internal_lesson = -1) const;
-    bool operator==(const Lesson_Info& rhs) { return this == &rhs; }
-    bool operator!=(const Lesson_Info& rhs) { return !(this == &rhs); }
-    bool operator< (const Lesson_Info& rhs) 
+    bool operator==(const Lesson_Info& rhs) const { return this == &rhs; }
+    bool operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
+    bool operator< (const Lesson_Info& rhs) const
     {
         if (lesson_pairs[0].time_begin < rhs.get_lesson_pair(0).time_begin) return true;
         if (lesson_pairs[0].time_begin > rhs.get_lesson_pair(0).time_begin) return false;
         return group.get_number() < rhs.get_group().get_number();
     }
-    bool operator> (const Lesson_Info& rhs) { return !(*this < rhs) && (*this != rhs); };
+    bool operator> (const Lesson_Info& rhs) const { return !(*this < rhs) && (*this != rhs); };
 };

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "helper_functions.h"
+#include "student.h"
 
 const char* c_str_int(int num)
 {
@@ -159,7 +160,7 @@ bool j_attendance_combo(const char* label, int* status)
     return false;
 };
 
-template <typename T = int>
+template <typename T = int, const Student&>
 bool is_in_vector(std::vector<T> vector, T to_find)
 {
     for (int i = 0; i < vector.size(); i++)
