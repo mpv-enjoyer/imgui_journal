@@ -20,15 +20,15 @@ class Popup_Add_Student_To_Group : public Popup
 {
 private:
     int current_group_id = -1;
-    int merged_lesson = -1;
+    int merged_lesson_known_id;
     int current_selected_student = -1;
     ImGuiTextFilter text_filter;
-    std::vector<Student>* all_students = nullptr;
-    std::vector<Group>* all_groups = nullptr;
+    std::vector<Student&>& all_students;
+    Group& current_group;
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
 public:
-    Popup_Add_Student_To_Group()
+    /*Popup_Add_Student_To_Group()
     {        
         for (int i = 0; i < all_students->size(); i++)
         {
@@ -37,22 +37,21 @@ public:
             possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
-    };
-    Popup_Add_Student_To_Group(int current_group_id, std::vector<Student>* all_students, std::vector<Group>* all_groups, int merged_lesson) 
-    : current_group_id(current_group_id), all_students(all_students), all_groups(all_groups), merged_lesson(merged_lesson)
+    };*/ //this is probably unneeded (uncomment if it doesn't compile)
+    Popup_Add_Student_To_Group(Group& current_group, std::vector<Student&>& all_students, int merged_lesson_known_id) 
+    : current_group(current_group), all_students(all_students), merged_lesson_known_id(merged_lesson_known_id)
     {
-        IM_ASSERT(!(current_group_id >= all_groups->size() || current_group_id < 0 || merged_lesson < 0));
-        for (int i = 0; i < all_students->size(); i++)
+        for (int i = 0; i < all_students.size(); i++)
         {
-            if (all_students->at(i).is_removed()) continue;
-            if (all_groups->at(current_group_id).is_in_group(i)) continue;
-            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
+            if (all_students[i].is_removed()) continue;
+            if (current_group.is_in_group(all_students[i])) continue;
+            possible_student_descriptions.push_back((all_students[i].get_name() + " (" + std::to_string(all_students[i].get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
     };
-    int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson; };
-    int get_added_student() { IM_ASSERT(check_ok()); return current_selected_student; };
-    int get_current_group_id() { IM_ASSERT(check_ok()); return current_group_id; };
+    int get_merged_lesson() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
+    Student& get_added_student() { IM_ASSERT(check_ok()); return all_students[current_selected_student]; };
+    Group& get_current_group() { IM_ASSERT(check_ok()); return current_group; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) 
     { 
@@ -147,8 +146,8 @@ class Popup_Add_Working_Out : public Popup
 private:
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
-    const std::vector<Student>& all_students;
-    const std::vector<Group>& all_groups;
+    const std::vector<Student&>& all_students;
+    //const std::vector<Group>& all_groups;
     const std::vector<std::vector<Lesson_Info>>& all_lessons;
     const std::vector<Calendar_Day>& all_days;
     int first_mwday = -1;
@@ -164,8 +163,8 @@ private:
     Lesson caller_lesson;
     ImGuiTextFilter filter;
 public:
-    Popup_Add_Working_Out(const std::vector<Student>& all_students, const std::vector<Group>& all_groups, const std::vector<std::vector<Lesson_Info>>& all_lessons, 
-    const std::vector<Calendar_Day>& all_days, int current_group_id, const std::tm& current_time, const std::tm& current_lesson_time, const Lesson& current_lesson) :
+    Popup_Add_Working_Out(const std::vector<Student&>& all_students, const std::vector<std::vector<Lesson_Info>>& all_lessons, const std::vector<Calendar_Day>& all_days,
+    int current_group_id, const std::tm& current_time, const std::tm& current_lesson_time, const Lesson_Info& current_lesson) :
     all_students(all_students), all_groups(all_groups), all_lessons(all_lessons), all_days(all_days)
     {
         for (int i = 0; i < all_students.size(); i++)

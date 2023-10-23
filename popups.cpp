@@ -45,10 +45,13 @@ bool Popup_Add_Student_To_Group::show_frame()
 
 void Popup_Add_Student_To_Group::accept_changes(const std::vector<std::vector<Lesson_Info>>& all_lessons,
     std::vector<Calendar_Day>& all_days, int current_mday, std::vector<int> visible_table_columns, int current_day_of_the_week)
+//this function might lead to SEGFAULT if trying to add student to a group which has multiple lessons in a week.
+//shouldn't be a problem for me though because my project assumes that every group has exactly one lesson
+//but in case someone else wants to use it, please rewrite this
 {
-    int current_group = get_current_group_id();
+    Group& current_group = get_current_group();
     int current_merged_lesson = get_merged_lesson();
-    int new_student_id = (*all_groups)[current_group].add_student(get_added_student());
+    int new_student_id = current_group.add_student(get_added_student());
     for (int current_day_cell = 0; current_day_cell < visible_table_columns.size(); current_day_cell++)
     {
         all_days[visible_table_columns[current_day_cell]].add_student_to_group(current_group, get_added_student(), new_student_id);
@@ -57,7 +60,7 @@ void Popup_Add_Student_To_Group::accept_changes(const std::vector<std::vector<Le
             Lesson current_lesson = {current_merged_lesson, internal_lesson_id};
             int status = STATUS_NO_DATA;
             if (visible_table_columns[current_day_cell] < current_mday - MDAY_DIFF) status = STATUS_NOT_AWAITED;
-            all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, get_added_student(), status);
+            all_days[visible_table_columns[current_day_cell]].set_status(current_lesson, new_student_id, status);
         }
     }
 }
