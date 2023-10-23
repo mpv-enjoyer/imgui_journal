@@ -49,19 +49,11 @@ int Calendar_Day::find_merged_lesson(Lesson_Info& l_info) const
     return -1;
 }
 
-bool Calendar_Day::add_workout(Student& student_to_workout, Lesson_Info& merged_from, int internal_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
+bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
     Workout_Info new_workout_info{student_to_workout, merged_to, internal_to, cached_time_to};
-    int appropriate_merged_lesson = -1;
-    for (int current_merged_lesson = 0; current_merged_lesson < lessons.size(); current_merged_lesson++)
-    {
-        if (merged_from == lessons[current_merged_lesson] && internal_from < lessons[current_merged_lesson].get_lessons_size())
-        {
-            appropriate_merged_lesson = current_merged_lesson;
-            break;
-        }
-    }
-    if (appropriate_merged_lesson == -1) return false;
+    int internal_from = known_lesson_from.internal_lesson_id;
+    int appropriate_merged_lesson = known_lesson_from.merged_lesson_id;
     for (int current_workout = 0; current_workout < attendance_info[appropriate_merged_lesson][internal_from].workouts.size(); current_workout++)
     {
         if (attendance_info[appropriate_merged_lesson][internal_from].workouts[current_workout].student == student_to_workout) return false;
@@ -82,6 +74,11 @@ bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, L
     return true;
 }
 
+bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_from, Workout_Info new_workout_info)
+{
+    attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.push_back(new_workout_info);
+}
+
 bool Calendar_Day::set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status)
 {
     int merged_lesson_id = find_merged_lesson(merged_lesson);
@@ -96,6 +93,11 @@ bool Calendar_Day::set_status(Lesson known_lesson, int known_id_student, int sta
 {
     attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student].status = status;
     return true;
+}
+
+int Calendar_Day::find_student(Student& student, int known_merged_lesson_id)
+{
+    return lessons[known_merged_lesson_id].get_group().find_student(student);
 }
 
 bool Calendar_Day::set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status)
@@ -133,7 +135,7 @@ Student_Status Calendar_Day::get_status(Lesson_Info& merged_lesson, int internal
     return attendance_info[merged_lesson_id][internal_lesson].planned[student_id];
 }
 
-Student_Status Calendar_Day::get_status(Lesson known_lesson, int known_id_student)
+Student_Status Calendar_Day::get_status(Lesson known_lesson, int known_id_student) const
 {
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student];
 }

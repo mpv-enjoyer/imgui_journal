@@ -332,7 +332,7 @@ bool Popup_Add_Working_Out::show_frame()
                     bool should_attend = false;
                     for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
                     {
-                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j].should_attend(select_student);
+                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j].should_attend(all_students[select_student]);
                     }
                     if (should_attend) 
                     {
@@ -381,7 +381,7 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     current_lesson.internal_lesson_id = current_internal_lesson;
                     if (select_month == caller_month && select_year == caller_year && select_day == caller_mday && current_lesson == caller_lesson) continue;
-                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson].should_attend(select_student))
+                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson].should_attend(all_students[select_student]))
                     {
                         bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
                         is_visible = is_visible || checkbox_value;
@@ -410,13 +410,13 @@ bool Popup_Add_Working_Out::show_frame()
 void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day>& all_days)
 {
     IM_ASSERT(check_ok());
-    Workout_Info lesson_to_workout;
-    lesson_to_workout.lesson_pair = all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id].get_lesson_pair(select_lesson.internal_lesson_id);
-    lesson_to_workout.date = { 0, 0, 0, // second, minute, hour
+    
+    //lesson_to_workout.lesson_pair = all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id].get_lesson_pair(select_lesson.internal_lesson_id);
+    std::tm date_to = { 0, 0, 0, // second, minute, hour
     select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
-    lesson_to_workout.date.tm_wday = get_wday(select_day, select_month, select_year);
-    lesson_to_workout.student_id = select_student;
-    all_days[caller_mday].add_workout(caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
+    date_to.tm_wday = get_wday(select_day, select_month, select_year);
+    Workout_Info lesson_to_workout { all_students[select_student], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
+    all_days[caller_mday].add_workout(all_students[select_student], caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
     all_days[select_day].set_status(select_lesson, select_student, STATUS_WORKED_OUT);
     int current_student_contract = all_students[select_student].get_contract();
     int current_discount_level = -1;
@@ -428,5 +428,6 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day>& all_days)
         }
     }
     if (current_discount_level == -1) current_discount_level = 0;
-    all_days[select_day].set_discount_status(select_lesson, select_student, current_discount_level);
+    int current_internal_student_id = all_days[select_day].find_student(all_students[select_student], select_lesson.merged_lesson_id);
+    all_days[select_day].set_discount_status(select_lesson, current_internal_student_id, current_discount_level);
 }

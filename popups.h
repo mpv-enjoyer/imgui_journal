@@ -147,8 +147,9 @@ private:
     std::vector<int> possible_student_ids;
     const std::vector<Student&>& all_students;
     //const std::vector<Group>& all_groups;
-    const std::vector<std::vector<Lesson_Info>>& all_lessons;
-    const std::vector<Calendar_Day>& all_days;
+    Group& current_group;
+    std::vector<std::vector<Lesson_Info&>>& all_lessons;
+    const std::vector<Calendar_Day&>& all_days;
     int first_mwday = -1;
     int count_mday = -1;
     int select_student = -1;
@@ -162,14 +163,14 @@ private:
     Lesson caller_lesson;
     ImGuiTextFilter filter;
 public:
-    Popup_Add_Working_Out(const std::vector<Student&>& all_students, const std::vector<std::vector<Lesson_Info>>& all_lessons, const std::vector<Calendar_Day>& all_days,
-    int current_group_id, const std::tm& current_time, const std::tm& current_lesson_time, const Lesson_Info& current_lesson) :
-    all_students(all_students), all_groups(all_groups), all_lessons(all_lessons), all_days(all_days)
+    Popup_Add_Working_Out(const std::vector<Student&>& all_students, std::vector<std::vector<Lesson_Info&>>& all_lessons, const std::vector<Calendar_Day&>& all_days,
+    Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson):
+    all_students(all_students), all_lessons(all_lessons), all_days(all_days), current_group(current_group)
     {
         for (int i = 0; i < all_students.size(); i++)
         {
             if (all_students[i].is_removed()) continue;
-            if (all_groups[current_group_id].is_in_group(i)) continue;
+            if (current_group.is_in_group(all_students[i])) continue;
             possible_student_descriptions.push_back((all_students[i].get_name() + " (" + std::to_string(all_students[i].get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
