@@ -197,5 +197,5 @@ public:
         if (requested_status.status == STATUS_INVALID) { error("SYSTEM_STATUS_INVALID"); return false; }
         return true;
     };
-    void accept_changes(std::vector<Calendar_Day>& all_days);
+    void accept_changes(std::vector<Calendar_Day&>& all_days);
 };

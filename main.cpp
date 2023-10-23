@@ -474,7 +474,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         {
             std::tm current_lesson_time = { 0, 0, 0,
                     current_time.tm_mday - 1, current_month, current_year };
-            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
+            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
         }
         if (current_time.tm_wday != current_day_of_the_week) ImGui::EndDisabled();
         std::vector<const Student&> working_out_students;
@@ -509,7 +509,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     Group& current_group = current_merged_lesson_ref.get_group();
                     std::tm current_lesson_time = { 0, 0, 0,
                             visible_days[current_day_cell].number - MDAY_DIFF, current_month, current_year };
-                    popup_add_working_out = new Popup_Add_Working_Out(all_students, all_groups, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
+                    popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
                 }
             }
         }

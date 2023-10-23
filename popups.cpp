@@ -407,7 +407,7 @@ bool Popup_Add_Working_Out::show_frame()
     return false;
 }
 
-void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day>& all_days)
+void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day&>& all_days)
 {
     IM_ASSERT(check_ok());
     
