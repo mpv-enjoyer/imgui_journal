@@ -1,24 +1,15 @@
-#include "main.h"
-#include "popups.h"
-#include "helper_functions.h"
-#include "student.h"
-#include "group.h"
-#include "lesson_info.h"
-#include "calendar_day.h"
+#include "subwindows.h"
 
-bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open)
+bool Subwindow_Students_List::show_frame()
 {
-    ImGui::Begin("Список всех учеников", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin("Список всех учеников", nullptr, WINDOW_FLAGS);
 
-    static Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
-    static bool edit_mode = false;
-    
     if (popup_add_student_to_base)
     {
         const bool result = popup_add_student_to_base->show_frame();
         if (result && popup_add_student_to_base->check_ok())
         {
-            popup_add_student_to_base->accept_changes(*all_students);
+            popup_add_student_to_base->accept_changes(all_students);
         }
         if (result)
         {
@@ -54,12 +45,13 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
         int contract_input_buffer;
         int lesson_name_input_buffer;
         bool is_removed_input_buffer;
-        for (int student_id = 0; student_id < all_students->size(); student_id++)
+        for (int student_id = 0; student_id < all_students.size(); student_id++)
         {
+            Student& current_student = all_students[student_id];
             ImGui::PushID(student_id);
-            name_input_buffer = all_students->at(student_id).get_name();
-            contract_input_buffer = all_students->at(student_id).get_contract();
-            is_removed_input_buffer = all_students->at(student_id).is_removed();
+            name_input_buffer = current_student.get_name();
+            contract_input_buffer = current_student.get_contract();
+            is_removed_input_buffer = current_student.is_removed();
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             ImGui::SetNextItemWidth(-1);
@@ -67,7 +59,7 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             {
                 if (ImGui::InputText("##ФИ", &name_input_buffer))
                 {
-                    all_students->at(student_id).set_name(name_input_buffer);
+                    current_student.set_name(name_input_buffer);
                 };
             }
             else
@@ -77,54 +69,52 @@ bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_g
             ImGui::TableNextColumn(); 
             if (!edit_mode) 
             {
-                ImGui::Text(std::to_string(all_students->at(student_id).get_contract()).c_str());
+                ImGui::Text(std::to_string(current_student.get_contract()).c_str());
             }
             else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
-                all_students->at(student_id).set_contract(contract_input_buffer);
-                
+                current_student.set_contract(contract_input_buffer);
             }
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
-            for (int group_id = 0; group_id < all_groups->size(); group_id++) //TODO: literally doing twice as much work.
+            for (int group_id = 0; group_id < all_groups.size(); group_id++) //TODO: literally doing twice as much work.
             //TODO: wrapping
             {
-                if (all_groups->at(group_id).is_in_group(student_id)) 
+                if (all_groups.at(group_id).is_in_group(current_student)) 
                 {
                     ImGui::BeginGroup();
-                    ImGui::Text((std::to_string(all_groups->at(group_id).get_number()) + ", " + Day_Names[all_groups->at(group_id).get_day_of_the_week()]).c_str()); 
+                    ImGui::Text((std::to_string(all_groups[group_id].get_number()) + ", " + Day_Names[all_groups[group_id].get_day_of_the_week()]).c_str()); 
                     ImGui::EndGroup();
                 }
             }
-
             ImGui::TableNextColumn(); 
             if (edit_mode) 
             {
-                lesson_name_input_buffer = all_students->at(student_id).get_age_group() + 1; // plus one for a "not assigned" placeholder
+                lesson_name_input_buffer = current_student.get_age_group() + 1; // plus one for a "not assigned" placeholder
                 if (ImGui::Combo("##возрастная группа", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
                 {
-                    all_students->at(student_id).set_age_group(lesson_name_input_buffer - 1);
+                    current_student.set_age_group(lesson_name_input_buffer - 1);
                 }
             }
             else
             {
-                ImGui::Text(all_students->at(student_id).get_age_group_string().c_str());
+                ImGui::Text(current_student.get_age_group_string().c_str());
             }
 
             ImGui::TableNextColumn(); 
-            if (ImGui::Button("Посещение"))
+            /*if (ImGui::Button("Посещение"))
             {
                 *popup_edit_ignore_lessons_is_open = student_id;
-            } 
-            ImGui::SameLine();
+            }
+            ImGui::SameLine(); this is commented for now but I will replace this with combobox in main*/ 
             HelpMarker("student ignore help placeholder");
             ImGui::SameLine(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
-                if (is_removed_input_buffer) all_students->at(student_id).remove();
-                if (!is_removed_input_buffer) all_students->at(student_id).restore();
+                if (is_removed_input_buffer) current_student.remove();
+                if (!is_removed_input_buffer) current_student.restore();
             }
             ImGui::PopStyleColor();
             ImGui::PopID();

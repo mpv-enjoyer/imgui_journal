@@ -10,8 +10,8 @@ private:
 public:
     Popup() { };
     bool check_ok() { return accept_edit; }
-    bool cancel() { accept_edit = false; return true; }
-    bool ok() { accept_edit = true; return true; }
+    void cancel() { accept_edit = false; }
+    void ok() { accept_edit = true; }
     void error(std::string desc) { last_error = "ошибка: " + desc; }
     void print_error() { ImGui::TextDisabled(last_error.c_str()); }
 };

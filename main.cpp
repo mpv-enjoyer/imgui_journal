@@ -5,6 +5,7 @@
 #include "lesson_info.h"
 #include "calendar_day.h"
 #include "student.h"
+#include "subwindows.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -164,9 +165,7 @@ int main(int, char**)
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
     Popup_Add_Working_Out* popup_add_working_out = nullptr;
-
-    bool window_add_student_list_is_open = false;
-    int popup_edit_ignore_lessons_is_open = -1;
+    Subwindow_Students_List* subwindow_students_list = nullptr;
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -185,26 +184,19 @@ glfwPollEvents();
 ImGui_ImplOpenGL3_NewFrame();
 ImGui_ImplGlfw_NewFrame();
 ImGui::NewFrame();
-static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+//static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 const ImGuiViewport* viewport = ImGui::GetMainViewport();
 ImGui::SetNextWindowPos(viewport->WorkPos);
 ImGui::SetNextWindowSize(viewport->WorkSize);
-if (window_add_student_list_is_open)
+if (subwindow_students_list)
 {
-    if (students_list(&all_students, &all_groups, &popup_edit_ignore_lessons_is_open))
+    if (subwindow_students_list->show_frame())
     {
-        window_add_student_list_is_open = false;
-    }
-    if (popup_edit_ignore_lessons_is_open != -1)
-    {
-        bool ignore = false; //TODO: usable cancel button
-        if (popup_edit_ignore_lessons(&all_lessons, &all_students, popup_edit_ignore_lessons_is_open, &ignore))
-        {
-            popup_edit_ignore_lessons_is_open = -1;
-        }
+        free(subwindow_students_list);
+        subwindow_students_list = nullptr;
     }
 }
-ImGui::Begin("Журнал версии 0.0.1", nullptr, flags);
+ImGui::Begin("Журнал версии 0.0.1", nullptr, WINDOW_FLAGS);
 if (popup_select_day_of_the_week)
 {
     bool is_done = popup_select_day_of_the_week->show_frame();
@@ -249,7 +241,7 @@ if (ImGui::Button("Добавить группу"))
 ImGui::SameLine();
 if(ImGui::Button("Список учеников") )
 {
-    window_add_student_list_is_open = true;
+    subwindow_students_list = new Subwindow_Students_List(all_students, all_groups);
 }
 ImGui::SameLine();
 ImGui::Button("Журнал оплаты");

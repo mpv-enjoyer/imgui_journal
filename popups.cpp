@@ -217,7 +217,7 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group&>& all
     }
 }
 
-bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore)
+/*bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore)
 {
     ImGui::OpenPopup("Редактировать список посещения ученика (placeholder)");
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -266,7 +266,7 @@ bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in
         ImGui::EndPopup();
     }
     return false;
-}
+}*/
 
 bool Popup_Add_Working_Out::show_frame()
 {

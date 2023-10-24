@@ -46,6 +46,7 @@
 #define POPUP_OK                     { ok(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
 #define POPUP_CANCEL                 { cancel(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
 #define NEW_REF(CONSTRUCTOR)          std::ref(*(new CONSTRUCTOR))
+#define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
 struct JTime //used separately with ctime.
 {
@@ -147,10 +148,13 @@ struct Visible_Day
     bool is_today;
 };
 
+
+
+
 //Popups & secondary windows
-static int popup_edit_ignore_lessons_is_open = -1;
-bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
+//static int popup_edit_ignore_lessons_is_open = -1;
+//bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
+//bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
 
 /*
 
