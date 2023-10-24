@@ -2,9 +2,6 @@
 #include "main.h"
 #include "popups.h"
 #include "helper_functions.h"
-#include "student.h"
-#include "group.h"
-#include "lesson_info.h"
 #include "calendar_day.h"
 #include "helper_types.h"
 

@@ -118,3 +118,14 @@ Group::Group()
 }
 
 bool Group::operator==(const Group& rhs) const { return this == &rhs; };
+
+Attend_Data Group::get_attend_data(int known_student_id) const
+{
+    return students[known_student_id].attend_data;
+}
+bool Group::set_attend_data(int known_student_id, Attend_Data new_attend_data)
+{
+    if (new_attend_data > 2 || new_attend_data < 0) return false;
+    students[known_student_id].attend_data = new_attend_data;
+    return true;
+}

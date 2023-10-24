@@ -19,7 +19,8 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day) : less
             for (int k = 0; k < lessons_in_this_day[i].get_group().get_size(); k++)
             {
                 Student_Status new_status;
-                if (lessons_in_this_day[i].get_group().get_student(k).is_ignored(lessons_in_this_day[i], j))
+                Attend_Data current_attend_data = lessons_in_this_day[i].get_group().get_attend_data(k);
+                if ((j == 0 && current_attend_data == ATTEND_SECOND) || (j == 1 && current_attend_data == ATTEND_FIRST))
                 {
                     new_status.status = STATUS_NOT_AWAITED;
                 }

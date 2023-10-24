@@ -1,9 +1,23 @@
 #pragma once
 #include "main.h"
-#include "helper_types.h"
-#include "lesson_info.h"
-#include "group.h"
 #include "student.h"
+#include "group.h"
+#include "lesson_info.h"
+#include "helper_types.h"
+
+struct Workout_Info
+{
+    const Student& student;
+    Lesson_Info& lesson_info;
+    int internal_lesson;
+    std::tm cached_date;
+};
+
+struct Internal_Attendance_Status
+{
+    std::vector<Student_Status> planned;
+    std::vector<Workout_Info>  workouts;
+};
 
 class Calendar_Day
 {
@@ -42,4 +56,12 @@ public:
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
     bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
     //...
+};
+
+struct Visible_Day
+{
+    int number; //WARNING: THIS STARTS WITH 1
+    Calendar_Day& day;
+    bool is_future;
+    bool is_today;
 };

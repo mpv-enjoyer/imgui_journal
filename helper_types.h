@@ -1,9 +1,5 @@
 #pragma once
 #include "main.h"
-#include "lesson_info.h"
-#include "student.h"
-#include "calendar_day.h"
-#include "group.h"
 
 struct JTime //used separately with ctime.
 {
@@ -36,17 +32,11 @@ struct Lesson_Full
     int day_of_the_week;
 };
 
-struct Lesson_Ignore
+/*struct Lesson_Ignore
 {
     Lesson_Info& merged_lesson;
     int internal_lesson_id;
-};
-
-struct Students_List
-{
-    Student& student;
-    bool is_deleted;
-};
+};*/
 
 struct Student_Status
 {
@@ -54,28 +44,6 @@ struct Student_Status
     std::tm workout_day;
     Lesson workout_lesson;
     int discount_status = -1;
-};
-
-struct Workout_Info
-{
-    const Student& student;
-    Lesson_Info& lesson_info;
-    int internal_lesson;
-    std::tm cached_date;
-};
-
-struct Internal_Attendance_Status
-{
-    std::vector<Student_Status> planned;
-    std::vector<Workout_Info>  workouts;
-};
-
-struct Visible_Day
-{
-    int number; //WARNING: THIS STARTS WITH 1
-    Calendar_Day& day;
-    bool is_future;
-    bool is_today;
 };
 
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }

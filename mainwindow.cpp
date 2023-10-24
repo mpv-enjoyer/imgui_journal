@@ -360,7 +360,8 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
             {
                 current_lesson.internal_lesson_id = current_internal_lesson;
-                if (current_student.is_ignored(current_merged_lesson_ref, current_internal_lesson))
+                Attend_Data current_attend_data = current_merged_lesson_ref.get_group().get_attend_data(current_student_group_id);
+                if ((current_internal_lesson == 0 && current_attend_data == ATTEND_SECOND) || (current_internal_lesson == 1 && current_attend_data == ATTEND_FIRST))
                 {
                     is_relevant.push_back(false);
                 }

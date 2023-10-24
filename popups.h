@@ -1,10 +1,6 @@
 #pragma once
 #include "main.h"
 #include "helper_functions.h"
-#include "helper_types.h"
-#include "student.h"
-#include "group.h"
-#include "lesson_info.h"
 #include "calendar_day.h"
 
 class Popup
@@ -34,7 +30,7 @@ private:
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
 public:
-    /*Popup_Add_Student_To_Group()
+    Popup_Add_Student_To_Group()
     {        
         for (int i = 0; i < all_students.size(); i++)
         {
@@ -43,11 +39,11 @@ public:
             possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
-    };*/ //this is probably unneeded (uncomment if it doesn't compile)
+    }; //this is probably unneeded (uncomment if it doesn't compile)
     Popup_Add_Student_To_Group(Lesson_Info& current_lesson, std::vector<Student&>& all_students, int merged_lesson_known_id);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
-    Student& get_added_student() { IM_ASSERT(check_ok()); return all_students[current_selected_student]; };
-    Group& get_current_group() { IM_ASSERT(check_ok()); return current_group; };
+    Student* get_added_student() { IM_ASSERT(check_ok()); return all_students[current_selected_student]; };
+    Group* get_current_group() { IM_ASSERT(check_ok()); return current_group; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) 
     { 

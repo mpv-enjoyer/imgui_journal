@@ -41,6 +41,11 @@
 #define NEW_REF(CONSTRUCTOR)          std::ref(*(new CONSTRUCTOR))
 #define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
+typedef short Attend_Data;
+#define ATTEND_BOTH 0
+#define ATTEND_FIRST 1
+#define ATTEND_SECOND 2
+
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
 const int                      Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
