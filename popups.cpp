@@ -43,12 +43,12 @@ void Popup_Add_Student_To_Group::accept_changes(const std::vector<Visible_Day>& 
 //shouldn't be a problem for me though because my project assumes that every group has exactly one lesson
 //but in case someone else wants to use it, please rewrite this
 {
-    Group& current_group = get_current_group();
+    Group* current_group = get_current_group();
     int current_merged_lesson_id = get_merged_lesson_known_id();
-    int new_student_id = current_group.add_student(get_added_student());
+    int new_student_id = current_group->add_student(*get_added_student());
     for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
     {
-        visible_days[current_day_cell].day.add_student_to_group(current_group, get_added_student(), new_student_id);
+        visible_days[current_day_cell].day.add_student_to_group(*current_group, *get_added_student(), new_student_id);
         for (int internal_lesson_id = 0; internal_lesson_id < current_lesson.get_lessons_size(); internal_lesson_id++)
         {
             Lesson current_known_lesson = {current_merged_lesson_id, internal_lesson_id};

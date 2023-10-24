@@ -30,20 +30,13 @@ private:
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
 public:
-    Popup_Add_Student_To_Group()
-    {        
-        for (int i = 0; i < all_students.size(); i++)
-        {
-            if (all_students[i].is_removed()) continue;
-            if (all_groups->at(current_group_id).is_in_group(i)) continue;
-            possible_student_descriptions.push_back((all_students->at(i).get_name() + " (" + std::to_string(all_students->at(i).get_contract()) + ")"));
-            possible_student_ids.push_back(i);
-        }
+    Popup_Add_Student_To_Group() : all_students(*(new std::vector<Student&>)), current_group(*(new Group())), current_lesson(*(new Lesson_Info(current_group)))//just a memory leak. i wonder if it will compile
+    {
     }; //this is probably unneeded (uncomment if it doesn't compile)
     Popup_Add_Student_To_Group(Lesson_Info& current_lesson, std::vector<Student&>& all_students, int merged_lesson_known_id);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
-    Student* get_added_student() { IM_ASSERT(check_ok()); return all_students[current_selected_student]; };
-    Group* get_current_group() { IM_ASSERT(check_ok()); return current_group; };
+    Student* get_added_student() { IM_ASSERT(check_ok()); return &all_students[current_selected_student]; };
+    Group* get_current_group() { IM_ASSERT(check_ok()); return &current_group; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) 
     { 
