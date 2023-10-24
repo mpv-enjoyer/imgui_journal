@@ -1,4 +1,3 @@
-#include "main.h"
 #include "student.h"
 
 int Student::get_contract() const
@@ -97,3 +96,17 @@ Student::Student()
     contract = -1;
     age_group = -1;
 }
+
+bool Student::is_identical(const Student& rhs) const
+{
+    if (removed) return false;
+    if (name == rhs.name && contract == rhs.contract) return true;
+    return false;
+}
+
+Student::Student() { };
+
+bool Student::operator==(const Student& rhs) const { return this == &rhs; }
+bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
+bool Student::operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
+bool Student::operator> (const Student& rhs) const { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }

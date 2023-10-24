@@ -1,5 +1,7 @@
 #pragma once
 #include "main.h"
+#include "helper_types.h"
+#include "student.h"
 
 const char* c_str_int(int num);
 std::string to_string(JTime value);

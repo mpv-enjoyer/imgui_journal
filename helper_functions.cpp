@@ -1,6 +1,4 @@
-#include "main.h"
 #include "helper_functions.h"
-#include "student.h"
 
 const char* c_str_int(int num)
 {

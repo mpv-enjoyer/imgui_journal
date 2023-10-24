@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "helper_types.h"
 
 class Student
 {
@@ -19,14 +20,9 @@ public:
     bool delete_lesson_ignore(Lesson_Info& lesson_to_delete, int internal_lesson); 
     int get_lessons_size();
     bool is_removed() const; bool remove(); bool restore();
-    bool is_identical(const Student& rhs) const //this is an entry check. Once there is an identical student for some reason, do nothing about it.
-    {
-        if (removed) return false;
-        if (name == rhs.name && contract == rhs.contract) return true;
-        return false;
-    }
-    bool operator==(const Student& rhs) const { return this == &rhs; }
-    bool operator!=(const Student& rhs) const { return !(this == &rhs); }
-    bool operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
-    bool operator> (const Student& rhs) const { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }
+    bool is_identical(const Student& rhs) const; //this is an entry check. Once there is an identical student for some reason, do nothing about it.
+    bool operator==(const Student& rhs) const;
+    bool operator!=(const Student& rhs) const;
+    bool operator< (const Student& rhs) const;
+    bool operator> (const Student& rhs) const;
 };

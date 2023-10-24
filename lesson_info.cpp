@@ -1,4 +1,3 @@
-#include "main.h"
 #include "lesson_info.h"
 
 Lesson_Info::Lesson_Info(Group& connected_group) : group(connected_group) {};
@@ -98,3 +97,13 @@ bool Lesson_Info::is_discontinued()
 {
     return removed;
 }
+
+bool Lesson_Info::operator==(const Lesson_Info& rhs) const { return this == &rhs; }
+bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
+bool Lesson_Info::operator< (const Lesson_Info& rhs) const
+{
+    if (lesson_pairs[0].time_begin < rhs.get_lesson_pair(0).time_begin) return true;
+    if (lesson_pairs[0].time_begin > rhs.get_lesson_pair(0).time_begin) return false;
+    return group.get_number() < rhs.get_group().get_number();
+}
+bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return !(*this < rhs) && (*this != rhs); };

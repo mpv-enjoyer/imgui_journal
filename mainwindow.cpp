@@ -1,11 +1,4 @@
-#include "main.h"
-#include "popups.h"
-#include "helper_functions.h"
-#include "group.h"
-#include "lesson_info.h"
-#include "calendar_day.h"
-#include "student.h"
-#include "subwindows.h"
+#include "mainwindow.h"
 
 static void glfw_error_callback(int error, const char* description)
 {

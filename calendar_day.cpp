@@ -1,8 +1,4 @@
-#include "main.h"
 #include "calendar_day.h"
-#include "lesson_info.h"
-#include "group.h"
-#include "student.h"
 
 Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day) : lessons(lessons_in_this_day)
 {

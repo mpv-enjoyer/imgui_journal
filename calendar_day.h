@@ -1,5 +1,9 @@
 #pragma once
 #include "main.h"
+#include "helper_types.h"
+#include "lesson_info.h"
+#include "group.h"
+#include "student.h"
 
 class Calendar_Day
 {
@@ -7,7 +11,7 @@ private:
     std::vector<Lesson_Info&>& lessons;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
-    Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
+    Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
     Student_Status get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const;

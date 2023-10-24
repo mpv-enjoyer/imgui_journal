@@ -1,6 +1,4 @@
-#include "main.h"
 #include "group.h"
-#include "student.h"
 
 Student& Group::get_student(int known_student_id) const
 {
@@ -118,3 +116,5 @@ Group::Group()
 {
     group_info.day_of_the_week = -1;
 }
+
+bool Group::operator==(const Group& rhs) const { return this == &rhs; };
