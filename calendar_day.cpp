@@ -1,6 +1,6 @@
 #include "calendar_day.h"
 
-Calendar_Day::Calendar_Day(std::vector<Lesson_Info&> lessons_in_this_day) : lessons(lessons_in_this_day)
+Calendar_Day::Calendar_Day(std::vector<std::reference_wrapper<Lesson_Info>>& lessons_in_this_day) : lessons(lessons_in_this_day)
 {
     int max_merged = 0;
     for (int i = 0; i < lessons_in_this_day.size(); i++)
