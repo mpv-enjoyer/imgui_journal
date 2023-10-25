@@ -7,8 +7,8 @@
 
 struct Workout_Info
 {
-    const Student& student;
-    Lesson_Info& lesson_info;
+    const Student* student;
+    Lesson_Info* lesson_info;
     int internal_lesson;
     std::tm cached_date;
 };
@@ -22,10 +22,10 @@ struct Internal_Attendance_Status
 class Calendar_Day
 {
 private:
-    std::vector<std::reference_wrapper<Lesson_Info>>& lessons;
+    std::vector<Lesson_Info*>& lessons;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
-    Calendar_Day(std::vector<std::reference_wrapper<Lesson_Info>>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
+    Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
     Student_Status get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const;
@@ -61,7 +61,7 @@ public:
 struct Visible_Day
 {
     int number; //WARNING: THIS STARTS WITH 1
-    Calendar_Day& day;
+    Calendar_Day* day;
     bool is_future;
     bool is_today;
 };

@@ -47,7 +47,7 @@ bool Subwindow_Students_List::show_frame()
         bool is_removed_input_buffer;
         for (int student_id = 0; student_id < all_students.size(); student_id++)
         {
-            Student& current_student = all_students[student_id];
+            Student& current_student = PTRREF(all_students[student_id]);
             ImGui::PushID(student_id);
             name_input_buffer = current_student.get_name();
             contract_input_buffer = current_student.get_contract();
@@ -81,10 +81,10 @@ bool Subwindow_Students_List::show_frame()
             for (int group_id = 0; group_id < all_groups.size(); group_id++) //TODO: literally doing twice as much work.
             //TODO: wrapping
             {
-                if (all_groups.at(group_id).is_in_group(current_student)) 
+                if (all_groups.at(group_id)->is_in_group(current_student)) 
                 {
                     ImGui::BeginGroup();
-                    ImGui::Text((std::to_string(all_groups[group_id].get_number()) + ", " + Day_Names[all_groups[group_id].get_day_of_the_week()]).c_str()); 
+                    ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
                     ImGui::EndGroup();
                 }
             }

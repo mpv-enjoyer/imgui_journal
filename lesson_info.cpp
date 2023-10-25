@@ -91,6 +91,7 @@ std::string Lesson_Info::get_description(int current_internal_lesson) const
 bool Lesson_Info::discontinue()
 {
     removed = true;
+    return true;
 }
 
 bool Lesson_Info::is_discontinued() 

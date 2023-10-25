@@ -2,7 +2,7 @@
 
 Student& Group::get_student(int known_student_id) const
 {
-    return students[known_student_id].student;
+    return PTRREF(students[known_student_id].student);
 }
 
 int Group::get_number() const
@@ -37,7 +37,7 @@ int Group::find_student(Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {
-        if (students[i].student == student) return i;
+        if (PTRREF(students[i].student) == student) return i;
     }
     return -1;
 }
@@ -47,16 +47,16 @@ int Group::add_student(Student& new_student) //returns his internal id
     int new_student_sort_by_name_id = students.size(); //ascending
     for (int i = 0; i < (students.size()); i++)
     {
-        if (new_student == students[i].student)
+        if (new_student == PTRREF(students[i].student))
         {
             return -1; //already in the list
         }
-        if (new_student < students[i].student)
+        if (new_student < PTRREF(students[i].student))
         {
             new_student_sort_by_name_id = i; break;
         }
     }
-    students.insert(students.begin()+new_student_sort_by_name_id, {new_student, false});
+    students.insert(students.begin()+new_student_sort_by_name_id, {&new_student, false});
     return new_student_sort_by_name_id;
 };
 
@@ -67,7 +67,7 @@ bool Group::delete_student(Student& to_remove_student)
     {
         if (!is_found_sort_id)
         {
-            if (to_remove_student==students[i].student)
+            if (to_remove_student==PTRREF(students[i].student))
             {
                 if (students[i].is_deleted) break;
                 students[i].is_deleted = true;
@@ -83,7 +83,7 @@ bool Group::is_in_group(Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {
-        if (student==students[i].student) 
+        if (student==PTRREF(students[i].student)) 
         {
             if (students[i].is_deleted) return false;
             if (student.is_removed()) return false;

@@ -5,7 +5,7 @@
 
 struct Students_List
 {
-    Student& student;
+    Student* student;
     bool is_deleted;
     Attend_Data attend_data; //this is like student_ignore_lesson_ids
 };

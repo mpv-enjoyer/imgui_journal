@@ -38,7 +38,7 @@ bool Popup_Add_Student_To_Group::show_frame()
     return false;
 }
 
-void Popup_Add_Student_To_Group::accept_changes(const std::vector<Visible_Day>& visible_days)
+void Popup_Add_Student_To_Group::accept_changes(std::vector<Visible_Day>& visible_days)
 //this function might lead to SEGFAULT if trying to add student to a group which has multiple lessons in a week.
 //shouldn't be a problem for me though because my project assumes that every group has exactly one lesson
 //but in case someone else wants to use it, please rewrite this
@@ -48,13 +48,13 @@ void Popup_Add_Student_To_Group::accept_changes(const std::vector<Visible_Day>& 
     int new_student_id = current_group->add_student(*get_added_student());
     for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
     {
-        visible_days[current_day_cell].day.add_student_to_group(*current_group, *get_added_student(), new_student_id);
+        visible_days[current_day_cell].day->add_student_to_group(*current_group, *get_added_student(), new_student_id);
         for (int internal_lesson_id = 0; internal_lesson_id < current_lesson.get_lessons_size(); internal_lesson_id++)
         {
             Lesson current_known_lesson = {current_merged_lesson_id, internal_lesson_id};
             int status = STATUS_NO_DATA;
             if (!(visible_days[current_day_cell].is_future || visible_days[current_day_cell].is_today)) status = STATUS_NOT_AWAITED;
-            visible_days[current_day_cell].day.set_status(current_known_lesson, new_student_id, status);
+            visible_days[current_day_cell].day->set_status(current_known_lesson, new_student_id, status);
         }
     }
 }
@@ -118,13 +118,13 @@ bool Popup_Add_Student_To_Base::show_frame()
     return false;
 }
 
-void Popup_Add_Student_To_Base::accept_changes(std::vector<Student&>& all_students)
+void Popup_Add_Student_To_Base::accept_changes(std::vector<Student*>& all_students)
 {
     IM_ASSERT(check_ok());
-    Student output;
-    output.set_name(name);
-    output.set_contract(contract);
-    if (is_date_visible) output.set_age_group(age_group);
+    Student* output = new Student();
+    output->set_name(name);
+    output->set_contract(contract);
+    if (is_date_visible) output->set_age_group(age_group);
     all_students.push_back(output);
 }
 
@@ -169,34 +169,34 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
     return false;
 }
 
-void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group&>& all_groups, std::vector<Lesson_Info&>& lessons_in_this_day, const std::vector<Visible_Day>& visible_days)
+void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group*>& all_groups, std::vector<Lesson_Info*>& lessons_in_this_day, const std::vector<Visible_Day>& visible_days)
 {
     IM_ASSERT(check_ok());
-    Group new_group = Group();
-    Lesson_Info lesson_info = Lesson_Info(new_group);
-    new_group.set_number(group_number);
-    new_group.set_day_of_the_week(day_of_the_week);
-    new_group.set_comment(group_comment);
+    Group* new_group = new Group();
+    Lesson_Info* lesson_info = new Lesson_Info(PTRREF(new_group));
+    new_group->set_number(group_number);
+    new_group->set_day_of_the_week(day_of_the_week);
+    new_group->set_comment(group_comment);
     int current_pair_name_id = combo_lesson_name_id;
     if (combo_lesson_name_id >= 2) current_pair_name_id -= 2;
     lesson_pairs[0].lesson_name_id = current_pair_name_id;
-    lesson_info.add_lesson_pair(lesson_pairs[0]);
+    lesson_info->add_lesson_pair(lesson_pairs[0]);
     if (combo_lesson_name_id == 2)
     {
         lesson_pairs[1].lesson_name_id = 1;
-        lesson_info.add_lesson_pair(lesson_pairs[1]);
+        lesson_info->add_lesson_pair(lesson_pairs[1]);
     } 
     if (combo_lesson_name_id == 3)
     {
         lesson_pairs[1].lesson_name_id = 0;
-        lesson_info.add_lesson_pair(lesson_pairs[1]);
+        lesson_info->add_lesson_pair(lesson_pairs[1]);
     } 
     all_groups.push_back(new_group);
-    lesson_info.set_group(new_group);
+    lesson_info->set_group(PTRREF(new_group));
     int new_merged_lesson_known_id = lessons_in_this_day.size();
     for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
-        if (lessons_in_this_day[i] < lesson_info)
+        if (PTRREF(lessons_in_this_day[i]) < PTRREF(lesson_info))
         {
             new_merged_lesson_known_id = i;
             break;
@@ -208,7 +208,7 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group&>& all
     {
         bool await_no_one = false;
         if (!(visible_days[i].is_future || visible_days[i].is_today)) await_no_one = true;
-        visible_days[i].day.add_merged_lesson(lesson_info, await_no_one, new_merged_lesson_known_id);
+        visible_days[i].day->add_merged_lesson(PTRREF(lesson_info), await_no_one, new_merged_lesson_known_id);
     }
 }
 
@@ -327,7 +327,7 @@ bool Popup_Add_Working_Out::show_frame()
                     bool should_attend = false;
                     for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
                     {
-                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j].should_attend(all_students[select_student]);
+                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j]->should_attend(PTRREF(all_students[select_student]));
                     }
                     if (should_attend) 
                     {
@@ -372,15 +372,15 @@ bool Popup_Add_Working_Out::show_frame()
             for (int current_merged_lesson = 0; current_merged_lesson < all_lessons.at((first_mwday + select_day) % 7).size(); current_merged_lesson++)
             {
                 current_lesson.merged_lesson_id = current_merged_lesson;
-                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[(first_mwday + select_day) % 7][current_merged_lesson].get_lessons_size(); current_internal_lesson++)
+                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]->get_lessons_size(); current_internal_lesson++)
                 {
                     current_lesson.internal_lesson_id = current_internal_lesson;
                     if (select_month == caller_month && select_year == caller_year && select_day == caller_mday && current_lesson == caller_lesson) continue;
-                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson].should_attend(all_students[select_student]))
+                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson]->should_attend(PTRREF(all_students[select_student])))
                     {
                         bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
                         is_visible = is_visible || checkbox_value;
-                        const std::string checkbox_description = all_lessons[(first_mwday + select_day) % 7][current_merged_lesson].get_description(current_internal_lesson);
+                        const std::string checkbox_description = all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]->get_description(current_internal_lesson);
                         if (ImGui::Checkbox(checkbox_description.c_str(), &checkbox_value) && checkbox_value) 
                         {
                             is_visible = true;
@@ -402,7 +402,7 @@ bool Popup_Add_Working_Out::show_frame()
     return false;
 }
 
-void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day&>& all_days)
+void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
 {
     IM_ASSERT(check_ok());
     
@@ -411,35 +411,35 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day&>& all_days)
     select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
     date_to.tm_wday = get_wday(select_day, select_month, select_year);
     Workout_Info lesson_to_workout { all_students[select_student], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
-    all_days[caller_mday].add_workout(all_students[select_student], caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
-    all_days[select_day].set_status(select_lesson, select_student, STATUS_WORKED_OUT);
-    int current_student_contract = all_students[select_student].get_contract();
+    all_days[caller_mday]->add_workout(PTRREF(all_students[select_student]), caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
+    all_days[select_day]->set_status(select_lesson, select_student, STATUS_WORKED_OUT);
+    int current_student_contract = all_students[select_student]->get_contract();
     int current_discount_level = -1;
     for (int i = 0; i < all_students.size(); i++)
     {
-        if (all_students[i].get_contract() == current_student_contract && current_discount_level < 2 && !all_students[i].is_removed())
+        if (all_students[i]->get_contract() == current_student_contract && current_discount_level < 2 && !(all_students[i]->is_removed()))
         {
             current_discount_level++;
         }
     }
     if (current_discount_level == -1) current_discount_level = 0;
-    int current_internal_student_id = all_days[select_day].find_student(all_students[select_student], select_lesson.merged_lesson_id);
-    all_days[select_day].set_discount_status(select_lesson, current_internal_student_id, current_discount_level);
+    int current_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[select_student]), select_lesson.merged_lesson_id);
+    all_days[select_day]->set_discount_status(select_lesson, current_internal_student_id, current_discount_level);
 }
 
-Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Lesson_Info& current_lesson, std::vector<Student&>& all_students, int merged_lesson_known_id) 
+Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Lesson_Info& current_lesson, std::vector<Student*>& all_students, int merged_lesson_known_id) 
     : all_students(all_students), current_group(current_lesson.get_group()), merged_lesson_known_id(merged_lesson_known_id), current_lesson(current_lesson)
     {
         for (int i = 0; i < all_students.size(); i++)
         {
-            if (all_students[i].is_removed()) continue;
-            if (current_group.is_in_group(all_students[i])) continue;
-            possible_student_descriptions.push_back((all_students[i].get_name() + " (" + std::to_string(all_students[i].get_contract()) + ")"));
+            if (all_students[i]->is_removed()) continue;
+            if (current_group.is_in_group(PTRREF(all_students[i]))) continue;
+            possible_student_descriptions.push_back((all_students[i]->get_name() + " (" + std::to_string(all_students[i]->get_contract()) + ")"));
             possible_student_ids.push_back(i);
         }
     };
 
-Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group&>& all_groups, int current_day_of_the_week) : all_groups(all_groups), day_of_the_week(current_day_of_the_week)
+Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(const std::vector<Group*>& all_groups, int current_day_of_the_week) : all_groups(all_groups), day_of_the_week(current_day_of_the_week)
 {
     lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
 }
@@ -448,7 +448,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
 {
     for (int i = 0; i < all_groups.size(); i++)
     {
-        if (all_groups[i].get_number() == group_number && all_groups[i].get_day_of_the_week() == day_of_the_week) 
+        if (all_groups[i]->get_number() == group_number && all_groups[i]->get_day_of_the_week() == day_of_the_week) 
         {
             error("Такая группа уже существует");
             return false;
@@ -465,18 +465,18 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
     }
     else 
         if (lesson_pairs[0].time_begin >= lesson_pairs[0].time_end) { error("Недопустимое время"); return false; }
-        return true;
+    return true;
 };
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(const std::vector<Student&>& all_students, std::vector<std::vector<Lesson_Info&>>& all_lessons, const std::vector<Calendar_Day&>& all_days,
+Popup_Add_Working_Out::Popup_Add_Working_Out(const std::vector<Student*>& all_students, std::vector<std::vector<Lesson_Info*>>& all_lessons, const std::vector<Calendar_Day*>& all_days,
 Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson):
 all_students(all_students), all_lessons(all_lessons), all_days(all_days), current_group(current_group)
 {
     for (int i = 0; i < all_students.size(); i++)
     {
-        if (all_students[i].is_removed()) continue;
-        if (current_group.is_in_group(all_students[i])) continue;
-        possible_student_descriptions.push_back((all_students[i].get_name() + " (" + std::to_string(all_students[i].get_contract()) + ")"));
+        if (all_students[i]->is_removed()) continue;
+        if (current_group.is_in_group(PTRREF(all_students[i]))) continue;
+        possible_student_descriptions.push_back((all_students[i]->get_name() + " (" + std::to_string(all_students[i]->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
@@ -495,7 +495,7 @@ bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled)
     if (!is_calendar_filled) {error("Для выбранного ученика нет доступных отработок"); return false; }
     if (select_day == -1) { error("Выберите день"); return false; }
     if (select_lesson == Lesson {-1, -1}) { error("Выберите урок"); return false; }
-    Student_Status requested_status = all_days[select_day].get_status(select_lesson, select_student);
+    Student_Status requested_status = all_days[select_day]->get_status(select_lesson, select_student);
     if (requested_status.status == STATUS_WORKED_OUT) { error("Отработка уже назначена"); return false; }
     if (requested_status.status == STATUS_NOT_AWAITED) { error("Ученик не должен приходить на этот урок"); return false; }
     if (requested_status.status == STATUS_ON_LESSON) { error("Ученик присутствовал на этом уроке"); return false; }
