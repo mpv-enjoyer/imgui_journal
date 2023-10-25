@@ -25,7 +25,7 @@ public:
     bool set_day_of_the_week(int new_day);
     Attend_Data get_attend_data(int known_student_id) const;
     bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
-    Student& get_student(int student) const; int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
+    Student& get_student(int student); int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
     bool is_in_group(Student& student) const;

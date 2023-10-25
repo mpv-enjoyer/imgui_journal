@@ -1,6 +1,6 @@
 #include "group.h"
 
-Student& Group::get_student(int known_student_id) const
+Student& Group::get_student(int known_student_id)
 {
     return PTRREF(students[known_student_id].student);
 }

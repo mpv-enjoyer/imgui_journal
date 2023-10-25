@@ -142,7 +142,7 @@ int main(int, char**)
     temp_lesson_pair.time_begin = temp_begin;
     temp_lesson_pair.time_end = temp_end;
     temp_lesson2->add_lesson_pair(temp_lesson_pair);
-    all_lessons[4].push_back(temp_lesson);
+    all_lessons[4].push_back(temp_lesson2);
 
     //Lesson ignored_ = {1,0};
     //all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
@@ -323,10 +323,12 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             ImGui::TableNextColumn(); 
             ImGui::Text(day_temp.c_str());
         }
-        Group& current_group = all_lessons[current_day_of_the_week][current_merged_lesson]->get_group();
+        Group& current_group = current_merged_lesson_ref.get_group();
+        
         for (int current_student_group_id = 0; current_student_group_id < current_group.get_size(); current_student_group_id++)
         {
             Student& current_student = current_group.get_student(current_student_group_id);
+            ImGui::LogText("Im at 331 main : %i", current_student.is_removed());
             ImGui::TableNextRow();
             if (current_student.is_removed()) 
             {
@@ -337,8 +339,10 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             {
                 ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
             }
+            ImGui::LogText("Im at 342 main :D");
             ImGui::TableSetColumnIndex(1); ImGui::Text(current_student.get_name().c_str());
             ImGui::TableSetColumnIndex(2); ImGui::Text("%i", current_student.get_contract());
+            ImGui::LogText("Im at 344 main :D");
             int current_student_contract = current_student.get_contract();
             int current_discount_level = -1;
             for (int i = 0; i < all_students.size(); i++)
@@ -352,6 +356,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             std::vector<bool> is_relevant;
             for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson]->get_lessons_size(); current_internal_lesson++)
             {
+                ImGui::LogText("I'm at 357 :D");
                 current_lesson.internal_lesson_id = current_internal_lesson;
                 Attend_Data current_attend_data = current_merged_lesson_ref.get_group().get_attend_data(current_student_group_id);
                 if ((current_internal_lesson == 0 && current_attend_data == ATTEND_SECOND) || (current_internal_lesson == 1 && current_attend_data == ATTEND_FIRST))

@@ -111,7 +111,7 @@
 //#define IM_DEBUG_BREAK  __debugbreak()
 
 //---- Debug Tools: Enable slower asserts
-//#define IMGUI_DEBUG_PARANOID
+#define IMGUI_DEBUG_PARANOID
 
 //---- Tip: You can add extra functions within the ImGui:: namespace from anywhere (e.g. your own sources/header files)
 /*

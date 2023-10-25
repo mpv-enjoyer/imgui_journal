@@ -205,12 +205,14 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group*>& all
     int new_merged_lesson_known_id = lessons_in_this_day.size();
     for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
-        if (PTRREF(lessons_in_this_day[i]) < PTRREF(lesson_info))
+        if (PTRREF(lessons_in_this_day[i]) > PTRREF(lesson_info))
         {
             new_merged_lesson_known_id = i;
             break;
         }
     }
+    ImGui::LogToTTY();
+    ImGui::LogText("i'm at 215 :D");
     lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, lesson_info);
     //(*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups[all_groups.size() - 1]); useless?
     for (int i = 0; i < visible_days.size(); i++)
@@ -474,6 +476,10 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
     }
     else 
         if (lesson_pairs[0].time_begin >= lesson_pairs[0].time_end) { error("Недопустимое время"); return false; }
+    ImGui::LogToTTY();
+    ImGui::LogText("I think this group is OK.");
+    ImGui::LogText("Right now %i, %i, %i", Popup_Add_Merged_Lesson_To_Journal::lesson_pairs[0].lesson_name_id, lesson_pairs[0].time_begin.hours, lesson_pairs[0].time_end.hours);
+    ImGui::LogFinish();
     return true;
 };
 
