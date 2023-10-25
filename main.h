@@ -38,7 +38,6 @@
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); ImVec2 center = ImGui::GetMainViewport()->GetCenter(); ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f)); if (ImGui::BeginPopupModal(POPUP_NAME, NULL, ImGuiWindowFlags_AlwaysAutoResize))
 #define POPUP_OK                     { ok(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
 #define POPUP_CANCEL                 { cancel(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
-//#define NEW_REF(CONSTRUCTOR)          std::ref(*(new CONSTRUCTOR))
 #define PTRREF(PTR)                  *(PTR)
 #define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
@@ -63,18 +62,3 @@ class Student;
 class Group;
 class Lesson_Info;
 class Calendar_Day;
-
-/*
-
-Currently used labels:
-
- ##combo_attendance
- O##add_workout_button
- ##workout_info_radio_tooltip
- ##fake_radio
- Добавить ученика##
- ##dummy1
- ##dummy2
- Day_Names[i]##change_day_button
-
-*/

@@ -125,18 +125,3 @@ bool Subwindow_Students_List::show_frame()
     return false;
 }
 
-bool groups_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, std::vector<std::vector<Lesson_Info>>* all_lessons, std::vector<Calendar_Day>* all_days)
-{
-    ImGui::Begin("Список всех групп", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
-    static bool edit_mode = false;
-    if (ImGui::Button("Вернуться к журналу")) return true;
-    ImGui::SameLine();
-    ImGui::Checkbox("Режим редактирования", &edit_mode);
-    ImGui::Text("Список всех групп");
-    for (int i = 0; i < all_groups->size(); i++)
-    {
-        
-    }
-    ImGui::End();
-    return false;
-}

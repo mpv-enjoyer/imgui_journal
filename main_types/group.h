@@ -1,7 +1,5 @@
 #pragma once
-#include "main.h"
-#include "helper_types.h"
-#include "student.h"
+#include "main_types.h"
 
 struct Students_List
 {

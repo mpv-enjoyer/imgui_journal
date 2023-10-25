@@ -1,9 +1,5 @@
 #pragma once
-#include "main.h"
-#include "student.h"
-#include "group.h"
-#include "lesson_info.h"
-#include "helper_types.h"
+#include "main_types.h"
 
 struct Workout_Info
 {

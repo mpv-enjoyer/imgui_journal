@@ -1,6 +1,5 @@
 #pragma once
-#include "main.h"
-#include "helper_types.h"
+#include "main_types.h"
 
 class Student
 {

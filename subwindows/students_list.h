@@ -1,17 +1,5 @@
 #pragma once
-#include "main.h"
-#include "popups.h"
-#include "helper_functions.h"
-#include "calendar_day.h"
-#include "helper_types.h"
-
-class Subwindow
-{
-protected:
-    bool edit_mode = false;
-public:
-    Subwindow() { };
-};
+#include "subwindows.h"
 
 class Subwindow_Students_List : public Subwindow
 {

@@ -1,8 +1,5 @@
 #pragma once
-#include "main.h"
-#include "student.h"
-#include "group.h"
-#include "helper_types.h"
+#include "main_types.h"
 
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
 {

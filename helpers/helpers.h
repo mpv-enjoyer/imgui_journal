@@ -1,5 +1,5 @@
 #pragma once
-#include "main.h"
+#include "../main.h"
 
 struct JTime //used separately with ctime.
 {
@@ -32,12 +32,6 @@ struct Lesson_Full
     int day_of_the_week;
 };
 
-/*struct Lesson_Ignore
-{
-    Lesson_Info& merged_lesson;
-    int internal_lesson_id;
-};*/
-
 struct Student_Status
 {
     int status;
@@ -55,8 +49,18 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
-//Popups & secondary windows
-//static int popup_edit_ignore_lessons_is_open = -1;
-//bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-//bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
-
+const char* c_str_int(int num);
+std::string to_string(JTime value);
+std::string to_string(JTime begin, JTime end);
+std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
+std::string generate_label(const std::string prefix, std::vector<int> unique);
+bool j_button_selectable(const char* label, bool selected, bool small = false);
+bool j_input_time(std::string label, JTime& time);
+bool j_attendance_combo(const char* label, int* status);
+template <typename T = int>
+bool is_in_vector(std::vector<T> vector, T to_find);
+int calculate_first_mwday(int current_mday, int current_wday);
+int get_first_wday(int month, int year, int wday);
+int get_number_of_days(int month, int year);
+int get_wday(int day, int month, int year);
+void HelpMarker(const char* desc);

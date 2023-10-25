@@ -1,6 +1,6 @@
 #pragma once
 #include "main.h"
-#include "popups.h"
-#include "helper_functions.h"
-#include "calendar_day.h"
-#include "subwindows.h"
+#include "popups/popups.h"
+#include "helpers/helpers.h"
+#include "main_types/main_types.h"
+#include "subwindows/subwindows.h"
