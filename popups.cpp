@@ -125,7 +125,16 @@ void Popup_Add_Student_To_Base::accept_changes(std::vector<Student*>& all_studen
     output->set_name(name);
     output->set_contract(contract);
     if (is_date_visible) output->set_age_group(age_group);
-    all_students.push_back(output);
+    int new_student_id = all_students.size();
+    for (int i = 0; i < all_students.size(); i++)
+    {
+        if (PTRREF(all_students[i]) > PTRREF(output))
+        {
+            new_student_id = i;
+            break;
+        }
+    }
+    all_students.insert(all_students.begin() + new_student_id, output);
 }
 
 bool Popup_Add_Merged_Lesson_To_Journal::show_frame()

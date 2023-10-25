@@ -283,30 +283,23 @@ if (popup_add_merged_lesson_to_journal)
     }
 }
 ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
-JTime previous = {0, 0};
+JTime previous = {-1, -1};
 Lesson current_lesson;
 
 std::vector<bool> sort_ignore_lessons(all_lessons[current_day_of_the_week].size(), false);
 if (all_lessons[current_day_of_the_week].size() == 0) ImGui::Text("На текущий день не запланированы уроки.");
 for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of_the_week].size(); sort_merged_lesson++)
 {
-    int current_merged_lesson = -1;
-    for (int temp_sort = 0; temp_sort < all_lessons[current_day_of_the_week].size(); temp_sort++)
-    {
-        if (sort_ignore_lessons[temp_sort]) continue;
-        if (current_merged_lesson == -1) current_merged_lesson = temp_sort;
-        if (all_lessons[current_day_of_the_week][current_merged_lesson]->get_lesson_pair(0).time_begin >= all_lessons[current_day_of_the_week][temp_sort]->get_lesson_pair(0).time_begin)
-        {
-            current_merged_lesson = temp_sort;
-        }
-    }
-    sort_ignore_lessons[current_merged_lesson] = true;
-    if (sort_merged_lesson != 0 && previous == all_lessons[current_day_of_the_week][current_merged_lesson]->get_lesson_pair(0).time_begin) 
+    int current_merged_lesson = sort_merged_lesson;
+    Lesson_Info& current_merged_lesson_ref = PTRREF(all_lessons[current_day_of_the_week][current_merged_lesson]);
+    if (previous == current_merged_lesson_ref.get_lesson_pair(0).time_begin)
     {
         ImGui::SameLine();
     }
-    Lesson_Info& current_merged_lesson_ref = PTRREF(all_lessons[current_day_of_the_week][current_merged_lesson]);
-    previous = all_lessons[current_day_of_the_week][current_merged_lesson]->get_lesson_pair(0).time_begin;
+    else
+    {
+        previous = current_merged_lesson_ref.get_lesson_pair(0).time_begin;
+    }
     current_lesson.merged_lesson_id = current_merged_lesson;
     ImGui::BeginGroup();
     ImGui::Text(all_lessons[current_day_of_the_week][current_merged_lesson]->get_description().c_str());
@@ -397,9 +390,9 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
             {
                 ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
-                bool is_current_cell_disabled = (visible_days[current_day_cell].is_today) && !edit_mode;
-                is_current_cell_disabled = is_current_cell_disabled || (visible_days[current_day_cell].is_future) && edit_mode;
-                if (is_current_cell_disabled) ImGui::BeginDisabled();
+                bool is_current_cell_enabled = (visible_days[current_day_cell].is_today) && !edit_mode;
+                is_current_cell_enabled = is_current_cell_enabled || (!visible_days[current_day_cell].is_future && edit_mode);
+                if (!is_current_cell_enabled) ImGui::BeginDisabled();
                 Calendar_Day* current_day_cell_ref = visible_days[current_day_cell].day;
                 for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson]->get_lessons_size(); current_internal_lesson++)
                 {
@@ -436,7 +429,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     ImGui::EndGroup();
                     ImGui::SameLine(0.0f, 2.0f);
                 }
-                if (is_current_cell_disabled) ImGui::EndDisabled();
+                if (!is_current_cell_enabled) ImGui::EndDisabled();
             }
             if (current_student.is_removed()) ImGui::EndDisabled();
         }
