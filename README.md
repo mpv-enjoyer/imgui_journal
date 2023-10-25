@@ -1,8 +1,5 @@
 # imgui_journal
 
-NOTES:
-- arguments started with known_ require you to know the location of the item in the internal vector.
-
 TODO:
 - gray out every STATUS_NOT_AWAITED
 - removed students from groups should not be actually removed (because their attendance dissappears)
@@ -12,8 +9,9 @@ TODO:
 - saving/importing everything to a file
 - cross-month actions
 
-BUGS:
-- no O buttons in edit_mode
+BUGS: 0 found.
 
 Structural TODO:
 - Add hash table lookup instead of manually checking everything (probably done already as my == operators work on reference addresses)
+^ nah, I need those sorted vectors.
+- use glfw_wait_events() instead! Should be a huge thing 
