@@ -13,7 +13,6 @@ TODO:
 - cross-month actions
 
 BUGS:
-- ANTIGDB: crashes while adding lesson and group. Repro: "Четверг, создать урок ИЗО 00:00 - 01:00, номер группы не важен, описание не важно"
 - no O buttons in edit_mode
 
 Structural TODO:

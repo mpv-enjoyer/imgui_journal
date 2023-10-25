@@ -115,6 +115,7 @@ std::string Group::get_description()
 Group::Group()
 {
     group_info.day_of_the_week = -1;
+    group_info.number = -1;
 }
 
 bool Group::operator==(const Group& rhs) const { return this == &rhs; };

@@ -5,14 +5,11 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-// Main code
 int main(int, char**)
 {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
-
-    // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
     const char* glsl_version = "#version 100";
@@ -35,44 +32,19 @@ int main(int, char**)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    // Create window with graphics context
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // Enable vsync
-
-    // Setup Dear ImGui context
+    glfwSwapInterval(0); // Enable vsync
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
     ImGui::StyleColorsLight();
-
-    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    // - Our Emscripten build process allows embedding fonts to be accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != nullptr);
     #ifdef _WIN32
     if(!io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic()))
     {
@@ -83,7 +55,7 @@ int main(int, char**)
     {
         return -1;
     }
-    #endif //not supporting apple platform lolol
+    #endif //not supporting apple platform (yet)
 
     time_t current_time_temp = time(NULL);
     const std::tm current_time = *std::localtime(&current_time_temp);
@@ -144,9 +116,6 @@ int main(int, char**)
     temp_lesson2->add_lesson_pair(temp_lesson_pair);
     all_lessons[4].push_back(temp_lesson2);
 
-    //Lesson ignored_ = {1,0};
-    //all_students[3].add_lesson_ignore_id(ignored_, current_day_of_the_week);
-
     int current_month_days_num = get_number_of_days(current_month, current_year + 1900);
     for (int i = 0; i < current_month_days_num; i++)
     {
@@ -162,22 +131,17 @@ int main(int, char**)
 
     // Main loop
 #ifdef __EMSCRIPTEN__
-    // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
-    // You may manually call LoadIniSettingsFromMemory() to load settings from your own storage.
     io.IniFilename = nullptr;
     EMSCRIPTEN_MAINLOOP_BEGIN
 #else
     while (!glfwWindowShouldClose(window))
 #endif
 {
-//glfwWaitEvents();
-glfwPollEvents();
-//glfwWaitEventsTimeout(0.2F);
+glfwPollEvents(); //TODO: do not update the screen until needed. Must be pretty straightforward.
 // Start the Dear ImGui frame
 ImGui_ImplOpenGL3_NewFrame();
 ImGui_ImplGlfw_NewFrame();
 ImGui::NewFrame();
-//static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 const ImGuiViewport* viewport = ImGui::GetMainViewport();
 ImGui::SetNextWindowPos(viewport->WorkPos);
 ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -206,7 +170,6 @@ if (popup_select_day_of_the_week)
 int count_visible_days = 0;
 int first_visible_day = get_first_wday(current_month, current_year, current_day_of_the_week);
 int first_visible_day_copy = first_visible_day;
-//std::vector<int> visible_table_columns;
 std::vector<Visible_Day> visible_days;
 for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=7)
 {
@@ -215,7 +178,6 @@ for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=
     bool is_today = current_time.tm_mday == first_visible_day_copy;
     Calendar_Day* current_visible = all_days[first_visible_day_copy-MDAY_DIFF];
     visible_days.push_back(Visible_Day{first_visible_day_copy, current_visible, is_future, is_today});
-    //visible_table_columns.push_back(first_visible_day_copy-MDAY_DIFF);
 }
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
 ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
@@ -303,9 +265,9 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
     current_lesson.merged_lesson_id = current_merged_lesson;
     ImGui::BeginGroup();
     ImGui::Text(all_lessons[current_day_of_the_week][current_merged_lesson]->get_description().c_str());
-    const char* table_name = std::to_string(current_merged_lesson).c_str();
+    std::string table_name = generate_label("##table", { current_merged_lesson, (int)all_lessons[current_day_of_the_week].size() });
     if (ImGui::BeginTable(
-    table_name, 
+    table_name.c_str(), 
     DEFAULT_COLUMN_COUNT+count_visible_days, 
     ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
     ImVec2(std::numeric_limits<float>::max(),(0.0F))))
@@ -328,7 +290,6 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         for (int current_student_group_id = 0; current_student_group_id < current_group.get_size(); current_student_group_id++)
         {
             Student& current_student = current_group.get_student(current_student_group_id);
-            ImGui::LogText("Im at 331 main : %i", current_student.is_removed());
             ImGui::TableNextRow();
             if (current_student.is_removed()) 
             {
@@ -339,10 +300,8 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             {
                 ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
             }
-            ImGui::LogText("Im at 342 main :D");
             ImGui::TableSetColumnIndex(1); ImGui::Text(current_student.get_name().c_str());
             ImGui::TableSetColumnIndex(2); ImGui::Text("%i", current_student.get_contract());
-            ImGui::LogText("Im at 344 main :D");
             int current_student_contract = current_student.get_contract();
             int current_discount_level = -1;
             for (int i = 0; i < all_students.size(); i++)
@@ -356,7 +315,6 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             std::vector<bool> is_relevant;
             for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[current_day_of_the_week][current_merged_lesson]->get_lessons_size(); current_internal_lesson++)
             {
-                ImGui::LogText("I'm at 357 :D");
                 current_lesson.internal_lesson_id = current_internal_lesson;
                 Attend_Data current_attend_data = current_merged_lesson_ref.get_group().get_attend_data(current_student_group_id);
                 if ((current_internal_lesson == 0 && current_attend_data == ATTEND_SECOND) || (current_internal_lesson == 1 && current_attend_data == ATTEND_FIRST))
@@ -461,19 +419,19 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
         }
         if (current_time.tm_wday != current_day_of_the_week) ImGui::EndDisabled();
-        std::vector<const Student*> working_out_students;
+        std::vector<Student*> working_out_students;
         for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
         {
             //Warning: the following line of code may leave some students hidden while watching another months.
-            if (!visible_days[current_day_cell].is_future) break;
-            Calendar_Day& current_day_cell_ref = PTRREF(visible_days[current_day_cell].day);
+            if (visible_days[current_day_cell].is_future) break;
+            Calendar_Day* current_day_cell_ref = visible_days[current_day_cell].day;
             for (int current_internal_lesson = 0; current_internal_lesson < current_merged_lesson_ref.get_lessons_size(); current_internal_lesson++)
             {
                 current_lesson.internal_lesson_id = current_internal_lesson;
                 ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
-                for (int workout_num = 0; workout_num < current_day_cell_ref.get_workout_size(current_lesson); workout_num++)
+                for (int workout_num = 0; workout_num < current_day_cell_ref->get_workout_size(current_lesson); workout_num++)
                 {
-                    const Student* current_workout_student = &current_day_cell_ref.get_workout_student(current_lesson, workout_num);
+                    Student* current_workout_student = current_day_cell_ref->get_workout_student(current_lesson, workout_num);
                     bool is_in_vector = false;
                     for (int current_student_repeat_check_id = 0; current_student_repeat_check_id < working_out_students.size(); current_student_repeat_check_id++)
                     {

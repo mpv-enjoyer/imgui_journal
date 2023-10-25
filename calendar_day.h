@@ -7,7 +7,7 @@
 
 struct Workout_Info
 {
-    const Student* student;
+    Student* student;
     Lesson_Info* lesson_info;
     int internal_lesson;
     std::tm cached_date;
@@ -36,7 +36,7 @@ public:
     int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson);
     int get_workout_size(Lesson known_lesson);
     const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int known_workout_id);
-    const Student& get_workout_student(Lesson known_lesson, int known_workout_id);
+    Student* get_workout_student(Lesson known_lesson, int known_workout_id);
     Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id);
     Workout_Info get_workout_info(Lesson known_lesson, const Student& student);
     bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student);

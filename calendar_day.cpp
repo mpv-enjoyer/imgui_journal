@@ -61,7 +61,7 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_
 
 bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
-    const Student& student_to_workout = lessons[known_lesson_from.merged_lesson_id]->get_group().get_student(known_id_student);
+    Student& student_to_workout = lessons[known_lesson_from.merged_lesson_id]->get_group().get_student(known_id_student);
     Workout_Info new_workout_info{&student_to_workout, &merged_to, internal_to, cached_time_to};
     for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
@@ -163,10 +163,10 @@ const Student& Calendar_Day::get_workout_student(Lesson_Info& merged_lesson, int
     return PTRREF(attendance_info[merged_lesson_id][internal_lesson].workouts[workout_id].student);
 }
 
-const Student& Calendar_Day::get_workout_student(Lesson known_lesson, int workout_id)
+Student* Calendar_Day::get_workout_student(Lesson known_lesson, int workout_id)
 {
     //this must throw an exception if merged_lesson wasn't found anyway
-    return PTRREF(attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[workout_id].student);
+    return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[workout_id].student;
 }
 
 bool Calendar_Day::delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student)
@@ -230,7 +230,7 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
 
 bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id)
 {
-    attendance_info.push_back(std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
+    attendance_info.insert(attendance_info.begin() + known_new_merged_lesson_id, std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {
         Student_Status new_status;
