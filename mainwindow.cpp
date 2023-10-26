@@ -36,7 +36,7 @@ int main(int, char**)
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(0); // Enable vsync
+    glfwSwapInterval(1); // Enable vsync
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -422,8 +422,6 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         std::vector<Student*> working_out_students;
         for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
         {
-            //Warning: the following line of code may leave some students hidden while watching another months.
-            if (visible_days[current_day_cell].is_future) break;
             Calendar_Day* current_day_cell_ref = visible_days[current_day_cell].day;
             for (int current_internal_lesson = 0; current_internal_lesson < current_merged_lesson_ref.get_lessons_size(); current_internal_lesson++)
             {
@@ -444,9 +442,9 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     //if (!is_in_vector(working_out_students, current_workout_student)) working_out_students.push_back(current_workout_student); //wth isn't this working
                     if (!is_in_vector) working_out_students.push_back(current_workout_student);
                 }
-                if (current_internal_lesson != 0) ImGui::SameLine();
-                std::string add_workout_button_name = generate_label("O##add_workout_button", {current_merged_lesson, current_day_cell, current_internal_lesson});
-                if (edit_mode && ImGui::Button(add_workout_button_name.c_str()))
+                if (current_internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
+                std::string add_workout_button_name = generate_label("Отр##add_workout_button", {current_merged_lesson, current_day_cell, current_internal_lesson});
+                if (edit_mode && !visible_days[current_day_cell].is_future && ImGui::Button(add_workout_button_name.c_str(), ImVec2(SUBCOLUMN_WIDTH_PXLS, 0.0f)))
                 {
                     Group& current_group = current_merged_lesson_ref.get_group();
                     std::tm current_lesson_time = { 0, 0, 0,
@@ -471,15 +469,20 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                     current_lesson.internal_lesson_id = current_internal_lesson;
                     ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + current_day_cell);
                     Workout_Info current_workout_info = visible_days[current_day_cell].day->get_workout_info(current_lesson, PTRREF(working_out_students[current_workout_student_id]));
+                    if (current_workout_info.internal_lesson == -1) continue;
                     if (current_internal_lesson == 0) first_skipped = false;
                     bool create_fake_radio = current_internal_lesson != 0 && first_skipped;
                     std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {current_day_cell, 1, current_internal_lesson, current_day_cell}).c_str();
                     if (create_fake_radio)
                     {
                         std::string fake_radio_name = generate_label("##fake_radio", {current_day_cell, 0, current_internal_lesson, current_day_cell}).c_str();
-                        ImGui::RadioButton(fake_radio_name.c_str(), false);
+                        ImGui::InvisibleButton(fake_radio_name.c_str(), ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight()));
                     }
-                    ImGui::RadioButton(workout_info_radio_tooltip_name.c_str(), true);
+                    ImGui::SameLine();
+                    //ImGui::RadioButton(workout_info_radio_tooltip_name.c_str(), true);
+                    bool dummy = true;
+                    ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
+                    ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy);
                     ImGui::SetItemTooltip(to_string(current_workout_info.cached_date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end).c_str());
                 }
             }

@@ -1,15 +1,14 @@
 # imgui_journal
 
 TODO:
-- gray out every STATUS_NOT_AWAITED
-- removed students from groups should not be actually removed (because their attendance dissappears)
 - Fix table sizing
 - All_Groups edit.
 - additional shortcuts for editing
 - saving/importing everything to a file
 - cross-month actions
 
-BUGS: 0 found.
+BUGS:
+- it's impossible to set a workout for a second lesson sometimes
 
 Structural TODO:
 - Add hash table lookup instead of manually checking everything (probably done already as my == operators work on reference addresses)
