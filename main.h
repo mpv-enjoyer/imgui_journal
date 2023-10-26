@@ -7,24 +7,17 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include <GLFW/glfw3.h>
 #include <string>
 #include <limits>
 #include <vector>
-// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
-// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
-// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
-
-// This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
 #ifdef __EMSCRIPTEN__
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
-
 #include "imgui/misc/cpp/imgui_stdlib.h"
-
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
 
 #define STATUS_INVALID     -2
@@ -39,25 +32,19 @@
 #define DEFAULT_COLUMN_COUNT 5
 #define AGE_GROUP_COUNT      8
 #define MAX_INTERNAL_LESSONS 2
-#define SUBCOLUMN_WIDTH_PXLS 30
+#define SUBCOLUMN_WIDTH_PXLS 40
 
 #define ONE_LINE(STD_STRINGS)        one_line(STD_STRINGS).c_str()
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); ImVec2 center = ImGui::GetMainViewport()->GetCenter(); ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f)); if (ImGui::BeginPopupModal(POPUP_NAME, NULL, ImGuiWindowFlags_AlwaysAutoResize))
 #define POPUP_OK                     { ok(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
 #define POPUP_CANCEL                 { cancel(); ImGui::CloseCurrentPopup(); ImGui::EndPopup(); return true; }
+#define PTRREF(PTR)                  *(PTR)
+#define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
-struct JTime //used separately with ctime.
-{
-    int hours; //0-23
-    int minutes; //0-59
-};
-
-inline bool operator==(const JTime& lhs, const JTime& rhs) { return lhs.hours==rhs.hours && lhs.minutes==rhs.minutes; }
-inline bool operator!=(const JTime& lhs, const JTime& rhs) { return !(lhs == rhs); }
-inline bool operator< (const JTime& lhs, const JTime& rhs) { return lhs.hours < rhs.hours || (lhs.hours == rhs.hours && lhs.minutes < rhs.minutes); }
-inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
-inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
-inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
+typedef short Attend_Data;
+#define ATTEND_BOTH 0
+#define ATTEND_FIRST 1
+#define ATTEND_SECOND 2
 
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
@@ -71,154 +58,7 @@ const char                     Day_Names_Abbreviated_Combo[] = "Вс\0Пн\0Вт
 const std::vector<std::string> Age_Group_Names = {"4 года, дошкольная группа", "5 лет, дошкольная группа", "6 лет, дошкольная группа", "7 лет, школьная группа", "8 лет, школьная группа", "9 лет, школьная группа", "10-11 лет, школьная группа", "12-13 лет, школьная группа"};
 const char                     Age_Group_Names_Combo[] = " 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0";
 
-struct Group_Pair
-{
-    int day_of_the_week;
-    int number;
-};
-
-struct Lesson_Pair
-{
-    JTime time_begin;
-    JTime time_end;
-    int lesson_name_id;
-};
-
-struct Lesson
-{
-    int merged_lesson_id;
-    int internal_lesson_id;
-};
-
-struct Lesson_Full
-{
-    Lesson lesson;
-    int day_of_the_week;
-};
-
-inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
-inline bool operator!=(const Lesson& lhs, const Lesson& rhs) { return !(lhs==rhs);}
-
-class Student
-{
-private:
-    bool removed = 0;
-    int contract;
-    std::string name;
-    int age_group = -1;
-    std::vector<Lesson_Full> lessons_ignore; //this breaks a hierarchy, but is kept to allow some students to skip certain lessons.
-public:
-    Student();
-    int get_contract() const; bool set_contract(int new_contract);
-    std::string get_name() const; bool set_name(std::string new_name);
-    int get_age_group(); std::string get_age_group_string(); bool set_age_group(int new_age_group);
-    bool is_ignored(Lesson lesson, int lesson_day_of_the_week); bool add_lesson_ignore_id(Lesson new_lesson, int new_lesson_day_of_the_week); bool delete_lesson_ignore(Lesson lesson_to_delete, int day_of_the_week); 
-    int get_lessons_size();
-    bool is_removed() const; bool remove(); bool restore();
-};
-
-class Group
-{
-private:
-    bool removed = 0;
-    Group_Pair group_info;
-    std::vector<Student>* all_students;
-    std::vector<int> students_sort_by_id;
-    std::string comment;
-    std::vector<int> deleted_students_sort_by_id;
-public:
-    Group(std::vector<Student>* students_list);
-    int get_size() const;
-    int get_number() const; bool set_number(int new_number);
-    int get_day_of_the_week() const;
-    bool set_day_of_the_week(int new_day);
-    int get_student_sort_id(int student); int add_student(int student_id); bool delete_student(int student_id);
-    std::string get_comment(); bool set_comment(std::string new_comment);
-    std::string get_description();
-    bool is_in_group(int student) const;
-};
-
-class Lesson_Info //can contain multiple lessons which will be merged in the table.
-{
-private:
-    bool removed = 0;
-    std::vector<Group>* all_groups;
-    int group;
-    std::vector<Lesson_Pair> lesson_pairs;
-public:
-    Lesson_Info(std::vector<Group>* all_groups);
-    int get_group(); bool set_group(int new_group_id);
-    Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
-    bool remove();
-    bool should_attend(int student) const;
-    int get_lessons_size() const;
-    std::string get_description(int current_internal_lesson = -1) const;
-};
-
-struct Student_Status
-{
-    int student_id; //DO NOT USE
-    int status;
-    std::tm workout_day;
-    Lesson workout_lesson;
-    int discount_status = -1;
-};
-
-struct Workout_Info
-{
-    int student_id;
-    Lesson_Pair lesson_pair;
-    std::tm date; //day
-};
-
-class Calendar_Day
-{
-private:
-    std::vector<Lesson_Info>* lessons;
-    std::vector<Group>* all_groups;
-    std::vector<Student>* all_students;
-    std::vector<std::vector<std::vector<Student_Status>>> student_status; //[merged_lesson][internal_lesson][student_in_group]
-    //TODO: change student_status structure to ID-based? (for stability)
-    std::vector<std::vector<std::vector<Workout_Info>>> workouts; //[merged_lesson][internal_lesson][new_student]
-public:
-    Calendar_Day(std::vector<Lesson_Info>* lessons_in_this_day, std::vector<Group>* all_groups, std::vector<Student>* all_students, int current_day_of_the_week);
-    bool set_status(Lesson lesson, int student_id, int status);
-    Student_Status get_status(Lesson lesson, int student_id) const;
-    bool add_workout(Lesson lesson, int student_id, std::tm workout_date, Lesson_Pair workout_lesson);
-    bool add_workout(Lesson lesson, Workout_Info new_workout_info);
-    int get_workout_size(Lesson lesson);
-    int get_workout_student_id(Lesson lesson, int workout_id);
-    Workout_Info get_workout_info(Lesson lesson, int student_id);
-    bool delete_workout(Lesson lesson, int student_id);
-    bool set_discount_status(Lesson lesson, int student_id, int discount_status);
-    int get_discount_status(Lesson lesson, int student_id);
-
-    //the following is needed to properly update the journal
-
-    bool add_student_to_group(int group_id, int student_id, int new_student_id);
-    bool delete_student_from_group(int group_id, int student_id); //not needed?
-    bool change_group(Lesson lesson, int new_group_id);
-    bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
-    bool add_merged_lesson(int day_of_the_week, Lesson_Info new_lesson_info, bool await_no_one, int merged_lesson_id);
-    //...
-};
-
-//Popups & secondary windows
-static int popup_edit_ignore_lessons_is_open = -1;
-bool students_list(std::vector<Student>* all_students, std::vector<Group>* all_groups, int* popup_edit_ignore_lessons_is_open);
-bool popup_edit_ignore_lessons(std::vector<std::vector<Lesson_Info>>* lessons_in_a_week, std::vector<Student>* all_students, int current_student_id, bool* ignore);
-
-/*
-
-Currently used labels:
-
- ##combo_attendance
- O##add_workout_button
- ##workout_info_radio_tooltip
- ##fake_radio
- Добавить ученика##
- ##dummy1
- ##dummy2
- Day_Names[i]##change_day_button
-
-*/
+class Student;
+class Group;
+class Lesson_Info;
+class Calendar_Day;

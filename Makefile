@@ -16,11 +16,18 @@
 
 EXE = journal
 IMGUI_DIR = imgui
-SOURCES = main.cpp
-SOURCES += group.cpp student.cpp lesson_info.cpp calendar_day.cpp popups.cpp secondary_windows.cpp helper_functions.cpp
+MTYPE_DIR = main_types
+POPUP_DIR = popups
+SBWIN_DIR = subwindows
+HELPR_DIR = helpers
+SOURCES = mainwindow.cpp
+SOURCES += $(wildcard subwindows/*.cpp)
+SOURCES += $(wildcard main_types/*.cpp)
+SOURCES += $(wildcard helpers/helpers.cpp)
+SOURCES += $(wildcard popups/*.cpp)
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp 
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
-SOURCES += imgui_stdlib.cpp
+SOURCES += $(IMGUI_DIR)/misc/cpp/imgui_stdlib.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL -licui18n -licuuc
@@ -80,6 +87,21 @@ endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/backends/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(MTYPE_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(POPUP_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+%.o:$(SBWIN_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(HELPR_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(IMGUI_DIR)/misc/cpp/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)

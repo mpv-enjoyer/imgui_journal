@@ -14,6 +14,9 @@
 /popups.o
 /calendar_day.o
 /helper_functions.o
-/secondary_windows.o
+/subwindows.o
+/helper_types.o
+/mainwindow.o
 /journal
 /imgui_stdlib.o
+*.o
