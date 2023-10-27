@@ -21,6 +21,7 @@ private:
     int caller_mday = -1;
     int caller_year = -1;
     Lesson caller_lesson;
+    int caller_lesson_name_id = -1;
     ImGuiTextFilter filter;
 public:
     Popup_Add_Working_Out(const std::vector<Student*>& all_students, std::vector<std::vector<Lesson_Info*>>& all_lessons, const std::vector<Calendar_Day*>& all_days,

@@ -148,10 +148,8 @@ bool j_attendance_combo(const char* label, int* status)
         {
             ImVec2 p0 = ImGui::GetCursorScreenPos();
             ImVec2 p1 = ImVec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
-            ImU32 col_a = ImGui::GetColorU32(IM_COL32(0, 0, 0, 255));
-            ImU32 col_b = ImGui::GetColorU32(IM_COL32(255, 255, 255, 255));
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddRectFilled(p0, p1, IM_COL32(80, 80, 80, 255));
+            draw_list->AddRectFilled(p0, p1, IM_COL32(135, 135, 135, 255));
             //draw_list->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
             //ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(100, 0, 0, 100));
             ImGui::InvisibleButton("##gradient1", gradient_size);

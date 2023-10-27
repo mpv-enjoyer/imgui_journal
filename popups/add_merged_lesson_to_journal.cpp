@@ -19,7 +19,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
                 std::string lesson_name;
                 if (i == 0) lesson_name = Lesson_Names[combo_lesson_name_id - 2];
                 else lesson_name = Lesson_Names[3 - combo_lesson_name_id]; //mirrored
-                ImGui::Text("%i. %s", i, lesson_name.c_str());
+                ImGui::Text("%i. %s", i + 1, lesson_name.c_str());
             }
             else if (i == 1) break; 
             ImGui::PushID(i);

@@ -19,6 +19,8 @@ all_students(all_students), all_lessons(all_lessons), all_days(all_days), curren
     caller_mday = current_lesson_time.tm_mday;
     caller_month = current_lesson_time.tm_mon;
     caller_year = current_lesson_time.tm_year;
+    int caller_wday = get_wday(caller_mday, caller_month, caller_year);
+    caller_lesson_name_id = all_lessons[caller_wday][current_lesson.merged_lesson_id]->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
 }
 
 bool Popup_Add_Working_Out::show_frame()
@@ -84,7 +86,12 @@ bool Popup_Add_Working_Out::show_frame()
                     bool should_attend = false;
                     for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
                     {
-                        should_attend = should_attend || all_lessons[(first_mwday + i) % 7][j]->should_attend(PTRREF(all_students[select_student]));
+                        for (int k = 0; k < all_lessons[(first_mwday + i) % 7][j]->get_lessons_size(); k++)
+                        {
+                            bool new_attend = all_lessons[(first_mwday + i) % 7][j]->should_attend(PTRREF(all_students[select_student]));
+                            new_attend = new_attend && all_lessons[(first_mwday + i) % 7][j]->get_lesson_pair(k).lesson_name_id == caller_lesson_name_id;
+                            should_attend = should_attend || new_attend;
+                        }
                     }
                     if (should_attend) 
                     {
@@ -129,11 +136,13 @@ bool Popup_Add_Working_Out::show_frame()
             for (int current_merged_lesson = 0; current_merged_lesson < all_lessons.at((first_mwday + select_day) % 7).size(); current_merged_lesson++)
             {
                 current_lesson.merged_lesson_id = current_merged_lesson;
-                for (int current_internal_lesson = 0; current_internal_lesson < all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]->get_lessons_size(); current_internal_lesson++)
+                Lesson_Info& current_select_lesson_ref = PTRREF(all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]);
+                for (int current_internal_lesson = 0; current_internal_lesson < current_select_lesson_ref.get_lessons_size(); current_internal_lesson++)
                 {
                     current_lesson.internal_lesson_id = current_internal_lesson;
                     if (select_month == caller_month && select_year == caller_year && select_day == caller_mday && current_lesson == caller_lesson) continue;
-                    if (all_lessons.at((first_mwday + select_day) % 7)[current_merged_lesson]->should_attend(PTRREF(all_students[select_student])))
+                    if (current_select_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id != caller_lesson_name_id) continue;
+                    if (current_select_lesson_ref.should_attend(PTRREF(all_students[select_student])))
                     {
                         bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
                         is_visible = is_visible || checkbox_value;
