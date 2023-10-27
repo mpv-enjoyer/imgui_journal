@@ -165,7 +165,9 @@ bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled)
     if (!is_calendar_filled) {error("Для выбранного ученика нет доступных отработок"); return false; }
     if (select_day == -1) { error("Выберите день"); return false; }
     if (select_lesson == Lesson {-1, -1}) { error("Выберите урок"); return false; }
-    Student_Status requested_status = all_days[select_day]->get_status(select_lesson, select_student);
+    int student_id = possible_student_ids[select_student];
+    int known_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[student_id]), select_lesson.merged_lesson_id);
+    Student_Status requested_status = all_days[select_day]->get_status(select_lesson, known_internal_student_id);
     if (requested_status.status == STATUS_WORKED_OUT) { error("Отработка уже назначена"); return false; }
     if (requested_status.status == STATUS_NOT_AWAITED) { error("Ученик не должен приходить на этот урок"); return false; }
     if (requested_status.status == STATUS_ON_LESSON) { error("Ученик присутствовал на этом уроке"); return false; }
@@ -179,10 +181,13 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
     std::tm date_to = { 0, 0, 0, // second, minute, hour
     select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
     date_to.tm_wday = get_wday(select_day, select_month, select_year);
-    Workout_Info lesson_to_workout { all_students[select_student], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
-    all_days[caller_mday]->add_workout(PTRREF(all_students[select_student]), caller_lesson, lesson_to_workout);//[popup_add_working_out_merged_lesson][popup_add_working_out_internal_lesson]
-    all_days[select_day]->set_status(select_lesson, select_student, STATUS_WORKED_OUT);
-    int current_student_contract = all_students[select_student]->get_contract();
+    int student_id = possible_student_ids[select_student];
+    Student& current_student = PTRREF(all_students[student_id]);
+    int known_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[student_id]), select_lesson.merged_lesson_id);
+    Workout_Info lesson_to_workout { all_students[student_id], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
+    all_days[caller_mday]->add_workout(current_student, caller_lesson, lesson_to_workout);
+    all_days[select_day]->set_status(select_lesson, known_internal_student_id, STATUS_WORKED_OUT);
+    int current_student_contract = all_students[student_id]->get_contract();
     int current_discount_level = -1;
     for (int i = 0; i < all_students.size(); i++)
     {
@@ -192,6 +197,6 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
         }
     }
     if (current_discount_level == -1) current_discount_level = 0;
-    int current_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[select_student]), select_lesson.merged_lesson_id);
-    all_days[select_day]->set_discount_status(select_lesson, current_internal_student_id, current_discount_level);
+    //
+    all_days[select_day]->set_discount_status(select_lesson, known_internal_student_id, current_discount_level);
 }

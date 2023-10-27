@@ -40,6 +40,18 @@ std::string to_string(std::tm day, JTime begin, JTime end, bool abbreviate)
     return output;
 }
 
+std::string to_string(const std::vector<std::string>& strings, std::string separator, const std::vector<bool>& show_only)
+{
+    std::string output = "";
+    bool pick_individual = show_only.size() == strings.size();
+    for (int i = 0; i < strings.size(); i++)
+    {
+        if ((pick_individual && show_only[i]) || !pick_individual) output.append(strings[i]);
+        if (i != strings.size() - 1) output.append(separator);
+    }
+    return output;
+}
+
 bool j_button_selectable(const char* label, bool selected, bool small)
 {
     if (selected)

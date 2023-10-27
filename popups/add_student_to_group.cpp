@@ -70,4 +70,3 @@ void Popup_Add_Student_To_Group::accept_changes(std::vector<Visible_Day>& visibl
         }
     }
 }
-

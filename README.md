@@ -7,8 +7,7 @@ TODO:
 - saving/importing everything to a file
 - cross-month actions
 
-BUGS:
-- it's impossible to set a workout for a second lesson sometimes
+BUGS: none currently
 
 Structural TODO:
 - Add hash table lookup instead of manually checking everything (probably done already as my == operators work on reference addresses)

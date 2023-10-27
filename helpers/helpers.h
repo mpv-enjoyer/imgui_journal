@@ -53,6 +53,7 @@ const char* c_str_int(int num);
 std::string to_string(JTime value);
 std::string to_string(JTime begin, JTime end);
 std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbreviate = true);
+std::string to_string(const std::vector<std::string>& strings, std::string separator = "", const std::vector<bool>& show_only = {});
 std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected, bool small = false);
 bool j_input_time(std::string label, JTime& time);

@@ -33,6 +33,7 @@ int main(int, char**)
 #endif
 
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
+    glfwSetWindowSizeLimits(window, 200, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -248,11 +249,9 @@ ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
 JTime previous = {-1, -1};
 Lesson current_lesson;
 
-std::vector<bool> sort_ignore_lessons(all_lessons[current_day_of_the_week].size(), false);
 if (all_lessons[current_day_of_the_week].size() == 0) ImGui::Text("На текущий день не запланированы уроки.");
-for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of_the_week].size(); sort_merged_lesson++)
+for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
 {
-    int current_merged_lesson = sort_merged_lesson;
     Lesson_Info& current_merged_lesson_ref = PTRREF(all_lessons[current_day_of_the_week][current_merged_lesson]);
     if (previous == current_merged_lesson_ref.get_lesson_pair(0).time_begin)
     {
@@ -264,11 +263,14 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
     }
     current_lesson.merged_lesson_id = current_merged_lesson;
     ImGui::BeginGroup();
-    ImGui::Text(all_lessons[current_day_of_the_week][current_merged_lesson]->get_description().c_str());
+    ImGui::Text(current_merged_lesson_ref.get_description().c_str());
     std::string table_name = generate_label("##table", { current_merged_lesson, (int)all_lessons[current_day_of_the_week].size() });
-    if (ImGui::BeginTable(
-    table_name.c_str(), 
-    DEFAULT_COLUMN_COUNT+count_visible_days, 
+    std::vector<std::string> current_lesson_names;
+    for (int current_internal_lesson = 0; current_internal_lesson < current_merged_lesson_ref.get_lessons_size(); current_internal_lesson++)
+    {
+        current_lesson_names.push_back(Lesson_Names[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id]);
+    }
+    if (ImGui::BeginTable(table_name.c_str(), DEFAULT_COLUMN_COUNT+count_visible_days, 
     ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
     ImVec2(std::numeric_limits<float>::max(),(0.0F))))
     {
@@ -294,7 +296,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             if (current_student.is_removed()) 
             {
                 ImGui::BeginDisabled();
-                ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"X");
+                ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"-");
             }
             else
             {
@@ -347,7 +349,7 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
             }
             if (!temp_first)
             {
-                ImGui::TableSetColumnIndex(3); ImGui::Text(show_lesson_names.c_str());
+                ImGui::TableSetColumnIndex(3); ImGui::Text(to_string(current_lesson_names, "+", is_relevant).c_str());
                 ImGui::TableSetColumnIndex(4); ImGui::Text(c_str_int(show_price));
             }
             for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)
@@ -410,14 +412,22 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
         ImGui::TableSetColumnIndex(0);
         ImGui::TextDisabled(c_str_int(current_group_size + 1));
         ImGui::TableSetColumnIndex(1);
-        std::string add_working_out_common_name = generate_label("Добавить отработку", {});
+        //std::string add_working_out_common_name = generate_label("Отр.:##", {})
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Отр.:"); ImGui::SameLine();
         if (current_time.tm_wday != current_day_of_the_week) ImGui::BeginDisabled();
-        if (!edit_mode && ImGui::Button(add_working_out_common_name.c_str()))
+        //std::string add_working_out_first = generate_label(, {});
+        if (!edit_mode && ImGui::Button(current_lesson_names[0].c_str()))
         {
-            std::tm current_lesson_time = { 0, 0, 0,
-                    current_time.tm_mday - 1, current_month, current_year };
-            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);
+            std::tm current_lesson_time = { 0, 0, 0, current_time.tm_mday - 1, current_month, current_year };
+            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 0});
         }
+        ImGui::SameLine(0.0f, 2.0f);
+        if (!edit_mode && current_lesson_names.size() == 2 && ImGui::Button(current_lesson_names[1].c_str()))
+        {
+            std::tm current_lesson_time = { 0, 0, 0, current_time.tm_mday - 1, current_month, current_year };
+            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 1});
+        } 
         if (current_time.tm_wday != current_day_of_the_week) ImGui::EndDisabled();
         std::vector<Student*> working_out_students;
         for (int current_day_cell = 0; current_day_cell < visible_days.size(); current_day_cell++)
@@ -439,7 +449,6 @@ for (int sort_merged_lesson = 0; sort_merged_lesson < all_lessons[current_day_of
                             break;
                         }
                     }
-                    //if (!is_in_vector(working_out_students, current_workout_student)) working_out_students.push_back(current_workout_student); //wth isn't this working
                     if (!is_in_vector) working_out_students.push_back(current_workout_student);
                 }
                 if (current_internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
