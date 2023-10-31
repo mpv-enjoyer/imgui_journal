@@ -58,6 +58,7 @@ std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected, bool small = false);
 bool j_input_time(std::string label, JTime& time);
 bool j_attendance_combo(const char* label, int* status);
+bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
 template <typename T = int>
 bool is_in_vector(std::vector<T> vector, T to_find);
 int calculate_first_mwday(int current_mday, int current_wday);

@@ -5,6 +5,25 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+void fill_NAW_in_calendar(std::vector<Visible_Day>* visible_days, int known_merged_lesson_id, Attend_Data new_attend_data, int known_student_id)
+//assuming lesson size is 2.
+{
+    Lesson current_lesson;
+    current_lesson.merged_lesson_id = known_merged_lesson_id;
+    for (int i = 0; i < visible_days->size(); i++)
+    {
+        if (!visible_days->at(i).is_future) continue;
+        for (int j = 0; j < 2; j++)
+        {
+            current_lesson.internal_lesson_id = j;
+            Student_Status current_status = visible_days->at(i).day->get_status(current_lesson, known_student_id);
+            bool await = ( new_attend_data == ATTEND_BOTH ) || ( j == 0 ? new_attend_data == ATTEND_FIRST : new_attend_data == ATTEND_SECOND);
+            if (current_status.status == STATUS_NO_DATA || !await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NOT_AWAITED);
+            else if (current_status.status == STATUS_NOT_AWAITED || await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NO_DATA);
+        }
+    }
+}
+
 int main(int, char**)
 {
     glfwSetErrorCallback(glfw_error_callback);
@@ -71,6 +90,8 @@ int main(int, char**)
     std::vector<std::vector<Lesson_Info*>> all_lessons(7, std::vector<Lesson_Info*>()); //[day_of_the_week][]
     std::vector<Calendar_Day*> all_days;
 
+    const int test_current_wday = current_day_of_the_week;
+
     Student* first_student = new Student();
     all_students.push_back(first_student);
     first_student->set_name("Фамилия Имя 1");
@@ -90,12 +111,13 @@ int main(int, char**)
     all_groups[0]->add_student(PTRREF(all_students[2]));
     all_groups[0]->add_student(PTRREF(all_students[3]));
     all_groups[0]->set_number(7);
-    all_groups[0]->set_day_of_the_week(4);
+    all_groups[0]->set_day_of_the_week(test_current_wday);
     all_groups.push_back(new Group());
+    all_groups[1]->add_student(PTRREF(all_students[3]));
     all_groups[1]->set_number(2);
-    all_groups[1]->set_day_of_the_week(4);
+    all_groups[1]->set_day_of_the_week(test_current_wday);
     all_groups[1]->set_comment("дошкольники");
-    all_groups[1]->set_day_of_the_week(4);
+    all_groups[1]->set_day_of_the_week(test_current_wday);
     Lesson_Info* temp_lesson = new Lesson_Info(PTRREF(all_groups[0]));
     Lesson_Pair temp_lesson_pair;
     temp_lesson_pair.lesson_name_id = 1;
@@ -106,7 +128,7 @@ int main(int, char**)
     temp_lesson_pair.time_begin = temp_begin;
     temp_lesson_pair.time_end = temp_end;
     temp_lesson->add_lesson_pair(temp_lesson_pair);
-    all_lessons[4].push_back(temp_lesson);
+    all_lessons[test_current_wday].push_back(temp_lesson);
 
     Lesson_Info* temp_lesson2 = new Lesson_Info(PTRREF(all_groups[1]));
     temp_lesson_pair.lesson_name_id = 0;
@@ -115,7 +137,13 @@ int main(int, char**)
     temp_lesson_pair.time_begin = temp_begin;
     temp_lesson_pair.time_end = temp_end;
     temp_lesson2->add_lesson_pair(temp_lesson_pair);
-    all_lessons[4].push_back(temp_lesson2);
+    temp_lesson_pair.lesson_name_id = 1;
+    temp_begin.hours = 13; temp_begin.minutes = 10;
+    temp_end.hours = 14; temp_end.minutes = 40;
+    temp_lesson_pair.time_begin = temp_begin;
+    temp_lesson_pair.time_end = temp_end;
+    temp_lesson2->add_lesson_pair(temp_lesson_pair);
+    all_lessons[test_current_wday].push_back(temp_lesson2);
 
     int current_month_days_num = get_number_of_days(current_month, current_year + 1900);
     for (int i = 0; i < current_month_days_num; i++)
@@ -351,7 +379,23 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
             }
             if (!temp_first)
             {
-                ImGui::TableSetColumnIndex(3); ImGui::Text(to_string(current_lesson_names, "+", is_relevant).c_str());
+                ImGui::TableSetColumnIndex(3);
+                if (edit_mode && current_merged_lesson_ref.get_lessons_size() == 2)
+                {
+                    Attend_Data current_attend_data = current_merged_lesson_ref.get_group().get_attend_data(current_student_group_id);
+                    std::string attend_data_combo_name = generate_label("##att data", { current_merged_lesson, current_student_group_id });
+                    std::string first_lesson_name = Lesson_Names[current_merged_lesson_ref.get_lesson_pair(0).lesson_name_id];
+                    std::string second_lesson_name = Lesson_Names[current_merged_lesson_ref.get_lesson_pair(1).lesson_name_id];
+                    if (j_attend_data(attend_data_combo_name, &current_attend_data, first_lesson_name, second_lesson_name))
+                    {
+                        current_merged_lesson_ref.get_group().set_attend_data(current_student_group_id, current_attend_data);
+                        fill_NAW_in_calendar(&visible_days, current_merged_lesson, current_attend_data, current_student_group_id);
+                    }
+                }
+                else
+                {
+                    ImGui::Text(to_string(current_lesson_names, "+", is_relevant).c_str());
+                }
                 ImGui::TableSetColumnIndex(4); ImGui::Text(c_str_int(show_price));
             }
             for (int current_day_cell = 0; current_day_cell < count_visible_days; current_day_cell++)

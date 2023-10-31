@@ -134,7 +134,7 @@ bool j_attendance_combo(const char* label, int* status)
 {
     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
     int dummy = 0;
-    const char* items[] = { " ", "+", "Б", "-" };
+    const char* items[] = { " ", "V", "Б", "O" };
     if (*status == STATUS_WORKED_OUT)
     {
         ImGui::BeginDisabled();
@@ -150,14 +150,8 @@ bool j_attendance_combo(const char* label, int* status)
             ImVec2 p1 = ImVec2(p0.x + gradient_size.x, p0.y + gradient_size.y);
             ImDrawList* draw_list = ImGui::GetWindowDrawList();
             draw_list->AddRectFilled(p0, p1, IM_COL32(135, 135, 135, 255));
-            //draw_list->AddRectFilledMultiColor(p0, p1, col_a, col_b, col_b, col_a);
-            //ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(100, 0, 0, 100));
             ImGui::InvisibleButton("##gradient1", gradient_size);
-            //ImGui::PopStyleColor();
         }
-        //ImGui::BeginDisabled();
-        //if (ImGui::BeginCombo("##NAW", "...", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
-        //ImGui::EndDisabled();
         return false;
     }
     const char* combo_preview_value = items[*status];  // Pass in the preview value visible before opening the combo (it could be anything)
@@ -180,6 +174,32 @@ bool j_attendance_combo(const char* label, int* status)
     }
     return false;
 };
+
+bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name)
+{
+    std::string lesson_concat = to_string({ first_lesson_name, second_lesson_name}, "+").c_str();
+    const char* items[] = {lesson_concat.c_str(), first_lesson_name.c_str(), second_lesson_name.c_str()};
+    const char* combo_preview_value = items[*attend_data];  // Pass in the preview value visible before opening the combo (it could be anything)
+    //ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
+    if (ImGui::BeginCombo(label.c_str(), combo_preview_value, ImGuiComboFlags_WidthFitPreview))
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        {
+            const bool is_selected = (*attend_data == n);
+            if (ImGui::Selectable(items[n], is_selected))
+            {
+                *attend_data = n;
+                ImGui::EndCombo();
+                return true;
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    return false;
+}
 
 template <typename T = int, const Student&>
 bool is_in_vector(std::vector<T> vector, T to_find)
