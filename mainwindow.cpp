@@ -12,14 +12,14 @@ void fill_NAW_in_calendar(std::vector<Visible_Day>* visible_days, int known_merg
     current_lesson.merged_lesson_id = known_merged_lesson_id;
     for (int i = 0; i < visible_days->size(); i++)
     {
-        if (!visible_days->at(i).is_future) continue;
+        if (!(visible_days->at(i).is_future || visible_days->at(i).is_today)) continue;
         for (int j = 0; j < 2; j++)
         {
             current_lesson.internal_lesson_id = j;
             Student_Status current_status = visible_days->at(i).day->get_status(current_lesson, known_student_id);
             bool await = ( new_attend_data == ATTEND_BOTH ) || ( j == 0 ? new_attend_data == ATTEND_FIRST : new_attend_data == ATTEND_SECOND);
-            if (current_status.status == STATUS_NO_DATA || !await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NOT_AWAITED);
-            else if (current_status.status == STATUS_NOT_AWAITED || await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NO_DATA);
+            if (current_status.status == STATUS_NO_DATA && !await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NOT_AWAITED);
+            else if (current_status.status == STATUS_NOT_AWAITED & await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NO_DATA);
         }
     }
 }
