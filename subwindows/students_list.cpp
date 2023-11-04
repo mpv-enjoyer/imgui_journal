@@ -1,4 +1,4 @@
-#include "subwindows.h"
+#include "students_list.h"
 
 bool Subwindow_Students_List::show_frame()
 {
@@ -103,11 +103,6 @@ bool Subwindow_Students_List::show_frame()
             }
 
             ImGui::TableNextColumn(); 
-            /*if (ImGui::Button("Посещение"))
-            {
-                *popup_edit_ignore_lessons_is_open = student_id;
-            }
-            ImGui::SameLine(); this is commented for now but I will replace this with combobox in main*/ 
             HelpMarker("student ignore help placeholder");
             ImGui::SameLine(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
@@ -124,4 +119,3 @@ bool Subwindow_Students_List::show_frame()
     ImGui::End();
     return false;
 }
-
