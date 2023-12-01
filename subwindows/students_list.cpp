@@ -33,7 +33,7 @@ bool Subwindow_Students_List::show_frame()
     ImGui::Checkbox("Режим редактирования", &edit_mode);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
-    if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("No договора");

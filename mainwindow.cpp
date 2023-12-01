@@ -157,6 +157,7 @@ int main(int, char**)
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
     Popup_Add_Working_Out* popup_add_working_out = nullptr;
     Subwindow_Students_List* subwindow_students_list = nullptr;
+    Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -180,6 +181,14 @@ if (subwindow_students_list)
     {
         free(subwindow_students_list);
         subwindow_students_list = nullptr;
+    }
+}
+if (subwindow_lessons_list)
+{
+    if (subwindow_lessons_list->show_frame())
+    {
+        free(subwindow_lessons_list);
+        subwindow_lessons_list = nullptr;
     }
 }
 ImGui::Begin("Журнал версии 0.0.1", nullptr, WINDOW_FLAGS);
@@ -223,9 +232,14 @@ if (ImGui::Button("Добавить группу"))
     popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(all_groups, current_day_of_the_week);
 }
 ImGui::SameLine();
-if(ImGui::Button("Список учеников") )
+if (ImGui::Button("Список учеников") )
 {
     subwindow_students_list = new Subwindow_Students_List(all_students, all_groups);
+}
+ImGui::SameLine();
+if (ImGui::Button("Список уроков"))
+{
+    subwindow_lessons_list = new Subwindow_Lessons_List(all_lessons);
 }
 ImGui::SameLine();
 ImGui::Button("Журнал оплаты");

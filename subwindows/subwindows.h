@@ -13,3 +13,4 @@ public:
 };
 
 #include "students_list.h"
+#include "lessons_list.h"
