@@ -219,8 +219,6 @@ for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=
 }
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
 ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month].c_str());
-ImGui::SameLine();
 if(ImGui::Button("Изменить день"))
 {
     glfwPostEmptyEvent();
@@ -232,12 +230,12 @@ if (ImGui::Button("Добавить группу"))
     popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(all_groups, current_day_of_the_week);
 }
 ImGui::SameLine();
-if (ImGui::Button("Список учеников") )
+if (ImGui::Button("Ученики") )
 {
     subwindow_students_list = new Subwindow_Students_List(all_students, all_groups);
 }
 ImGui::SameLine();
-if (ImGui::Button("Список уроков"))
+if (ImGui::Button("Группы"))
 {
     subwindow_lessons_list = new Subwindow_Lessons_List(all_lessons);
 }
@@ -248,6 +246,7 @@ ImGui::Button("Справка");
 ImGui::SameLine();
 static bool edit_mode = false;
 ImGui::Checkbox("Режим редактирования", &edit_mode);
+ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month].c_str());
 if (popup_add_student_to_group)
 {
     bool is_done = popup_add_student_to_group->show_frame();
