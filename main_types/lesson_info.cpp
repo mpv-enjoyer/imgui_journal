@@ -23,19 +23,12 @@ bool Lesson_Info::set_group(Group& new_group)
     return true;
 }
 
+//Changed behaviour: no more sort check
 bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
 {
     int new_lesson_pair_id = get_lessons_size();
     if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;
-    for (int i = 0; i < get_lessons_size(); i++)
-    {
-        if (lesson_pairs[i].time_begin > new_lesson_pair.time_begin)
-        {
-            new_lesson_pair_id = i;
-            break;
-        }
-    }
-    lesson_pairs.insert(lesson_pairs.begin()+new_lesson_pair_id, new_lesson_pair);
+    lesson_pairs.push_back(new_lesson_pair);
     return true;
 }
 

@@ -5,6 +5,19 @@ Subwindow_Lessons_List::Subwindow_Lessons_List(std::vector<std::vector<Lesson_In
 bool Subwindow_Lessons_List::show_frame()
 {
     ImGui::Begin("Список всех групп", nullptr, WINDOW_FLAGS);
+    if (popup_edit_lesson)
+    {
+        bool result = popup_edit_lesson->show_frame();
+        if (result && popup_edit_lesson->check_ok())
+        {
+            popup_edit_lesson->accept_changes();
+        }
+        if (result)
+        {
+            free(popup_edit_lesson);
+            popup_edit_lesson = nullptr;
+        }
+    }
     if (ImGui::Button("Вернуться к журналу"))
     {
         ImGui::End();
@@ -28,7 +41,12 @@ bool Subwindow_Lessons_List::show_frame()
                 ImGui::TableNextRow(); 
                 ImGui::TableSetColumnIndex(0); ImGui::Text(Day_Names[current_day_ru].c_str());
                 ImGui::TableSetColumnIndex(1); ImGui::Text(current_lesson_info->get_description().c_str());
-                ImGui::TableSetColumnIndex(2); ImGui::Button("Изменить урок");
+                ImGui::TableSetColumnIndex(2);
+                std::string label = generate_label("Изменить группу##", {current_merged_lesson});
+                if (ImGui::Button(label.c_str()))
+                {
+                    popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info));
+                };
             }
         }
         ImGui::EndTable();

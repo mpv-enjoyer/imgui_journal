@@ -37,6 +37,6 @@ void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week, 
     current_day_of_the_week = get_day_of_the_week();
     current_month = get_month();
     current_year = get_year();
-    //current month days num is unsynced
+    //TODO: current month days num is unsynced
     //...
 }

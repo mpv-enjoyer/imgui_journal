@@ -48,6 +48,7 @@ typedef short Attend_Data;
 #define ATTEND_BOTH 0
 #define ATTEND_FIRST 1
 #define ATTEND_SECOND 2
+#define SWAPOVERLAP(left1, right1, left2, right2) ((left1 < right1 && left2 < right2) && (right1 < left2 || right2 < left1))
 
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
