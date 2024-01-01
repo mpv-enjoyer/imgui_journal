@@ -52,6 +52,9 @@ public:
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
     bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
     //...
+    void save(boost::archive::text_oarchive& ar, const unsigned int version) const;
+    void load(boost::archive::text_iarchive& ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 struct Visible_Day

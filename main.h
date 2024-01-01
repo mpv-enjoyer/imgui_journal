@@ -20,6 +20,13 @@
 #include "imgui/misc/cpp/imgui_stdlib.h"
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
 
+#include <fstream>
+#include <sstream>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/split_member.hpp>
+
 #define STATUS_INVALID     -2
 #define STATUS_NOT_AWAITED -1
 #define STATUS_NO_DATA      0

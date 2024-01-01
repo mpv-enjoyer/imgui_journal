@@ -130,3 +130,31 @@ bool Group::set_attend_data(int known_student_id, Attend_Data new_attend_data)
     students[known_student_id].attend_data = new_attend_data;
     return true;
 }
+
+template<class Archive>
+void Group::save(Archive& ar, const unsigned int version) const
+{
+    ar << group_info.day_of_the_week;
+    ar << group_info.number;
+    ar << comment;
+    for (auto it = students.begin(); it < students.end(); it++)
+    {
+        ar << (*it).attend_data;
+        ar << (*it).is_deleted;
+        ar << (*it).student;
+    }
+}
+
+template<class Archive>
+void Group::load(Archive& ar, const unsigned int version)
+{
+    ar >> group_info.day_of_the_week;
+    ar >> group_info.number;
+    ar >> comment;
+    for (auto it = students.begin(); it < students.end(); it++)
+    {
+        ar >> (*it).attend_data;
+        ar >> (*it).is_deleted;
+        ar >> (*it).student;
+    }
+}

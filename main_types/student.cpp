@@ -53,7 +53,7 @@ bool Student::restore()
     return true;
 }
 
-int Student::get_age_group()
+int Student::get_age_group() const
 {
     return age_group;
 }
@@ -75,3 +75,18 @@ bool Student::operator==(const Student& rhs) const { return this == &rhs; }
 bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
 bool Student::operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
 bool Student::operator> (const Student& rhs) const { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }
+
+template<class Archive>
+void Student::save(Archive& ar, const unsigned int version) const
+{
+    ar << get_contract();
+    ar << get_age_group();
+    ar << get_name();
+}
+template<class Archive>
+void Student::load(Archive& ar, const unsigned int version)
+{
+    ar >> contract;
+    ar >> age_group;
+    ar >> name;
+}

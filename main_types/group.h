@@ -15,6 +15,7 @@ private:
     std::vector<Students_List> students;
     std::string comment;
 public:
+    friend class boost::serialization::access;
     Group();
     int get_size() const;
     int get_number() const; bool set_number(int new_number);
@@ -28,4 +29,9 @@ public:
     std::string get_description();
     bool is_in_group(Student& student) const;
     bool operator==(const Group& rhs) const;
+    template<class Archive>
+    void save(Archive& ar, const unsigned int version) const;
+    template<class Archive>
+    void load(Archive& ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
