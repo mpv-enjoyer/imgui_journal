@@ -152,13 +152,6 @@ int main(int, char**)
     }
     bool selected_foreign_month = false;
 
-    std::ofstream ostr("all_students.txt");
-    boost::archive::text_oarchive output(ostr);
-    for (auto student : all_students)
-    {
-        output << student;
-    }
-
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;

@@ -19,7 +19,4 @@ public:
     bool operator!=(const Lesson_Info& rhs) const;
     bool operator< (const Lesson_Info& rhs) const;
     bool operator> (const Lesson_Info& rhs) const;
-    void save(boost::archive::text_oarchive& ar, const unsigned int version) const;
-    void load(boost::archive::text_iarchive& ar, const unsigned int version);
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };

@@ -10,6 +10,7 @@ private:
     int age_group = -1;
 public:
     Student();
+    Student(std::string deserialize_from);
     int get_contract() const; bool set_contract(int new_contract);
     std::string get_name() const; bool set_name(std::string new_name);
     int get_age_group() const; std::string get_age_group_string(); bool set_age_group(int new_age_group);
@@ -19,9 +20,5 @@ public:
     bool operator!=(const Student& rhs) const;
     bool operator< (const Student& rhs) const;
     bool operator> (const Student& rhs) const;
-    template<class Archive>
-    void save(Archive& ar, const unsigned int version) const;
-    template<class Archive>
-    void load(Archive& ar, const unsigned int version);
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    std::string serialize() const;
 };
