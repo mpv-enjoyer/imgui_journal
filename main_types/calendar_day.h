@@ -6,7 +6,14 @@ struct Workout_Info
     Student* student;
     Lesson_Info* lesson_info;
     int internal_lesson;
-    std::tm cached_date;
+    std::tm date;
+};
+
+struct Student_Status
+{
+    int status;
+    Workout_Info workout_info;
+    int discount_status = -1;
 };
 
 struct Internal_Attendance_Status
@@ -24,7 +31,8 @@ public:
     Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
-    Student_Status get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const;
+    bool insert_workout_into_status(Lesson known_lesson, int known_id_student, Workout_Info workout_info);
+    Student_Status get_status(Lesson_Info &merged_lesson, int internal_lesson, Student &student) const;
     Student_Status get_status(Lesson known_lesson, int known_id_student) const;
     bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
     bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);

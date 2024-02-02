@@ -425,7 +425,13 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     int current_lesson_discount_status = current_day_cell_ref->get_discount_status(current_lesson, current_student_group_id);
                     ImGui::BeginGroup();
                     std::string combo_attendance_name = generate_label("##combo_attendance", {current_merged_lesson, current_internal_lesson, current_day_cell, current_student_group_id});
-                    if (j_attendance_combo(combo_attendance_name.c_str(), &(current_status.status)))
+                    std::string tooltip = "";
+                    if (current_status.status == STATUS_WORKED_OUT)
+                    {
+                        auto current_workout_info = current_day_cell_ref->get_status(current_lesson, current_student_group_id).workout_info;
+                        tooltip = to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end);
+                    }
+                    if (j_attendance_combo(combo_attendance_name.c_str(), &(current_status.status), tooltip))
                     {
                         if (current_status.status != STATUS_WORKED_OUT)
                         {
@@ -480,14 +486,14 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
         {
             std::tm current_lesson_time = { 0, 0, 0, current_time.tm_mday - 1, current_month, current_year };
             int current_name_id = current_lesson_name_ids[0];
-            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 0});//, current_name_id);
+            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 0}, &current_merged_lesson_ref);//, current_name_id);
         }
         ImGui::SameLine(0.0f, 2.0f);
         if (!edit_mode && current_lesson_names.size() == 2 && ImGui::Button(current_lesson_names[1].c_str()))
         {
             std::tm current_lesson_time = { 0, 0, 0, current_time.tm_mday - 1, current_month, current_year };
             int current_name_id = current_lesson_name_ids[1];
-            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 1});//, current_name_id);
+            popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, {current_lesson.merged_lesson_id, 1}, &current_merged_lesson_ref);//, current_name_id);
         } 
         if (current_time.tm_wday != current_day_of_the_week) ImGui::EndDisabled();
         std::vector<Student*> working_out_students;
@@ -520,7 +526,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     std::tm current_lesson_time = { 0, 0, 0,
                             visible_days[current_day_cell].number - MDAY_DIFF, current_month, current_year };
                     int current_name_id = current_lesson_name_ids[current_internal_lesson];
-                    popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson);//, current_name_id);
+                    popup_add_working_out = new Popup_Add_Working_Out(all_students, all_lessons, all_days, current_group, current_time, current_lesson_time, current_lesson, &current_merged_lesson_ref);//, current_name_id);
                 }
             }
         }
@@ -553,7 +559,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                     ImGui::SameLine();
                     ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy);
-                    ImGui::SetItemTooltip(to_string(current_workout_info.cached_date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end).c_str());
+                    ImGui::SetItemTooltip(to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end).c_str());
                 }
             }
         }

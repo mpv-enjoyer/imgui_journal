@@ -32,14 +32,6 @@ struct Lesson_Full
     int day_of_the_week;
 };
 
-struct Student_Status
-{
-    int status;
-    std::tm workout_day;
-    Lesson workout_lesson;
-    int discount_status = -1;
-};
-
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
 inline bool operator!=(const Lesson& lhs, const Lesson& rhs) { return !(lhs == rhs); }
 inline bool operator==(const JTime& lhs, const JTime& rhs) { return lhs.hours==rhs.hours && lhs.minutes==rhs.minutes; }
@@ -57,7 +49,7 @@ std::string to_string(const std::vector<std::string>& strings, std::string separ
 std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected, bool small = false);
 bool j_input_time(std::string label, JTime& time);
-bool j_attendance_combo(const char* label, int* status);
+bool j_attendance_combo(const char* label, int* status, std::string tooltip = "");
 bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
 template <typename T = int>
 bool is_in_vector(std::vector<T> vector, T to_find);

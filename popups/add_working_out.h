@@ -22,10 +22,11 @@ private:
     int caller_year = -1;
     Lesson caller_lesson;
     int caller_lesson_name_id = -1;
+    Lesson_Info* caller_lesson_info;
     ImGuiTextFilter filter;
 public:
     Popup_Add_Working_Out(const std::vector<Student*>& all_students, std::vector<std::vector<Lesson_Info*>>& all_lessons, const std::vector<Calendar_Day*>& all_days,
-    Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson);
+    Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info);
     bool show_frame();
     bool is_ok_possible(bool is_calendar_filled);
     void accept_changes(std::vector<Calendar_Day*>& all_days);

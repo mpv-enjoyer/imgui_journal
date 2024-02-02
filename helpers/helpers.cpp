@@ -130,16 +130,19 @@ std::string generate_label(const std::string prefix, std::vector<int> unique)
     return output;
 }
 
-bool j_attendance_combo(const char* label, int* status)
+bool j_attendance_combo(const char* label, int* status, std::string tooltip)
 {
     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
     int dummy = 0;
     const char* items[] = { " ", "V", "Б", "O" };
     if (*status == STATUS_WORKED_OUT)
     {
-        ImGui::BeginDisabled();
+        ImVec2 gradient_size = ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight());
+        //ImGui::InvisibleButton(label, gradient_size);
+        //ImGui::BeginDisabled();
         if (ImGui::BeginCombo("##OTR", "OTP", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
-        ImGui::EndDisabled();
+        //ImGui::EndDisabled();
+        ImGui::SetItemTooltip(tooltip.c_str());
         return false;
     }
     if (*status == STATUS_NOT_AWAITED)

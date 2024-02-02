@@ -93,6 +93,12 @@ bool Calendar_Day::set_status(Lesson known_lesson, int known_id_student, int sta
     return true;
 }
 
+bool Calendar_Day::insert_workout_into_status(Lesson known_lesson, int known_id_student, Workout_Info workout_info)
+{
+    attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student].workout_info = workout_info;
+    return true;
+}
+
 int Calendar_Day::find_student(Student& student, int known_merged_lesson_id)
 {
     return lessons[known_merged_lesson_id]->get_group().find_student(student);

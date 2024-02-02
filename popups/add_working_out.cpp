@@ -1,7 +1,7 @@
 #include "add_working_out.h"
 
 Popup_Add_Working_Out::Popup_Add_Working_Out(const std::vector<Student*>& all_students, std::vector<std::vector<Lesson_Info*>>& all_lessons, const std::vector<Calendar_Day*>& all_days,
-Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson):
+Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info):
 all_students(all_students), all_lessons(all_lessons), all_days(all_days), current_group(current_group)
 {
     for (int i = 0; i < all_students.size(); i++)
@@ -21,6 +21,7 @@ all_students(all_students), all_lessons(all_lessons), all_days(all_days), curren
     caller_year = current_lesson_time.tm_year;
     int caller_wday = get_wday(caller_mday, caller_month, caller_year);
     caller_lesson_name_id = all_lessons[caller_wday][current_lesson.merged_lesson_id]->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
+    caller_lesson_info = current_lesson_info;
 }
 
 bool Popup_Add_Working_Out::show_frame()
@@ -196,6 +197,16 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
     Workout_Info lesson_to_workout { all_students[student_id], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
     all_days[caller_mday]->add_workout(current_student, caller_lesson, lesson_to_workout);
     all_days[select_day]->set_status(select_lesson, known_internal_student_id, STATUS_WORKED_OUT);
+    {
+        Workout_Info outer_info;
+        outer_info.date = (std::tm){ 0, 0, 0, // second, minute, hour
+    caller_mday + 1, caller_month, caller_year}; // 1-based day, 0-based month, year since 1900 
+        outer_info.date.tm_wday = get_wday(caller_mday, caller_month, caller_year);
+        outer_info.lesson_info = caller_lesson_info;
+        outer_info.student = &current_student;
+        outer_info.internal_lesson = caller_lesson.internal_lesson_id;
+        all_days[select_day]->insert_workout_into_status(select_lesson, known_internal_student_id, outer_info);
+    }
     int current_student_contract = all_students[student_id]->get_contract();
     int current_discount_level = -1;
     for (int i = 0; i < all_students.size(); i++)
@@ -206,6 +217,5 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
         }
     }
     if (current_discount_level == -1) current_discount_level = 0;
-    //
     all_days[select_day]->set_discount_status(select_lesson, known_internal_student_id, current_discount_level);
 }
