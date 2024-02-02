@@ -86,7 +86,7 @@ bool Group::is_in_group(Student& student) const
         if (student==PTRREF(students[i].student)) 
         {
             if (students[i].is_deleted) return false;
-            if (student.is_removed()) return false;
+            //if (student.is_removed()) return false;
             return true;
         }
     }

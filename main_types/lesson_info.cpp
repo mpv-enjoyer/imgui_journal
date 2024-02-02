@@ -92,6 +92,12 @@ bool Lesson_Info::is_discontinued()
     return removed;
 }
 
+bool Lesson_Info::restore()
+{
+    removed = false;
+    return true;
+}
+
 bool Lesson_Info::operator==(const Lesson_Info& rhs) const { return this == &rhs; }
 bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
 bool Lesson_Info::operator< (const Lesson_Info& rhs) const

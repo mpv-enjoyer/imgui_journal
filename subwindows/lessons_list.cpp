@@ -47,6 +47,12 @@ bool Subwindow_Lessons_List::show_frame()
                 {
                     popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info));
                 };
+                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
+                if (ImGui::Checkbox(generate_label("Удалить?##", {current_merged_lesson}).c_str(), &is_removed_input_buffer))
+                {
+                    if (is_removed_input_buffer) current_lesson_info->discontinue();
+                    if (!is_removed_input_buffer) current_lesson_info->restore();
+                }
             }
         }
         ImGui::EndTable();

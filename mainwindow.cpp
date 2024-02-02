@@ -156,9 +156,9 @@ int main(int, char**)
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
     Popup_Add_Working_Out* popup_add_working_out = nullptr;
+    Popup_Confirm* popup_confirm = nullptr;
     Subwindow_Students_List* subwindow_students_list = nullptr;
     Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
-
     // Main loop
 #ifdef __EMSCRIPTEN__
     io.IniFilename = nullptr;
@@ -286,6 +286,14 @@ if (popup_add_merged_lesson_to_journal)
         popup_add_merged_lesson_to_journal = nullptr;
     }
 }
+if (popup_confirm)
+{
+    bool is_done = popup_confirm->show_frame();
+    if (is_done && popup_confirm->check_ok())
+    {
+        popup_confirm->activate();
+    }
+}
 ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
 JTime previous = {-1, -1};
 Lesson current_lesson;
@@ -294,6 +302,9 @@ if (all_lessons[current_day_of_the_week].size() == 0) ImGui::Text("На теку
 for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
 {
     Lesson_Info& current_merged_lesson_ref = PTRREF(all_lessons[current_day_of_the_week][current_merged_lesson]);
+    if (!edit_mode && current_merged_lesson_ref.is_discontinued()) continue;
+    bool disabled = current_merged_lesson_ref.is_discontinued();
+    if (disabled) ImGui::BeginDisabled();
     if (previous == current_merged_lesson_ref.get_lesson_pair(0).time_begin)
     {
         ImGui::SameLine();
@@ -304,6 +315,10 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
     }
     current_lesson.merged_lesson_id = current_merged_lesson;
     ImGui::BeginGroup();
+    if (disabled)
+    {
+        ImGui::TextColored(ImVec4(255, 0, 0, 255), "Удаленная"); ImGui::SameLine();
+    }
     ImGui::Text(current_merged_lesson_ref.get_description().c_str());
     std::string table_name = generate_label("##table", { current_merged_lesson, (int)all_lessons[current_day_of_the_week].size() });
     std::vector<std::string> current_lesson_names;
@@ -566,6 +581,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
         ImGui::EndTable();
         ImGui::EndGroup();
     }
+if (disabled) ImGui::EndDisabled();
 }
 ImGui::PopStyleVar();
 ImGui::EndChild();
