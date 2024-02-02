@@ -85,6 +85,14 @@ bool Subwindow_Students_List::show_frame()
                 {
                     ImGui::BeginGroup();
                     ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
+                    auto label = generate_label("X##checkbox", { group_id, student_id });
+                    bool value = all_groups.at(group_id)->is_deleted(current_student);
+                    ImGui::SameLine();
+                    if (ImGui::Checkbox(label.c_str(), &value))
+                    {
+                        if (value) all_groups[group_id]->delete_student(current_student);
+                        if (!value) all_groups[group_id]->restore_student(current_student);
+                    }
                     ImGui::EndGroup();
                 }
             }

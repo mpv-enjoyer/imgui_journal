@@ -85,8 +85,36 @@ bool Group::is_in_group(Student& student) const
     {
         if (student==PTRREF(students[i].student)) 
         {
-            if (students[i].is_deleted) return false;
+            //if (students[i].is_deleted) return false;
             //if (student.is_removed()) return false;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Group::is_deleted(Student& student) const
+{
+    for (int i = 0; i < students.size(); i++)
+    {
+        if (student==PTRREF(students[i].student)) 
+        {
+            if (students[i].is_deleted) return true;
+            //if (student.is_removed()) return true;
+            return false;
+        }
+    }
+    return false;
+}
+
+bool Group::restore_student(Student& student)
+{
+    for (int i = 0; i < students.size(); i++)
+    {
+        if (student==PTRREF(students[i].student)) 
+        {
+            students[i].is_deleted = false;
+            //if (student.is_removed()) return true;
             return true;
         }
     }

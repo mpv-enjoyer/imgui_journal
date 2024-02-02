@@ -346,19 +346,22 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
             ImGui::Text(day_temp.c_str());
         }
         Group& current_group = current_merged_lesson_ref.get_group();
-        
+        int disabled_students_count = 0;
         for (int current_student_group_id = 0; current_student_group_id < current_group.get_size(); current_student_group_id++)
         {
             Student& current_student = current_group.get_student(current_student_group_id);
+            bool disabled_student = current_student.is_removed() || current_group.is_deleted(current_student);
+            disabled_students_count += disabled_student;
+            if (disabled_student && !edit_mode) continue;
             ImGui::TableNextRow();
-            if (current_student.is_removed()) 
+            if (disabled_student) 
             {
                 ImGui::BeginDisabled();
                 ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"-");
             }
             else
             {
-                ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id+1);
+                ImGui::TableSetColumnIndex(0); ImGui::Text("%i", current_student_group_id + 1 - disabled_students_count);
             }
             ImGui::TableSetColumnIndex(1); ImGui::Text(current_student.get_name().c_str());
             ImGui::TableSetColumnIndex(2); ImGui::Text("%i", current_student.get_contract());
@@ -476,7 +479,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                 }
                 if (!is_current_cell_enabled) ImGui::EndDisabled();
             }
-            if (current_student.is_removed()) ImGui::EndDisabled();
+            if (disabled_student) ImGui::EndDisabled();
         }
         int current_group_size = current_group.get_size();
         ImGui::TableNextRow();
