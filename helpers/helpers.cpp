@@ -134,17 +134,17 @@ bool j_attendance_combo(const char* label, int* status, std::string tooltip)
 {
     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
     int dummy = 0;
-    const char* items[] = { " ", "V", "Б", "O" };
-    if (*status == STATUS_WORKED_OUT)
-    {
-        ImVec2 gradient_size = ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight());
+    const char* items[] = { " ", "V", "Б", "O", "ОТР" };
+    //if (*status == STATUS_WORKED_OUT)
+    //{
+        //ImVec2 gradient_size = ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight());
         //ImGui::InvisibleButton(label, gradient_size);
         //ImGui::BeginDisabled();
-        if (ImGui::BeginCombo("##OTR", "OTP", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
+        //if (ImGui::BeginCombo("##OTR", "OTP", ImGuiComboFlags_NoArrowButton)) ImGui::EndCombo();
         //ImGui::EndDisabled();
-        ImGui::SetItemTooltip(tooltip.c_str());
-        return false;
-    }
+        
+        //return false;
+    //}
     if (*status == STATUS_NOT_AWAITED)
     {
         ImVec2 gradient_size = ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight());
@@ -158,9 +158,11 @@ bool j_attendance_combo(const char* label, int* status, std::string tooltip)
         return false;
     }
     const char* combo_preview_value = items[*status];  // Pass in the preview value visible before opening the combo (it could be anything)
-    if (ImGui::BeginCombo(label, combo_preview_value))
+    bool modify_for_workout = *status == STATUS_WORKED_OUT;
+    ImGuiComboFlags flags = modify_for_workout ? ImGuiComboFlags_NoArrowButton : 0; 
+    if (ImGui::BeginCombo(label, combo_preview_value, flags))
     {
-        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        for (int n = 0; n < IM_ARRAYSIZE(items) - (!modify_for_workout); n++)
         {
             const bool is_selected = (*status == n);
             if (ImGui::Selectable(items[n], is_selected))
@@ -175,6 +177,7 @@ bool j_attendance_combo(const char* label, int* status, std::string tooltip)
         }
         ImGui::EndCombo();
     }
+    if (*status == STATUS_WORKED_OUT) ImGui::SetItemTooltip(tooltip.c_str());
     return false;
 };
 

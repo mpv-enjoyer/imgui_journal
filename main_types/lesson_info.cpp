@@ -41,7 +41,7 @@ bool Lesson_Info::delete_lesson_pair(int id)
 
 bool Lesson_Info::should_attend(Student& student) const
 {
-    return group.is_in_group(student);
+    return group.is_in_group(student) && !group.is_deleted(student);
 }
 
 std::string Lesson_Info::get_description(int current_internal_lesson) const

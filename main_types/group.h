@@ -27,7 +27,7 @@ public:
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
     bool is_in_group(Student& student) const;
-    bool is_deleted(Student & student) const;
+    bool is_deleted(const Student & student) const;
     bool restore_student(Student &student);
     bool operator==(const Group &rhs) const;
 };

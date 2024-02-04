@@ -7,7 +7,14 @@ all_students(all_students), all_lessons(all_lessons), all_days(all_days), curren
     for (int i = 0; i < all_students.size(); i++)
     {
         if (all_students[i]->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(all_students[i]))) continue;
+        if (current_group.is_in_group(PTRREF(all_students[i])) && !current_group.is_deleted(PTRREF(all_students[i]))) continue;
+        bool was_found = false;
+        for (int j = 0; j < all_days[current_lesson_time.tm_mday]->get_workout_size(current_lesson); j++)
+        {
+            Student* student = all_days[current_lesson_time.tm_mday]->get_workout_student(current_lesson, j);
+            if (all_students[i] == student) was_found = true;
+        }
+        if (was_found) continue;
         possible_student_descriptions.push_back((all_students[i]->get_name() + " (" + std::to_string(all_students[i]->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
@@ -87,9 +94,11 @@ bool Popup_Add_Working_Out::show_frame()
                     bool should_attend = false;
                     for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
                     {
+                        if (all_lessons[(first_mwday + i) % 7][j]->is_discontinued()) continue;
                         for (int k = 0; k < all_lessons[(first_mwday + i) % 7][j]->get_lessons_size(); k++)
                         {
                             bool new_attend = all_lessons[(first_mwday + i) % 7][j]->should_attend(PTRREF(all_students[select_student]));
+                            //Do not check for deleted students because they were removed from the list before.
                             new_attend = new_attend && all_lessons[(first_mwday + i) % 7][j]->get_lesson_pair(k).lesson_name_id == caller_lesson_name_id;
                             should_attend = should_attend || new_attend;
                         }

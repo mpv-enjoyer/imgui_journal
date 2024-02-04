@@ -35,7 +35,7 @@ bool Subwindow_Students_List::show_frame()
     ImGui::Text("Список всех учеников");
     if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
-        ImGui::TableSetupColumn("Фамилия и имя");
+        ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed, 300.0F);
         ImGui::TableSetupColumn("No договора");
         ImGui::TableSetupColumn("Группы");
         ImGui::TableSetupColumn("Возрастная группа");
@@ -85,7 +85,7 @@ bool Subwindow_Students_List::show_frame()
                 {
                     ImGui::BeginGroup();
                     ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
-                    auto label = generate_label("X##checkbox", { group_id, student_id });
+                    auto label = generate_label("Выбыл из группы?##checkbox", { group_id, student_id });
                     bool value = all_groups.at(group_id)->is_deleted(current_student);
                     ImGui::SameLine();
                     if (ImGui::Checkbox(label.c_str(), &value))
@@ -100,7 +100,7 @@ bool Subwindow_Students_List::show_frame()
             if (edit_mode) 
             {
                 lesson_name_input_buffer = current_student.get_age_group() + 1; // plus one for a "not assigned" placeholder
-                if (ImGui::Combo("##возрастная группа", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
+                if (ImGui::Combo("##возр", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
                 {
                     current_student.set_age_group(lesson_name_input_buffer - 1);
                 }

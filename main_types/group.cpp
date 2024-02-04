@@ -93,7 +93,7 @@ bool Group::is_in_group(Student& student) const
     return false;
 }
 
-bool Group::is_deleted(Student& student) const
+bool Group::is_deleted(const Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {

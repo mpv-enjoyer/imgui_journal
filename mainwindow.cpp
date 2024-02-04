@@ -294,7 +294,7 @@ if (popup_confirm)
         popup_confirm->activate();
     }
 }
-ImGui::BeginChild("Child", ImVec2(0, 0), true, window_flags);
+ImGui::BeginChild("Child", ImVec2(0, -20), true, window_flags);
 JTime previous = {-1, -1};
 Lesson current_lesson;
 
@@ -444,8 +444,10 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     ImGui::BeginGroup();
                     std::string combo_attendance_name = generate_label("##combo_attendance", {current_merged_lesson, current_internal_lesson, current_day_cell, current_student_group_id});
                     std::string tooltip = "";
+                    bool should_delete_distant_workout = false;
                     if (current_status.status == STATUS_WORKED_OUT)
                     {
+                        should_delete_distant_workout = true;
                         auto current_workout_info = current_day_cell_ref->get_status(current_lesson, current_student_group_id).workout_info;
                         tooltip = to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end);
                     }
@@ -453,6 +455,13 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     {
                         if (current_status.status != STATUS_WORKED_OUT)
                         {
+                            if (should_delete_distant_workout)
+                            {
+                                Workout_Info distant_workout_info = current_status.workout_info;
+                                int day_index = current_status.workout_info.date.tm_mday - 1;
+                                int internal_lesson_id = current_status.workout_info.internal_lesson;
+                                all_days[day_index]->delete_workout(PTRREF(distant_workout_info.lesson_info), internal_lesson_id, PTRREF(distant_workout_info.student));
+                            }
                             current_day_cell_ref->set_status(current_lesson, current_student_group_id, current_status.status);
                             current_day_cell_ref->set_discount_status(current_lesson, current_student_group_id, current_discount_level);
                         }
@@ -481,7 +490,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
             }
             if (disabled_student) ImGui::EndDisabled();
         }
-        int current_group_size = current_group.get_size();
+        int current_group_size = current_group.get_size() - disabled_students_count;
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::TextDisabled(c_str_int(current_group_size + 1));
@@ -576,7 +585,12 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     bool dummy = true;
                     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                     ImGui::SameLine();
-                    ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy);
+                    if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
+                    {
+                        IM_ASSERT(current_workout_info.date.tm_mon == current_time.tm_mon); //not implemented
+                        all_days[current_workout_info.date.tm_mday - MDAY_DIFF]->set_status(PTRREF(current_workout_info.lesson_info), current_workout_info.internal_lesson, PTRREF(working_out_students[current_workout_student_id]), STATUS_NO_DATA);
+                        visible_days[current_day_cell].day->delete_workout(current_merged_lesson_ref, current_internal_lesson, PTRREF(working_out_students[current_workout_student_id]));
+                    }
                     ImGui::SetItemTooltip(to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end).c_str());
                 }
             }
@@ -588,6 +602,12 @@ if (disabled) ImGui::EndDisabled();
 }
 ImGui::PopStyleVar();
 ImGui::EndChild();
+
+if (ImGui::SmallButton("Задать выходной"))
+{
+    
+}
+
 ImGui::End();
 // Rendering
 ImGui::Render();

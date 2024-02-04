@@ -10,3 +10,4 @@ BUGS:
 
 Structural TODO:
 - use glfw_wait_events()
+- if working out for a month that hadn't been generated yet, save Student* to a vector-like structure to prevent it's deletion.
