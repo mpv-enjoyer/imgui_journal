@@ -584,7 +584,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                     if (current_workout_info.internal_lesson == -1) continue;
                     if (current_internal_lesson == 0) first_skipped = false;
                     bool create_fake_radio = current_internal_lesson != 0 && first_skipped;
-                    std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {current_day_cell, 1, current_internal_lesson, current_day_cell}).c_str();
+                    std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {current_day_cell, current_workout_student_id, current_internal_lesson, current_lesson.merged_lesson_id}).c_str();
                     if (create_fake_radio)
                     {
                         std::string fake_radio_name = generate_label("##fake_radio", {current_day_cell, 0, current_internal_lesson, current_day_cell}).c_str();
