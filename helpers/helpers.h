@@ -48,7 +48,8 @@ std::string to_string(std::tm day, JTime begin, JTime end = {-1, -1}, bool abbre
 std::string to_string(const std::vector<std::string>& strings, std::string separator = "", const std::vector<bool>& show_only = {});
 std::string generate_label(const std::string prefix, std::vector<int> unique);
 bool j_button_selectable(const char* label, bool selected, bool small = false);
-bool j_input_time(std::string label, JTime& time);
+bool j_button_dangerous(const char *label);
+bool j_input_time(std::string label, JTime &time);
 bool j_attendance_combo(const char* label, int* status, std::string tooltip = "");
 bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
 template <typename T = int>

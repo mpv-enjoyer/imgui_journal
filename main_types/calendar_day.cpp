@@ -1,12 +1,7 @@
 #include "calendar_day.h"
 
-Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : lessons(lessons_in_this_day)
+Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : lessons(&lessons_in_this_day)
 {
-    int max_merged = 0;
-    for (int i = 0; i < lessons_in_this_day.size(); i++)
-    {
-        if (lessons_in_this_day[i]->get_lessons_size() > max_merged) max_merged = lessons_in_this_day[i]->get_lessons_size();
-    }
     Student_Status default_status;
     default_status.status = STATUS_NO_DATA;
 
@@ -36,9 +31,9 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : les
 
 int Calendar_Day::find_merged_lesson(Lesson_Info& l_info) const
 {
-    for (int current_merged_lesson = 0; current_merged_lesson < lessons.size(); current_merged_lesson++)
+    for (int current_merged_lesson = 0; current_merged_lesson < lessons->size(); current_merged_lesson++)
     {
-        if (l_info == PTRREF(lessons[current_merged_lesson]))
+        if (l_info == *(lessons->at(current_merged_lesson)))
         {
             return current_merged_lesson;
         }
@@ -61,7 +56,7 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_
 
 bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
-    Student& student_to_workout = lessons[known_lesson_from.merged_lesson_id]->get_group().get_student(known_id_student);
+    Student& student_to_workout = lessons->at(known_lesson_from.merged_lesson_id)->get_group().get_student(known_id_student);
     Workout_Info new_workout_info{&student_to_workout, &merged_to, internal_to, cached_time_to};
     for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
@@ -101,7 +96,7 @@ bool Calendar_Day::insert_workout_into_status(Lesson known_lesson, int known_id_
 
 int Calendar_Day::find_student(Student& student, int known_merged_lesson_id)
 {
-    return lessons[known_merged_lesson_id]->get_group().find_student(student);
+    return lessons->at(known_merged_lesson_id)->get_group().find_student(student);
 }
 
 bool Calendar_Day::set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status)
@@ -194,11 +189,11 @@ bool Calendar_Day::add_student_to_group(Group& group, Student& new_student, int 
     Student_Status empty_status;
     empty_status.status = STATUS_NO_DATA;
     empty_status.discount_status = -1;
-    for (int i = 0; i < lessons.size(); i++)
+    for (int i = 0; i < lessons->size(); i++)
     {
-        if (lessons[i]->get_group()==group)
+        if (lessons->at(i)->get_group()==group)
         {
-            for (int j = 0; j < lessons[i]->get_lessons_size(); j++)
+            for (int j = 0; j < lessons->at(i)->get_lessons_size(); j++)
             {
                 attendance_info[i][j].planned.insert(attendance_info[i][j].planned.begin() + known_new_student_id, empty_status);
             }
@@ -212,7 +207,7 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
     Student_Status empty_status;
     empty_status.status = STATUS_NO_DATA;
     empty_status.discount_status = -1;
-    for (int j = 0; j < lessons[known_merged_lesson_id]->get_lessons_size(); j++)
+    for (int j = 0; j < lessons->at(known_merged_lesson_id)->get_lessons_size(); j++)
     {
         attendance_info[known_merged_lesson_id][j].planned.insert(attendance_info[known_merged_lesson_id][j].planned.begin() + known_new_student_id, empty_status);
     }

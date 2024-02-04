@@ -25,7 +25,7 @@ struct Internal_Attendance_Status
 class Calendar_Day
 {
 private:
-    std::vector<Lesson_Info*>& lessons;
+    std::vector<Lesson_Info*>* lessons;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
     Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.

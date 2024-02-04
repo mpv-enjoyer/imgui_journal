@@ -23,6 +23,10 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::End();
         return true;
     }
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+    ImGui::Checkbox("Режим редактирования", &edit_mode);
+    ImGui::PopStyleColor();
     ImGui::Text("Список всех групп");
     if (ImGui::BeginTable("##Список групп", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
@@ -38,6 +42,8 @@ bool Subwindow_Lessons_List::show_frame()
             for (int current_merged_lesson = 0; current_merged_lesson < current_day_lessons_size; current_merged_lesson++)
             {
                 Lesson_Info* current_lesson_info = all_lessons[current_day_ru][current_merged_lesson];
+                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
+                if (is_removed_input_buffer && !edit_mode) continue;
                 ImGui::TableNextRow(); 
                 ImGui::TableSetColumnIndex(0); ImGui::Text(Day_Names[current_day_ru].c_str());
                 ImGui::TableSetColumnIndex(1); ImGui::Text(current_lesson_info->get_description().c_str());
@@ -47,8 +53,11 @@ bool Subwindow_Lessons_List::show_frame()
                 {
                     popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info));
                 };
-                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
-                if (ImGui::Checkbox(generate_label("Удалить?##", {current_merged_lesson}).c_str(), &is_removed_input_buffer))
+                if (!edit_mode && !is_removed_input_buffer)
+                {
+                    if (j_button_dangerous("Удалить группу")) current_lesson_info->discontinue();
+                }
+                if (edit_mode && ImGui::Checkbox(generate_label("Удалить группу?##", {current_merged_lesson}).c_str(), &is_removed_input_buffer))
                 {
                     if (is_removed_input_buffer) current_lesson_info->discontinue();
                     if (!is_removed_input_buffer) current_lesson_info->restore();

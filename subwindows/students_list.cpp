@@ -48,6 +48,7 @@ bool Subwindow_Students_List::show_frame()
         for (int student_id = 0; student_id < all_students.size(); student_id++)
         {
             Student& current_student = PTRREF(all_students[student_id]);
+            if (!edit_mode && current_student.is_removed()) continue;
             ImGui::PushID(student_id);
             name_input_buffer = current_student.get_name();
             contract_input_buffer = current_student.get_contract();
@@ -64,11 +65,13 @@ bool Subwindow_Students_List::show_frame()
             }
             else
             {
+                ImGui::AlignTextToFramePadding();
                 ImGui::Text(name_input_buffer.c_str());
             }
             ImGui::TableNextColumn(); 
             if (!edit_mode) 
             {
+                ImGui::AlignTextToFramePadding();
                 ImGui::Text(std::to_string(current_student.get_contract()).c_str());
             }
             else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
@@ -83,15 +86,28 @@ bool Subwindow_Students_List::show_frame()
             {
                 if (all_groups.at(group_id)->is_in_group(current_student)) 
                 {
-                    ImGui::BeginGroup();
-                    ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
-                    auto label = generate_label("Выбыл из группы?##checkbox", { group_id, student_id });
                     bool value = all_groups.at(group_id)->is_deleted(current_student);
+                    if (!edit_mode && value) continue;
+                    ImGui::BeginGroup();
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
                     ImGui::SameLine();
-                    if (ImGui::Checkbox(label.c_str(), &value))
+                    if (edit_mode)
                     {
-                        if (value) all_groups[group_id]->delete_student(current_student);
-                        if (!value) all_groups[group_id]->restore_student(current_student);
+                        auto label = generate_label("Удалить из группы?##checkbox", { group_id, student_id });
+                        if (ImGui::Checkbox(label.c_str(), &value))
+                        {
+                            if (value) all_groups[group_id]->delete_student(current_student);
+                            if (!value) all_groups[group_id]->restore_student(current_student);
+                        }
+                    }
+                    else
+                    {
+                        if (!value)
+                        {
+                            auto label = generate_label("Удалить из группы##checkbox", { group_id, student_id });
+                            if (j_button_dangerous(label.c_str())) all_groups[group_id]->delete_student(current_student);
+                        }
                     }
                     ImGui::EndGroup();
                 }
@@ -110,16 +126,18 @@ bool Subwindow_Students_List::show_frame()
                 ImGui::Text(current_student.get_age_group_string().c_str());
             }
 
-            ImGui::TableNextColumn(); 
-            HelpMarker("student ignore help placeholder");
-            ImGui::SameLine(); 
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-            if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
+            ImGui::TableNextColumn();
+            if (edit_mode && ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
                 if (is_removed_input_buffer) current_student.remove();
                 if (!is_removed_input_buffer) current_student.restore();
+                ImGui::PopStyleColor();
             }
-            ImGui::PopStyleColor();
+            if (!edit_mode && !is_removed_input_buffer && j_button_dangerous("Выбыл"))
+            {
+                current_student.remove();
+            }
             ImGui::PopID();
         }
         ImGui::EndTable();

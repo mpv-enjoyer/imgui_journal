@@ -5,7 +5,7 @@ class Lesson_Info //can contain multiple lessons which will be merged in the tab
 {
 private:
     bool removed = 0;
-    Group& group;
+    Group* group;
     std::vector<Lesson_Pair> lesson_pairs;
 public:
     Lesson_Info(Group& connected_group);

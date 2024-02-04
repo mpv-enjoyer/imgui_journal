@@ -328,7 +328,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
         current_lesson_names.push_back(Lesson_Names[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id]);
         current_lesson_name_ids.push_back(current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id);
     }
-    if (ImGui::BeginTable(table_name.c_str(), DEFAULT_COLUMN_COUNT+count_visible_days, 
+    if (ImGui::BeginTable(table_name.c_str(), DEFAULT_COLUMN_COUNT+count_visible_days+1, 
     ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
     ImVec2(std::numeric_limits<float>::max(),(0.0F))))
     {
@@ -345,6 +345,8 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
             ImGui::TableNextColumn(); 
             ImGui::Text(day_temp.c_str());
         }
+        ImGui::TableNextColumn(); 
+        ImGui::Text("Сумма");
         Group& current_group = current_merged_lesson_ref.get_group();
         int disabled_students_count = 0;
         for (int current_student_group_id = 0; current_student_group_id < current_group.get_size(); current_student_group_id++)
@@ -390,6 +392,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                 }
             }
             int show_price = 0;
+            int price_sum = 0;
             std::string show_lesson_names;
             bool temp_first = true;
             for (int i = 0; i < is_relevant.size(); i++)
@@ -467,6 +470,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                         }
                         if (current_lesson_discount_status == -1) current_lesson_discount_status = current_discount_level;
                     }
+                    int current_lesson_real_price = current_status.status > STATUS_NO_DATA ? Lesson_Prices[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id][current_lesson_discount_status] : 0;
                     if ((current_lesson_discount_status >= 0 && current_discount_level != current_lesson_discount_status && current_status.status > STATUS_NO_DATA) || current_status.status == STATUS_WAS_ILL)
                     {
                         int current_lesson_price = -1;
@@ -477,17 +481,21 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
                         if (current_status.status == STATUS_WAS_ILL)
                         {
                             current_lesson_price = 0;
+                            current_lesson_real_price = 0;
                         }
                         if (current_lesson_price != -1)
                         {
                             ImGui::TextDisabled(std::to_string(current_lesson_price).c_str());
                         }
                     }
+                    price_sum += current_lesson_real_price;
                     ImGui::EndGroup();
                     ImGui::SameLine(0.0f, 2.0f);
                 }
                 if (!is_current_cell_enabled) ImGui::EndDisabled();
             }
+            ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + count_visible_days);
+            ImGui::TextDisabled(c_str_int(price_sum));
             if (disabled_student) ImGui::EndDisabled();
         }
         int current_group_size = current_group.get_size() - disabled_students_count;
@@ -602,12 +610,6 @@ if (disabled) ImGui::EndDisabled();
 }
 ImGui::PopStyleVar();
 ImGui::EndChild();
-
-if (ImGui::SmallButton("Задать выходной"))
-{
-    
-}
-
 ImGui::End();
 // Rendering
 ImGui::Render();

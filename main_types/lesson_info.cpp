@@ -1,10 +1,10 @@
 #include "lesson_info.h"
 
-Lesson_Info::Lesson_Info(Group& connected_group) : group(connected_group) {};
+Lesson_Info::Lesson_Info(Group& connected_group) : group(&connected_group) {};
 
 Group& Lesson_Info::get_group() const
 {
-    return group;
+    return PTRREF(group);
 }
 
 Lesson_Pair Lesson_Info::get_lesson_pair(int id) const
@@ -19,7 +19,7 @@ int Lesson_Info::get_lessons_size() const
 
 bool Lesson_Info::set_group(Group& new_group)
 {
-    group = new_group;
+    *group = new_group;
     return true;
 }
 
@@ -41,12 +41,12 @@ bool Lesson_Info::delete_lesson_pair(int id)
 
 bool Lesson_Info::should_attend(Student& student) const
 {
-    return group.is_in_group(student) && !group.is_deleted(student);
+    return group->is_in_group(student) && !group->is_deleted(student);
 }
 
 std::string Lesson_Info::get_description(int current_internal_lesson) const
 {
-    std::string to_return = "Группа " + group.get_description();
+    std::string to_return = "Группа " + group->get_description();
     if (current_internal_lesson == -1)
     {
         for (int i = 0; i < get_lessons_size(); i++)
@@ -104,6 +104,6 @@ bool Lesson_Info::operator< (const Lesson_Info& rhs) const
 {
     if (lesson_pairs[0].time_begin < rhs.get_lesson_pair(0).time_begin) return true;
     if (lesson_pairs[0].time_begin > rhs.get_lesson_pair(0).time_begin) return false;
-    return group.get_number() < rhs.get_group().get_number();
+    return group->get_number() < rhs.get_group().get_number();
 }
 bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return !(*this < rhs) && (*this != rhs); };
