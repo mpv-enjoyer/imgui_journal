@@ -237,7 +237,7 @@ if (ImGui::Button("Ученики") )
 ImGui::SameLine();
 if (ImGui::Button("Группы"))
 {
-    subwindow_lessons_list = new Subwindow_Lessons_List(all_lessons);
+    subwindow_lessons_list = new Subwindow_Lessons_List(all_lessons, all_days, current_month, current_year);
 }
 ImGui::SameLine();
 ImGui::Button("Журнал оплаты");

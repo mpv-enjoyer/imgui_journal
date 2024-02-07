@@ -1,6 +1,10 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(std::vector<std::vector<Lesson_Info*>>& all_lessons) : all_lessons(all_lessons) { };
+Subwindow_Lessons_List::Subwindow_Lessons_List(std::vector<std::vector<Lesson_Info*>>& all_lessons, std::vector<Calendar_Day*>& all_days, int month, int year) : all_lessons(all_lessons), all_days(all_days)
+{ 
+    month_num = month;
+    year_num = year;
+};
 
 bool Subwindow_Lessons_List::show_frame()
 {
@@ -10,7 +14,7 @@ bool Subwindow_Lessons_List::show_frame()
         bool result = popup_edit_lesson->show_frame();
         if (result && popup_edit_lesson->check_ok())
         {
-            popup_edit_lesson->accept_changes();
+            popup_edit_lesson->accept_changes(all_lessons, all_days, month_num, year_num);
         }
         if (result)
         {
@@ -51,7 +55,7 @@ bool Subwindow_Lessons_List::show_frame()
                 std::string label = generate_label("Изменить группу##", {current_merged_lesson});
                 if (ImGui::Button(label.c_str()))
                 {
-                    popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info));
+                    popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info), current_day_ru, current_merged_lesson);
                 };
                 if (!edit_mode && !is_removed_input_buffer)
                 {

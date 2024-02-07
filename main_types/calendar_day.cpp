@@ -214,20 +214,11 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
     return true;
 }
 
-/*bool Calendar_Day::change_group(Lesson lesson, int new_group_id) //this function is so broken LOL DO NOT USE
+bool Calendar_Day::swap_merged_lessons(int old_id, int new_id)
 {
-    int new_group_size = all_groups->at(new_group_id).get_size();
-    lessons->at(lesson.merged_lesson_id).set_group(new_group_id);
-    student_status[lesson.merged_lesson_id][lesson.internal_lesson_id].erase(student_status[lesson.merged_lesson_id][lesson.internal_lesson_id].begin(), student_status[lesson.merged_lesson_id][lesson.internal_lesson_id].end());
-    
-    Student_Status empty_status;
-    empty_status.status = STATUS_NO_DATA;
-    for (int i = 0; i < new_group_size; i++)
-    {
-        empty_status.student_id = all_groups->at(new_group_id).get_student_sort_id(i);
-        student_status[lesson.merged_lesson_id][lesson.internal_lesson_id].push_back(empty_status);
-    }
-}*/
+    std::swap(attendance_info[old_id], attendance_info[new_id]);
+    return true;
+}
 
 bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id)
 {

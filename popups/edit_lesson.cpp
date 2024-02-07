@@ -1,7 +1,9 @@
 #include "edit_lesson.h"
 
-Popup_Edit_Lesson::Popup_Edit_Lesson(Lesson_Info& lesson_info) : lesson_info(lesson_info)
+Popup_Edit_Lesson::Popup_Edit_Lesson(Lesson_Info& lesson_info, int day, int merged_lesson_id) : lesson_info(lesson_info)
 {
+    this->day = day;
+    this->merged_lesson_id = merged_lesson_id;
     first_lesson_pair = lesson_info.get_lesson_pair(0);
     if (lesson_info.get_lessons_size() == 2)
     {
@@ -41,7 +43,7 @@ bool Popup_Edit_Lesson::show_frame()
     return false;
 }
 
-void Popup_Edit_Lesson::accept_changes()
+void Popup_Edit_Lesson::accept_changes(std::vector<std::vector<Lesson_Info*>>& all_lessons, std::vector<Calendar_Day*>& all_days, int current_month, int current_year)
 {
     lesson_info.delete_lesson_pair(0); lesson_info.add_lesson_pair(first_lesson_pair);
     if (second_lesson_exists)
@@ -50,4 +52,23 @@ void Popup_Edit_Lesson::accept_changes()
     }
     lesson_info.get_group().set_number(group_number);
     lesson_info.get_group().set_comment(group_description);
+    all_lessons[day].erase(all_lessons[day].begin() + merged_lesson_id);
+    int new_index = all_lessons[day].size();
+    for (int j = 0; j < all_lessons[day].size(); j++)
+    {
+        if (PTRREF(all_lessons[day][j]) > lesson_info) 
+        {
+            new_index = j;
+            break;
+        }
+    }
+    all_lessons[day].insert(all_lessons[day].begin() + new_index, &lesson_info);
+    int index_input_for_days_update = new_index;
+    if (new_index >= merged_lesson_id && new_index != all_lessons[day].size() - 1) new_index++;
+    int first_mday = get_first_wday(current_month, current_year, day) - 1;
+    int days_num = all_days.size();
+    for (int mday = first_mday; mday < days_num; mday += 7)
+    {
+        all_days[mday]->swap_merged_lessons(merged_lesson_id, index_input_for_days_update);
+    }
 }

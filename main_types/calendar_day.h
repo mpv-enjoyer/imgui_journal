@@ -56,7 +56,7 @@ public:
     bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
     bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);
     bool delete_student_from_group(int group_id, int student_id); //not needed?
-    bool change_group(Lesson lesson, int new_group_id);
+    bool swap_merged_lessons(int old_id, int new_id);
     bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
     bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
     //...
