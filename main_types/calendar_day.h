@@ -7,6 +7,7 @@ struct Workout_Info
     Lesson_Info* lesson_info;
     int internal_lesson;
     std::tm date;
+    Lesson recovery_hint = {-1, -1};
 };
 
 struct Student_Status

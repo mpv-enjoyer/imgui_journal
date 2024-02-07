@@ -5,7 +5,7 @@
 struct Predefined_Lesson
 {
     std::tm date;
-    Lesson_Full clone_from;
+    Lesson_Info* clone_from;
 };
 
 class All_Info
