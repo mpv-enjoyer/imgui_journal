@@ -9,7 +9,7 @@ struct JTime //used separately with ctime.
 
 struct Group_Pair
 {
-    int day_of_the_week;
+    int day_of_the_week; //not sure if it's used anywhere
     int number;
 };
 
@@ -59,3 +59,19 @@ int get_first_wday(int month, int year, int wday);
 int get_number_of_days(int month, int year);
 int get_wday(int day, int month, int year);
 void HelpMarker(const char* desc);
+
+template<class Archive>
+void serialize(Archive & ar, std::tm & g, const unsigned int version)
+{
+    ar & g.tm_gmtoff;
+    ar & g.tm_hour;
+    ar & g.tm_isdst;
+    ar & g.tm_mday;
+    ar & g.tm_min;
+    ar & g.tm_mon;
+    ar & g.tm_sec;
+    ar & g.tm_wday;
+    ar & g.tm_yday;
+    ar & g.tm_year;
+    ar & g.tm_zone;
+}

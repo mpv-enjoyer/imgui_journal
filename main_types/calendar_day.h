@@ -8,6 +8,7 @@ struct Workout_Info
     int internal_lesson;
     std::tm date;
     Lesson recovery_hint = {-1, -1};
+    Workout_Info(Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date) : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
 };
 
 struct Student_Status
@@ -23,12 +24,52 @@ struct Internal_Attendance_Status
     std::vector<Workout_Info>  workouts;
 };
 
+template<class Archive>
+void serialize(Archive & ar, Lesson & g, const unsigned int version)
+{
+    ar & g.merged_lesson_id;
+    ar & g.internal_lesson_id;
+}
+
+template<class Archive>
+void serialize(Archive & ar, Workout_Info & g, const unsigned int version)
+{
+    ar & g.student;
+    ar & g.lesson_info;
+    ar & g.internal_lesson;
+    ar & g.date;
+    ar & g.recovery_hint;
+}
+
+template<class Archive>
+void serialize(Archive & ar, Student_Status & g, const unsigned int version)
+{
+    ar & g.status;
+    ar & g.discount_status;
+    ar & g.workout_info;
+}
+
+template<class Archive>
+void serialize(Archive & ar, Internal_Attendance_Status & g, const unsigned int version)
+{
+    //ar & g.planned;
+    //ar & g.workouts;
+}
+
 class Calendar_Day
 {
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & lessons;
+        ar & attendance_info;
+    }
 private:
     std::vector<Lesson_Info*>* lessons;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
+    Calendar_Day() { };
     Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
@@ -56,9 +97,7 @@ public:
     //the following is needed to properly update the journal
     bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
     bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);
-    bool delete_student_from_group(int group_id, int student_id); //not needed?
     bool swap_merged_lessons(int old_id, int new_id);
-    bool change_lesson_pair(Lesson lesson, Lesson_Pair new_lesson_pair);
     bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
     //...
 };

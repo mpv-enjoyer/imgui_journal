@@ -8,8 +8,33 @@ struct Students_List
     Attend_Data attend_data; //this is like student_ignore_lesson_ids
 };
 
+
+template<class Archive>
+void serialize(Archive & ar, Students_List & g, const unsigned int version)
+{
+    ar & g.attend_data;
+    ar & g.student;
+    ar & g.is_deleted;
+}
+
+
+template<class Archive>
+void serialize(Archive & ar, Group_Pair & g, const unsigned int version)
+{
+    ar & g.day_of_the_week;
+    ar & g.number;
+}
+
 class Group
 {
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & group_info;
+        ar & students;
+        ar & comment;
+    }
 private:
     Group_Pair group_info;
     std::vector<Students_List> students;

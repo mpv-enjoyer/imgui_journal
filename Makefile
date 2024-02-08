@@ -31,6 +31,7 @@ SOURCES += $(IMGUI_DIR)/misc/cpp/imgui_stdlib.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL -licui18n -licuuc
+BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
 CXXFLAGS += -g -Wall -Wformat
@@ -75,6 +76,8 @@ ifeq ($(OS), Windows_NT)
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
 endif
+
+LIBS += $(BOOST_LIBS)
 
 ##---------------------------------------------------------------------
 ## BUILD RULES

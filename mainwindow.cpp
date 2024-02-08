@@ -19,7 +19,7 @@ void fill_NAW_in_calendar(std::vector<Visible_Day>* visible_days, int known_merg
             Student_Status current_status = visible_days->at(i).day->get_status(current_lesson, known_student_id);
             bool await = ( new_attend_data == ATTEND_BOTH ) || ( j == 0 ? new_attend_data == ATTEND_FIRST : new_attend_data == ATTEND_SECOND);
             if (current_status.status == STATUS_NO_DATA && !await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NOT_AWAITED);
-            else if (current_status.status == STATUS_NOT_AWAITED & await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NO_DATA);
+            else if (current_status.status == STATUS_NOT_AWAITED && await) visible_days->at(i).day->set_status(current_lesson, known_student_id, STATUS_NO_DATA);
         }
     }
 }
@@ -92,7 +92,7 @@ int main(int, char**)
 
     const int test_current_wday = current_day_of_the_week;
 
-    Student* first_student = new Student();
+    /*Student* first_student = new Student();
     all_students.push_back(first_student);
     first_student->set_name("Фамилия Имя 1");
     first_student->set_contract(1);
@@ -144,6 +144,17 @@ int main(int, char**)
     temp_lesson_pair.time_end = temp_end;
     temp_lesson2->add_lesson_pair(temp_lesson_pair);
     all_lessons[test_current_wday].push_back(temp_lesson2);
+*/
+    {
+        std::ofstream ofs("month.save");
+        boost::archive::text_oarchive oa(ofs);
+        // write class instance to archive
+        oa << all_students;
+        oa << all_groups;
+        oa << all_lessons;
+        oa << all_days;
+    	// archive and stream closed when destructors are called
+    }
 
     int current_month_days_num = get_number_of_days(current_month, current_year + 1900);
     for (int i = 0; i < current_month_days_num; i++)
@@ -151,6 +162,8 @@ int main(int, char**)
        all_days.push_back(new Calendar_Day(all_lessons[(day_of_the_week_first_in_month + i) % 7]));
     }
     bool selected_foreign_month = false;
+
+
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;

@@ -1,13 +1,37 @@
 #pragma once
 #include "main_types.h"
 
+template<class Archive>
+void serialize(Archive & ar, JTime & g, const unsigned int version)
+{
+    ar & g.hours;
+    ar & g.minutes;
+}
+
+template<class Archive>
+void serialize(Archive & ar, Lesson_Pair & g, const unsigned int version)
+{
+    ar & g.lesson_name_id;
+    ar & g.time_begin;
+    ar & g.time_end;
+}
+
 class Lesson_Info //can contain multiple lessons which will be merged in the table.
 {
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & group;
+        ar & lesson_pairs;
+        ar & removed;
+    }
 private:
     bool removed = 0;
     Group* group;
     std::vector<Lesson_Pair> lesson_pairs;
 public:
+    Lesson_Info() {};
     Lesson_Info(Group& connected_group);
     Group& get_group() const; bool set_group(Group& new_group);
     Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
