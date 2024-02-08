@@ -30,6 +30,7 @@ struct Lesson_Full
 {
     Lesson lesson;
     int day_of_the_week;
+    Lesson_Full() {};
 };
 
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
@@ -60,7 +61,7 @@ int get_number_of_days(int month, int year);
 int get_wday(int day, int month, int year);
 void HelpMarker(const char* desc);
 
-template<class Archive>
+/*template<class Archive>
 void serialize(Archive & ar, std::tm & g, const unsigned int version)
 {
     ar & g.tm_gmtoff;
@@ -74,4 +75,4 @@ void serialize(Archive & ar, std::tm & g, const unsigned int version)
     ar & g.tm_yday;
     ar & g.tm_year;
     ar & g.tm_zone;
-}
+}*/

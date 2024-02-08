@@ -57,7 +57,7 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_
 bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
     Student& student_to_workout = lessons->at(known_lesson_from.merged_lesson_id)->get_group().get_student(known_id_student);
-    Workout_Info new_workout_info{&student_to_workout, &merged_to, internal_to, cached_time_to, (Lesson){-1, -1}};
+    Workout_Info new_workout_info{&student_to_workout, &merged_to, internal_to, cached_time_to};
     for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
         if (PTRREF(attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts[current_workout].student) == student_to_workout) return false;
@@ -216,6 +216,7 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
 
 bool Calendar_Day::swap_merged_lessons(int old_id, int new_id)
 {
+    if (old_id == new_id) return false;
     std::swap(attendance_info[old_id], attendance_info[new_id]);
     return true;
 }
@@ -251,7 +252,6 @@ Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, const Student& 
             return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[i];
         }
     }
-    Workout_Info not_found;
-    not_found.internal_lesson = -1;
+    Workout_Info not_found(nullptr, nullptr, -1, std::tm());
     return not_found;
 }

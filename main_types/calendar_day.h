@@ -1,14 +1,61 @@
 #pragma once
 #include "main_types.h"
 
+struct Time_Archiver
+{
+    int year;
+    int month;
+    int mday;
+    int wday;
+template<class Archive>
+void serialize(Archive & ar, const unsigned int version)
+{
+    ar & mday;
+    ar & month;
+    ar & year;
+    ar & wday;
+}
+};
+
 struct Workout_Info
 {
-    Student* student;
-    Lesson_Info* lesson_info;
+    Student* student = nullptr;
+    Lesson_Info* lesson_info = nullptr;
     int internal_lesson;
     std::tm date;
     Lesson recovery_hint = {-1, -1};
+    Workout_Info() {};
     Workout_Info(Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date) : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
+template<class Archive>
+void save(Archive & ar, const unsigned int version) const
+{
+    ar << student;
+    ar << lesson_info;
+    ar << internal_lesson;
+    Time_Archiver arch;
+    arch.mday = date.tm_mday;
+    arch.month = date.tm_mon;
+    arch.year = date.tm_year;
+    arch.wday = date.tm_wday;
+    ar << arch;
+    ar << recovery_hint;
+}
+
+template<class Archive>
+void load(Archive & ar, const unsigned int version)
+{
+    ar >> student;
+    ar >> lesson_info;
+    ar >> internal_lesson;
+    Time_Archiver arch;
+    ar >> arch;
+    date.tm_mday = arch.mday;
+    date.tm_mon = arch.month;
+    date.tm_year = arch.year;
+    date.tm_wday = arch.wday;
+    ar >> recovery_hint;
+}
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 struct Student_Status
@@ -16,12 +63,14 @@ struct Student_Status
     int status;
     Workout_Info workout_info;
     int discount_status = -1;
+    Student_Status() {};
 };
 
 struct Internal_Attendance_Status
 {
     std::vector<Student_Status> planned;
     std::vector<Workout_Info>  workouts;
+    Internal_Attendance_Status() {};
 };
 
 template<class Archive>
@@ -29,16 +78,6 @@ void serialize(Archive & ar, Lesson & g, const unsigned int version)
 {
     ar & g.merged_lesson_id;
     ar & g.internal_lesson_id;
-}
-
-template<class Archive>
-void serialize(Archive & ar, Workout_Info & g, const unsigned int version)
-{
-    ar & g.student;
-    ar & g.lesson_info;
-    ar & g.internal_lesson;
-    ar & g.date;
-    ar & g.recovery_hint;
 }
 
 template<class Archive>
@@ -52,8 +91,8 @@ void serialize(Archive & ar, Student_Status & g, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, Internal_Attendance_Status & g, const unsigned int version)
 {
-    //ar & g.planned;
-    //ar & g.workouts;
+    ar & g.planned;
+    ar & g.workouts;
 }
 
 class Calendar_Day

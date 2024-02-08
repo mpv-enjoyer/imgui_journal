@@ -145,15 +145,19 @@ int main(int, char**)
     temp_lesson2->add_lesson_pair(temp_lesson_pair);
     all_lessons[test_current_wday].push_back(temp_lesson2);
 */
+
     {
-        std::ofstream ofs("month.save");
-        boost::archive::text_oarchive oa(ofs);
-        // write class instance to archive
-        oa << all_students;
-        oa << all_groups;
-        oa << all_lessons;
-        oa << all_days;
-    	// archive and stream closed when destructors are called
+        std::ifstream ifs("month.save");
+        if (!ifs.fail())
+        {
+            boost::archive::text_iarchive ia(ifs);
+            // write class instance to archive
+            ia >> all_students;
+            ia >> all_groups;
+            ia >> all_lessons;
+            ia >> all_days;
+    	    // archive and stream closed when destructors are called
+        }
     }
 
     int current_month_days_num = get_number_of_days(current_month, current_year + 1900);
@@ -645,6 +649,17 @@ glfwSwapBuffers(window);
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    {
+        std::ofstream ofs("month.save");
+        boost::archive::text_oarchive oa(ofs);
+        // write class instance to archive
+        oa << all_students;
+        oa << all_groups;
+        oa << all_lessons;
+        oa << all_days;
+    	// archive and stream closed when destructors are called
+    }
 
     return 0;
 }
