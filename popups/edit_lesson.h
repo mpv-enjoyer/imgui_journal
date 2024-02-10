@@ -18,7 +18,7 @@ public:
     {
         if (second_lesson_exists)
         {
-            if (SWAPOVERLAP(first_lesson_pair.time_begin, first_lesson_pair.time_end, second_lesson_pair.time_begin, second_lesson_pair.time_end))
+            if (INTERVAL_CHECK(first_lesson_pair.time_begin, first_lesson_pair.time_end, second_lesson_pair.time_begin, second_lesson_pair.time_end))
             {
                 error("неверное время"); return false;
             }
