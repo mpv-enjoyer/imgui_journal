@@ -71,7 +71,8 @@ int main(int, char**)
         return -1;
     }
     #else
-    if(!io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/NotoMonoNerdFont-Regular.ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic()))
+    //if(!io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/NotoMonoNerdFont-Regular.ttf", 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic()))
+    if(!io.Fonts->AddFontFromFileTTF("segoeui.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic()))
     {
         return -1;
     }
@@ -342,7 +343,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
     std::vector<int> current_lesson_name_ids;
     for (int current_internal_lesson = 0; current_internal_lesson < current_merged_lesson_ref.get_lessons_size(); current_internal_lesson++)
     {
-        current_lesson_names.push_back(Lesson_Names[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id]);
+        current_lesson_names.push_back(Lesson_Names[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id] + "##" + std::to_string(current_internal_lesson + 1));
         current_lesson_name_ids.push_back(current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id);
     }
     if (ImGui::BeginTable(table_name.c_str(), DEFAULT_COLUMN_COUNT+count_visible_days+1, 
@@ -431,7 +432,7 @@ for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_
             if (!temp_first)
             {
                 ImGui::TableSetColumnIndex(3);
-                if (edit_mode && current_merged_lesson_ref.get_lessons_size() == 2)
+                if (edit_mode && current_merged_lesson_ref.get_lessons_size() == 2 && current_merged_lesson_ref.get_lesson_pair(0).lesson_name_id != current_merged_lesson_ref.get_lesson_pair(1).lesson_name_id)
                 {
                     Attend_Data current_attend_data = current_merged_lesson_ref.get_group().get_attend_data(current_student_group_id);
                     std::string attend_data_combo_name = generate_label("##att data", { current_merged_lesson, current_student_group_id });

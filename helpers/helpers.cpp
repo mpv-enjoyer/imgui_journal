@@ -46,7 +46,16 @@ std::string to_string(const std::vector<std::string>& strings, std::string separ
     bool pick_individual = show_only.size() == strings.size();
     for (int i = 0; i < strings.size(); i++)
     {
-        if ((pick_individual && show_only[i]) || !pick_individual) output.append(strings[i]);
+        if ((pick_individual && show_only[i]) || !pick_individual) 
+        {
+            auto index = strings[i].find("##");
+            if (index != strings[i].npos)
+            {
+                std::string temp = strings[i].substr(0, index);
+                output.append(temp);
+            }
+            else output.append(strings[i]);
+        }
         if (i != strings.size() - 1) output.append(separator);
     }
     return output;

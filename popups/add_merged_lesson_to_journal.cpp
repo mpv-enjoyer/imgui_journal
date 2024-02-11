@@ -21,6 +21,11 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
                 else lesson_name = Lesson_Names[3 - combo_lesson_name_id]; //mirrored
                 ImGui::Text("%i. %s", i + 1, lesson_name.c_str());
             }
+            else if (combo_lesson_name_id > 3)
+            {
+                std::string lesson_name = Lesson_Names[combo_lesson_name_id - 2];
+                ImGui::Text("%i. %s", i + 1, lesson_name.c_str());
+            }
             else if (i == 1) break; 
             ImGui::PushID(i);
             j_input_time("##LessonBegin", lesson_pairs[i].time_begin);
@@ -57,7 +62,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
             return false;
         }
     }
-    if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3)
+    if (combo_lesson_name_id >= 2)
     {
         bool insane_time = false;
         insane_time = insane_time || lesson_pairs[0].time_begin >= lesson_pairs[0].time_end;
@@ -92,7 +97,12 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Group*>& all
     {
         lesson_pairs[1].lesson_name_id = 0;
         lesson_info->add_lesson_pair(lesson_pairs[1]);
-    } 
+    }
+    if (combo_lesson_name_id > 3)
+    {
+        lesson_pairs[1].lesson_name_id = current_pair_name_id;
+        lesson_info->add_lesson_pair(lesson_pairs[1]);
+    }
     all_groups.push_back(new_group);
     lesson_info->set_group(PTRREF(new_group));
     int new_merged_lesson_known_id = lessons_in_this_day.size();
