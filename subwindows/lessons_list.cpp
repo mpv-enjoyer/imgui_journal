@@ -52,7 +52,7 @@ bool Subwindow_Lessons_List::show_frame()
                 ImGui::TableSetColumnIndex(0); ImGui::Text(Day_Names[current_day_ru].c_str());
                 ImGui::TableSetColumnIndex(1); ImGui::Text(current_lesson_info->get_description().c_str());
                 ImGui::TableSetColumnIndex(2);
-                std::string label = generate_label("Изменить группу##", {current_merged_lesson});
+                std::string label = generate_label("Изменить группу##", {current_merged_lesson, current_day_ru});
                 if (ImGui::Button(label.c_str()))
                 {
                     popup_edit_lesson = new Popup_Edit_Lesson(PTRREF(current_lesson_info), current_day_ru, current_merged_lesson);
