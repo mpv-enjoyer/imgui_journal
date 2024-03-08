@@ -1,7 +1,7 @@
 #include "add_merged_lesson_to_journal.h"
 
 Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(int current_day_of_the_week) 
-: day_of_the_week(current_day_of_the_week), all_groups(std::ref(Journal::all_groups))
+: day_of_the_week(current_day_of_the_week)
 {
     lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
 }
@@ -55,9 +55,9 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 
 bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
 {
-    for (int i = 0; i < Journal::all_groups.size(); i++)
+    for (int i = 0; i < Journal::all_groups().size(); i++)
     {
-        if (Journal::all_groups[i]->get_number() == group_number && Journal::all_groups[i]->get_day_of_the_week() == day_of_the_week) 
+        if (Journal::all_groups()[i]->get_number() == group_number && Journal::all_groups()[i]->get_day_of_the_week() == day_of_the_week) 
         {
             error("Такая группа уже существует");
             return false;
@@ -77,7 +77,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
     return true;
 };
 
-void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Lesson_Info*>& lessons_in_this_day)
+void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
 {
     IM_ASSERT(check_ok());
     Group* new_group = new Group();
@@ -104,8 +104,9 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Lesson_Info*
         lesson_pairs[1].lesson_name_id = current_pair_name_id;
         lesson_info->add_lesson_pair(lesson_pairs[1]);
     }
-    all_groups.push_back(new_group);
+    Journal::edit_all_groups().push_back(new_group);
     lesson_info->set_group(PTRREF(new_group));
+    std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(Journal::edit_all_lessons()[day_of_the_week]);
     int new_merged_lesson_known_id = lessons_in_this_day.size();
     for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
@@ -117,10 +118,10 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes(std::vector<Lesson_Info*
     }
     lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, lesson_info);
     //(*all_lessons)[day_of_the_week][(*all_lessons)[day_of_the_week].size() - 1].set_group(all_groups[all_groups.size() - 1]); useless?
-    for (int i = 0; i < Journal::visible_days.size(); i++)
+    for (int i = 0; i < Journal::visible_days().size(); i++)
     {
         bool await_no_one = false;
-        if (!(Journal::visible_days[i].is_future || Journal::visible_days[i].is_today)) await_no_one = true;
-        Journal::visible_days[i].day->add_merged_lesson(PTRREF(lesson_info), await_no_one, new_merged_lesson_known_id);
+        if (!(Journal::visible_days()[i].is_future || Journal::visible_days()[i].is_today)) await_no_one = true;
+        Journal::visible_days()[i].day->add_merged_lesson(PTRREF(lesson_info), await_no_one, new_merged_lesson_known_id);
     }
 }

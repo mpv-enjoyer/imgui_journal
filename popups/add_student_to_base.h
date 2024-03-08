@@ -16,5 +16,5 @@ public:
         if (contract < 0) error("SYSTEM_NEGATIVE_CONTRACT");
         return contract >= 0;
     }
-    void accept_changes(std::vector<Student*>& all_students);
+    void accept_changes();
 };

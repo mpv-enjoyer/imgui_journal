@@ -25,21 +25,21 @@ bool Popup_Add_Student_To_Base::show_frame()
     return false;
 }
 
-void Popup_Add_Student_To_Base::accept_changes(std::vector<Student*>& all_students)
+void Popup_Add_Student_To_Base::accept_changes()
 {
     IM_ASSERT(check_ok());
     Student* output = new Student();
     output->set_name(name);
     output->set_contract(contract);
     if (is_date_visible) output->set_age_group(age_group);
-    int new_student_id = all_students.size();
-    for (int i = 0; i < all_students.size(); i++)
+    int new_student_id = Journal::all_students().size();
+    for (int i = 0; i < Journal::all_students().size(); i++)
     {
-        if (PTRREF(all_students[i]) > PTRREF(output))
+        if (PTRREF(Journal::all_students()[i]) > PTRREF(output))
         {
             new_student_id = i;
             break;
         }
     }
-    all_students.insert(all_students.begin() + new_student_id, output);
+    Journal::edit_all_students().insert(Journal::edit_all_students().begin() + new_student_id, output);
 }

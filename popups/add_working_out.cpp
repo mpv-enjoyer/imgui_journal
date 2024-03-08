@@ -1,21 +1,20 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(const std::vector<Student*>& all_students, std::vector<std::vector<Lesson_Info*>>& all_lessons, const std::vector<Calendar_Day*>& all_days,
-Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info):
-all_students(all_students), all_lessons(all_lessons), all_days(all_days), current_group(current_group)
+Popup_Add_Working_Out::Popup_Add_Working_Out(Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info) 
+: current_group(current_group)
 {
-    for (int i = 0; i < all_students.size(); i++)
+    for (int i = 0; i < Journal::all_students().size(); i++)
     {
-        if (all_students[i]->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(all_students[i])) && !current_group.is_deleted(PTRREF(all_students[i]))) continue;
+        if (Journal::all_students()[i]->is_removed()) continue;
+        if (current_group.is_in_group(PTRREF(Journal::all_students()[i])) && !current_group.is_deleted(PTRREF(Journal::all_students()[i]))) continue;
         bool was_found = false;
-        for (int j = 0; j < all_days[current_lesson_time.tm_mday]->get_workout_size(current_lesson); j++)
+        for (int j = 0; j < Journal::all_days()[current_lesson_time.tm_mday]->get_workout_size(current_lesson); j++)
         {
-            Student* student = all_days[current_lesson_time.tm_mday]->get_workout_student(current_lesson, j);
-            if (all_students[i] == student) was_found = true;
+            Student* student = Journal::all_days()[current_lesson_time.tm_mday]->get_workout_student(current_lesson, j);
+            if (Journal::all_students()[i] == student) was_found = true;
         }
         if (was_found) continue;
-        possible_student_descriptions.push_back((all_students[i]->get_name() + " (" + std::to_string(all_students[i]->get_contract()) + ")"));
+        possible_student_descriptions.push_back((Journal::all_students()[i]->get_name() + " (" + std::to_string(Journal::all_students()[i]->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
@@ -27,7 +26,7 @@ all_students(all_students), all_lessons(all_lessons), all_days(all_days), curren
     caller_month = current_lesson_time.tm_mon;
     caller_year = current_lesson_time.tm_year;
     int caller_wday = get_wday(caller_mday, caller_month, caller_year);
-    caller_lesson_name_id = all_lessons[caller_wday][current_lesson.merged_lesson_id]->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
+    caller_lesson_name_id = Journal::all_lessons()[caller_wday][current_lesson.merged_lesson_id]->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
     caller_lesson_info = current_lesson_info;
 }
 
@@ -92,14 +91,14 @@ bool Popup_Add_Working_Out::show_frame()
                 if (select_student_visible)
                 {
                     bool should_attend = false;
-                    for (int j = 0; j < all_lessons[(first_mwday + i) % 7].size(); j++)
+                    for (int j = 0; j < Journal::all_lessons()[(first_mwday + i) % 7].size(); j++)
                     {
-                        if (all_lessons[(first_mwday + i) % 7][j]->is_discontinued()) continue;
-                        for (int k = 0; k < all_lessons[(first_mwday + i) % 7][j]->get_lessons_size(); k++)
+                        if (Journal::all_lessons()[(first_mwday + i) % 7][j]->is_discontinued()) continue;
+                        for (int k = 0; k < Journal::all_lessons()[(first_mwday + i) % 7][j]->get_lessons_size(); k++)
                         {
-                            bool new_attend = all_lessons[(first_mwday + i) % 7][j]->should_attend(PTRREF(all_students[select_student]));
+                            bool new_attend = Journal::all_lessons()[(first_mwday + i) % 7][j]->should_attend(PTRREF(Journal::all_students()[select_student]));
                             //Do not check for deleted students because they were removed from the list before.
-                            new_attend = new_attend && all_lessons[(first_mwday + i) % 7][j]->get_lesson_pair(k).lesson_name_id == caller_lesson_name_id;
+                            new_attend = new_attend && Journal::all_lessons()[(first_mwday + i) % 7][j]->get_lesson_pair(k).lesson_name_id == caller_lesson_name_id;
                             should_attend = should_attend || new_attend;
                         }
                     }
@@ -143,20 +142,20 @@ bool Popup_Add_Working_Out::show_frame()
         {
             bool is_visible = false;
             Lesson current_lesson;
-            for (int current_merged_lesson = 0; current_merged_lesson < all_lessons.at((first_mwday + select_day) % 7).size(); current_merged_lesson++)
+            for (int current_merged_lesson = 0; current_merged_lesson < Journal::all_lessons().at((first_mwday + select_day) % 7).size(); current_merged_lesson++)
             {
                 current_lesson.merged_lesson_id = current_merged_lesson;
-                Lesson_Info& current_select_lesson_ref = PTRREF(all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]);
+                Lesson_Info& current_select_lesson_ref = PTRREF(Journal::all_lessons()[(first_mwday + select_day) % 7][current_merged_lesson]);
                 for (int current_internal_lesson = 0; current_internal_lesson < current_select_lesson_ref.get_lessons_size(); current_internal_lesson++)
                 {
                     current_lesson.internal_lesson_id = current_internal_lesson;
                     if (select_month == caller_month && select_year == caller_year && select_day == caller_mday && current_lesson == caller_lesson) continue;
                     if (current_select_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id != caller_lesson_name_id) continue;
-                    if (current_select_lesson_ref.should_attend(PTRREF(all_students[select_student])))
+                    if (current_select_lesson_ref.should_attend(PTRREF(Journal::all_students()[select_student])))
                     {
                         bool checkbox_value = select_lesson.internal_lesson_id == current_internal_lesson && select_lesson.merged_lesson_id == current_merged_lesson;
                         is_visible = is_visible || checkbox_value;
-                        const std::string checkbox_description = all_lessons[(first_mwday + select_day) % 7][current_merged_lesson]->get_description(current_internal_lesson);
+                        const std::string checkbox_description = Journal::all_lessons()[(first_mwday + select_day) % 7][current_merged_lesson]->get_description(current_internal_lesson);
                         if (ImGui::Checkbox(checkbox_description.c_str(), &checkbox_value) && checkbox_value) 
                         {
                             is_visible = true;
@@ -185,8 +184,8 @@ bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled)
     if (select_day == -1) { error("Выберите день"); return false; }
     if (select_lesson == Lesson {-1, -1}) { error("Выберите урок"); return false; }
     int student_id = select_student;
-    int known_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[student_id]), select_lesson.merged_lesson_id);
-    Student_Status requested_status = all_days[select_day]->get_status(select_lesson, known_internal_student_id);
+    int known_internal_student_id = Journal::all_days()[select_day]->find_student(PTRREF(Journal::all_students()[student_id]), select_lesson.merged_lesson_id);
+    Student_Status requested_status = Journal::all_days()[select_day]->get_status(select_lesson, known_internal_student_id);
     if (requested_status.status == STATUS_WORKED_OUT) { error("Отработка уже назначена"); return false; }
     if (requested_status.status == STATUS_NOT_AWAITED) { error("Ученик не должен приходить на этот урок"); return false; }
     if (requested_status.status == STATUS_ON_LESSON) { error("Ученик присутствовал на этом уроке"); return false; }
@@ -194,18 +193,18 @@ bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled)
     return true;
 };
 
-void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
+void Popup_Add_Working_Out::accept_changes()
 {
     IM_ASSERT(check_ok());
     std::tm date_to = { 0, 0, 0, // second, minute, hour
     select_day + 1, select_month, select_year}; // 1-based day, 0-based month, year since 1900 
     date_to.tm_wday = get_wday(select_day, select_month, select_year);
     int student_id = select_student;
-    Student& current_student = PTRREF(all_students[student_id]);
-    int known_internal_student_id = all_days[select_day]->find_student(PTRREF(all_students[student_id]), select_lesson.merged_lesson_id);
-    Workout_Info lesson_to_workout { all_students[student_id], all_lessons[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
-    all_days[caller_mday]->add_workout(current_student, caller_lesson, lesson_to_workout);
-    all_days[select_day]->set_status(select_lesson, known_internal_student_id, STATUS_WORKED_OUT);
+    Student& current_student = PTRREF(Journal::all_students()[student_id]);
+    int known_internal_student_id = Journal::all_days()[select_day]->find_student(PTRREF(Journal::all_students()[student_id]), select_lesson.merged_lesson_id);
+    Workout_Info lesson_to_workout { Journal::all_students()[student_id], Journal::all_lessons()[(first_mwday + select_day) % 7][select_lesson.merged_lesson_id], select_lesson.internal_lesson_id, date_to };
+    Journal::all_days()[caller_mday]->add_workout(current_student, caller_lesson, lesson_to_workout);
+    Journal::all_days()[select_day]->set_status(select_lesson, known_internal_student_id, STATUS_WORKED_OUT);
     {
         Workout_Info outer_info;
         outer_info.date = (std::tm){ 0, 0, 0, // second, minute, hour
@@ -214,11 +213,11 @@ void Popup_Add_Working_Out::accept_changes(std::vector<Calendar_Day*>& all_days)
         outer_info.lesson_info = caller_lesson_info;
         outer_info.student = &current_student;
         outer_info.internal_lesson = caller_lesson.internal_lesson_id;
-        all_days[select_day]->insert_workout_into_status(select_lesson, known_internal_student_id, outer_info);
+        Journal::all_days()[select_day]->insert_workout_into_status(select_lesson, known_internal_student_id, outer_info);
     }
-    int current_student_contract = all_students[student_id]->get_contract();
+    int current_student_contract = Journal::all_students()[student_id]->get_contract();
     int current_discount_level = -1;
-    for (int i = 0; i < all_students.size(); i++)
+    for (int i = 0; i < Journal::all_students().size(); i++)
     {
         if (all_students[i]->get_contract() == current_student_contract && current_discount_level < 2 && !(all_students[i]->is_removed()))
         {
