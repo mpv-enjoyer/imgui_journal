@@ -20,3 +20,4 @@
 /journal
 /imgui_stdlib.o
 *.o
+month.save
