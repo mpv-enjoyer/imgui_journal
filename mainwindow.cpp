@@ -168,8 +168,6 @@ int main(int, char**)
     }
     bool selected_foreign_month = false;
 
-
-
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
     Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
@@ -223,6 +221,7 @@ if (popup_select_day_of_the_week)
         popup_select_day_of_the_week = nullptr;
     }
 }
+
 int count_visible_days = 0;
 int first_visible_day = get_first_wday(current_month, current_year, current_day_of_the_week);
 int first_visible_day_copy = first_visible_day;
@@ -235,6 +234,7 @@ for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=
     Calendar_Day* current_visible = all_days[first_visible_day_copy-MDAY_DIFF];
     visible_days.push_back(Visible_Day{first_visible_day_copy, current_visible, is_future, is_today});
 }
+
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
 ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 if(ImGui::Button("Изменить день"))
