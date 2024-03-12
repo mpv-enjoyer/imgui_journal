@@ -11,6 +11,7 @@
 #include <string>
 #include <limits>
 #include <vector>
+#include <array>
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -44,7 +45,7 @@
 
 #define MDAY_DIFF            1
 #define DEFAULT_COLUMN_COUNT 5
-#define AGE_GROUP_COUNT      8
+
 #define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
 
@@ -63,6 +64,10 @@ typedef short Attend_Data;
 #define ATTEND_FIRST 1
 #define ATTEND_SECOND 2
 #define INTERVAL_CHECK(left1, right1, left2, right2) (!(left1 < right1 && right1 < left2 && left2 < right2))
+
+const int LESSON_TYPE_COUNT = 5;
+const int LESSON_PRICES_COUNT = 3;
+const int AGE_GROUP_COUNT = 8;
 
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";

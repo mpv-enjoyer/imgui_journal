@@ -9,8 +9,9 @@ struct JTime //used separately with ctime.
 
 struct Group_Pair
 {
-    int day_of_the_week; //not sure if it's used anywhere
+    //int day_of_the_week; //not sure if it's used anywhere
     int number;
+    int age_group;
 };
 
 struct Lesson_Pair

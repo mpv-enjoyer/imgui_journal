@@ -31,12 +31,14 @@ class Group
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        ar & group_info;
+        ar & number;
+        ar & age_group;
         ar & students;
         ar & comment;
     }
 private:
-    Group_Pair group_info;
+    int number;
+    int age_group;
     std::vector<Students_List> students;
     std::string comment;
 public:
@@ -44,8 +46,8 @@ public:
     int get_size() const;
     int get_number() const; bool set_number(int new_number);
     int find_student(Student& student) const;
-    int get_day_of_the_week() const;
-    bool set_day_of_the_week(int new_day);
+    int get_age_group() const;
+    bool set_age_group(int new_day);
     Attend_Data get_attend_data(int known_student_id) const;
     bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
     Student& get_student(int student); int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
