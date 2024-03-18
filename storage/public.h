@@ -22,7 +22,7 @@ namespace Journal
     const int current_month();
     const int current_day_of_the_week();
     const int current_month_days_num();
-    const std::vector<Visible_Day>& visible_days();
+    const std::vector<Day_With_Info>& visible_days();
     void set_date(int month, int year);
     void set_day_of_the_week(int day_of_the_week);
     void add_student_to_base(std::string name, int contract);

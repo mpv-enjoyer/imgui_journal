@@ -43,9 +43,11 @@
 #define STATUS_SKIPPED      3
 #define STATUS_WORKED_OUT   4
 
+//all date related functions return 1-based day so
+//we use -MDAY_DIFF to go back to 0-based day.
 #define MDAY_DIFF            1
-#define DEFAULT_COLUMN_COUNT 5
 
+#define DEFAULT_COLUMN_COUNT 5
 #define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
 

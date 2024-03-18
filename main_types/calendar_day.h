@@ -141,7 +141,7 @@ public:
     //...
 };
 
-struct Visible_Day
+struct Day_With_Info
 {
     int number; //WARNING: THIS STARTS WITH 1
     Calendar_Day* day;
