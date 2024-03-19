@@ -79,7 +79,7 @@ bool Group::delete_student(Student& to_remove_student)
     return is_found_sort_id;
 }
 
-bool Group::is_in_group(Student& student) const
+bool Group::is_in_group(const Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {

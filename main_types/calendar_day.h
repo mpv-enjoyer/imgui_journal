@@ -141,10 +141,18 @@ public:
     //...
 };
 
-struct Day_With_Info
+struct _Day_With_Info
 {
     int number; //WARNING: THIS STARTS WITH 1
     Calendar_Day* day;
+    bool is_future;
+    bool is_today;
+};
+
+struct Day_With_Info
+{
+    int number; //WARNING: THIS STARTS WITH 1
+    const Calendar_Day* day;
     bool is_future;
     bool is_today;
 };

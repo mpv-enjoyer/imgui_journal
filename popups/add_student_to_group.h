@@ -7,15 +7,16 @@ private:
     int current_group_id = -1;
     int merged_lesson_known_id;
     int current_selected_student = -1;
+    int current_wday = -1;
     ImGuiTextFilter text_filter;
     Group& current_group;
     Lesson_Info& current_lesson;
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
 public:
-    Popup_Add_Student_To_Group(Lesson_Info& current_lesson, int merged_lesson_known_id);
+    Popup_Add_Student_To_Group(Lesson_Info& current_lesson, int merged_lesson_known_id, int wday);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
-    Student* get_added_student() { IM_ASSERT(check_ok()); return Journal::all_students()[current_selected_student]; };
+    const Student* get_added_student() { IM_ASSERT(check_ok()); return Journal::student(current_selected_student); };
     Group* get_current_group() { IM_ASSERT(check_ok()); return &current_group; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) 

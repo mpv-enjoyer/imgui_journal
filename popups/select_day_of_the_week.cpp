@@ -1,10 +1,10 @@
 #include "select_day_of_the_week.h"
 
-Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(int current_day_of_the_week, int current_month, int current_year)
+Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(int current_day_of_the_week)
 {
     day_of_the_week = current_day_of_the_week;
-    month = current_month;
-    year = current_year + 1900;
+    month = Journal::current_month();
+    year = Journal::current_year();
 }
 
 bool Popup_Select_Day_Of_The_Week::show_frame()
@@ -32,11 +32,8 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
     return false;
 }
 
-void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week, int& current_month, int& current_year)
+void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week)
 {
     current_day_of_the_week = get_day_of_the_week();
-    current_month = get_month();
-    current_year = get_year();
-    //TODO: current month days num is unsynced
-    //...
+    Journal::set_date(month, year);
 }

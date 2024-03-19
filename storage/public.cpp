@@ -3,11 +3,50 @@
 
 namespace Journal
 {
+    const Student* student(int id) 
+    { 
+        return _all_students[id]; 
+    }
+    const int student_count()
+    {
+        return _all_students.size();
+    }
+    const Lesson_Info *lesson_info(int wday, int merged_lesson_id)
+    {
+        return _all_lessons[wday][merged_lesson_id];
+    }
+    const int lesson_info_count(int wday)
+    {
+        return _all_lessons[wday].size();
+    }
+    const Calendar_Day *day(int mday)
+    {
+        return _all_days[mday];
+    }
+    const int day_count()
+    {
+        return _all_days.size();
+    }
+
     const int current_year() { return _current_year; };
     const int current_month() { return _current_month; };
-    const int current_day_of_the_week() { return _current_day_of_the_week; };
     const int current_month_days_num() { return _current_month_days_num; };
-    const std::vector<Day_With_Info>& visible_days() { return std::ref(_visible_days); };
+    const std::vector<const Day_With_Info> enumerate_days(int wday)
+    {
+        std::vector<const Day_With_Info> output;
+        int day = get_first_wday(_current_month, _current_year, wday);
+        int day_count = get_number_of_days(_current_month, _current_year);
+        for ( ; day <= day_count; day+=7)
+        {
+            Day_With_Info current;
+            current.day = _day(day);
+            current.number = day;
+            current.is_future = day > _current_time.tm_mday;
+            current.is_today = day == _current_time.tm_mday;
+            output.push_back(current);
+        }
+        return output;
+    }
     const int lesson_common_price(int contract, int lesson_type)
     {
         int discount_status = _discount_status(contract);
@@ -31,12 +70,6 @@ namespace Journal
         _current_year = year;
         _current_month_days_num = get_number_of_days(month, year + 1900);
     }
-    void set_wday(int wday)
-    {
-        _current_day_of_the_week = wday;
-        _visible_days.clear();
-        _visible_days = _enumerate_days(wday);
-    }
     void add_student_to_base(std::string name, int contract)
     {
         IM_ASSERT(contract >= 0 && name.size() > 0);
@@ -59,7 +92,7 @@ namespace Journal
         current->set_group(PTRREF(group));
         std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
         int new_merged_lesson_known_id = _emplace_lesson_info(wday, PTRREF(current));
-        std::vector<Day_With_Info> affected_days = _enumerate_days(wday);
+        std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
         for (int i = 0; i < affected_days.size(); i++)
         {
             bool await_no_one = false;
@@ -67,13 +100,14 @@ namespace Journal
             affected_days[i].day->add_merged_lesson(PTRREF(current), await_no_one, new_merged_lesson_known_id);
         }
     }
-    void add_student_to_group(Student* student, int wday, int merged_lesson_id)
+    void add_student_to_group(int student_id, int wday, int merged_lesson_id)
     {
+        Student* student = _all_students[student_id];
         Lesson_Info* merged_lesson = _all_lessons[wday][merged_lesson_id];
         Group& group = merged_lesson->get_group();
         int new_student_id = group.add_student(PTRREF(student));
         int first_wday = get_first_wday(_current_month, _current_year, wday);
-        std::vector<Day_With_Info> affected_days = _enumerate_days(wday);
+        std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
         for (int current_day_cell = 0; current_day_cell < affected_days.size(); current_day_cell++)
         {
             affected_days[current_day_cell].day->add_student_to_group(merged_lesson_id, PTRREF(student), new_student_id);
@@ -128,7 +162,7 @@ namespace Journal
         int new_merged_lesson_id = _emplace_lesson_info(wday, lesson_info);
         //workaround???
         //if (new_index >= merged_lesson_id && new_index != all_lessons[day].size() - 1) new_index++;
-        std::vector<Day_With_Info> affected_days = _enumerate_days(wday);
+        std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
         for (auto current : affected_days)
         {
             current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);

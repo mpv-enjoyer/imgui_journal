@@ -53,7 +53,7 @@ public:
     Student& get_student(int student); int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
     std::string get_comment(); bool set_comment(std::string new_comment);
     std::string get_description();
-    bool is_in_group(Student& student) const;
+    bool is_in_group(const Student& student) const;
     bool is_deleted(const Student & student) const;
     bool restore_student(Student &student);
     bool operator==(const Group &rhs) const;

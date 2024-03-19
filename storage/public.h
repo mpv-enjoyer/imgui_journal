@@ -61,14 +61,21 @@ namespace Journal
         "9 лет, школьная группа", 
         "10-11 лет, школьная группа", 
         "12-13 лет, школьная группа"};
-
+    const Student* student(int id);
+    const int student_count();
+    const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
+    const int lesson_info_count(int wday);
+    const Calendar_Day* day(int mday);
+    const int day_count();
     const int current_year();
     const int current_month();
     const int current_day_of_the_week();
     const int current_month_days_num();
-    const std::vector<Day_With_Info>& visible_days();
     void set_date(int month, int year);
     void set_wday(int day_of_the_week);
     void add_student_to_base(std::string name, int contract);
-    void add_merged_lesson(int day_of_the_week, int number, std::string comment, std::vector<Lesson_Pair> lesson_pairs);
+    void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
+    void add_student_to_group(int student_id, int wday, int merged_lesson_id);
+    void add_working_out(const std::tm caller_date, const std::tm select_date, Student &student, Lesson caller_lesson, Lesson select_lesson);
+    void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
 }

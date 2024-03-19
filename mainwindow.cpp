@@ -5,7 +5,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-void fill_NAW_in_calendar(std::vector<Day_With_Info>* visible_days, int known_merged_lesson_id, Attend_Data new_attend_data, int known_student_id)
+void fill_NAW_in_calendar(std::vector<_Day_With_Info>* visible_days, int known_merged_lesson_id, Attend_Data new_attend_data, int known_student_id)
 //assuming lesson size is 2.
 {
     Lesson current_lesson;
@@ -225,14 +225,14 @@ if (popup_select_day_of_the_week)
 int count_visible_days = 0;
 int first_visible_day = get_first_wday(current_month, current_year, current_day_of_the_week);
 int first_visible_day_copy = first_visible_day;
-std::vector<Day_With_Info> visible_days;
+std::vector<_Day_With_Info> visible_days;
 for (;first_visible_day_copy <= current_month_days_num; first_visible_day_copy+=7)
 {
     count_visible_days++;
     bool is_future = current_time.tm_mday < first_visible_day_copy;
     bool is_today = current_time.tm_mday == first_visible_day_copy;
     Calendar_Day* current_visible = all_days[first_visible_day_copy-MDAY_DIFF];
-    visible_days.push_back(Day_With_Info{first_visible_day_copy, current_visible, is_future, is_today});
+    visible_days.push_back(_Day_With_Info{first_visible_day_copy, current_visible, is_future, is_today});
 }
 
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;

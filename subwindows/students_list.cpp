@@ -1,22 +1,9 @@
 #include "students_list.h"
+#include "../render/render.h"
 
 bool Subwindow_Students_List::show_frame()
 {
     ImGui::Begin("Список всех учеников", nullptr, WINDOW_FLAGS);
-
-    if (popup_add_student_to_base)
-    {
-        const bool result = popup_add_student_to_base->show_frame();
-        if (result && popup_add_student_to_base->check_ok())
-        {
-            popup_add_student_to_base->accept_changes(all_students);
-        }
-        if (result)
-        {
-            free(popup_add_student_to_base);
-            popup_add_student_to_base = nullptr;
-        }
-    }
 
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
