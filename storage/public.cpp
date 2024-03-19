@@ -8,9 +8,24 @@ namespace Journal
     const int current_day_of_the_week() { return _current_day_of_the_week; };
     const int current_month_days_num() { return _current_month_days_num; };
     const std::vector<Day_With_Info>& visible_days() { return std::ref(_visible_days); };
+    const int lesson_common_price(int contract, int lesson_type)
+    {
+        int discount_status = _discount_status(contract);
+        int price = Lesson_Prices[lesson_type][discount_status];
+        return price;
+    }
+    const int lesson_current_price(Lesson lesson, int mday, int internal_student_id)
+    {
+        int defined_status = _day(mday)->get_discount_status(lesson, internal_student_id);
+        int wday = get_wday(mday, _current_month, _current_year);
+        Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
+        int lesson_type = pair.lesson_name_id;
+        if (defined_status != -1) return Lesson_Prices[lesson_type][defined_status];
+    }
     void set_date(int month, int year)
     {
-        if (month != current_time.tm_mon || year != current_time.tm_year) throw std::invalid_argument("not implemented");
+        if (month != current_time.tm_mon || year != current_time.tm_year)
+            throw std::invalid_argument("not implemented");
         //TODO CRITICAL: check if journal is available for this month and load.
         _current_month = month;
         _current_year = year;
@@ -73,7 +88,8 @@ namespace Journal
     }
     void add_working_out(const std::tm caller_date, const std::tm select_date, Student& student, Lesson caller_lesson, Lesson select_lesson)
     {
-        if (caller_date.tm_mon != select_date.tm_mon || caller_date.tm_year != select_date.tm_year) throw std::invalid_argument("not implemented");
+        if (caller_date.tm_mon != select_date.tm_mon || caller_date.tm_year != select_date.tm_year)
+            throw std::invalid_argument("not implemented");
         int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
 
         Workout_Info caller_workout_info;
