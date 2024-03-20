@@ -19,13 +19,13 @@ void serialize(Archive & ar, const unsigned int version)
 
 struct Workout_Info
 {
-    Student* student = nullptr;
+    const Student* student = nullptr;
     Lesson_Info* lesson_info = nullptr;
     int internal_lesson;
     std::tm date;
     Lesson recovery_hint = {-1, -1};
     Workout_Info() {};
-    Workout_Info(Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date) : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
+    Workout_Info(const Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date) : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
 template<class Archive>
 void save(Archive & ar, const unsigned int version) const
 {
@@ -118,12 +118,12 @@ public:
     bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
     bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
     bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Workout_Info new_workout_info);
-    int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson);
-    int get_workout_size(Lesson known_lesson);
-    const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int known_workout_id);
-    Student* get_workout_student(Lesson known_lesson, int known_workout_id);
-    Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id);
-    Workout_Info get_workout_info(Lesson known_lesson, const Student& student);
+    int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson) const;
+    int get_workout_size(Lesson known_lesson) const;
+    const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int known_workout_id) const;
+    const Student* get_workout_student(Lesson known_lesson, int known_workout_id) const;
+    Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id) const;
+    Workout_Info get_workout_info(Lesson known_lesson, const Student& student) const;
     bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
     bool delete_workout(Lesson known_lesson, int known_workout_id);
     bool set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status);

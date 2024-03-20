@@ -1,6 +1,6 @@
 #include "group.h"
 
-Student& Group::get_student(int known_student_id)
+const Student& Group::get_student(int known_student_id) const
 {
     return PTRREF(students[known_student_id].student);
 }
@@ -33,7 +33,15 @@ bool Group::set_age_group(int new_day)
     return true;
 }
 
-int Group::find_student(Student& student) const
+bool Group::check_with_attend_data(int known_student_id, int internal_lesson) const
+{
+    Attend_Data attend_data = students[known_student_id].attend_data;
+    if (attend_data == ATTEND_FIRST && internal_lesson == 1) return false;
+    if (attend_data == ATTEND_SECOND && internal_lesson == 0) return false;
+    return true; 
+}
+
+int Group::find_student(const Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {

@@ -3,6 +3,7 @@
 #include "../helpers/helpers.h"
 #include "../main_types/main_types.h"
 #include "../storage/public.h"
+#include "../render/render.h"
 
 class Popup
 {

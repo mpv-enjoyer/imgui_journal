@@ -2,7 +2,12 @@
 
 Lesson_Info::Lesson_Info(Group& connected_group) : group(&connected_group) {};
 
-Group& Lesson_Info::get_group() const
+const Group& Lesson_Info::get_group() const
+{
+    return PTRREF(group);
+}
+
+Group& Lesson_Info::_group()
 {
     return PTRREF(group);
 }
@@ -39,9 +44,13 @@ bool Lesson_Info::delete_lesson_pair(int id)
     return true;
 }
 
-bool Lesson_Info::should_attend(Student& student) const
+bool Lesson_Info::should_attend(int known_internal_student_id, int internal_lesson) const
 {
-    return group->is_in_group(student) && !group->is_deleted(student);
+    const Student& student = group->get_student(known_internal_student_id);
+    if (!group->is_in_group(student)) return false;
+    if (group->is_deleted(student)) return false;
+    if (!group->check_with_attend_data(known_internal_student_id, internal_lesson)) return false;
+    return true;
 }
 
 std::string Lesson_Info::get_description(int current_internal_lesson) const
@@ -87,7 +96,7 @@ bool Lesson_Info::discontinue()
     return true;
 }
 
-bool Lesson_Info::is_discontinued() 
+bool Lesson_Info::is_discontinued() const
 {
     return removed;
 }

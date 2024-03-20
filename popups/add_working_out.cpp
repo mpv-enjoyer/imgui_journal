@@ -1,22 +1,26 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(Group& current_group, const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info) 
-: current_group(current_group)
+Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info)
 {
-    for (int i = 0; i < Journal::all_students().size(); i++)
+    std::vector<std::string> possible_student_descriptions;
+    std::vector<int> possible_student_ids;
+    for (int i = 0; i < Journal::student_count(); i++)
     {
-        if (Journal::all_students()[i]->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(Journal::all_students()[i])) && !current_group.is_deleted(PTRREF(Journal::all_students()[i]))) continue;
+        if (Journal::student(i)->is_removed()) continue;
+        if (current_group.is_in_group(PTRREF(Journal::student(i))) && !current_group.is_deleted(PTRREF(Journal::student(i)))) continue;
         bool was_found = false;
-        for (int j = 0; j < Journal::all_days()[current_lesson_time.tm_mday]->get_workout_size(current_lesson); j++)
+        for (int j = 0; j < Journal::day(current_lesson_time.tm_mday)->get_workout_size(current_lesson); j++)
         {
-            Student* student = Journal::all_days()[current_lesson_time.tm_mday]->get_workout_student(current_lesson, j);
-            if (Journal::all_students()[i] == student) was_found = true;
+            const Student* student = Journal::day(current_lesson_time.tm_mday)->get_workout_student(current_lesson, j);
+            if (Journal::student(i) == student) was_found = true;
         }
         if (was_found) continue;
-        possible_student_descriptions.push_back((Journal::all_students()[i]->get_name() + " (" + std::to_string(Journal::all_students()[i]->get_contract()) + ")"));
+        possible_student_descriptions.push_back((Journal::student(i)->get_name() + " (" + std::to_string(Journal::student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
+    picker = Elements::Picker(possible_student_descriptions, possible_student_ids);
+    if (!possible_student_descriptions.size()) quit_early = true;
+
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
     count_mday = get_number_of_days(current_time.tm_mon, current_time.tm_year + 1900);
     select_month = current_time.tm_mon;
@@ -26,49 +30,23 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Group& current_group, const std::tm
     caller_month = current_lesson_time.tm_mon;
     caller_year = current_lesson_time.tm_year;
     int caller_wday = get_wday(caller_mday, caller_month, caller_year);
-    caller_lesson_name_id = Journal::all_lessons()[caller_wday][current_lesson.merged_lesson_id]->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
+    caller_lesson_name_id = Journal::lesson_info(caller_wday, current_lesson.merged_lesson_id)->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
     caller_lesson_info = current_lesson_info;
 }
 
 bool Popup_Add_Working_Out::show_frame()
 {
-    if (possible_student_ids.size() == 0)
+    if (quit_early)
     {
         cancel();
         return true;
     }
     POPUP_INIT_FRAME("Добавление отработки")
     {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        filter.Draw("Поиск по ученикам");
-        ImGui::PopStyleColor(1);
-        bool select_student_visible = false;
-        ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
-        for (int i = 0; i < possible_student_descriptions.size(); i++)
-        {
-            if (!filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
-            if (select_student == possible_student_ids[i])
-            {
-                std::string student_button_name = generate_label("Выбран.##", { i });
-                j_button_selectable(student_button_name.c_str(), true);
-                select_student_visible = true;
-            }
-            else
-            {
-                std::string student_button_name = generate_label("Выбрать##", { i });
-                if (ImGui::Button(student_button_name.c_str())) 
-                {
-                    select_student = possible_student_ids[i];
-                    select_student_visible = true;
-                }
-            }
-            ImGui::SameLine();
-            ImGui::Text(possible_student_descriptions[i].c_str());
-        }
-        ImGui::EndChild();
+        int select_student = picker.show();
+        bool select_student_visible = select_student != -1;
         if (!select_student_visible)
         {
-            select_student = -1;
             ImGui::BeginDisabled();
         }
         ImGui::SameLine();
@@ -86,7 +64,7 @@ bool Popup_Add_Working_Out::show_frame()
                 ImGui::TableNextColumn();
             }
             ImGui::TableSetColumnIndex(first_mwday_ru);
-            for (int i = 0; i < count_mday; i++)
+            for (int i = 0; i < ; i++)
             {
                 if (select_student_visible)
                 {

@@ -56,7 +56,7 @@ bool Calendar_Day::add_workout(Student& student_to_workout, Lesson known_lesson_
 
 bool Calendar_Day::add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to)
 {
-    Student& student_to_workout = lessons->at(known_lesson_from.merged_lesson_id)->get_group().get_student(known_id_student);
+    const Student& student_to_workout = lessons->at(known_lesson_from.merged_lesson_id)->get_group().get_student(known_id_student);
     Workout_Info new_workout_info{&student_to_workout, &merged_to, internal_to, cached_time_to};
     for (int current_workout = 0; current_workout < attendance_info[known_lesson_from.merged_lesson_id][known_lesson_from.internal_lesson_id].workouts.size(); current_workout++)
     {
@@ -145,26 +145,26 @@ Student_Status Calendar_Day::get_status(Lesson known_lesson, int known_id_studen
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student];
 }
 
-int Calendar_Day::get_workout_size(Lesson_Info& merged_lesson, int internal_lesson)
+int Calendar_Day::get_workout_size(Lesson_Info& merged_lesson, int internal_lesson) const
 {
     int merged_lesson_id = find_merged_lesson(merged_lesson);
     if (merged_lesson_id == -1) return -1;
     return attendance_info[merged_lesson_id][internal_lesson].workouts.size();
 }
 
-int Calendar_Day::get_workout_size(Lesson known_lesson)
+int Calendar_Day::get_workout_size(Lesson known_lesson) const
 {
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts.size();
 }
 
-const Student& Calendar_Day::get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int workout_id)
+const Student& Calendar_Day::get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int workout_id) const
 {
     int merged_lesson_id = find_merged_lesson(merged_lesson);
     //this must throw an exception if merged_lesson wasn't found anyway
     return PTRREF(attendance_info[merged_lesson_id][internal_lesson].workouts[workout_id].student);
 }
 
-Student* Calendar_Day::get_workout_student(Lesson known_lesson, int workout_id)
+const Student* Calendar_Day::get_workout_student(Lesson known_lesson, int workout_id) const
 {
     //this must throw an exception if merged_lesson wasn't found anyway
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[workout_id].student;
@@ -237,12 +237,12 @@ bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no
     return true;
 }
 
-Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, int known_workout_id)
+Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, int known_workout_id) const
 {
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[known_workout_id];
 }
 
-Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, const Student& student)
+Workout_Info Calendar_Day::get_workout_info(Lesson known_lesson, const Student& student) const
 {
     int workout_size = attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts.size();
     for (int i = 0; i < workout_size; i++)

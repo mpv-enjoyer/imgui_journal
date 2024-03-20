@@ -33,10 +33,12 @@ private:
 public:
     Lesson_Info() {};
     Lesson_Info(Group& connected_group);
-    Group& get_group() const; bool set_group(Group& new_group);
+    const Group& get_group() const;
+    Group& _group();
+    bool set_group(Group &new_group);
     Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
-    bool discontinue(); bool is_discontinued(); bool restore();
-    bool should_attend(Student& student) const;
+    bool discontinue(); bool is_discontinued() const; bool restore();
+    bool should_attend(int known_internal_student_id, int internal_lesson) const;
     int get_lessons_size() const;
     std::string get_description(int current_internal_lesson = -1) const;
     bool operator==(const Lesson_Info& rhs) const;

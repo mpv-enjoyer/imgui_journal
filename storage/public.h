@@ -2,6 +2,12 @@
 #include "storage.h"
 #include "serializable.h"
 
+#define NAME_DRAWING 0
+#define NAME_SCULPTING 1
+#define NAME_DESIGN 2
+#define NAME_TECHDRAWING 3
+#define NAME_SPECIALCOURSE 4
+
 namespace Journal
 {
     const int LESSON_TYPE_COUNT = 5;
@@ -78,4 +84,5 @@ namespace Journal
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, Student &student, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
+    bool is_workout_possible(int wday, Lesson lesson, int student_id);
 }
