@@ -21,3 +21,5 @@ public:
     Frame_Data();
 };
 
+int _wday;
+std::vector<Day_With_Info> _visible_days;

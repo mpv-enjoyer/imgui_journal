@@ -133,7 +133,7 @@ bool Group::set_comment(std::string new_comment)
     return true;
 }
 
-std::string Group::get_comment()
+std::string Group::get_comment() const
 {
     return comment;
 }

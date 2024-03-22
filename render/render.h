@@ -6,8 +6,9 @@
 
 namespace Graphical
 {
-    int wday;
-    std::vector<Day_With_Info> visible_days;
+    const int wday();
+    const std::vector<Day_With_Info>& visible_days();
+    void select_wday(int wday);
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
@@ -30,6 +31,7 @@ namespace Elements
         bool use_id_list = false;
         std::vector<int> _id_list;
         public:
+        Picker() {};
         Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
         int show();
     };

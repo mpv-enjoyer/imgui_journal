@@ -73,16 +73,16 @@ namespace Journal
     const int lesson_info_count(int wday);
     const Calendar_Day* day(int mday);
     const int day_count();
+    const int wday(int mday);
     const int current_year();
     const int current_month();
     const int current_day_of_the_week();
     const int current_month_days_num();
     void set_date(int month, int year);
-    void set_wday(int day_of_the_week);
     void add_student_to_base(std::string name, int contract);
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
-    void add_working_out(const std::tm caller_date, const std::tm select_date, Student &student, Lesson caller_lesson, Lesson select_lesson);
+    void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
-    bool is_workout_possible(int wday, Lesson lesson, int student_id);
+    bool is_workout_possible(std::tm date, int student_id, int caller_lesson_name_id);
 }

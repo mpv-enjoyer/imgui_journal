@@ -113,7 +113,7 @@ public:
     bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
     bool set_status(Lesson known_lesson, int known_id_student, int status);
     bool insert_workout_into_status(Lesson known_lesson, int known_id_student, Workout_Info workout_info);
-    Student_Status get_status(Lesson_Info &merged_lesson, int internal_lesson, Student &student) const;
+    Student_Status get_status(const Lesson_Info &merged_lesson, int internal_lesson, const Student &student) const;
     Student_Status get_status(Lesson known_lesson, int known_id_student) const;
     bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
     bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
@@ -131,8 +131,8 @@ public:
     bool set_discount_status(Lesson known_lesson, int known_student_id, int discount_status);
     int get_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
     int get_discount_status(Lesson known_lesson, int known_id_student);
-    int find_merged_lesson(Lesson_Info& l_info) const;
-    int find_student(Student& student, int known_merged_lesson_id);
+    int find_merged_lesson(const Lesson_Info& l_info) const;
+    int find_student(Student& student, int known_merged_lesson_id) const;
     //the following is needed to properly update the journal
     bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
     bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);

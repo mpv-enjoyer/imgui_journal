@@ -27,7 +27,10 @@ namespace Journal
     {
         return _all_days.size();
     }
-
+    const int wday(int mday)
+    {
+        return get_wday(mday, _current_month, _current_year); 
+    }
     const int current_year() { return _current_year; };
     const int current_month() { return _current_month; };
     const int current_month_days_num() { return _current_month_days_num; };
@@ -39,7 +42,7 @@ namespace Journal
         for ( ; day <= day_count; day+=7)
         {
             Day_With_Info current;
-            current.day = _day(day);
+            current.day = _day(day - 1);
             current.number = day;
             current.is_future = day > _current_time.tm_mday;
             current.is_today = day == _current_time.tm_mday;
@@ -120,10 +123,11 @@ namespace Journal
             }
         }
     }
-    void add_working_out(const std::tm caller_date, const std::tm select_date, Student& student, Lesson caller_lesson, Lesson select_lesson)
+    void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson)
     {
         if (caller_date.tm_mon != select_date.tm_mon || caller_date.tm_year != select_date.tm_year)
             throw std::invalid_argument("not implemented");
+        Student& student = PTRREF(_all_students[student_id]);
         int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
 
         Workout_Info caller_workout_info;
@@ -168,41 +172,29 @@ namespace Journal
             current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);
         }
     }
-    //
+
     bool match_lesson_types(int l, int r)
     {
         if (l == r) return true;
         if (l == NAME_DESIGN && r == NAME_SPECIALCOURSE) return true;
-        //TODO:...
+        if (l == NAME_SPECIALCOURSE && r == NAME_DESIGN) return true;
+        if (l == NAME_DESIGN && r == NAME_DRAWING) return true;
+        if (l == NAME_DRAWING && r == NAME_DESIGN) return true;
+        return false;
     }
 
-    bool is_workout_possible_prior(std::tm date, int student_id, int caller_lesson_name_id)
+    bool is_workout_possible(Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
     {
-        if (date.tm_mon != _current_month || date.tm_year != _current_year)
-            throw std::invalid_argument("not implemented");
         const Student* current_student = student(student_id);
         if (current_student->is_removed()) return false;
-        int wday = get_wday(date.tm_mday, date.tm_mon, date.tm_year);
-        bool output = false;
-        for (int i = 0; i < lesson_info_count(wday); i++)
-        {
-            const Lesson_Info* merged_lesson = lesson_info(wday, i);
-            if (merged_lesson->is_discontinued()) continue;
-            int internal_student_id = lesson_info(wday, i)->get_group().find_student(PTRREF(current_student));
-            if (internal_student_id == -1) continue;
-            for (int j = 0; j < merged_lesson->get_lessons_size(); j++)
-            {
-                if (!merged_lesson->should_attend(internal_student_id, j)) continue;
-                const Lesson_Pair pair = merged_lesson->get_lesson_pair(j);
-                int current_lesson_name_id = pair.lesson_name_id;
-                if (caller_lesson_name_id == current_lesson_name_id) return true;
-                if (caller_lesson_name_id == NAME_DESIGN && )
-            }
-        }
-        
-        
-        
-
+        if (select_lesson->is_discontinued()) return false;
+        int internal_student_id = select_lesson->get_group().find_student(PTRREF(current_student));
+        if (internal_student_id == -1) return false;
+        if (!select_lesson->should_attend(internal_student_id, select_internal_lesson)) return false;
+        const Lesson_Pair pair = select_lesson->get_lesson_pair(select_internal_lesson);
+        int current_lesson_name_id = pair.lesson_name_id;
+        if (match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
+            return true;
         return false;
     }
 }

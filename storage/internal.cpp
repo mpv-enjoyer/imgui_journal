@@ -19,7 +19,7 @@ std::vector<_Day_With_Info> _enumerate_days(int day_of_the_week)
 
 Calendar_Day* _day(int mday)
 {
-    return _all_days[mday - MDAY_DIFF];
+    return _all_days[mday];
 }
 
 int _discount_status(int student_contract)

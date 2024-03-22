@@ -18,10 +18,12 @@ private:
     Lesson caller_lesson;
     int caller_lesson_name_id = -1;
     Lesson_Info* caller_lesson_info;
+    std::vector<std::vector<Lesson>> possible_lessons;
     const Group& current_group = caller_lesson_info->get_group();
     Elements::Picker picker;
 public:
     Popup_Add_Working_Out(const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info);
+    void update_possible_lessons();
     bool show_frame();
     bool is_ok_possible(bool is_calendar_filled);
     void accept_changes();

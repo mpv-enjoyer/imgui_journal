@@ -29,7 +29,7 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : les
     }
 }
 
-int Calendar_Day::find_merged_lesson(Lesson_Info& l_info) const
+int Calendar_Day::find_merged_lesson(const Lesson_Info& l_info) const
 {
     for (int current_merged_lesson = 0; current_merged_lesson < lessons->size(); current_merged_lesson++)
     {
@@ -94,7 +94,7 @@ bool Calendar_Day::insert_workout_into_status(Lesson known_lesson, int known_id_
     return true;
 }
 
-int Calendar_Day::find_student(Student& student, int known_merged_lesson_id)
+int Calendar_Day::find_student(Student& student, int known_merged_lesson_id) const
 {
     return lessons->at(known_merged_lesson_id)->get_group().find_student(student);
 }
@@ -129,7 +129,7 @@ int Calendar_Day::get_discount_status(Lesson known_lesson, int known_id_student)
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].planned[known_id_student].discount_status;
 }
 
-Student_Status Calendar_Day::get_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student) const
+Student_Status Calendar_Day::get_status(const Lesson_Info& merged_lesson, int internal_lesson, const Student& student) const
 {
     Student_Status error_status;
     error_status.status = STATUS_INVALID;
