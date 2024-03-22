@@ -64,6 +64,31 @@ namespace Journal
         int lesson_type = pair.lesson_name_id;
         if (defined_status != -1) return Lesson_Prices[lesson_type][defined_status];
     }
+    void set_student_name(int id, std::string name)
+    {
+        _all_students[id]->set_name(name);
+    }
+    void set_student_age_group(int id, int age_group)
+    {
+        _all_students[id]->set_age_group(age_group);
+    }
+    void set_student_contract(int id, int contract)
+    {
+        _all_students[id]->set_contract(contract);
+    }
+    void set_group_number(int wday, int merged_lesson_id, int number)
+    {
+        _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
+    }
+    void set_group_comment(int wday, int merged_lesson_id, std::string comment)
+    {
+        _all_lessons[wday][merged_lesson_id]->_group().set_comment(comment);
+    }
+    void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data attend_data)
+    {
+        //TODO CRITICAL: not only that but update journal to include/exclude NAW's
+        _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, attend_data);
+    }
     void set_date(int month, int year)
     {
         if (month != current_time.tm_mon || year != current_time.tm_year)
@@ -183,7 +208,7 @@ namespace Journal
         return false;
     }
 
-    bool is_workout_possible(Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
+    bool is_workout_possible(const Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
     {
         const Student* current_student = student(student_id);
         if (current_student->is_removed()) return false;

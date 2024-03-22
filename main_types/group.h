@@ -49,6 +49,7 @@ public:
     int get_age_group() const;
     bool set_age_group(int new_day);
     bool check_with_attend_data(int known_student_id, int internal_lesson) const;
+    bool check_no_attend_data(const Student &student) const;
     Attend_Data get_attend_data(int known_student_id) const;
     bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
     const Student& get_student(int student) const; int add_student(Student& new_student); bool delete_student(Student& to_remove_student);

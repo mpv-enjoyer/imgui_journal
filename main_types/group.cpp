@@ -36,9 +36,26 @@ bool Group::set_age_group(int new_day)
 bool Group::check_with_attend_data(int known_student_id, int internal_lesson) const
 {
     Attend_Data attend_data = students[known_student_id].attend_data;
+    if (students[known_student_id].is_deleted) return false;
     if (attend_data == ATTEND_FIRST && internal_lesson == 1) return false;
     if (attend_data == ATTEND_SECOND && internal_lesson == 0) return false;
     return true; 
+}
+
+bool Group::check_no_attend_data(const Student& student) const
+{
+    int found = -1;
+    for (int i = 0; i < students.size(); i++)
+    {
+        if (PTRREF(students[i].student) == student)
+        {
+            found = i;
+            break;
+        }
+    }
+    if (found == -1) return false;
+    if (students[found].is_deleted) return false;
+    return true;
 }
 
 int Group::find_student(const Student& student) const

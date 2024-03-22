@@ -51,7 +51,7 @@ void Popup_Add_Working_Out::update_possible_lessons()
         {
             for (int k = 0; k < Journal::lesson_info(wday, j)->get_lessons_size(); k++)
             {
-                if (Journal::is_workout_possible(input_date, select_student, caller_lesson_type))
+                if (Journal::is_workout_possible(Journal::lesson_info(wday, j), k, select_student, caller_lesson_type))
                 {
                     possible_lessons[i].push_back({j, k});
                 }

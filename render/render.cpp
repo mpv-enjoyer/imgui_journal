@@ -18,12 +18,12 @@ ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 if(ImGui::Button("Изменить день"))
 {
     glfwPostEmptyEvent();
-    Graphical::popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(Graphical::wday);
+    Graphical::popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week();
 };
 ImGui::SameLine();
 if (ImGui::Button("Добавить группу"))
 {
-    Graphical::popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday);
+    Graphical::popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday());
 }
 ImGui::SameLine();
 if (ImGui::Button("Ученики") )

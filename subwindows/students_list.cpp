@@ -1,13 +1,49 @@
 #include "students_list.h"
 #include "../render/render.h"
 
+void Subwindow_Students_List::update_lessons_per_student()
+{
+    lessons_per_student.clear();
+    lessons_per_student = std::vector<std::vector<Lesson_Info_Position>>(Journal::student_count());
+    for (int student_id = 0; student_id < Journal::student_count(); student_id++)
+    {
+        auto& student = PTRREF(Journal::student(student_id));
+        for (int wday = 0; wday < 7; wday++)
+        {
+            for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
+            {
+                if (Journal::lesson_info(wday, merged_lesson_id)->get_group().check_no_attend_data(student))
+                {
+                    lessons_per_student[student_id].push_back({wday, merged_lesson_id});
+                }
+            }
+        }
+    }
+}
+
+void Subwindow_Students_List::update_lessons_per_student(int student_id)
+{
+    lessons_per_student[student_id].clear();
+    auto& student = PTRREF(Journal::student(student_id));
+    for (int wday = 0; wday < 7; wday++)
+    {
+        for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
+        {
+            if (Journal::lesson_info(wday, merged_lesson_id)->get_group().check_no_attend_data(student))
+            {
+                lessons_per_student[student_id].push_back({wday, merged_lesson_id});
+            }
+        }
+    }
+}
+
 bool Subwindow_Students_List::show_frame()
 {
     ImGui::Begin("Список всех учеников", nullptr, WINDOW_FLAGS);
 
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
-        popup_add_student_to_base = new Popup_Add_Student_To_Base();
+        Graphical::popup_add_student_to_base = new Popup_Add_Student_To_Base();
     } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))
@@ -32,14 +68,14 @@ bool Subwindow_Students_List::show_frame()
         int contract_input_buffer;
         int lesson_name_input_buffer;
         bool is_removed_input_buffer;
-        for (int student_id = 0; student_id < all_students.size(); student_id++)
+        for (int student_id = 0; student_id < Journal::student_count(); student_id++)
         {
-            Student& current_student = PTRREF(all_students[student_id]);
-            if (!edit_mode && current_student.is_removed()) continue;
+            const Student* current_student = Journal::student(student_id);
+            if (!edit_mode && current_student->is_removed()) continue;
             ImGui::PushID(student_id);
-            name_input_buffer = current_student.get_name();
-            contract_input_buffer = current_student.get_contract();
-            is_removed_input_buffer = current_student.is_removed();
+            name_input_buffer = current_student->get_name();
+            contract_input_buffer = current_student->get_contract();
+            is_removed_input_buffer = current_student->is_removed();
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             ImGui::SetNextItemWidth(-1);
@@ -47,7 +83,7 @@ bool Subwindow_Students_List::show_frame()
             {
                 if (ImGui::InputText("##ФИ", &name_input_buffer))
                 {
-                    current_student.set_name(name_input_buffer);
+                    Journal::set_student_name(student_id, name_input_buffer);
                 };
             }
             else
@@ -59,16 +95,25 @@ bool Subwindow_Students_List::show_frame()
             if (!edit_mode) 
             {
                 ImGui::AlignTextToFramePadding();
-                ImGui::Text(std::to_string(current_student.get_contract()).c_str());
+                ImGui::Text(std::to_string(current_student->get_contract()).c_str());
             }
             else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
-                current_student.set_contract(contract_input_buffer);
+                Journal::set_student_contract(student_id, contract_input_buffer);
             }
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
-            for (int group_id = 0; group_id < all_groups.size(); group_id++) //TODO: literally doing twice as much work.
+
+            for (int i = 0; i < lessons_per_student[student_id].size(); i++)
+            {
+                const int current_wday = lessons_per_student[student_id][i].wday;
+                const int current_merged_lesson_id = lessons_per_student[student_id][i].merged_lesson;
+                const auto& current_lesson_info = Journal::lesson_info(current_wday, current_merged_lesson_id);
+                const auto& current_group = current_lesson_info->get_group();
+            }
+
+            for (int group_id = 0; group_id < Journal::lesson_info_count(); group_id++) //TODO: literally doing twice as much work.
             //TODO: wrapping
             {
                 if (all_groups.at(group_id)->is_in_group(current_student)) 
