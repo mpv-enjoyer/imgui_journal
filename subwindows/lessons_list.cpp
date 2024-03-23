@@ -1,9 +1,8 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(std::vector<std::vector<Lesson_Info*>>& all_lessons, std::vector<Calendar_Day*>& all_days, int month, int year) : all_lessons(all_lessons), all_days(all_days)
+Subwindow_Lessons_List::Subwindow_Lessons_List()
 { 
-    month_num = month;
-    year_num = year;
+
 };
 
 bool Subwindow_Lessons_List::show_frame()
@@ -14,7 +13,7 @@ bool Subwindow_Lessons_List::show_frame()
         bool result = popup_edit_lesson->show_frame();
         if (result && popup_edit_lesson->check_ok())
         {
-            popup_edit_lesson->accept_changes(all_lessons, all_days, month_num, year_num);
+            popup_edit_lesson->accept_changes();
         }
         if (result)
         {

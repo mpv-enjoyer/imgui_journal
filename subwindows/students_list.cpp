@@ -122,17 +122,12 @@ bool Subwindow_Students_List::show_frame()
             }
 
             ImGui::TableNextColumn();
-            if (edit_mode && ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
+            if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
                 if (is_removed_input_buffer) Journal::delete_student(student_id);
                 if (!is_removed_input_buffer) Journal::restore_student(student_id);
                 ImGui::PopStyleColor();
-            }
-            if (!edit_mode && !is_removed_input_buffer && j_button_dangerous("Выбыл"))
-            {
-                current_student.remove();
-                // TODO: edit mode probably not needed.
             }
             ImGui::PopID();
         }

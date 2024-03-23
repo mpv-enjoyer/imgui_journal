@@ -14,6 +14,7 @@ class Popup_Edit_Lesson : public Popup
 public:
     Popup_Edit_Lesson(int wday, int merged_lesson_id);
     bool show_frame();
+    void accept_changes();
     bool is_ok_possible()
     {
         if (second_lesson_exists)
@@ -25,5 +26,4 @@ public:
         }
         return true;
     };
-    void accept_changes(std::vector<std::vector<Lesson_Info*>>& all_lessons, std::vector<Calendar_Day*>& all_days, int current_month, int current_year);
 };

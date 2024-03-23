@@ -44,7 +44,7 @@ bool Popup_Edit_Lesson::show_frame()
     return false;
 }
 
-void Popup_Edit_Lesson::accept_changes(std::vector<std::vector<Lesson_Info*>>& all_lessons, std::vector<Calendar_Day*>& all_days, int current_month, int current_year)
+void Popup_Edit_Lesson::accept_changes()
 {
     std::vector<Lesson_Pair> input_pairs = { first_lesson_pair };
     if (second_lesson_exists) input_pairs.push_back(second_lesson_pair);
