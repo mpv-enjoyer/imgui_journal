@@ -155,7 +155,7 @@ std::string Group::get_comment() const
     return comment;
 }
 
-std::string Group::get_description()
+std::string Group::get_description() const
 {
     std::string output = "#" + std::to_string(get_number());
     if (age_group != -1) output.append(", " + Age_Group_Names[age_group]);

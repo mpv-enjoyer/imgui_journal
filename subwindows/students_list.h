@@ -7,6 +7,7 @@ class Subwindow_Students_List : public Subwindow
     {
         int wday;
         int merged_lesson;
+        int internal_student_id;
     };
     std::vector<std::vector<Lesson_Info_Position>> lessons_per_student; 
 public:

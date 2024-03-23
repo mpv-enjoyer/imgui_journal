@@ -54,7 +54,7 @@ public:
     bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
     const Student& get_student(int student) const; int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
     std::string get_comment() const; bool set_comment(std::string new_comment);
-    std::string get_description();
+    std::string get_description() const;
     bool is_in_group(const Student& student) const;
     bool is_deleted(const Student & student) const;
     bool restore_student(Student &student);

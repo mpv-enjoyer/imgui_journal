@@ -84,10 +84,26 @@ namespace Journal
     {
         _all_lessons[wday][merged_lesson_id]->_group().set_comment(comment);
     }
-    void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data attend_data)
+    void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data)
     {
-        //TODO CRITICAL: not only that but update journal to include/exclude NAW's
-        _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, attend_data);
+        Lesson current_lesson;
+        current_lesson.merged_lesson_id = merged_lesson_id;
+        const auto visible_days = _enumerate_days(wday);
+        for (int i = 0; i < visible_days.size(); i++)
+        {
+            if (!(visible_days[i].is_future || visible_days[i].is_today)) continue;
+            for (int j = 0; j < 2; j++)
+            {
+                current_lesson.internal_lesson_id = j;
+                Student_Status current_status = visible_days[i].day->get_status(current_lesson, internal_student_id);
+                bool await = ( new_attend_data == ATTEND_BOTH ) || ( j == 0 ? new_attend_data == ATTEND_FIRST : new_attend_data == ATTEND_SECOND);
+                if (current_status.status == STATUS_NO_DATA && !await)
+                    visible_days[i].day->set_status(current_lesson, internal_student_id, STATUS_NOT_AWAITED);
+                else if (current_status.status == STATUS_NOT_AWAITED && await)
+                    visible_days[i].day->set_status(current_lesson, internal_student_id, STATUS_NO_DATA);
+            }
+        }
+        _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, new_attend_data);
     }
     void set_date(int month, int year)
     {
@@ -221,5 +237,13 @@ namespace Journal
         if (match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
             return true;
         return false;
+    }
+    void delete_student(int id)
+    {
+        _all_students[id]->remove();
+    }
+    void restore_student(int id)
+    {
+        _all_students[id]->restore();
     }
 }

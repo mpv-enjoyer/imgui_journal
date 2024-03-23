@@ -7,17 +7,8 @@ void Subwindow_Students_List::update_lessons_per_student()
     lessons_per_student = std::vector<std::vector<Lesson_Info_Position>>(Journal::student_count());
     for (int student_id = 0; student_id < Journal::student_count(); student_id++)
     {
+        update_lessons_per_student(student_id);
         auto& student = PTRREF(Journal::student(student_id));
-        for (int wday = 0; wday < 7; wday++)
-        {
-            for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
-            {
-                if (Journal::lesson_info(wday, merged_lesson_id)->get_group().check_no_attend_data(student))
-                {
-                    lessons_per_student[student_id].push_back({wday, merged_lesson_id});
-                }
-            }
-        }
     }
 }
 
@@ -29,10 +20,10 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
     {
         for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
         {
-            if (Journal::lesson_info(wday, merged_lesson_id)->get_group().check_no_attend_data(student))
-            {
-                lessons_per_student[student_id].push_back({wday, merged_lesson_id});
-            }
+            int internal_student_id = Journal::lesson_info(wday, merged_lesson_id)->get_group().find_student(student);
+            if (internal_student_id == -1) continue;
+            if (Journal::lesson_info(wday, merged_lesson_id)->get_group().is_deleted(student)) continue;
+            lessons_per_student[student_id].push_back({wday, merged_lesson_id, internal_student_id});
         }
     }
 }
@@ -56,12 +47,11 @@ bool Subwindow_Students_List::show_frame()
     ImGui::Checkbox("Режим редактирования", &edit_mode);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
-    if (ImGui::BeginTable("students", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
+    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed, 300.0F);
         ImGui::TableSetupColumn("No договора");
         ImGui::TableSetupColumn("Группы");
-        ImGui::TableSetupColumn("Возрастная группа");
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
@@ -107,68 +97,42 @@ bool Subwindow_Students_List::show_frame()
 
             for (int i = 0; i < lessons_per_student[student_id].size(); i++)
             {
+                const Lesson_Info_Position current_info = lessons_per_student[student_id][i];
                 const int current_wday = lessons_per_student[student_id][i].wday;
                 const int current_merged_lesson_id = lessons_per_student[student_id][i].merged_lesson;
                 const auto& current_lesson_info = Journal::lesson_info(current_wday, current_merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
-            }
+                const int internal_student_id = lessons_per_student[student_id][i].internal_student_id;
+                ImGui::BeginGroup();
+                
+                std::string label = generate_label("##attend", {student_id, i});
+                Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
+                std::string first_name = Journal::Lesson_Names[current_lesson_info->get_lesson_pair(0).lesson_name_id];
+                std::string second_name = Journal::Lesson_Names[current_lesson_info->get_lesson_pair(1).lesson_name_id];
+                if (Elements::attend_data(label.c_str(), &cached_data, first_name, second_name))
+                {
+                    Journal::set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
+                }
+                ImGui::AlignTextToFramePadding();
+                std::string text = Journal::Day_Names_Abbreviated[current_info.wday] + ", " + current_group.get_description();
+                ImGui::Text(text.c_str());
 
-            for (int group_id = 0; group_id < Journal::lesson_info_count(); group_id++) //TODO: literally doing twice as much work.
-            //TODO: wrapping
-            {
-                if (all_groups.at(group_id)->is_in_group(current_student)) 
-                {
-                    bool value = all_groups.at(group_id)->is_deleted(current_student);
-                    if (!edit_mode && value) continue;
-                    ImGui::BeginGroup();
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::Text((std::to_string(all_groups[group_id]->get_number()) + ", " + Day_Names[all_groups[group_id]->get_day_of_the_week()]).c_str()); 
-                    ImGui::SameLine();
-                    if (edit_mode)
-                    {
-                        auto label = generate_label("Удалить из группы?##checkbox", { group_id, student_id });
-                        if (ImGui::Checkbox(label.c_str(), &value))
-                        {
-                            if (value) all_groups[group_id]->delete_student(current_student);
-                            if (!value) all_groups[group_id]->restore_student(current_student);
-                        }
-                    }
-                    else
-                    {
-                        if (!value)
-                        {
-                            auto label = generate_label("Удалить из группы##checkbox", { group_id, student_id });
-                            if (j_button_dangerous(label.c_str())) all_groups[group_id]->delete_student(current_student);
-                        }
-                    }
-                    ImGui::EndGroup();
-                }
-            }
-            ImGui::TableNextColumn(); 
-            if (edit_mode) 
-            {
-                lesson_name_input_buffer = current_student.get_age_group() + 1; // plus one for a "not assigned" placeholder
-                if (ImGui::Combo("##возр", &lesson_name_input_buffer, " не задана\0 4 года, дошкольная группа\0 5 лет, дошкольная группа\0 6 лет, дошкольная группа\0 7 лет, школьная группа\0 8 лет, школьная группа\0 9 лет, школьная группа\0 10-11 лет, школьная группа\0 12-13 лет, школьная группа\0\0"))
-                {
-                    current_student.set_age_group(lesson_name_input_buffer - 1);
-                }
-            }
-            else
-            {
-                ImGui::Text(current_student.get_age_group_string().c_str());
+                //TODO CRITICAL: deletion here?
+                ImGui::EndGroup();
             }
 
             ImGui::TableNextColumn();
             if (edit_mode && ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-                if (is_removed_input_buffer) current_student.remove();
-                if (!is_removed_input_buffer) current_student.restore();
+                if (is_removed_input_buffer) Journal::delete_student(student_id);
+                if (!is_removed_input_buffer) Journal::restore_student(student_id);
                 ImGui::PopStyleColor();
             }
             if (!edit_mode && !is_removed_input_buffer && j_button_dangerous("Выбыл"))
             {
                 current_student.remove();
+                // TODO: edit mode probably not needed.
             }
             ImGui::PopID();
         }

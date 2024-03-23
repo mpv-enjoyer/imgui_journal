@@ -85,10 +85,12 @@ namespace Journal
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
     bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
+    void delete_student(int id);
+    void restore_student(int id);
     void set_student_name(int id, std::string name);
     void set_student_age_group(int id, int age_group);
     void set_student_contract(int id, int contract);
     void set_group_number(int wday, int merged_lesson_id, int number);
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);
-    void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data attend_data);
+    void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data);
 }
