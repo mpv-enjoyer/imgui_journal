@@ -8,19 +8,6 @@ Subwindow_Lessons_List::Subwindow_Lessons_List()
 bool Subwindow_Lessons_List::show_frame()
 {
     ImGui::Begin("Список всех групп", nullptr, WINDOW_FLAGS);
-    if (popup_edit_lesson)
-    {
-        bool result = popup_edit_lesson->show_frame();
-        if (result && popup_edit_lesson->check_ok())
-        {
-            popup_edit_lesson->accept_changes();
-        }
-        if (result)
-        {
-            free(popup_edit_lesson);
-            popup_edit_lesson = nullptr;
-        }
-    }
     if (ImGui::Button("Вернуться к журналу"))
     {
         ImGui::End();
@@ -37,6 +24,38 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::TableSetupColumn("Группа");
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
+        for (int _wday = 0; _wday < 7; _wday++)
+        {
+            int wday = CONVERT_TO_RU_CALENDAR(_wday);
+            for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
+            {
+                const auto& current_lesson_info = Journal::lesson_info(wday, merged_lesson_id);
+                const auto& current_group = current_lesson_info->get_group();
+                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
+                if (is_removed_input_buffer) continue;
+                ImGui::TableNextRow(); 
+                ImGui::TableSetColumnIndex(0); ImGui::Text(Day_Names[wday].c_str());
+                ImGui::TableSetColumnIndex(1);
+                std::string comment_input_buffer = current_group.get_comment();
+                std::string comment_label = generate_label("input_comment", {wday, merged_lesson_id});
+                if (ImGui::InputText(comment_label.c_str(), &comment_input_buffer))
+                {
+                    Journal::set_group_comment(wday, merged_lesson_id, comment_input_buffer);
+                }
+                int number_input_buffer = current_group.get_number();
+                std::string number_label = generate_label("input_number", {wday, merged_lesson_id});
+                if (ImGui::InputInt(number_label.c_str(), &number_input_buffer))
+                {
+                    Journal::set_group_number(wday, merged_lesson_id, number_input_buffer);
+                }
+                ImGui::TableSetColumnIndex(2);
+                if (ImGui::Button("Удалить группу"))
+                {
+                    Journal::TODO
+                }
+            }
+        }
+
         for (int row = 0; row < 7; row++)
         {
             int current_day_ru = row == 6 ? 0 : row + 1;

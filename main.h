@@ -50,6 +50,7 @@
 #define DEFAULT_COLUMN_COUNT 5
 #define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
+#define CONVERT_TO_RU_CALENDAR(wday) wday == 6 ? 0 : wday + 1;
 
 #define ONE_LINE(STD_STRINGS)        one_line(STD_STRINGS).c_str()
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); \
