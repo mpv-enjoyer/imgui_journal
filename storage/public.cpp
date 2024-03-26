@@ -3,6 +3,36 @@
 
 namespace Journal
 {
+    const char *Lesson_name(int type)
+    {
+        return _lesson_names[type].c_str();
+    }
+
+    const int Lesson_price(int type, int discount_status)
+    {
+        return _lesson_prices[type][discount_status];
+    }
+
+    const char *Month_name(int number)
+    {
+        return _month_names[number].c_str();
+    }
+
+    const char *Wday_name(int wday)
+    {
+        return _day_names[wday].c_str();
+    }
+
+    const char *Wday_name_short(int wday)
+    {
+        return _day_names_abbreviated[wday].c_str();
+    }
+
+    const char *Age_group(int number)
+    {
+        return _age_group_names[number].c_str();
+    }
+
     const Student* student(int id) 
     { 
         return _all_students[id]; 
@@ -53,7 +83,7 @@ namespace Journal
     const int lesson_common_price(int contract, int lesson_type)
     {
         int discount_status = _discount_status(contract);
-        int price = Lesson_Prices[lesson_type][discount_status];
+        int price = _lesson_prices[lesson_type][discount_status];
         return price;
     }
     const int lesson_current_price(Lesson lesson, int mday, int internal_student_id)
@@ -62,7 +92,7 @@ namespace Journal
         int wday = get_wday(mday, _current_month, _current_year);
         Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
         int lesson_type = pair.lesson_name_id;
-        if (defined_status != -1) return Lesson_Prices[lesson_type][defined_status];
+        if (defined_status != -1) return _lesson_prices[lesson_type][defined_status];
     }
     void set_student_name(int id, std::string name)
     {
@@ -238,12 +268,21 @@ namespace Journal
             return true;
         return false;
     }
-    void delete_student(int id)
+    void remove_student(int id)
     {
         _all_students[id]->remove();
     }
     void restore_student(int id)
     {
         _all_students[id]->restore();
+    }
+    void remove_lesson(int wday, int merged_lesson_id)
+    {
+        _all_lessons[wday][merged_lesson_id]->discontinue();
+    }
+    void restore_group(int wday, int merged_lesson_id)
+    {
+        _all_lessons[wday][merged_lesson_id]->restore();
+        //TODO CRITICAL: replace NAW's with zeros
     }
 }

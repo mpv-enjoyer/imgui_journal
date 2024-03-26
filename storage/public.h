@@ -17,56 +17,13 @@ namespace Journal
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
 
-    const std::array<std::string, LESSON_TYPE_COUNT> Lesson_Names =
-        {"ИЗО", 
-        "Лепка",
-        "Дизайн",
-        "Черчение",
-        "Спецкурс"};
-    const int Lesson_Prices[LESSON_TYPE_COUNT][LESSON_PRICES_COUNT] = 
-        {{100, 99, 98}, 
-        {200, 199, 198}, 
-        {300, 299, 298}, 
-        {400, 399, 398}, 
-        {500, 499, 498}};
-    const std::array<std::string, 12> Month_Names = 
-        {"Январь", 
-        "Февраль", 
-        "Март", 
-        "Апрель", 
-        "Май", 
-        "Июнь", 
-        "Июль", 
-        "Август", 
-        "Сентябрь", 
-        "Октябрь", 
-        "Ноябрь", 
-        "Декабрь"};
-    const std::array<std::string, 7> Day_Names = 
-        {"Воскресенье", 
-        "Понедельник", 
-        "Вторник", 
-        "Среда", 
-        "Четверг", 
-        "Пятница", 
-        "Суббота"};
-    const std::array<std::string, 7> Day_Names_Abbreviated = 
-        {"Вс", 
-        "Пн", 
-        "Вт", 
-        "Ср", 
-        "Чт", 
-        "Пт", 
-        "Сб"};
-    const std::array<std::string, AGE_GROUP_COUNT> Age_Group_Names = 
-        {"4 года, дошкольная группа", 
-        "5 лет, дошкольная группа", 
-        "6 лет, дошкольная группа", 
-        "7 лет, школьная группа", 
-        "8 лет, школьная группа", 
-        "9 лет, школьная группа", 
-        "10-11 лет, школьная группа", 
-        "12-13 лет, школьная группа"};
+    const char* Lesson_name(int type);
+    const int Lesson_price(int type, int discount_status);
+    const char* Month_name(int number);
+    const char* Wday_name(int wday);
+    const char* Wday_name_short(int wday);
+    const char* Age_group(int number);
+
     const Student* student(int id);
     const int student_count();
     const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
@@ -85,8 +42,10 @@ namespace Journal
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
     bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
-    void delete_student(int id);
+    void remove_student(int id);
     void restore_student(int id);
+    void remove_lesson(int wday, int merged_lesson_id);
+    void restore_group(int wday, int merged_lesson_id);
     void set_student_name(int id, std::string name);
     void set_student_age_group(int id, int age_group);
     void set_student_contract(int id, int contract);

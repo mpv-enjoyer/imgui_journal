@@ -13,6 +13,9 @@ ImGui::SetNextWindowSize(viewport->WorkSize);
 
 ImGui::Begin("Журнал версии 0.0.1", nullptr, WINDOW_FLAGS);
 
+Render::show_subwindows();
+Render::show_popups();
+
 ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
 ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
 if(ImGui::Button("Изменить день"))
@@ -28,12 +31,12 @@ if (ImGui::Button("Добавить группу"))
 ImGui::SameLine();
 if (ImGui::Button("Ученики") )
 {
-    Graphical::subwindow_students_list = new Subwindow_Students_List(all_students, all_groups);
+    Graphical::subwindow_students_list = new Subwindow_Students_List();
 }
 ImGui::SameLine();
 if (ImGui::Button("Группы"))
 {
-    subwindow_lessons_list = new Subwindow_Lessons_List(all_lessons, all_days, current_month, current_year);
+    Graphical::subwindow_lessons_list = new Subwindow_Lessons_List();
 }
 ImGui::SameLine();
 ImGui::Button("Журнал оплаты");
@@ -42,13 +45,14 @@ ImGui::Button("Справка");
 ImGui::SameLine();
 static bool edit_mode = false;
 ImGui::Checkbox("Режим редактирования", &edit_mode);
-ImGui::Text("Выбран день %s, %s текущего года", Day_Names[current_day_of_the_week].c_str(), Month_Names[current_month].c_str());
+ImGui::Text("Выбран день %s, %s текущего года", Journal::Wday_name(Graphical::wday()), Journal::Month_name(Journal::current_month()));
 
 ImGui::BeginChild("Child", ImVec2(0, -20), true, window_flags);
 JTime previous = {-1, -1};
 Lesson current_lesson;
 
-if (all_lessons[current_day_of_the_week].size() == 0) ImGui::Text("На текущий день не запланированы уроки.");
+if (Journal::lesson_info_count(Graphical::wday()) == 0) 
+    ImGui::Text("На текущий день не запланированы уроки.");
 for (int current_merged_lesson = 0; current_merged_lesson < all_lessons[current_day_of_the_week].size(); current_merged_lesson++)
 {
     Lesson_Info& current_merged_lesson_ref = PTRREF(all_lessons[current_day_of_the_week][current_merged_lesson]);

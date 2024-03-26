@@ -9,6 +9,7 @@ namespace Graphical
     const int wday();
     const std::vector<Day_With_Info>& visible_days();
     void select_wday(int wday);
+    bool is_edit_mode();
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
@@ -30,7 +31,7 @@ namespace Elements
         std::vector<std::string> _descriptions;
         bool use_id_list = false;
         std::vector<int> _id_list;
-        public:
+    public:
         Picker() {};
         Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
         int show();
@@ -40,6 +41,7 @@ namespace Elements
     bool input_time(std::string label, JTime &time);
     bool attendance_combo(const char* label, int* status, std::string tooltip = "");
     bool attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
+    void table(int merged_lesson_id);
 }
 
 namespace Render

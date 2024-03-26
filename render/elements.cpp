@@ -177,3 +177,42 @@ bool Elements::attend_data(std::string label, Attend_Data* attend_data, std::str
     }
     return false;
 }
+
+void Elements::table(int merged_lesson_id)
+{
+    const Lesson_Info& merged_lesson = PTRREF(Journal::lesson_info(Graphical::wday(), merged_lesson_id));
+    if (!Graphical::is_edit_mode() && merged_lesson.is_discontinued()) return;
+    bool disabled = merged_lesson.is_discontinued();
+    if (disabled) ImGui::BeginDisabled();
+    if (merged_lesson_id != 0 && Journal::lesson_info(Graphical::wday(), merged_lesson_id - 1)->get_lesson_pair(0).time_begin == merged_lesson.get_lesson_pair(0).time_begin)
+    {
+        ImGui::SameLine();
+    }
+    
+    current_lesson.merged_lesson_id = current_merged_lesson;
+    ImGui::BeginGroup();
+    if (disabled)
+    {
+        ImGui::TextColored(ImVec4(255, 0, 0, 255), "Удаленная"); ImGui::SameLine();
+    }
+    ImGui::Text(current_merged_lesson_ref.get_description().c_str());
+    std::string table_name = generate_label("##table", { current_merged_lesson, (int)all_lessons[current_day_of_the_week].size() });
+    std::vector<std::string> current_lesson_names;
+    std::vector<int> current_lesson_name_ids;
+    for (int current_internal_lesson = 0; current_internal_lesson < current_merged_lesson_ref.get_lessons_size(); current_internal_lesson++)
+    {
+        current_lesson_names.push_back(Lesson_Names[current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id] + "##" + std::to_string(current_internal_lesson + 1));
+        current_lesson_name_ids.push_back(current_merged_lesson_ref.get_lesson_pair(current_internal_lesson).lesson_name_id);
+    }
+    if (ImGui::BeginTable(table_name.c_str(), DEFAULT_COLUMN_COUNT+count_visible_days+1, 
+    ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
+    ImVec2(std::numeric_limits<float>::max(),(0.0F))))
+    {
+        ImU32 row_bg_color = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
+        ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, row_bg_color);
+        ImGui::TableNextColumn(); ImGui::Text("No");
+        ImGui::TableNextColumn(); ImGui::Text("ФИ ученика");
+        ImGui::TableNextColumn(); ImGui::Text("Д-р");
+        ImGui::TableNextColumn(); ImGui::Text("Программа");
+        ImGui::TableNextColumn(); ImGui::Text("Цена");
+}

@@ -125,7 +125,7 @@ bool Subwindow_Students_List::show_frame()
             if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-                if (is_removed_input_buffer) Journal::delete_student(student_id);
+                if (is_removed_input_buffer) Journal::remove_student(student_id);
                 if (!is_removed_input_buffer) Journal::restore_student(student_id);
                 ImGui::PopStyleColor();
             }

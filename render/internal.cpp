@@ -1,4 +1,5 @@
 #include "internal.h"
+#include "render.h"
 
 bool Frame_Data::increment_internal_lesson()
 {
@@ -60,7 +61,12 @@ void Graphical::select_wday(int wday)
     _wday = wday;
 }
 
-const std::vector<Day_With_Info>& Graphical::visible_days()
+bool Graphical::is_edit_mode()
+{
+    return _edit_mode;
+}
+
+const std::vector<Day_With_Info> &Graphical::visible_days()
 {
     return _visible_days;
 }
