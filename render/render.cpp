@@ -42,7 +42,7 @@ void Render::prepare_first_frame()
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
+    window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
     glfwSetWindowSizeLimits(window, 200, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
     if (window == nullptr)
         throw std::invalid_argument("GLFW: cannot create window");
@@ -50,9 +50,9 @@ void Render::prepare_first_frame()
     glfwSwapInterval(1); // Enable vsync
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io = &ImGui::GetIO();
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     ImGui::StyleColorsLight();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
@@ -62,7 +62,7 @@ void Render::prepare_first_frame()
         throw std::invalid_argument("TTF: cannot find segoeni.ttf");
     }
     #else
-    if(!io.Fonts->AddFontFromFileTTF("segoeui.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic()))
+    if(!io->Fonts->AddFontFromFileTTF("segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
     {
         throw std::invalid_argument("TTF: cannot find segoeni.ttf");
     }
