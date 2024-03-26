@@ -1,6 +1,6 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm& current_time, const std::tm& current_lesson_time, Lesson current_lesson, Lesson_Info* current_lesson_info)
+Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
 {
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
@@ -20,7 +20,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm& current_time, const 
     }
     picker = Elements::Picker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
-
+    const auto current_time = Journal::current_time;
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
     count_mday = get_number_of_days(current_time.tm_mon, current_time.tm_year + 1900);
     select_month = current_time.tm_mon;

@@ -170,7 +170,7 @@ const Student* Calendar_Day::get_workout_student(Lesson known_lesson, int workou
     return attendance_info[known_lesson.merged_lesson_id][known_lesson.internal_lesson_id].workouts[workout_id].student;
 }
 
-bool Calendar_Day::delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student)
+bool Calendar_Day::delete_workout(Lesson_Info& merged_lesson, int internal_lesson, const Student& student)
 {
     int merged_lesson_id = find_merged_lesson(merged_lesson);
     if (merged_lesson_id == -1) return false;

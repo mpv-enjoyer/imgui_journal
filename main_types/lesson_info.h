@@ -41,6 +41,7 @@ public:
     bool should_attend(int known_internal_student_id, int internal_lesson) const;
     int get_lessons_size() const;
     std::string get_description(int current_internal_lesson = -1) const;
+    std::string get_name(int internal_student_id) const;
     bool operator==(const Lesson_Info& rhs) const;
     bool operator!=(const Lesson_Info& rhs) const;
     bool operator< (const Lesson_Info& rhs) const;

@@ -17,12 +17,12 @@ namespace Journal
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
 
-    const char* Lesson_name(int type);
+    std::string Lesson_name(int type);
     const int Lesson_price(int type, int discount_status);
-    const char* Month_name(int number);
-    const char* Wday_name(int wday);
-    const char* Wday_name_short(int wday);
-    const char* Age_group(int number);
+    std::string Month_name(int number);
+    std::string Wday_name(int wday);
+    std::string Wday_name_short(int wday);
+    std::string Age_group(int number);
 
     const Student* student(int id);
     const int student_count();
@@ -35,17 +35,23 @@ namespace Journal
     const int current_month();
     const int current_day_of_the_week();
     const int current_month_days_num();
+    const std::vector<const Day_With_Info> enumerate_days(int wday);
+    const int lesson_common_price(int contract, int lesson_type);
+    const int lesson_current_price(Lesson lesson, int mday, int internal_student_id);
+    const bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
+    const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
     void set_date(int month, int year);
     void add_student_to_base(std::string name, int contract);
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
-    bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
+    void append_workout_students(Day_With_Info visible_day, Lesson lesson, std::vector<const Student *> &workout_students);
     void remove_student(int id);
     void restore_student(int id);
     void remove_lesson(int wday, int merged_lesson_id);
     void restore_group(int wday, int merged_lesson_id);
+    void set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed);
     void set_student_name(int id, std::string name);
     void set_student_age_group(int id, int age_group);
     void set_student_contract(int id, int contract);

@@ -42,6 +42,10 @@ namespace Elements
     bool attendance_combo(const char* label, int* status, std::string tooltip = "");
     bool attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
     void table(int merged_lesson_id);
+    bool table_row(int merged_lesson_id, int internal_student_id, int counter);
+    int table_cell(int merged_lesson_id, int internal_student_id, int visible_day_id);
+    void table_add_student_row(int merged_lesson_id, int internal_lesson_id, int counter);
+    void table_add_workout_row(int merged_lesson_id, int counter);
 }
 
 namespace Render

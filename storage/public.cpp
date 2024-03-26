@@ -3,9 +3,9 @@
 
 namespace Journal
 {
-    const char *Lesson_name(int type)
+    std::string Lesson_name(int type)
     {
-        return _lesson_names[type].c_str();
+        return _lesson_names[type];
     }
 
     const int Lesson_price(int type, int discount_status)
@@ -13,24 +13,24 @@ namespace Journal
         return _lesson_prices[type][discount_status];
     }
 
-    const char *Month_name(int number)
+    std::string Month_name(int number)
     {
-        return _month_names[number].c_str();
+        return _month_names[number];
     }
 
-    const char *Wday_name(int wday)
+    std::string Wday_name(int wday)
     {
-        return _day_names[wday].c_str();
+        return _day_names[wday];
     }
 
-    const char *Wday_name_short(int wday)
+    std::string Wday_name_short(int wday)
     {
-        return _day_names_abbreviated[wday].c_str();
+        return _day_names_abbreviated[wday];
     }
 
-    const char *Age_group(int number)
+    std::string Age_group(int number)
     {
-        return _age_group_names[number].c_str();
+        return _age_group_names[number];
     }
 
     const Student* student(int id) 
@@ -88,11 +88,19 @@ namespace Journal
     }
     const int lesson_current_price(Lesson lesson, int mday, int internal_student_id)
     {
+        int status = day(mday)->get_status(lesson, internal_student_id).status;
+        if (status == STATUS_NO_DATA) return -1;
+        if (status == STATUS_SKIPPED) return 50;
+        if (status == STATUS_WAS_ILL) return 0;
+        if (status == STATUS_NOT_AWAITED) return -1;
         int defined_status = _day(mday)->get_discount_status(lesson, internal_student_id);
         int wday = get_wday(mday, _current_month, _current_year);
         Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
         int lesson_type = pair.lesson_name_id;
         if (defined_status != -1) return _lesson_prices[lesson_type][defined_status];
+        //discount status is undefined at this point, fall back to common
+        int contract = lesson_info(wday, lesson.merged_lesson_id)->get_group().get_student(internal_student_id).get_contract();
+        return lesson_common_price(contract, lesson_type);
     }
     void set_student_name(int id, std::string name)
     {
@@ -243,6 +251,24 @@ namespace Journal
             current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);
         }
     }
+    void append_workout_students(Day_With_Info visible_day, Lesson lesson, std::vector<const Student*>& workout_students)
+    {
+        const Calendar_Day* current_day = visible_day.day;
+        for (int workout_num = 0; workout_num < current_day->get_workout_size(lesson); workout_num++)
+        {
+            const Student* current_workout_student = current_day->get_workout_student(lesson, workout_num);
+            bool is_in_vector = false;
+            for (int repeat_check_id = 0; repeat_check_id < workout_students.size(); repeat_check_id++)
+            {
+                if (workout_students[repeat_check_id] == current_workout_student) 
+                { 
+                    is_in_vector = true;
+                    break;
+                }
+            }
+            if (!is_in_vector) workout_students.push_back(current_workout_student);
+        }
+    }
 
     bool match_lesson_types(int l, int r)
     {
@@ -254,7 +280,7 @@ namespace Journal
         return false;
     }
 
-    bool is_workout_possible(const Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
+    const bool is_workout_possible(const Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
     {
         const Student* current_student = student(student_id);
         if (current_student->is_removed()) return false;
@@ -267,6 +293,26 @@ namespace Journal
         if (match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
             return true;
         return false;
+    }
+    const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id)
+    {
+        const auto& merged_lesson = lesson_info(wday, merged_lesson_id);
+        const Attend_Data attend_data = merged_lesson->get_group().get_attend_data(internal_student_id);
+        if (merged_lesson->get_lessons_size() == 1)
+        {
+            return Lesson_name(merged_lesson->get_lesson_pair(0).lesson_name_id);
+        }
+        std::string output;
+        int first_lesson_type = merged_lesson->get_lesson_pair(0).lesson_name_id;
+        int second_lesson_type = merged_lesson->get_lesson_pair(1).lesson_name_id;
+        if (attend_data == ATTEND_FIRST)
+            return Lesson_name(first_lesson_type) + " _";
+        if (attend_data == ATTEND_SECOND)
+            return "_ " + Lesson_name(second_lesson_type);
+        if (first_lesson_type == second_lesson_type)
+            return Lesson_name(first_lesson_type);
+        if (first_lesson_type != second_lesson_type)
+            return Lesson_name(first_lesson_type) + "+" + Lesson_name(second_lesson_type);
     }
     void remove_student(int id)
     {
@@ -284,5 +330,23 @@ namespace Journal
     {
         _all_lessons[wday][merged_lesson_id]->restore();
         //TODO CRITICAL: replace NAW's with zeros
+    }
+    void set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed)
+    {
+        Calendar_Day* current_day = _day(mday);
+        int contract = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id).get_contract();
+        int new_discount_status = _discount_status(contract);
+        if (status.status != STATUS_WORKED_OUT)
+        {
+            if (workout_existed)
+            {
+                Workout_Info distant_workout_info = status.workout_info;
+                int day_index = status.workout_info.date.tm_mday - 1;
+                int internal_lesson_id = status.workout_info.internal_lesson;
+                _day(day_index)->delete_workout(PTRREF(distant_workout_info.lesson_info), internal_lesson_id, PTRREF(distant_workout_info.student));
+            }
+            current_day->set_status(lesson, internal_student_id, status.status);
+            current_day->set_discount_status(lesson, internal_student_id, new_discount_status);
+        }
     }
 }

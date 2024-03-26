@@ -124,7 +124,7 @@ public:
     const Student* get_workout_student(Lesson known_lesson, int known_workout_id) const;
     Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id) const;
     Workout_Info get_workout_info(Lesson known_lesson, const Student& student) const;
-    bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
+    bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, const Student& student);
     bool delete_workout(Lesson known_lesson, int known_workout_id);
     bool set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status);
     bool set_discount_status(Lesson known_lesson, int internal_lesson, Student& student, int discount_status);
