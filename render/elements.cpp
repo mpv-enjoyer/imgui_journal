@@ -82,8 +82,12 @@ void Elements::table(int merged_lesson_id)
             bool enabled = table_row(merged_lesson_id, internal_student_id, counter);
             if (enabled) counter++;
         }
-
+        table_add_student_row(merged_lesson_id, counter);
+        table_add_workout_row(merged_lesson_id, counter);
+        ImGui::EndTable();
+        ImGui::EndGroup();
     }
+    if (disabled) ImGui::EndDisabled();
 }
 
 bool Elements::table_row(int merged_lesson_id, int internal_student_id, int counter)
@@ -179,7 +183,7 @@ int Elements::table_cell(int merged_lesson_id, int internal_student_id, int visi
     if (!enabled) ImGui::EndDisabled();
 }
 
-void Elements::table_add_student_row(int merged_lesson_id, int internal_lesson_id, int counter)
+void Elements::table_add_student_row(int merged_lesson_id, int counter)
 {
     const Lesson_Info& merged_lesson = PTRREF(Journal::lesson_info(Graphical::wday(), merged_lesson_id));
     const Group& group = merged_lesson.get_group();
@@ -193,8 +197,6 @@ void Elements::table_add_student_row(int merged_lesson_id, int internal_lesson_i
         Graphical::popup_add_student_to_group = new Popup_Add_Student_To_Group(merged_lesson, merged_lesson_id, Graphical::wday());
     }
 }
-
-
 
 void Elements::table_add_workout_row(int merged_lesson_id, int counter)
 {
@@ -297,6 +299,4 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
             }
         }
     }
-    ImGui::EndTable();
-    ImGui::EndGroup();
 }

@@ -44,7 +44,7 @@ namespace Elements
     void table(int merged_lesson_id);
     bool table_row(int merged_lesson_id, int internal_student_id, int counter);
     int table_cell(int merged_lesson_id, int internal_student_id, int visible_day_id);
-    void table_add_student_row(int merged_lesson_id, int internal_lesson_id, int counter);
+    void table_add_student_row(int merged_lesson_id, int counter);
     void table_add_workout_row(int merged_lesson_id, int counter);
 }
 
@@ -52,8 +52,10 @@ namespace Render
 {
     GLFWwindow* window;
     ImGuiIO* io;
+    void main_loop();
     void prepare_first_frame();
     bool show_subwindows();
     bool show_popups();
     void show_frame();
+    void prepare_shutdown();
 }
