@@ -10,6 +10,7 @@ namespace Graphical
     const std::vector<Day_With_Info>& visible_days();
     void select_wday(int wday);
     bool is_edit_mode();
+    void set_edit_mode(bool value);
 
     Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
     Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;

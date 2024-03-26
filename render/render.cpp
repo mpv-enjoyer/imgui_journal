@@ -116,8 +116,9 @@ void Render::show_frame()
     ImGui::SameLine();
     ImGui::Button("Справка");
     ImGui::SameLine();
-    static bool edit_mode = false;
-    ImGui::Checkbox("Режим редактирования", &edit_mode);
+    bool edit_mode = Graphical::is_edit_mode();
+    if (ImGui::Checkbox("Режим редактирования", &edit_mode))
+        Graphical::set_edit_mode(edit_mode);
     ImGui::Text("Выбран день %s, %s текущего года", Journal::Wday_name(Graphical::wday()), Journal::Month_name(Journal::current_month()));
     ImGui::BeginChild("Child", ImVec2(0, -20), true, window_flags);
     if (Journal::lesson_info_count(Graphical::wday()) == 0) 
