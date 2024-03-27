@@ -53,7 +53,9 @@ namespace Render
 {
     GLFWwindow* window;
     ImGuiIO* io;
+    double poll_time;
     void main_loop();
+    void set_update_time(int ms);
     void prepare_first_frame();
     bool show_subwindows();
     bool show_popups();

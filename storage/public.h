@@ -24,6 +24,8 @@ namespace Journal
     std::string Wday_name_short(int wday);
     std::string Age_group(int number);
 
+    void init();
+
     const Student* student(int id);
     const int student_count();
     const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
@@ -35,11 +37,12 @@ namespace Journal
     const int current_month();
     const int current_day_of_the_week();
     const int current_month_days_num();
-    const std::vector<const Day_With_Info> enumerate_days(int wday);
+    const std::vector<Day_With_Info> enumerate_days(int wday);
     const int lesson_common_price(int contract, int lesson_type);
     const int lesson_current_price(Lesson lesson, int mday, int internal_student_id);
     const bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
     const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
+    
     void set_date(int month, int year);
     void add_student_to_base(std::string name, int contract);
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
@@ -50,7 +53,7 @@ namespace Journal
     void remove_student(int id);
     void restore_student(int id);
     void remove_lesson(int wday, int merged_lesson_id);
-    void restore_group(int wday, int merged_lesson_id);
+    void restore_lesson(int wday, int merged_lesson_id);
     void set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed);
     void set_student_name(int id, std::string name);
     void set_student_age_group(int id, int age_group);
@@ -58,4 +61,8 @@ namespace Journal
     void set_group_number(int wday, int merged_lesson_id, int number);
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);
     void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data);
+
+    bool save(int month = -1, int year = -1);
+    bool load_current();
+    void generate_current();
 }

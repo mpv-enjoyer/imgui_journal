@@ -154,6 +154,7 @@ int Elements::table_cell(int merged_lesson_id, int internal_student_id, int visi
     const int mday = visible_day.number - MDAY_DIFF;
     const int wday = Journal::wday(mday);
     const Lesson_Info* merged_lesson = Journal::lesson_info(wday, merged_lesson_id);
+    int price_sum = 0;
     for (int internal_lesson = 0; internal_lesson < merged_lesson->get_lessons_size(); internal_lesson++)
     {
         Lesson lesson;
@@ -176,11 +177,21 @@ int Elements::table_cell(int merged_lesson_id, int internal_student_id, int visi
         }
         int price = Journal::lesson_current_price(lesson, mday, internal_student_id);
         if (price != -1)
+        {
+            price_sum += price;
             ImGui::TextDisabled(std::to_string(price).c_str());
+        }
+        else 
+        {
+            const Student& student = merged_lesson->get_group().get_student(internal_student_id);
+            const int lesson_type = merged_lesson->get_lesson_pair(internal_lesson).lesson_name_id;
+            price_sum += Journal::lesson_common_price(student.get_contract(), lesson_type);
+        }
         ImGui::EndGroup();
         ImGui::SameLine(0.0f, 2.0f);
     }
     if (!enabled) ImGui::EndDisabled();
+    return price_sum;
 }
 
 void Elements::table_add_student_row(int merged_lesson_id, int counter)
@@ -206,7 +217,6 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
     ImGui::TableSetColumnIndex(0);
     ImGui::TextDisabled(c_str_int(counter));
     ImGui::TableSetColumnIndex(1);
-    //std::string add_working_out_common_name = generate_label("Отр.:##", {})
     ImGui::AlignTextToFramePadding();
     ImGui::Text("Отр.:"); ImGui::SameLine();
     bool disabled = Journal::current_time.tm_wday != Graphical::wday();
@@ -231,6 +241,7 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
         Graphical::popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
     } 
     if (disabled) ImGui::EndDisabled();
+
     std::vector<const Student*> workout_students;
     for (int day_id = 0; day_id < Graphical::visible_days().size(); day_id++)
     {

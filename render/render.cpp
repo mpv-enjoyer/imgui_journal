@@ -9,10 +9,27 @@ void Render::main_loop()
 {
     while (!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
-        //TODO: filter events
+        if (poll_time >= ImGui::GetTime())
+        {
+            glfwPollEvents();
+        }
+        else
+        {
+            glfwWaitEvents();
+            bool should_update = io->MouseDelta.x && io->MouseDelta.y;
+            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
+            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
+            if (!should_update) continue;
+        }
         show_frame();
     }
+}
+
+void Render::set_update_time(int ms)
+{
+    if (poll_time > ms) return;
+    poll_time = ms + ImGui::GetTime();
 }
 
 void Render::prepare_first_frame()
@@ -42,7 +59,7 @@ void Render::prepare_first_frame()
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    window = glfwCreateWindow(1280, 720, "Журнал версии 0.0.1", nullptr, nullptr);
+    window = glfwCreateWindow(1280, 720, "Журнал версии 0.1.0", nullptr, nullptr);
     glfwSetWindowSizeLimits(window, 200, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
     if (window == nullptr)
         throw std::invalid_argument("GLFW: cannot create window");
@@ -99,9 +116,7 @@ void Render::show_frame()
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if(ImGui::Button("Изменить день"))
-    {
         Graphical::popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week();
-    };
     ImGui::SameLine();
     if (ImGui::Button("Добавить группу"))
         Graphical::popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday());
@@ -161,3 +176,4 @@ void Render::prepare_shutdown()
     	// archive and stream closed when destructors are called
     }
 }
+

@@ -33,6 +33,13 @@ namespace Journal
         return _age_group_names[number];
     }
 
+    void init()
+    {
+        _current_year = _current_time.tm_yday;
+        _current_month = _current_time.tm_mon;
+        _current_month_days_num = get_number_of_days(_current_month, _current_year);
+    }
+
     const Student* student(int id) 
     { 
         return _all_students[id]; 
@@ -64,9 +71,9 @@ namespace Journal
     const int current_year() { return _current_year; };
     const int current_month() { return _current_month; };
     const int current_month_days_num() { return _current_month_days_num; };
-    const std::vector<const Day_With_Info> enumerate_days(int wday)
+    const std::vector<Day_With_Info> enumerate_days(int wday)
     {
-        std::vector<const Day_With_Info> output;
+        std::vector<Day_With_Info> output;
         int day = get_first_wday(_current_month, _current_year, wday);
         int day_count = get_number_of_days(_current_month, _current_year);
         for ( ; day <= day_count; day+=7)
@@ -326,7 +333,7 @@ namespace Journal
     {
         _all_lessons[wday][merged_lesson_id]->discontinue();
     }
-    void restore_group(int wday, int merged_lesson_id)
+    void restore_lesson(int wday, int merged_lesson_id)
     {
         _all_lessons[wday][merged_lesson_id]->restore();
         //TODO CRITICAL: replace NAW's with zeros

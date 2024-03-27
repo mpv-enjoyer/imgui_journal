@@ -1,4 +1,5 @@
 #include "render.h"
+#include "internal.h"
 
 bool Render::show_popups()
 {
@@ -53,7 +54,7 @@ bool Render::show_popups()
         bool is_done = Graphical::popup_select_day_of_the_week->show_frame();
         if (is_done && Graphical::popup_select_day_of_the_week->check_ok())
         {
-            Graphical::popup_select_day_of_the_week->accept_changes(Graphical::wday);
+            Graphical::popup_select_day_of_the_week->accept_changes(_wday);
         }
         if (is_done)
         {
