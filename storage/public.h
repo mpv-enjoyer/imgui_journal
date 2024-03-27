@@ -62,7 +62,7 @@ namespace Journal
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);
     void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data);
 
-    bool save(int month = -1, int year = -1);
-    bool load_current();
+    void save();
+    bool load();
     void generate_current();
 }
