@@ -18,7 +18,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm current_lesson_time, 
         possible_student_descriptions.push_back((Journal::student(i)->get_name() + " (" + std::to_string(Journal::student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
-    picker = Elements::Picker(possible_student_descriptions, possible_student_ids);
+    picker = Picker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
     const auto current_time = Journal::current_time;
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
@@ -103,7 +103,7 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     is_calendar_filled = true;
                     bool current_selected = select_day == i;
-                    if (Elements::button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
+                    if (j_button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
                     {
                         if (current_selected) select_day = -1;
                         else select_day = i;
@@ -178,4 +178,43 @@ void Popup_Add_Working_Out::accept_changes()
     caller_mday, caller_month, caller_year };
 
     Journal::add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+}
+
+Popup_Add_Working_Out::Picker::Picker(std::vector<std::string> descriptions, std::vector<int> id_list) 
+: _descriptions(descriptions), _id_list(id_list)
+{
+    if (id_list.size() != 0) use_id_list = true;
+    if (id_list.size() != descriptions.size())
+        throw std::invalid_argument("id list size != descriptions size");
+}
+
+int Popup_Add_Working_Out::Picker::show()
+{
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+    filter.Draw("Поиск по ученикам");
+    ImGui::PopStyleColor(1);
+    ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
+    for (int i = 0; i < _descriptions.size(); i++)
+    {
+        if (!filter.PassFilter(_descriptions[i].c_str())) continue;
+        
+        if (current == i)
+        {
+            std::string student_button_name = generate_label("Выбран.##", { i });
+            j_button_selectable(student_button_name.c_str(), true);
+        }
+        else
+        {
+            std::string student_button_name = generate_label("Выбрать##", { i });
+            if (ImGui::Button(student_button_name.c_str())) 
+            {
+                current = i;
+            }
+        }
+        ImGui::SameLine();
+        ImGui::Text(_descriptions[i].c_str());
+    }
+    ImGui::EndChild();
+    if (use_id_list) return _id_list[current];
+    else return current;
 }

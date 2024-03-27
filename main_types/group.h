@@ -17,14 +17,6 @@ void serialize(Archive & ar, Students_List & g, const unsigned int version)
     ar & g.is_deleted;
 }
 
-
-template<class Archive>
-void serialize(Archive & ar, Group_Pair & g, const unsigned int version)
-{
-    ar & g.day_of_the_week;
-    ar & g.number;
-}
-
 class Group
 {
     friend class boost::serialization::access;

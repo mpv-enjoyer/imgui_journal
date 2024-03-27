@@ -32,11 +32,10 @@ namespace Journal
 
     void generate_current()
     {
-        std::vector<Student*> all_students;
-        std::vector<Group*> all_groups;
-        std::vector<std::vector<Lesson_Info*>> all_lessons(7, std::vector<Lesson_Info*>()); //[day_of_the_week][]
-        std::vector<Calendar_Day*> all_days;
-        
+        _all_days.clear();
+        _all_groups.clear();
+        _all_lessons.clear();
+        _all_students.clear();
         //TODO CRITICAL: Look up for workouts and repair their pointers
         bool surpass_year = _current_month == 0;
         int previous_month = (_current_month + 12 - 1) % 12;
@@ -46,13 +45,15 @@ namespace Journal
         int first_day_of_the_week = calculate_first_mwday(_current_month, _current_year);
         for (int i = 0; i < _current_month_days_num; i++)
         {
-           all_days.push_back(new Calendar_Day(all_lessons[(first_day_of_the_week + i) % 7]));
+           _all_days.push_back(new Calendar_Day(_all_lessons[(first_day_of_the_week + i) % 7]));
         }
 
         if (previous_ifs.fail())
         {
             return;
         }
+
+        throw std::invalid_argument("not implemented");
         //TODO: do not forget to add _days for imported previous Lesson_Info
         //TODO: also looks like I only need to have all_lessons in my inter_month save files
     }

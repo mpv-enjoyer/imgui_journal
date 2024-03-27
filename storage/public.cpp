@@ -1,5 +1,5 @@
-#include "public.h"
 #include "internal.h"
+#include "public.h"
 
 namespace Journal
 {
@@ -35,7 +35,7 @@ namespace Journal
 
     void init()
     {
-        _current_year = _current_time.tm_yday;
+        _current_year = _current_time.tm_year;
         _current_month = _current_time.tm_mon;
         _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
     }

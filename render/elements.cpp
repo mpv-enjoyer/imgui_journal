@@ -1,6 +1,6 @@
 #include "render.h"
 
-Elements::Picker::Picker(std::vector<std::string> descriptions, std::vector<int> id_list) 
+/*Elements::Picker::Picker(std::vector<std::string> descriptions, std::vector<int> id_list) 
 : _descriptions(descriptions), _id_list(id_list)
 {
     if (id_list.size() != 0) use_id_list = true;
@@ -37,7 +37,7 @@ int Elements::Picker::show()
     ImGui::EndChild();
     if (use_id_list) return _id_list[current];
     else return current;
-}
+}*/
 
 void Elements::table(int merged_lesson_id)
 {

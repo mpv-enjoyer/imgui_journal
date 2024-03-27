@@ -16,6 +16,6 @@ public:
     Frame_Data();
 };
 
-bool _edit_mode = false;
-int _wday = Journal::current_time.tm_wday;
-std::vector<Day_With_Info> _visible_days = Journal::enumerate_days(_wday);
+static bool _edit_mode;
+static int _wday;
+static std::vector<Day_With_Info> _visible_days;

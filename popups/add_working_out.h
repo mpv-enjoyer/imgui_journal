@@ -20,7 +20,19 @@ private:
     const Lesson_Info* caller_lesson_info;
     std::vector<std::vector<Lesson>> possible_lessons;
     const Group& current_group = caller_lesson_info->get_group();
-    Elements::Picker picker;
+    class Picker
+    {
+        ImGuiTextFilter filter;
+        int current = -1;
+        std::vector<std::string> _descriptions;
+        bool use_id_list = false;
+        std::vector<int> _id_list;
+    public:
+        Picker() {};
+        Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
+        int show();
+    };
+    Picker picker;
 public:
     Popup_Add_Working_Out(const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
     void update_possible_lessons();

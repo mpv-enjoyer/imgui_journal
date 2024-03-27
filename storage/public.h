@@ -1,6 +1,5 @@
 #pragma once
 #include "storage.h"
-#include "serializable.h"
 
 #define NAME_DRAWING 0
 #define NAME_SCULPTING 1
@@ -35,7 +34,6 @@ namespace Journal
     const int wday(int mday);
     const int current_year();
     const int current_month();
-    const int current_day_of_the_week();
     const int current_month_days_num();
     const std::vector<Day_With_Info> enumerate_days(int wday);
     const int lesson_common_price(int contract, int lesson_type);

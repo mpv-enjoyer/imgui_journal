@@ -97,5 +97,5 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
     }
     else lesson_pairs.erase(lesson_pairs.begin() + 1);
 
-    Journal::add_merged_lesson(day_of_the_week, group_number, group_comment, AGEGROUP, lesson_pairs);
+    Journal::add_merged_lesson(day_of_the_week, group_number, group_comment, 0, lesson_pairs);
 }

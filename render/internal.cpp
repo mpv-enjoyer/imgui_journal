@@ -17,6 +17,13 @@ void Graphical::set_edit_mode(bool value)
     _edit_mode = value;
 }
 
+void Graphical::init()
+{
+    _edit_mode = false;
+    _wday = Journal::current_time.tm_wday;
+    _visible_days = Journal::enumerate_days(_wday);
+}
+
 const std::vector<Day_With_Info> &Graphical::visible_days()
 {
     return _visible_days;

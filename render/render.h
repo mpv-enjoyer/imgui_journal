@@ -11,32 +11,21 @@ namespace Graphical
     void select_wday(int wday);
     bool is_edit_mode();
     void set_edit_mode(bool value);
+    void init();
 
-    Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
-    Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
-    Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
-    Popup_Add_Working_Out* popup_add_working_out = nullptr;
-    Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
-    Popup_Confirm* popup_confirm = nullptr;
+    static Popup_Add_Student_To_Group* popup_add_student_to_group;
+    static Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week;
+    static Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal;
+    static Popup_Add_Working_Out* popup_add_working_out;
+    static Popup_Add_Student_To_Base* popup_add_student_to_base;
+    static Popup_Confirm* popup_confirm;
 
-    Subwindow_Students_List* subwindow_students_list = nullptr;
-    Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
+    static Subwindow_Students_List* subwindow_students_list;
+    static Subwindow_Lessons_List* subwindow_lessons_list;
 }
 
 namespace Elements
 {
-    class Picker
-    {
-        ImGuiTextFilter filter;
-        int current = -1;
-        std::vector<std::string> _descriptions;
-        bool use_id_list = false;
-        std::vector<int> _id_list;
-    public:
-        Picker() {};
-        Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
-        int show();
-    };
     bool button_selectable(const char* label, bool selected, bool small = false);
     bool button_dangerous(const char *label);
     bool input_time(std::string label, JTime &time);
@@ -51,9 +40,9 @@ namespace Elements
 
 namespace Render
 {
-    GLFWwindow* window;
-    ImGuiIO* io;
-    double poll_time;
+    static GLFWwindow* window;
+    static ImGuiIO* io;
+    static double poll_time;
     void main_loop();
     void set_update_time(int ms);
     void prepare_first_frame();

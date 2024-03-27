@@ -1,5 +1,12 @@
 #include "students_list.h"
+#warning including render!!
 #include "../render/render.h"
+#warning end including render!!
+
+Subwindow_Students_List::Subwindow_Students_List()
+{
+
+}
 
 void Subwindow_Students_List::update_lessons_per_student()
 {
@@ -107,14 +114,14 @@ bool Subwindow_Students_List::show_frame()
                 
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
-                std::string first_name = Journal::Lesson_Names[current_lesson_info->get_lesson_pair(0).lesson_name_id];
-                std::string second_name = Journal::Lesson_Names[current_lesson_info->get_lesson_pair(1).lesson_name_id];
-                if (Elements::attend_data(label.c_str(), &cached_data, first_name, second_name))
+                std::string first_name = Journal::Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
+                std::string second_name = Journal::Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
+                if (j_attend_data(label.c_str(), &cached_data, first_name, second_name))
                 {
                     Journal::set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
                 }
                 ImGui::AlignTextToFramePadding();
-                std::string text = Journal::Day_Names_Abbreviated[current_info.wday] + ", " + current_group.get_description();
+                std::string text = Journal::Wday_name_short(current_info.wday) + ", " + current_group.get_description();
                 ImGui::Text(text.c_str());
 
                 //TODO CRITICAL: deletion here?

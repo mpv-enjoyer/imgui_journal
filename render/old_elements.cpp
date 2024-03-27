@@ -28,7 +28,7 @@ bool Elements::button_dangerous(const char* label)
     return output;
 }
 
-int validate_time_int(std::string input_string, int upper_limit)
+int input_validate_time_int(std::string input_string, int upper_limit)
 {
     if (input_string.size() == 0) return -1;
     for (int i = 0; i < input_string.size(); i++)
@@ -54,7 +54,7 @@ bool Elements::input_time(std::string label, JTime& time)
         std::string hours_name = generate_label(label, { 0 });
         if (ImGui::InputText(hours_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
-            int new_hours = validate_time_int(std::string(input_buffer), 24);
+            int new_hours = input_validate_time_int(std::string(input_buffer), 24);
             if (new_hours != -1) time.hours = new_hours;
         }
         ImGui::TableNextColumn();
@@ -66,7 +66,7 @@ bool Elements::input_time(std::string label, JTime& time)
         std::string minutes_name = generate_label(label, { 1 });
         if (ImGui::InputText(minutes_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
-            int new_minutes = validate_time_int(std::string(input_buffer), 60);
+            int new_minutes = input_validate_time_int(std::string(input_buffer), 60);
             if (new_minutes != -1) time.minutes = new_minutes;
         }
         ImGui::EndTable();

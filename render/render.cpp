@@ -85,18 +85,19 @@ void Render::prepare_first_frame()
     }
     #endif //not supporting apple platform
 
-    //TODO: load here
-    std::ifstream ifs("month.save");
-    if (!ifs.fail())
-    {
-        boost::archive::text_iarchive ia(ifs);
-        // write class instance to archive
-        ia >> all_students;
-        ia >> all_groups;
-        ia >> all_lessons;
-        ia >> all_days;
-        // archive and stream closed when destructors are called
-    }
+    Journal::init();
+    if (!Journal::load()) Journal::generate_current();
+    Graphical::init();
+
+    Graphical::popup_add_student_to_group = nullptr;
+    Graphical::popup_select_day_of_the_week = nullptr;
+    Graphical::popup_add_merged_lesson_to_journal = nullptr;
+    Graphical::popup_add_working_out = nullptr;
+    Graphical::popup_add_student_to_base = nullptr;
+    Graphical::popup_confirm = nullptr;
+
+    Graphical::subwindow_students_list = nullptr;
+    Graphical::subwindow_lessons_list = nullptr;
 }
 
 void Render::show_frame()
@@ -134,7 +135,7 @@ void Render::show_frame()
     bool edit_mode = Graphical::is_edit_mode();
     if (ImGui::Checkbox("Режим редактирования", &edit_mode))
         Graphical::set_edit_mode(edit_mode);
-    ImGui::Text("Выбран день %s, %s текущего года", Journal::Wday_name(Graphical::wday()), Journal::Month_name(Journal::current_month()));
+    ImGui::Text("Выбран день %s, %s текущего года", Journal::Wday_name(Graphical::wday()).c_str(), Journal::Month_name(Journal::current_month()).c_str());
     ImGui::BeginChild("Child", ImVec2(0, -20), true, window_flags);
     if (Journal::lesson_info_count(Graphical::wday()) == 0) 
         ImGui::Text("На текущий день не запланированы уроки.");
@@ -164,16 +165,6 @@ void Render::prepare_shutdown()
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    {
-        std::ofstream ofs("month.save");
-        boost::archive::text_oarchive oa(ofs);
-        // write class instance to archive
-        oa << all_students;
-        oa << all_groups;
-        oa << all_lessons;
-        oa << all_days;
-    	// archive and stream closed when destructors are called
-    }
+    Journal::save();
 }
 
