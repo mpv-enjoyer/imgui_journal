@@ -1,8 +1,17 @@
 #include "public.h"
 #include "internal.h"
 
+#define _current_month _current_month_()
+#define _current_year _current_year_()
+#define _current_month_days_num _current_month_days_num_()
+#define _all_students _all_students_()
+#define _all_groups _all_groups_()
+#define _all_lessons _all_lessons_()
+#define _all_days _all_days_()
+
 namespace Journal
 {
+
     std::string generate_file_name(int month, int year)
     {
         return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y.data";

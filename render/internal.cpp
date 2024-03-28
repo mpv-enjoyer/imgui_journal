@@ -1,5 +1,8 @@
 #include "internal.h"
-#include "render.h"
+
+bool _edit_mode;
+int _wday;
+std::vector<Day_With_Info> _visible_days;
 
 void Graphical::select_wday(int wday)
 {

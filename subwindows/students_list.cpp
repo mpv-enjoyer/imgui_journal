@@ -1,7 +1,5 @@
 #include "students_list.h"
-#warning including render!!
 #include "../render/render.h"
-#warning end including render!!
 
 Subwindow_Students_List::Subwindow_Students_List()
 {
@@ -41,7 +39,7 @@ bool Subwindow_Students_List::show_frame()
 
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
-        Graphical::popup_add_student_to_base = new Popup_Add_Student_To_Base();
+        Graphical::popup_add_student_to_base() = new Popup_Add_Student_To_Base();
     } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))

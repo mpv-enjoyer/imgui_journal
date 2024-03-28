@@ -1,5 +1,29 @@
 #include "internal.h"
 
+int _current_year;
+int _current_month;
+int _current_month_days_num;
+
+#define _all_students _all_students_()
+#define _all_groups _all_groups_()
+#define _all_lessons _all_lessons_()
+#define _all_days _all_days_()
+
+int& _current_year_()
+{
+    return std::ref(_current_year);
+}
+
+int& _current_month_()
+{
+    return std::ref(_current_month);
+}
+
+int& _current_month_days_num_()
+{
+    return std::ref(_current_month_days_num);
+}
+
 std::vector<_Day_With_Info> _enumerate_days(int day_of_the_week)
 {
     std::vector<_Day_With_Info> output;

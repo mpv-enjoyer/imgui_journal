@@ -205,7 +205,7 @@ void Elements::table_add_student_row(int merged_lesson_id, int counter)
     std::string add_student_button_name = generate_label("Добавить ученика##", {merged_lesson_id});
     if (ImGui::Button(add_student_button_name.c_str()))
     {
-        Graphical::popup_add_student_to_group = new Popup_Add_Student_To_Group(merged_lesson, merged_lesson_id, Graphical::wday());
+        Graphical::popup_add_student_to_group() = new Popup_Add_Student_To_Group(merged_lesson, merged_lesson_id, Graphical::wday());
     }
 }
 
@@ -230,7 +230,7 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
         std::tm current_lesson_time = { 0, 0, 0, 
         Journal::current_time.tm_mday - MDAY_DIFF, Journal::current_month(), Journal::current_year() };
         Lesson lesson = {merged_lesson_id, 0};
-        Graphical::popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+        Graphical::popup_add_working_out() = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
     }
     ImGui::SameLine(0.0f, 2.0f);
     if (!Graphical::is_edit_mode() && merged_lesson.get_lessons_size() == 2 && ImGui::Button(second_lesson_name.c_str()))
@@ -238,7 +238,7 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
         std::tm current_lesson_time = { 0, 0, 0, 
         Journal::current_time.tm_mday - MDAY_DIFF, Journal::current_month(), Journal::current_year() };
         Lesson lesson = {merged_lesson_id, 1};
-        Graphical::popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+        Graphical::popup_add_working_out() = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
     } 
     if (disabled) ImGui::EndDisabled();
 
@@ -261,7 +261,7 @@ void Elements::table_add_workout_row(int merged_lesson_id, int counter)
             {
                 std::tm current_lesson_time = { 0, 0, 0,
                         Graphical::visible_days()[day_id].number - MDAY_DIFF, Journal::current_month(), Journal::current_year() };
-                Graphical::popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+                Graphical::popup_add_working_out() = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
             }
         }
     }

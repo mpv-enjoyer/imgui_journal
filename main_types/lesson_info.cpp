@@ -24,7 +24,7 @@ int Lesson_Info::get_lessons_size() const
 
 bool Lesson_Info::set_group(Group& new_group)
 {
-    *group = new_group;
+    group = &new_group;
     return true;
 }
 

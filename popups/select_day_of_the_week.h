@@ -8,7 +8,7 @@ private:
     int month = 0;
     int year = 0;
 public:
-    Popup_Select_Day_Of_The_Week() {};
+    Popup_Select_Day_Of_The_Week();
     Popup_Select_Day_Of_The_Week(int current_day_of_the_week);
     bool show_frame();
     bool is_ok_possible() { return true; }

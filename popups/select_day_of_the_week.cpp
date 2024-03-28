@@ -4,7 +4,7 @@ Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(int current_day_of_th
 {
     day_of_the_week = current_day_of_the_week;
     month = Journal::current_month();
-    year = Journal::current_year();
+    year = Journal::current_year() + 1900;
 }
 
 bool Popup_Select_Day_Of_The_Week::show_frame()
@@ -35,5 +35,5 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
 void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week)
 {
     current_day_of_the_week = get_day_of_the_week();
-    Journal::set_date(month, year);
+    Journal::set_date(month, get_year());
 }

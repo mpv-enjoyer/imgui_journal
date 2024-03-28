@@ -3,6 +3,13 @@
 
 namespace Journal
 {
+    int& _current_month = _current_month_();
+    int& _current_year = _current_year_();
+    int& _current_month_days_num = _current_month_days_num_();
+    auto& _all_students = _all_students_();
+    auto& _all_groups = _all_groups_();
+    auto& _all_lessons = _all_lessons_();
+    auto& _all_days = _all_days_();
     std::string Lesson_name(int type)
     {
         return _lesson_names[type];

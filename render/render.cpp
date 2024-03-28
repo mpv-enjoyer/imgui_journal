@@ -15,12 +15,13 @@ void Render::main_loop()
         }
         else
         {
-            glfwWaitEvents();
-            bool should_update = io->MouseDelta.x && io->MouseDelta.y;
-            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
-            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
-            should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
-            if (!should_update) continue;
+            //glfwWaitEvents();
+            glfwPollEvents();
+            //bool should_update = io->MouseDelta.x && io->MouseDelta.y;
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
+            //if (!should_update) continue;
         }
         show_frame();
     }
@@ -89,15 +90,15 @@ void Render::prepare_first_frame()
     if (!Journal::load()) Journal::generate_current();
     Graphical::init();
 
-    Graphical::popup_add_student_to_group = nullptr;
-    Graphical::popup_select_day_of_the_week = nullptr;
-    Graphical::popup_add_merged_lesson_to_journal = nullptr;
-    Graphical::popup_add_working_out = nullptr;
-    Graphical::popup_add_student_to_base = nullptr;
-    Graphical::popup_confirm = nullptr;
+    Graphical::popup_add_student_to_group() = nullptr;
+    Graphical::popup_select_day_of_the_week() = nullptr;
+    Graphical::popup_add_merged_lesson_to_journal() = nullptr;
+    Graphical::popup_add_working_out() = nullptr;
+    Graphical::popup_add_student_to_base() = nullptr;
+    Graphical::popup_confirm() = nullptr;
 
-    Graphical::subwindow_students_list = nullptr;
-    Graphical::subwindow_lessons_list = nullptr;
+    Graphical::subwindow_students_list() = nullptr;
+    Graphical::subwindow_lessons_list() = nullptr;
 }
 
 void Render::show_frame()
@@ -117,16 +118,16 @@ void Render::show_frame()
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if(ImGui::Button("Изменить день"))
-        Graphical::popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week();
+        Graphical::popup_select_day_of_the_week() = new Popup_Select_Day_Of_The_Week(Graphical::wday());
     ImGui::SameLine();
     if (ImGui::Button("Добавить группу"))
-        Graphical::popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday());
+        Graphical::popup_add_merged_lesson_to_journal() = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday());
     ImGui::SameLine();
     if (ImGui::Button("Ученики") )
-        Graphical::subwindow_students_list = new Subwindow_Students_List();
+        Graphical::subwindow_students_list() = new Subwindow_Students_List();
     ImGui::SameLine();
     if (ImGui::Button("Группы"))
-        Graphical::subwindow_lessons_list = new Subwindow_Lessons_List();
+        Graphical::subwindow_lessons_list() = new Subwindow_Lessons_List();
     ImGui::SameLine();
     ImGui::Button("Журнал оплаты");
     ImGui::SameLine();

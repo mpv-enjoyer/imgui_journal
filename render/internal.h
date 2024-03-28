@@ -11,11 +11,7 @@
 
 class Frame_Data
 {
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    
 public:
     Frame_Data();
 };
-
-static bool _edit_mode;
-static int _wday;
-static std::vector<Day_With_Info> _visible_days;
