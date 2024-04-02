@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "journal.h"
 
 std::string Journal::Lesson_name(int type)
 {

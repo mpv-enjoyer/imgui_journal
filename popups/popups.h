@@ -1,8 +1,5 @@
 #pragma once
 #include "../main.h"
-#include "../helpers/helpers.h"
-#include "../main_types/main_types.h"
-#include "../storage/public.h"
 
 class Popup
 {
@@ -16,6 +13,15 @@ public:
     void error(std::string desc) { last_error = "ошибка: " + desc; }
     void print_error() { ImGui::TextDisabled(last_error.c_str()); }
 };
+
+// Forward declarations
+
+typedef Popup_Add_Merged_Lesson_To_Journal Popup_Add_Merged_Lesson_To_Journal;
+typedef Popup_Add_Student_To_Base Popup_Add_Student_To_Base;
+typedef Popup_Add_Student_To_Group Popup_Add_Student_To_Group;
+typedef Popup_Add_Working_Out Popup_Add_Working_Out;
+typedef Popup_Select_Day_Of_The_Week Popup_Select_Day_Of_The_Week;
+typedef Popup_Edit_Lesson Popup_Edit_Lesson;
 
 #include "add_merged_lesson_to_journal.h"
 #include "add_student_to_base.h"

@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "journal.h"
 
 std::vector<_Day_With_Info> Journal::_enumerate_days(int day_of_the_week)
 {

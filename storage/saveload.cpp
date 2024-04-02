@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "journal.h"
 
 std::string generate_file_name(int month, int year)
 {

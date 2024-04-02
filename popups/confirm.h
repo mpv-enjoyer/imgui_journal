@@ -1,5 +1,8 @@
 #pragma once
 #include "popups.h"
+#include "../helpers/helpers.h"
+#include "../main_types/main_types.h"
+#include "../storage/journal.h"
 
 class Popup_Confirm : public Popup
 {
