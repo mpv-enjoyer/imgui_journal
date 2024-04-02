@@ -1,30 +1,6 @@
-#include "internal.h"
+#include "storage.h"
 
-int _current_year;
-int _current_month;
-int _current_month_days_num;
-
-#define _all_students _all_students_()
-#define _all_groups _all_groups_()
-#define _all_lessons _all_lessons_()
-#define _all_days _all_days_()
-
-int& _current_year_()
-{
-    return std::ref(_current_year);
-}
-
-int& _current_month_()
-{
-    return std::ref(_current_month);
-}
-
-int& _current_month_days_num_()
-{
-    return std::ref(_current_month_days_num);
-}
-
-std::vector<_Day_With_Info> _enumerate_days(int day_of_the_week)
+std::vector<_Day_With_Info> Journal::_enumerate_days(int day_of_the_week)
 {
     std::vector<_Day_With_Info> output;
     int day = get_first_wday(_current_month, _current_year, day_of_the_week);
@@ -41,12 +17,12 @@ std::vector<_Day_With_Info> _enumerate_days(int day_of_the_week)
     return output;
 }
 
-Calendar_Day* _day(int mday)
+Calendar_Day* Journal::_day(int mday)
 {
     return _all_days[mday];
 }
 
-int _discount_status(int student_contract)
+int Journal::_discount_status(int student_contract)
 {
     int output = 0;
     for (auto student : _all_students)
@@ -58,7 +34,7 @@ int _discount_status(int student_contract)
     return output;
 }
 
-int _emplace_lesson_info(int wday, Lesson_Info &lesson_info)
+int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
 {
     auto lessons_in_this_day = _all_lessons[wday];
     int new_merged_lesson_known_id = lessons_in_this_day.size();
