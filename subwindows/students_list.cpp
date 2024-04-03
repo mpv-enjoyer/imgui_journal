@@ -9,25 +9,25 @@ Subwindow_Students_List::Subwindow_Students_List()
 void Subwindow_Students_List::update_lessons_per_student()
 {
     lessons_per_student.clear();
-    lessons_per_student = std::vector<std::vector<Lesson_Info_Position>>(Journal::student_count());
-    for (int student_id = 0; student_id < Journal::student_count(); student_id++)
+    lessons_per_student = std::vector<std::vector<Lesson_Info_Position>>(journal->student_count());
+    for (int student_id = 0; student_id < journal->student_count(); student_id++)
     {
         update_lessons_per_student(student_id);
-        auto& student = PTRREF(Journal::student(student_id));
+        auto& student = PTRREF(journal->student(student_id));
     }
 }
 
 void Subwindow_Students_List::update_lessons_per_student(int student_id)
 {
     lessons_per_student[student_id].clear();
-    auto& student = PTRREF(Journal::student(student_id));
+    auto& student = PTRREF(journal->student(student_id));
     for (int wday = 0; wday < 7; wday++)
     {
-        for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(wday); merged_lesson_id++)
+        for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(wday); merged_lesson_id++)
         {
-            int internal_student_id = Journal::lesson_info(wday, merged_lesson_id)->get_group().find_student(student);
+            int internal_student_id = journal->lesson_info(wday, merged_lesson_id)->get_group().find_student(student);
             if (internal_student_id == -1) continue;
-            if (Journal::lesson_info(wday, merged_lesson_id)->get_group().is_deleted(student)) continue;
+            if (journal->lesson_info(wday, merged_lesson_id)->get_group().is_deleted(student)) continue;
             lessons_per_student[student_id].push_back({wday, merged_lesson_id, internal_student_id});
         }
     }
@@ -39,7 +39,7 @@ bool Subwindow_Students_List::show_frame()
 
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
-        Graphical::popup_add_student_to_base() = new Popup_Add_Student_To_Base();
+        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base();
     } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))
@@ -63,9 +63,9 @@ bool Subwindow_Students_List::show_frame()
         int contract_input_buffer;
         int lesson_name_input_buffer;
         bool is_removed_input_buffer;
-        for (int student_id = 0; student_id < Journal::student_count(); student_id++)
+        for (int student_id = 0; student_id < journal->student_count(); student_id++)
         {
-            const Student* current_student = Journal::student(student_id);
+            const Student* current_student = journal->student(student_id);
             if (!edit_mode && current_student->is_removed()) continue;
             ImGui::PushID(student_id);
             name_input_buffer = current_student->get_name();
@@ -78,7 +78,7 @@ bool Subwindow_Students_List::show_frame()
             {
                 if (ImGui::InputText("##ФИ", &name_input_buffer))
                 {
-                    Journal::set_student_name(student_id, name_input_buffer);
+                    journal->set_student_name(student_id, name_input_buffer);
                 };
             }
             else
@@ -95,7 +95,7 @@ bool Subwindow_Students_List::show_frame()
             else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
-                Journal::set_student_contract(student_id, contract_input_buffer);
+                journal->set_student_contract(student_id, contract_input_buffer);
             }
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
@@ -105,21 +105,21 @@ bool Subwindow_Students_List::show_frame()
                 const Lesson_Info_Position current_info = lessons_per_student[student_id][i];
                 const int current_wday = lessons_per_student[student_id][i].wday;
                 const int current_merged_lesson_id = lessons_per_student[student_id][i].merged_lesson;
-                const auto& current_lesson_info = Journal::lesson_info(current_wday, current_merged_lesson_id);
+                const auto& current_lesson_info = journal->lesson_info(current_wday, current_merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
                 const int internal_student_id = lessons_per_student[student_id][i].internal_student_id;
                 ImGui::BeginGroup();
                 
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
-                std::string first_name = Journal::Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
-                std::string second_name = Journal::Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
+                std::string first_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
+                std::string second_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
                 if (j_attend_data(label.c_str(), &cached_data, first_name, second_name))
                 {
-                    Journal::set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
+                    journal->set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
                 }
                 ImGui::AlignTextToFramePadding();
-                std::string text = Journal::Wday_name_short(current_info.wday) + ", " + current_group.get_description();
+                std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
                 ImGui::Text(text.c_str());
 
                 //TODO CRITICAL: deletion here?
@@ -130,8 +130,8 @@ bool Subwindow_Students_List::show_frame()
             if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-                if (is_removed_input_buffer) Journal::remove_student(student_id);
-                if (!is_removed_input_buffer) Journal::restore_student(student_id);
+                if (is_removed_input_buffer) journal->remove_student(student_id);
+                if (!is_removed_input_buffer) journal->restore_student(student_id);
                 ImGui::PopStyleColor();
             }
             ImGui::PopID();

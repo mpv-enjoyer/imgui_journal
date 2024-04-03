@@ -1,17 +1,21 @@
 #pragma once
-#include "../main.h"
 #include "../popups/popups.h"
-#include "../helpers/helpers.h"
-#include "../main_types/main_types.h"
-#include "../storage/public.h"
 
 class Subwindow
 {
 protected:
+    Graphical* graphical = nullptr;
+    Journal* journal = nullptr;
     bool edit_mode = false;
 public:
     Subwindow() { };
+    void sync_data(Graphical* _graphical, Journal* _journal)
+    {
+        graphical = _graphical;
+        journal = _journal;
+    }
 };
 
 #include "students_list.h"
 #include "lessons_list.h"
+#include "mainwindow.h"

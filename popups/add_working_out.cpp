@@ -4,23 +4,23 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm current_lesson_time, 
 {
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
-    for (int i = 0; i < Journal::student_count(); i++)
+    for (int i = 0; i < journal->student_count(); i++)
     {
-        if (Journal::student(i)->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(Journal::student(i))) && !current_group.is_deleted(PTRREF(Journal::student(i)))) continue;
+        if (journal->student(i)->is_removed()) continue;
+        if (current_group.is_in_group(PTRREF(journal->student(i))) && !current_group.is_deleted(PTRREF(journal->student(i)))) continue;
         bool was_found = false;
-        for (int j = 0; j < Journal::day(current_lesson_time.tm_mday)->get_workout_size(current_lesson); j++)
+        for (int j = 0; j < journal->day(current_lesson_time.tm_mday)->get_workout_size(current_lesson); j++)
         {
-            const Student* student = Journal::day(current_lesson_time.tm_mday)->get_workout_student(current_lesson, j);
-            if (Journal::student(i) == student) was_found = true;
+            const Student* student = journal->day(current_lesson_time.tm_mday)->get_workout_student(current_lesson, j);
+            if (journal->student(i) == student) was_found = true;
         }
         if (was_found) continue;
-        possible_student_descriptions.push_back((Journal::student(i)->get_name() + " (" + std::to_string(Journal::student(i)->get_contract()) + ")"));
+        possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
     picker = Picker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
-    const auto current_time = Journal::current_time;
+    const auto current_time = journal->current_time;
     first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
     count_mday = get_number_of_days(current_time.tm_mon, current_time.tm_year + 1900);
     select_month = current_time.tm_mon;
@@ -30,28 +30,28 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm current_lesson_time, 
     caller_month = current_lesson_time.tm_mon;
     caller_year = current_lesson_time.tm_year;
     int caller_wday = get_wday(caller_mday, caller_month, caller_year);
-    caller_lesson_name_id = Journal::lesson_info(caller_wday, current_lesson.merged_lesson_id)->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
+    caller_lesson_name_id = journal->lesson_info(caller_wday, current_lesson.merged_lesson_id)->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
     caller_lesson_info = current_lesson_info;
 }
 
 void Popup_Add_Working_Out::update_possible_lessons()
 {
     possible_lessons.clear();
-    possible_lessons = std::vector<std::vector<Lesson>>(Journal::day_count());
+    possible_lessons = std::vector<std::vector<Lesson>>(journal->day_count());
     std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
     Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
-    for (int i = 0; i < Journal::day_count(); i++)
+    for (int i = 0; i < journal->day_count(); i++)
     {
-        int wday = Journal::wday(i);
+        int wday = journal->wday(i);
         input_date.tm_mday = i;
         input_date.tm_wday = wday;
-        for (int j = 0; j < Journal::lesson_info_count(wday); j++)
+        for (int j = 0; j < journal->lesson_info_count(wday); j++)
         {
-            for (int k = 0; k < Journal::lesson_info(wday, j)->get_lessons_size(); k++)
+            for (int k = 0; k < journal->lesson_info(wday, j)->get_lessons_size(); k++)
             {
-                if (Journal::is_workout_possible(Journal::lesson_info(wday, j), k, select_student, caller_lesson_type))
+                if (journal->is_workout_possible(journal->lesson_info(wday, j), k, select_student, caller_lesson_type))
                 {
                     possible_lessons[i].push_back({j, k});
                 }
@@ -125,11 +125,11 @@ bool Popup_Add_Working_Out::show_frame()
         }
         if (select_day != -1)
         {
-            int select_mday = Journal::wday(select_day);
+            int select_mday = journal->wday(select_day);
             bool select_lesson_shown = false;
             for (int i = 0; i < possible_lessons[select_day].size(); i++)
             {
-                const Lesson_Info* current = Journal::lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
+                const Lesson_Info* current = journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
                 std::string description = current->get_description(i);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
                 select_lesson_shown |= checkbox_value;
@@ -158,10 +158,10 @@ bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled)
     if (select_day == -1) { error("Выберите день"); return false; }
     if (select_lesson == Lesson {-1, -1}) { error("Выберите урок"); return false; }
     int student_id = select_student;
-    int wday = Journal::wday(select_day);
-    const Lesson_Info& select_lesson_info = PTRREF(Journal::lesson_info(wday, select_lesson.merged_lesson_id));
-    const Student& student = PTRREF(Journal::student(student_id));
-    Student_Status requested_status =  Journal::day(select_day)->get_status(select_lesson_info, select_lesson.internal_lesson_id, student);
+    int wday = journal->wday(select_day);
+    const Lesson_Info& select_lesson_info = PTRREF(journal->lesson_info(wday, select_lesson.merged_lesson_id));
+    const Student& student = PTRREF(journal->student(student_id));
+    Student_Status requested_status =  journal->day(select_day)->get_status(select_lesson_info, select_lesson.internal_lesson_id, student);
     if (requested_status.status == STATUS_WORKED_OUT) { error("Отработка уже назначена"); return false; }
     if (requested_status.status == STATUS_NOT_AWAITED) { error("Ученик не должен приходить на этот урок"); return false; }
     if (requested_status.status == STATUS_ON_LESSON) { error("Ученик присутствовал на этом уроке"); return false; }
@@ -177,7 +177,7 @@ void Popup_Add_Working_Out::accept_changes()
     std::tm caller_date = { 0, 0, 0,
     caller_mday, caller_month, caller_year };
 
-    Journal::add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+    journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
 }
 
 Popup_Add_Working_Out::Picker::Picker(std::vector<std::string> descriptions, std::vector<int> id_list) 

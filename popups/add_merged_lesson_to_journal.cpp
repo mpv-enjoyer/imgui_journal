@@ -54,9 +54,9 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 
 bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
 {
-    for (int i = 0; i < Journal::lesson_info_count(day_of_the_week); i++)
+    for (int i = 0; i < journal->lesson_info_count(day_of_the_week); i++)
     {
-        if (Journal::lesson_info(day_of_the_week, i)->get_group().get_number() == group_number)
+        if (journal->lesson_info(day_of_the_week, i)->get_group().get_number() == group_number)
         {
             error("Такая группа уже существует");
             return false;
@@ -97,5 +97,5 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
     }
     else lesson_pairs.erase(lesson_pairs.begin() + 1);
 
-    Journal::add_merged_lesson(day_of_the_week, group_number, group_comment, 0, lesson_pairs);
+    journal->add_merged_lesson(day_of_the_week, group_number, group_comment, 0, lesson_pairs);
 }

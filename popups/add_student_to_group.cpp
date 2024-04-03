@@ -1,14 +1,16 @@
 #include "add_student_to_group.h"
 
+#define Journal graphical.journal
+
 Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday) 
 : current_group(current_lesson.get_group()), merged_lesson_known_id(merged_lesson_known_id), current_lesson(current_lesson)
 {
     current_wday = wday;
-    for (int i = 0; i < Journal::student_count(); i++)
+    for (int i = 0; i < journal->student_count(); i++)
     {
-        if (Journal::student(i)->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(Journal::student(i)))) continue;
-        possible_student_descriptions.push_back((Journal::student(i)->get_name() + " (" + std::to_string(Journal::student(i)->get_contract()) + ")"));
+        if (journal->student(i)->is_removed()) continue;
+        if (current_group.is_in_group(PTRREF(journal->student(i)))) continue;
+        possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
 };
@@ -54,5 +56,5 @@ bool Popup_Add_Student_To_Group::show_frame()
 //only works for 1 lesson = 1 group
 void Popup_Add_Student_To_Group::accept_changes()
 {
-    Journal::add_student_to_group(current_selected_student, current_wday, get_merged_lesson_known_id());
+    journal->add_student_to_group(current_selected_student, current_wday, get_merged_lesson_known_id());
 }

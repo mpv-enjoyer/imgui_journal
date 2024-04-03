@@ -4,34 +4,8 @@
 #include "../subwindows/subwindows.h"
 #include "../storage/journal.h"
 
-class Graphical
-{
-    bool _edit_mode;
-    int _wday;
-    std::vector<Day_With_Info> _visible_days;
-public:
-    Graphical();
-    const int wday();
-    const std::vector<Day_With_Info>& visible_days();
-    void select_wday(int wday);
-    bool is_edit_mode();
-    void set_edit_mode(bool value);
-}
-
 class Render
 {
-    Popup_Add_Student_To_Group* popup_add_student_to_group;
-    Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week;
-    Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal;
-    Popup_Add_Working_Out* popup_add_working_out;
-    Popup_Add_Student_To_Base* popup_add_student_to_base;
-    Popup_Confirm* popup_confirm;
-
-    Subwindow_Students_List* subwindow_students_list;
-    Subwindow_Lessons_List* subwindow_lessons_list;
-
-    Journal journal;
-
     namespace Elements
     {
         bool button_selectable(const char* label, bool selected, bool small = false);

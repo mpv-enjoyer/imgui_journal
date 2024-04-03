@@ -28,5 +28,5 @@ bool Popup_Add_Student_To_Base::show_frame()
 void Popup_Add_Student_To_Base::accept_changes()
 {
     IM_ASSERT(check_ok());
-    Journal::add_student_to_base(name, contract);
+    journal->add_student_to_base(name, contract);
 }
