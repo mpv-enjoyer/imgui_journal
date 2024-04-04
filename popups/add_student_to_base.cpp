@@ -1,5 +1,11 @@
 #include "add_student_to_base.h"
 
+Popup_Add_Student_To_Base::Popup_Add_Student_To_Base(Graphical *_graphical)
+{
+    graphical = _graphical;
+    journal = &(graphical->journal);
+}
+
 bool Popup_Add_Student_To_Base::show_frame()
 {
     POPUP_INIT_FRAME("Добавить ученика в базу")

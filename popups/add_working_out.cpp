@@ -1,7 +1,9 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
+Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
 {
+    graphical = _graphical;
+    journal = &(graphical->journal);
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
     for (int i = 0; i < journal->student_count(); i++)

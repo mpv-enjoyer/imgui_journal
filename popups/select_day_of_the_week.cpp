@@ -1,7 +1,9 @@
 #include "select_day_of_the_week.h"
 
-Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week()
+Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(Graphical* _graphical)
 {
+    graphical = _graphical;
+    journal = &(graphical->journal);
     day_of_the_week = graphical->wday;
     month = journal->current_month();
     year = journal->current_year() + 1900;

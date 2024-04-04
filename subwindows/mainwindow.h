@@ -10,6 +10,6 @@ class Mainwindow : public Subwindow
     void table_add_student_row(int merged_lesson_id, int counter);
     void table_add_workout_row(int merged_lesson_id, int counter);
 public:
-    Mainwindow();
+    Mainwindow(Graphical* graphical);
     void show_frame();
 };

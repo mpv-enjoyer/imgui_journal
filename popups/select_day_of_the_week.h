@@ -11,7 +11,7 @@ private:
     int month = 0;
     int year = 0;
 public:
-    Popup_Select_Day_Of_The_Week();
+    Popup_Select_Day_Of_The_Week(Graphical* graphical);
     bool show_frame();
     void accept_changes();
     bool is_ok_possible() { return true; }

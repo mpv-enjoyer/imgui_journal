@@ -13,7 +13,7 @@ private:
     int combo_lesson_name_id = 0;
     std::vector<Lesson_Pair> lesson_pairs;
 public:
-    Popup_Add_Merged_Lesson_To_Journal(); 
+    Popup_Add_Merged_Lesson_To_Journal(Graphical* graphical); 
     bool show_frame();
     bool is_ok_possible();
     void accept_changes();

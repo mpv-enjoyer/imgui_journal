@@ -1,8 +1,9 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List()
+Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
 { 
-    
+    graphical = _graphical;
+    journal = &(graphical->journal);
 };
 
 bool Subwindow_Lessons_List::show_frame()

@@ -6,10 +6,11 @@
 
 class Render
 {
-    Journal journal;
-    Graphical graphical = Graphical(journal);
+    Journal* journal;
+    Graphical* graphical;
     GLFWwindow* window;
     ImGuiIO* io;
+    Mainwindow mainwindow;
     double poll_time;
     void set_update_time(int ms);
     void prepare_first_frame();
@@ -18,6 +19,6 @@ class Render
     void show_frame();
     void prepare_shutdown();
 public:
-    Render();
+    Render(Journal* _journal, Graphical* _graphical);
     void main_loop();
 };

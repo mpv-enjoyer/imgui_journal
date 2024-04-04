@@ -1,8 +1,10 @@
 #include "add_merged_lesson_to_journal.h"
 
-Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal() 
-: day_of_the_week(graphical->wday)
+Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical* _graphical)
 {
+    graphical = _graphical;
+    journal = &(graphical->journal);
+    day_of_the_week = _graphical->wday;
     lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
 }
 

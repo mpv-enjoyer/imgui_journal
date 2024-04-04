@@ -4,6 +4,6 @@
 class Subwindow_Lessons_List : public Subwindow
 {
 public:
-    Subwindow_Lessons_List();
+    Subwindow_Lessons_List(Graphical *_graphical);
     bool show_frame();
 };

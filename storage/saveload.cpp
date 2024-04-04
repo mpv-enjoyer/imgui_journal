@@ -39,6 +39,7 @@ void Journal::generate_current()
     int previous_year = surpass_year ? _current_year - 1 : _current_year;
     std::ifstream previous_ifs(generate_file_name(previous_month, previous_year));
     int first_day_of_the_week = calculate_first_mwday(_current_month, _current_year);
+    _all_lessons = std::vector<std::vector<Lesson_Info*>>(7);
     for (int i = 0; i < _current_month_days_num; i++)
     {
        _all_days.push_back(new Calendar_Day(_all_lessons[(first_day_of_the_week + i) % 7]));

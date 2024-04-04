@@ -1,8 +1,9 @@
 #include "mainwindow.h"
 
-Mainwindow::Mainwindow()
+Mainwindow::Mainwindow(Graphical* _graphical)
 {
-    
+    graphical = _graphical;
+    journal = &(graphical->journal);
 }
 
 void Mainwindow::show_frame()
@@ -14,27 +15,23 @@ void Mainwindow::show_frame()
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if(ImGui::Button("Изменить день"))
     {
-        graphical->popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week();
-        graphical->popup_select_day_of_the_week->sync_data(graphical, journal);
+        graphical->popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(graphical);
     }
         
     ImGui::SameLine();
     if (ImGui::Button("Добавить группу"))
     {
-        graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal();
-        graphical->popup_add_merged_lesson_to_journal->sync_data(graphical, journal);
+        graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
     }
     ImGui::SameLine();
     if (ImGui::Button("Ученики"))
     {
-        graphical->subwindow_students_list = new Subwindow_Students_List();
-        graphical->subwindow_students_list->sync_data(graphical, journal);
+        graphical->subwindow_students_list = new Subwindow_Students_List(graphical);
     }
     ImGui::SameLine();
     if (ImGui::Button("Группы"))
     {
-        graphical->subwindow_lessons_list = new Subwindow_Lessons_List();
-        graphical->subwindow_lessons_list->sync_data(graphical, journal);
+        graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
     ImGui::SameLine();
     ImGui::Button("Журнал оплаты");
@@ -264,7 +261,7 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
     std::string add_student_button_name = generate_label("Добавить ученика##", {merged_lesson_id});
     if (ImGui::Button(add_student_button_name.c_str()))
     {
-        graphical->popup_add_student_to_group = new Popup_Add_Student_To_Group(merged_lesson, merged_lesson_id, graphical->wday);
+        graphical->popup_add_student_to_group = new Popup_Add_Student_To_Group(graphical, merged_lesson, merged_lesson_id, graphical->wday);
     }
 }
 
@@ -289,7 +286,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         std::tm current_lesson_time = { 0, 0, 0, 
         journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
         Lesson lesson = {merged_lesson_id, 0};
-        graphical->popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+        graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
     }
     ImGui::SameLine(0.0f, 2.0f);
     if (!graphical->edit_mode && merged_lesson.get_lessons_size() == 2 && ImGui::Button(second_lesson_name.c_str()))
@@ -297,7 +294,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         std::tm current_lesson_time = { 0, 0, 0, 
         journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
         Lesson lesson = {merged_lesson_id, 1};
-        graphical->popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+        graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
     } 
     if (disabled) ImGui::EndDisabled();
 
@@ -320,7 +317,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
             {
                 std::tm current_lesson_time = { 0, 0, 0,
                         graphical->visible_days[day_id].number - MDAY_DIFF, journal->current_month(), journal->current_year() };
-                graphical->popup_add_working_out = new Popup_Add_Working_Out(current_lesson_time, lesson, &merged_lesson);
+                graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
             }
         }
     }

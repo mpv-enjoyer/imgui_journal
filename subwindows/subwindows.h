@@ -9,11 +9,6 @@ protected:
     bool edit_mode = false;
 public:
     Subwindow() { };
-    void sync_data(Graphical* _graphical, Journal* _journal)
-    {
-        graphical = _graphical;
-        journal = _journal;
-    }
 };
 
 #include "students_list.h"

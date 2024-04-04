@@ -2,7 +2,11 @@
 
 int main(int, char**)
 {
-    Render render;
+    Journal journal;
+    if (!journal.load()) journal.generate_current();
+    Graphical graphical(journal);
+    Render render(&journal, &graphical);
     render.main_loop();
+    journal.save();
     return 0;
 }

@@ -5,7 +5,8 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-Render::Render()
+Render::Render(Journal* _journal, Graphical *_graphical)
+ : journal(_journal), graphical(_graphical), mainwindow(graphical)
 {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -57,9 +58,8 @@ Render::Render()
         throw std::invalid_argument("TTF: cannot find segoeni.ttf");
     }
     #endif //not supporting apple platform
-    if (!journal.load()) journal.generate_current();
 
-    graphical.mainwindow->sync_data(&graphical, &journal);
+    graphical->mainwindow = &mainwindow;
 }
 
 void Render::main_loop()
@@ -97,7 +97,7 @@ void Render::show_frame()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    graphical.mainwindow->show_frame();
+    graphical->mainwindow->show_frame();
     show_subwindows();
     show_popups();
 
@@ -120,6 +120,5 @@ void Render::prepare_shutdown()
 
     glfwDestroyWindow(window);
     glfwTerminate();
-    journal.save();
 }
 

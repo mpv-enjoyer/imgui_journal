@@ -171,6 +171,7 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
     current->set_group(PTRREF(group));
     std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
     int new_merged_lesson_known_id = _emplace_lesson_info(wday, PTRREF(current));
+    lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, current);
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (int i = 0; i < affected_days.size(); i++)
     {

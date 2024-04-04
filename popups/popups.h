@@ -15,11 +15,6 @@ public:
     void ok() { accept_edit = true; }
     void error(std::string desc) { last_error = "ошибка: " + desc; }
     void print_error() { ImGui::TextDisabled(last_error.c_str()); }
-    void sync_data(Graphical* _graphical, Journal* _journal)
-    {
-        graphical = _graphical;
-        journal = _journal;
-    }
 };
 
 #include "add_merged_lesson_to_journal.h"

@@ -1,9 +1,10 @@
 #include "students_list.h"
 #include "../render/render.h"
 
-Subwindow_Students_List::Subwindow_Students_List()
+Subwindow_Students_List::Subwindow_Students_List(Graphical* _graphical)
 {
-
+    graphical = _graphical;
+    journal = &(graphical->journal);
 }
 
 void Subwindow_Students_List::update_lessons_per_student()
@@ -39,8 +40,7 @@ bool Subwindow_Students_List::show_frame()
 
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
-        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base();
-        graphical->popup_add_student_to_base->sync_data(graphical, journal);
+        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
     } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))

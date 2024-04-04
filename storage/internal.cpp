@@ -8,7 +8,7 @@ std::vector<_Day_With_Info> Journal::_enumerate_days(int day_of_the_week)
     for ( ; day <= day_count; day+=7)
     {
         _Day_With_Info current;
-        current.day = _day(day);
+        current.day = _day(day - MDAY_DIFF);
         current.number = day;
         current.is_future = day > _current_time.tm_mday;
         current.is_today = day == _current_time.tm_mday;

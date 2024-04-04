@@ -12,7 +12,7 @@ private:
     int contract = 0;
     int age_group = 0;
 public:
-    Popup_Add_Student_To_Base() {};
+    Popup_Add_Student_To_Base(Graphical* graphical);
     bool show_frame();
     bool is_ok_possible() 
     {

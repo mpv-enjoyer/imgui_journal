@@ -37,7 +37,7 @@ private:
     };
     Picker picker;
 public:
-    Popup_Add_Working_Out(const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
+    Popup_Add_Working_Out(Graphical* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
     void update_possible_lessons();
     bool show_frame();
     bool is_ok_possible(bool is_calendar_filled);

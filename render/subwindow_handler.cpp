@@ -13,7 +13,7 @@
 
 bool Render::show_subwindows()
 {
-    DEFAULT_SUBWINDOW_HANDLER(graphical.subwindow_lessons_list);
-    DEFAULT_SUBWINDOW_HANDLER(graphical.subwindow_students_list);
+    DEFAULT_SUBWINDOW_HANDLER(graphical->subwindow_lessons_list);
+    DEFAULT_SUBWINDOW_HANDLER(graphical->subwindow_students_list);
     return false;
 }
