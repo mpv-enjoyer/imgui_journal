@@ -261,7 +261,8 @@ void Journal::append_workout_students(Day_With_Info visible_day, Lesson lesson, 
         if (!is_in_vector) workout_students.push_back(current_workout_student);
     }
 }
-bool match_lesson_types(int l, int r)
+
+bool Journal::_match_lesson_types(int l, int r)
 {
     if (l == r) return true;
     if (l == NAME_DESIGN && r == NAME_SPECIALCOURSE) return true;
@@ -270,6 +271,7 @@ bool match_lesson_types(int l, int r)
     if (l == NAME_DRAWING && r == NAME_DESIGN) return true;
     return false;
 }
+
 const bool Journal::is_workout_possible(const Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
 {
     const Student* current_student = student(student_id);
@@ -280,7 +282,7 @@ const bool Journal::is_workout_possible(const Lesson_Info* select_lesson, int se
     if (!select_lesson->should_attend(internal_student_id, select_internal_lesson)) return false;
     const Lesson_Pair pair = select_lesson->get_lesson_pair(select_internal_lesson);
     int current_lesson_name_id = pair.lesson_name_id;
-    if (match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
+    if (_match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
         return true;
     return false;
 }

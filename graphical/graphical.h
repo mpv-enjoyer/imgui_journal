@@ -1,15 +1,17 @@
 #pragma once
 #include "../storage/journal.h"
 
-typedef Popup_Add_Merged_Lesson_To_Journal Popup_Add_Merged_Lesson_To_Journal;
-typedef Popup_Add_Student_To_Base Popup_Add_Student_To_Base;
-typedef Popup_Add_Student_To_Group Popup_Add_Student_To_Group;
-typedef Popup_Add_Working_Out Popup_Add_Working_Out;
-typedef Popup_Select_Day_Of_The_Week Popup_Select_Day_Of_The_Week;
-typedef Popup_Edit_Lesson Popup_Edit_Lesson;
+class Popup_Add_Merged_Lesson_To_Journal;
+class Popup_Add_Student_To_Base;
+class Popup_Add_Student_To_Group;
+class Popup_Add_Working_Out;
+class Popup_Select_Day_Of_The_Week;
+class Popup_Edit_Lesson;
 
-typedef Subwindow_Students_List Subwindow_Students_List;
-typedef Subwindow_Lessons_List Subwindow_Lessons_List;
+class Subwindow_Students_List;
+class Subwindow_Lessons_List;
+
+class Mainwindow;
 
 class Graphical
 {
@@ -27,6 +29,8 @@ public:
     Subwindow_Students_List* subwindow_students_list = nullptr;
     Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
 
+    Mainwindow* mainwindow = nullptr;
+
     Journal& journal;
 
     Graphical(Journal& main_journal);
@@ -35,4 +39,9 @@ public:
     const bool& edit_mode = std::ref(_edit_mode);
     void select_wday(int wday);
     void set_edit_mode(bool value);
+
+    bool attend_data(std::string label, Attend_Data *attend_data, std::string first_lesson_name, std::string second_lesson_name);
+    bool button_selectable(const char *label, bool selected, bool small);
+    bool button_dangerous(const char *label);
+    bool input_time(std::string label, JTime &time);
 };

@@ -40,6 +40,7 @@ bool Subwindow_Students_List::show_frame()
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
         graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base();
+        graphical->popup_add_student_to_base->sync_data(graphical, journal);
     } 
     ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))

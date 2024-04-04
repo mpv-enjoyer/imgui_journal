@@ -19,7 +19,7 @@ private:
 public:
     Popup_Add_Student_To_Group(const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
-    const Student* get_added_student() { IM_ASSERT(check_ok()); return Journal::student(current_selected_student); };
+    const Student* get_added_student() { IM_ASSERT(check_ok()); return journal->student(current_selected_student); };
     const Group* get_current_group() { IM_ASSERT(check_ok()); return &current_group; };
     bool show_frame();
     bool is_ok_possible(bool select_visible) 

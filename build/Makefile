@@ -22,8 +22,9 @@ POPUP_DIR = ../popups
 RENDR_DIR = ../render
 STORG_DIR = ../storage
 SBWIN_DIR = ../subwindows
+GRAPH_DIR = ../graphical
 
-SOURCES = ../mainwindow.cpp
+SOURCES = ../main.cpp
 
 SOURCES += $(wildcard $(HELPR_DIR)/*.cpp)
 SOURCES += $(wildcard $(IMGUI_DIR)/*.cpp)
@@ -32,6 +33,7 @@ SOURCES += $(wildcard $(POPUP_DIR)/*.cpp)
 SOURCES += $(wildcard $(RENDR_DIR)/*.cpp)
 SOURCES += $(wildcard $(STORG_DIR)/*.cpp)
 SOURCES += $(wildcard $(SBWIN_DIR)/*.cpp)
+SOURCES += $(wildcard $(GRAPH_DIR)/*.cpp)
 
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp 
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
@@ -116,6 +118,9 @@ LIBS += $(BOOST_LIBS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(SBWIN_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(GRAPH_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/misc/cpp/%.cpp

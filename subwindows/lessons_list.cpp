@@ -2,7 +2,7 @@
 
 Subwindow_Lessons_List::Subwindow_Lessons_List()
 { 
-
+    
 };
 
 bool Subwindow_Lessons_List::show_frame()

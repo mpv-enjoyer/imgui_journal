@@ -5,35 +5,7 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-void Render::main_loop()
-{
-    while (!glfwWindowShouldClose(window))
-    {
-        if (poll_time >= ImGui::GetTime())
-        {
-            glfwPollEvents();
-        }
-        else
-        {
-            //glfwWaitEvents();
-            glfwPollEvents();
-            //bool should_update = io->MouseDelta.x && io->MouseDelta.y;
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
-            //if (!should_update) continue;
-        }
-        show_frame();
-    }
-}
-
-void Render::set_update_time(int ms)
-{
-    if (poll_time > ms) return;
-    poll_time = ms + ImGui::GetTime();
-}
-
-void Render::prepare_first_frame()
+Render::Render()
 {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -85,20 +57,37 @@ void Render::prepare_first_frame()
         throw std::invalid_argument("TTF: cannot find segoeni.ttf");
     }
     #endif //not supporting apple platform
+    if (!journal.load()) journal.generate_current();
 
-    Journal::init();
-    if (!Journal::load()) Journal::generate_current();
-    Graphical::init();
+    graphical.mainwindow->sync_data(&graphical, &journal);
+}
 
-    Graphical::popup_add_student_to_group() = nullptr;
-    Graphical::popup_select_day_of_the_week() = nullptr;
-    Graphical::popup_add_merged_lesson_to_journal() = nullptr;
-    Graphical::popup_add_working_out() = nullptr;
-    Graphical::popup_add_student_to_base() = nullptr;
-    Graphical::popup_confirm() = nullptr;
+void Render::main_loop()
+{
+    while (!glfwWindowShouldClose(window))
+    {
+        if (poll_time >= ImGui::GetTime())
+        {
+            glfwPollEvents();
+        }
+        else
+        {
+            //glfwWaitEvents();
+            glfwPollEvents();
+            //bool should_update = io->MouseDelta.x && io->MouseDelta.y;
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
+            //if (!should_update) continue;
+        }
+        show_frame();
+    }
+}
 
-    Graphical::subwindow_students_list() = nullptr;
-    Graphical::subwindow_lessons_list() = nullptr;
+void Render::set_update_time(int ms)
+{
+    if (poll_time > ms) return;
+    poll_time = ms + ImGui::GetTime();
 }
 
 void Render::show_frame()
@@ -107,46 +96,11 @@ void Render::show_frame()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Журнал версии 0.1.0", nullptr, WINDOW_FLAGS);
 
-    Render::show_subwindows();
-    Render::show_popups();
+    graphical.mainwindow->show_frame();
+    show_subwindows();
+    show_popups();
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar;
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-    if(ImGui::Button("Изменить день"))
-        Graphical::popup_select_day_of_the_week() = new Popup_Select_Day_Of_The_Week(Graphical::wday());
-    ImGui::SameLine();
-    if (ImGui::Button("Добавить группу"))
-        Graphical::popup_add_merged_lesson_to_journal() = new Popup_Add_Merged_Lesson_To_Journal(Graphical::wday());
-    ImGui::SameLine();
-    if (ImGui::Button("Ученики") )
-        Graphical::subwindow_students_list() = new Subwindow_Students_List();
-    ImGui::SameLine();
-    if (ImGui::Button("Группы"))
-        Graphical::subwindow_lessons_list() = new Subwindow_Lessons_List();
-    ImGui::SameLine();
-    ImGui::Button("Журнал оплаты");
-    ImGui::SameLine();
-    ImGui::Button("Справка");
-    ImGui::SameLine();
-    bool edit_mode = Graphical::is_edit_mode();
-    if (ImGui::Checkbox("Режим редактирования", &edit_mode))
-        Graphical::set_edit_mode(edit_mode);
-    ImGui::Text("Выбран день %s, %s текущего года", Journal::Wday_name(Graphical::wday()).c_str(), Journal::Month_name(Journal::current_month()).c_str());
-    ImGui::BeginChild("Child", ImVec2(0, -20), true, window_flags);
-    if (Journal::lesson_info_count(Graphical::wday()) == 0) 
-        ImGui::Text("На текущий день не запланированы уроки.");
-    for (int merged_lesson_id = 0; merged_lesson_id < Journal::lesson_info_count(Graphical::wday()); merged_lesson_id++)
-    {
-        Elements::table(merged_lesson_id);
-    }
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
-    ImGui::End();
     // Rendering
     ImGui::Render();
     int display_w, display_h;
@@ -166,6 +120,6 @@ void Render::prepare_shutdown()
 
     glfwDestroyWindow(window);
     glfwTerminate();
-    Journal::save();
+    journal.save();
 }
 

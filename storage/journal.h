@@ -1,5 +1,6 @@
 #pragma once
 #include "../main_types/main_types.h"
+#include "../helpers/helpers.h"
 
 #define NAME_DRAWING 0
 #define NAME_SCULPTING 1
@@ -66,6 +67,7 @@ class Journal
     Calendar_Day* _day(int mday);
     int _discount_status(int student_contract);
     int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
+    bool _match_lesson_types(int l, int r);
 
     int _current_year;
     int _current_month;
@@ -75,13 +77,8 @@ class Journal
     std::vector<Group*> _all_groups;
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
-
 public:
     Journal();
-
-    const int LESSON_TYPE_COUNT = 5;
-    const int LESSON_PRICES_COUNT = 3;
-    const int AGE_GROUP_COUNT = 8;
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);

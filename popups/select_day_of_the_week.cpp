@@ -1,8 +1,8 @@
 #include "select_day_of_the_week.h"
 
-Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(int current_day_of_the_week)
+Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week()
 {
-    day_of_the_week = current_day_of_the_week;
+    day_of_the_week = graphical->wday;
     month = journal->current_month();
     year = journal->current_year() + 1900;
 }
@@ -32,7 +32,7 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
     return false;
 }
 
-void Popup_Select_Day_Of_The_Week::accept_changes(int& current_day_of_the_week)
+void Popup_Select_Day_Of_The_Week::accept_changes()
 {
     graphical->select_wday(get_day_of_the_week());
     journal->set_date(month, get_year());

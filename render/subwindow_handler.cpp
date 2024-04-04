@@ -1,25 +1,19 @@
 #include "render.h"
 
+#define DEFAULT_SUBWINDOW_HANDLER(N) \
+    if (N) \
+    { \
+        if (N->show_frame()) \
+        { \
+            free(N); \
+            N = nullptr; \
+        } \
+        return true; \
+    } 
+
 bool Render::show_subwindows()
 {
-    bool active = false;
-    if (Graphical::subwindow_students_list())
-    {
-        active = true;
-        if (Graphical::subwindow_students_list()->show_frame())
-        {
-            free(Graphical::subwindow_students_list());
-            Graphical::subwindow_students_list() = nullptr;
-        }
-    }
-    if (Graphical::subwindow_lessons_list())
-    {
-        active = true;
-        if (Graphical::subwindow_lessons_list()->show_frame())
-        {
-            free(Graphical::subwindow_lessons_list());
-            Graphical::subwindow_lessons_list() = nullptr;
-        }
-    }
-    return active;
+    DEFAULT_SUBWINDOW_HANDLER(graphical.subwindow_lessons_list);
+    DEFAULT_SUBWINDOW_HANDLER(graphical.subwindow_students_list);
+    return false;
 }
