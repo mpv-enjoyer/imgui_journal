@@ -22,7 +22,7 @@ private:
     int caller_lesson_name_id = -1;
     const Lesson_Info* caller_lesson_info;
     std::vector<std::vector<Lesson>> possible_lessons;
-    const Group& current_group = caller_lesson_info->get_group();
+    const Group* current_group;
     class Picker
     {
         ImGuiTextFilter filter;

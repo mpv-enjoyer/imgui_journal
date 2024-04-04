@@ -8,6 +8,9 @@ Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
 
 bool Subwindow_Lessons_List::show_frame()
 {
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Список всех групп", nullptr, WINDOW_FLAGS);
     if (ImGui::Button("Вернуться к журналу"))
     {

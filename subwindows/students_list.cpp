@@ -5,6 +5,7 @@ Subwindow_Students_List::Subwindow_Students_List(Graphical* _graphical)
 {
     graphical = _graphical;
     journal = &(graphical->journal);
+    update_lessons_per_student();
 }
 
 void Subwindow_Students_List::update_lessons_per_student()
@@ -36,8 +37,10 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
 
 bool Subwindow_Students_List::show_frame()
 {
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Список всех учеников", nullptr, WINDOW_FLAGS);
-
     if (ImGui::Button("Добавить ученика##в общий список"))
     {
         graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
@@ -53,6 +56,10 @@ bool Subwindow_Students_List::show_frame()
     ImGui::Checkbox("Режим редактирования", &edit_mode);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
+
+    if (lessons_per_student.size() != journal->student_count())
+        update_lessons_per_student();
+
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed, 300.0F);

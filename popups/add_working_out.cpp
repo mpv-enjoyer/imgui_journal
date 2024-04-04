@@ -4,12 +4,14 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
 {
     graphical = _graphical;
     journal = &(graphical->journal);
+    caller_lesson_info = current_lesson_info;
+    current_group = &(caller_lesson_info->get_group());
     std::vector<std::string> possible_student_descriptions;
     std::vector<int> possible_student_ids;
     for (int i = 0; i < journal->student_count(); i++)
     {
         if (journal->student(i)->is_removed()) continue;
-        if (current_group.is_in_group(PTRREF(journal->student(i))) && !current_group.is_deleted(PTRREF(journal->student(i)))) continue;
+        if (current_group->is_in_group(PTRREF(journal->student(i))) && !current_group->is_deleted(PTRREF(journal->student(i)))) continue;
         bool was_found = false;
         for (int j = 0; j < journal->day(current_lesson_time.tm_mday)->get_workout_size(current_lesson); j++)
         {
@@ -33,7 +35,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
     caller_year = current_lesson_time.tm_year;
     int caller_wday = get_wday(caller_mday, caller_month, caller_year);
     caller_lesson_name_id = journal->lesson_info(caller_wday, current_lesson.merged_lesson_id)->get_lesson_pair(current_lesson.internal_lesson_id).lesson_name_id;
-    caller_lesson_info = current_lesson_info;
+    
 }
 
 void Popup_Add_Working_Out::update_possible_lessons()
