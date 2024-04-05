@@ -16,11 +16,6 @@ bool Popup_Add_Student_To_Base::show_frame()
         {
             if (contract < 0) contract = 0;
         }
-        ImGui::Checkbox("Указать возрастную группу", &is_date_visible);
-        if (is_date_visible)
-        {
-            ImGui::Combo("##Возрастная группа", &age_group, Age_Group_Names_Combo);
-        }
         ImGui::PopStyleColor(1);
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();

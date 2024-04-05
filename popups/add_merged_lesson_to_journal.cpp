@@ -43,6 +43,15 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
             if (group_number < 0) group_number = 0;
         };
         ImGui::InputText("Описание", &group_comment);
+        bool is_age_group_visible = age_group != -1;
+        if (ImGui::Checkbox("Указать возрастную группу", &is_age_group_visible))
+        {
+            age_group = is_age_group_visible ? 0 : -1;
+        }
+        if (is_age_group_visible)
+        {
+            ImGui::Combo("##Возрастная группа", &age_group, Age_Group_Names_Combo);
+        }
         ImGui::PopStyleColor();
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
@@ -99,5 +108,5 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
     }
     else lesson_pairs.erase(lesson_pairs.begin() + 1);
 
-    journal->add_merged_lesson(day_of_the_week, group_number, group_comment, 0, lesson_pairs);
+    journal->add_merged_lesson(day_of_the_week, group_number, group_comment, age_group, lesson_pairs);
 }

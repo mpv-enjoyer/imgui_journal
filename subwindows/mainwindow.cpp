@@ -196,12 +196,6 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
             price_sum += price;
             ImGui::TextDisabled(std::to_string(price).c_str());
         }
-        else 
-        {
-            const Student& student = merged_lesson->get_group().get_student(internal_student_id);
-            const int lesson_type = merged_lesson->get_lesson_pair(internal_lesson).lesson_name_id;
-            price_sum += journal->lesson_common_price(student.get_contract(), lesson_type);
-        }
         ImGui::EndGroup();
         ImGui::SameLine(0.0f, 2.0f);
     }

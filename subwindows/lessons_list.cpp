@@ -22,7 +22,7 @@ bool Subwindow_Lessons_List::show_frame()
     ImGui::Checkbox("Режим редактирования", &edit_mode);
     ImGui::PopStyleColor();
     ImGui::Text("Список всех групп");
-    if (ImGui::BeginTable("##Список групп", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
+    if (ImGui::BeginTable("##Список групп", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
         ImGui::TableSetupColumn("День недели");
         ImGui::TableSetupColumn("Группа");
@@ -41,13 +41,13 @@ bool Subwindow_Lessons_List::show_frame()
                 ImGui::TableSetColumnIndex(0); ImGui::Text(Day_Names[wday].c_str());
                 ImGui::TableSetColumnIndex(1);
                 std::string comment_input_buffer = current_group.get_comment();
-                std::string comment_label = generate_label("input_comment", {wday, merged_lesson_id});
+                std::string comment_label = generate_label("##input_comment", {wday, merged_lesson_id});
                 if (ImGui::InputText(comment_label.c_str(), &comment_input_buffer))
                 {
                     journal->set_group_comment(wday, merged_lesson_id, comment_input_buffer);
                 }
                 int number_input_buffer = current_group.get_number();
-                std::string number_label = generate_label("input_number", {wday, merged_lesson_id});
+                std::string number_label = generate_label("##input_number", {wday, merged_lesson_id});
                 if (ImGui::InputInt(number_label.c_str(), &number_input_buffer))
                 {
                     journal->set_group_number(wday, merged_lesson_id, number_input_buffer);

@@ -10,7 +10,6 @@ private:
     std::string name = "";
     bool is_date_visible = false;
     int contract = 0;
-    int age_group = 0;
 public:
     Popup_Add_Student_To_Base(Graphical* graphical);
     bool show_frame();

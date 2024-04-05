@@ -60,11 +60,11 @@ bool Subwindow_Students_List::show_frame()
     if (lessons_per_student.size() != journal->student_count())
         update_lessons_per_student();
 
-    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
+    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
-        ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed, 300.0F);
+        ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("No договора");
-        ImGui::TableSetupColumn("Группы");
+        ImGui::TableSetupColumn("Группы", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
@@ -121,10 +121,17 @@ bool Subwindow_Students_List::show_frame()
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
                 std::string first_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
-                std::string second_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
-                if (j_attend_data(label.c_str(), &cached_data, first_name, second_name))
+                if (current_lesson_info->get_lessons_size() == 2)
                 {
-                    journal->set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
+                    std::string second_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
+                    if (j_attend_data(label.c_str(), &cached_data, first_name, second_name))
+                    {
+                        journal->set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
+                    }
+                }
+                else
+                {
+                    ImGui::Text(first_name.c_str());
                 }
                 ImGui::AlignTextToFramePadding();
                 std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
@@ -132,6 +139,8 @@ bool Subwindow_Students_List::show_frame()
 
                 //TODO CRITICAL: deletion here?
                 ImGui::EndGroup();
+                if (i != lessons_per_student[student_id].size() - 1)
+                    ImGui::Separator();
             }
 
             ImGui::TableNextColumn();
