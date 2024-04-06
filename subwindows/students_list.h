@@ -9,7 +9,8 @@ class Subwindow_Students_List : public Subwindow
         int merged_lesson;
         int internal_student_id;
     };
-    std::vector<std::vector<Lesson_Info_Position>> lessons_per_student; 
+    std::vector<std::vector<Lesson_Info_Position>> lessons_per_student;
+    const bool edit_mode = true; 
 public:
     Subwindow_Students_List(Graphical* graphical);
     void update_lessons_per_student();

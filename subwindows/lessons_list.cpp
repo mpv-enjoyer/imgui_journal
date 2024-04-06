@@ -17,10 +17,6 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::End();
         return true;
     }
-    ImGui::SameLine();
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-    ImGui::Checkbox("Режим редактирования", &edit_mode);
-    ImGui::PopStyleColor();
     ImGui::Text("Список всех групп");
     if (ImGui::BeginTable("##Список групп", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {

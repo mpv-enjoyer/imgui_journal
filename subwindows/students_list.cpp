@@ -51,10 +51,6 @@ bool Subwindow_Students_List::show_frame()
         ImGui::End();
         return true;
     }
-    ImGui::SameLine();
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-    ImGui::Checkbox("Режим редактирования", &edit_mode);
-    ImGui::PopStyleColor();
     ImGui::Text("Список всех учеников");
 
     if (lessons_per_student.size() != journal->student_count())
@@ -62,9 +58,9 @@ bool Subwindow_Students_List::show_frame()
 
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
-        ImGui::TableSetupColumn("Фамилия и имя", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("No договора");
-        ImGui::TableSetupColumn("Группы", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Группы");
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
