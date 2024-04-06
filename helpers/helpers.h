@@ -57,9 +57,9 @@ bool j_attendance_combo(const char* label, int* status, std::string tooltip = ""
 bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name);
 template <typename T = int>
 bool is_in_vector(std::vector<T> vector, T to_find);
-int calculate_first_mwday(int current_mday, int current_wday);
 int get_first_wday(int month, int year, int wday);
-int get_number_of_days(int month, int year);
+int get_number_of_days(int month, int year_starting_from_zero);
+int get_first_mwday(int month, int year);
 int get_wday(int day, int month, int year);
 void HelpMarker(const char* desc);
 

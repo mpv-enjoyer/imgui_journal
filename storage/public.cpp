@@ -159,7 +159,7 @@ void Journal::add_student_to_base(std::string name, int contract)
 }
 void Journal::add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs)
 {
-    IM_ASSERT(wday >= 0 && wday <= 6 && number >= 0 && age_group >= 0 && age_group <= AGE_GROUP_COUNT);
+    IM_ASSERT(wday >= 0 && wday <= 6 && number >= 0 && age_group >= -1 && age_group <= AGE_GROUP_COUNT);
     Group* group = new Group();
     group->set_age_group(age_group);
     group->set_comment(comment);

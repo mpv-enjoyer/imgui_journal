@@ -25,7 +25,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
     picker = Picker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
     const auto current_time = journal->current_time;
-    first_mwday = calculate_first_mwday(current_time.tm_mday, current_time.tm_wday);
+    first_mwday = get_first_mwday(journal->current_month(), journal->current_year());
     count_mday = get_number_of_days(current_time.tm_mon, current_time.tm_year + 1900);
     select_month = current_time.tm_mon;
     select_year = current_time.tm_year;

@@ -248,9 +248,10 @@ void HelpMarker(const char* desc)
     }
 };
 
-int get_number_of_days(int month, int year)
+int get_number_of_days(int month, int year_starting_from_zero)
 {
     month++;
+    int year = year_starting_from_zero;
     // leap year condition, if month is 2
     if (month == 2) {
         if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
@@ -266,11 +267,9 @@ int get_number_of_days(int month, int year)
         return 30;
 }
 
-int calculate_first_mwday(int current_mday, int current_wday)
+int get_first_mwday(int month, int year)
 {
-    int first_same = ((current_mday - 1) % 7) + 1;
-    int diff = first_same - 1;
-    return (current_wday - diff + 7) % 7;
+    return get_wday(0, month, year);
 }
 
 int get_first_wday(int month, int year, int wday)

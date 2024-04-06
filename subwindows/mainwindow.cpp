@@ -167,8 +167,7 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
     if (!enabled) ImGui::BeginDisabled();
     const Calendar_Day* day = visible_day.day;
     const int mday = visible_day.number - MDAY_DIFF;
-    const int wday = journal->wday(mday);
-    const Lesson_Info* merged_lesson = journal->lesson_info(wday, merged_lesson_id);
+    const Lesson_Info* merged_lesson = journal->lesson_info(graphical->wday, merged_lesson_id);
     int price_sum = 0;
     for (int internal_lesson = 0; internal_lesson < merged_lesson->get_lessons_size(); internal_lesson++)
     {
