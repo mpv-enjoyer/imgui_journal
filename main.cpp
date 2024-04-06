@@ -2,6 +2,7 @@
 
 int main(int, char**)
 {
+    { Test_Journal t; }
     Journal journal;
     if (!journal.load()) journal.generate_current();
     Graphical graphical(journal);

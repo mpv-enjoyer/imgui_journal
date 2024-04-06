@@ -8,8 +8,19 @@
 #define NAME_TECHDRAWING 3
 #define NAME_SPECIALCOURSE 4
 
+class Test_Journal
+{
+    void add_student();
+    void add_merged_lesson();
+    void add_workout();
+    void discount();
+public:
+    Test_Journal();
+};
+
 class Journal
 {
+    friend Test_Journal;
     const std::array<std::string, LESSON_TYPE_COUNT> _lesson_names =
         {"ИЗО", 
         "Лепка",

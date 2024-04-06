@@ -31,6 +31,7 @@ int Journal::_discount_status(int student_contract)
         if (student->get_contract() == student_contract && !student->is_removed())
             output++;
     }
+    if (output > 0) output--;
     return output;
 }
 
