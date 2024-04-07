@@ -37,5 +37,8 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
 void Popup_Select_Day_Of_The_Week::accept_changes()
 {
     graphical->select_wday(get_day_of_the_week());
+    if (month == journal->current_month() && get_year() == journal->current_year())
+        return;
     journal->set_date(month, get_year());
+    journal->load();
 }

@@ -89,6 +89,8 @@ class Journal
     std::vector<Group*> _all_groups;
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
+
+    bool _generated = false;
 public:
     Journal();
 
@@ -140,4 +142,6 @@ public:
     void save();
     bool load();
     void generate();
+    bool is_generated();
+    bool is_full_access();
 };

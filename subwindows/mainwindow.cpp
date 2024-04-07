@@ -37,6 +37,15 @@ void Mainwindow::show_frame()
         graphical->set_edit_mode(edit_mode);
     ImGui::Text("Выбран день %s, %s текущего года", journal->Wday_name(graphical->wday).c_str(), journal->Month_name(journal->current_month()).c_str());
     ImGui::BeginChild("Child", ImVec2(0, -20), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
+    if (!journal->is_generated())
+    {
+        ImGui::Text("У текущего месяца нет журнала.\n"
+                    "Нажмите на кнопку ниже для создания...");
+        if (ImGui::Button("Создать журнал"))
+            journal->generate();
+        ImGui::End();
+        return;
+    }
     if (journal->lesson_info_count(graphical->wday) == 0) 
         ImGui::Text("На текущий день не запланированы уроки.");
     for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)

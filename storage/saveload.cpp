@@ -17,23 +17,35 @@ void Journal::save()
 
 bool Journal::load()
 {
+    _all_days.clear();
+    _all_groups.clear();
+    _all_lessons.clear();
+    _all_students.clear();
     std::ifstream ifs(generate_file_name(_current_month, _current_year));
-    if (ifs.fail()) return false;
+    if (ifs.fail()) 
+    {
+        _generated = false;
+        return false;
+    }
     boost::archive::text_iarchive ia(ifs);
     ia >> _all_students;
     ia >> _all_groups;
     ia >> _all_lessons;
     ia >> _all_days;
+    _generated = true;
+    //TODO: repair workout pointers
     return true;
 }
 
 void Journal::generate()
 {
+    _generated = true;
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
     _all_students.clear();
     //TODO CRITICAL: Look up for workouts and repair their pointers
+    //TODO: Do not expect 
     bool surpass_year = _current_month == 0;
     int previous_month = (_current_month + 12 - 1) % 12;
     int previous_year = surpass_year ? _current_year - 1 : _current_year;
@@ -52,4 +64,18 @@ void Journal::generate()
     throw std::invalid_argument("not implemented");
     //TODO: do not forget to add _days for imported previous Lesson_Info
     //TODO: also looks like I only need to have all_lessons in my inter_month save files
+}
+
+bool Journal::is_generated()
+{
+    return _generated;
+}
+
+//Limited access should be given to other months to prevent weird behaviour.
+//Limited access will allow to:
+// set status
+// set/unset workouts
+bool Journal::is_full_access()
+{
+    return _current_month == current_time.tm_mon && _current_year == current_time.tm_year;
 }
