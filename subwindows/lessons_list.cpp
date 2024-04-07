@@ -17,6 +17,11 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::End();
         return true;
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Добавить группу"))
+    {
+        graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
+    }
     ImGui::Text("Список всех групп");
     if (ImGui::BeginTable("##Список групп", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {

@@ -5,13 +5,17 @@ std::vector<_Day_With_Info> Journal::_enumerate_days(int day_of_the_week)
     std::vector<_Day_With_Info> output;
     int day = get_first_wday(_current_month, _current_year, day_of_the_week);
     int day_count = get_number_of_days(_current_month, _current_year);
+    std::tm temp;
+    temp.tm_mon = _current_month;
+    temp.tm_year = _current_year;
     for ( ; day <= day_count; day+=7)
     {
+        temp.tm_mday = day;
         _Day_With_Info current;
         current.day = _day(day - MDAY_DIFF);
         current.number = day;
-        current.is_future = day > _current_time.tm_mday;
-        current.is_today = day == _current_time.tm_mday;
+        current.is_future = current_time < temp;
+        current.is_today = current_time == temp;
         output.push_back(current);
     }
     return output;

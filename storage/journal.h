@@ -14,6 +14,7 @@ class Test_Journal
     void add_merged_lesson();
     void add_workout();
     void discount();
+    void merged_lesson_sort();
 public:
     Test_Journal();
 };
@@ -138,5 +139,5 @@ public:
 
     void save();
     bool load();
-    void generate_current();
+    void generate();
 };

@@ -27,7 +27,7 @@ bool Journal::load()
     return true;
 }
 
-void Journal::generate_current()
+void Journal::generate()
 {
     _all_days.clear();
     _all_groups.clear();

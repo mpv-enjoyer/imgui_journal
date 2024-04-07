@@ -9,7 +9,6 @@ struct JTime //used separately with ctime.
 
 struct Group_Pair
 {
-    //int day_of_the_week; //not sure if it's used anywhere
     int number;
     int age_group;
 };
@@ -43,6 +42,18 @@ inline bool operator> (const JTime& lhs, const JTime& rhs) { return rhs < lhs; }
 inline bool operator<=(const JTime& lhs, const JTime& rhs) { return !(lhs > rhs); }
 inline bool operator>=(const JTime& lhs, const JTime& rhs) { return !(lhs < rhs); }
 
+inline bool operator==(const std::tm& lhs, const std::tm& rhs) { return lhs.tm_mday == rhs.tm_mday && lhs.tm_mon == rhs.tm_mon && lhs.tm_year == rhs.tm_year; }
+inline bool operator!=(const std::tm& lhs, const std::tm& rhs) { return !(lhs == rhs); }
+inline bool operator< (const std::tm& lhs, const std::tm& rhs)
+{
+    if (lhs.tm_year != rhs.tm_year) return lhs.tm_year < rhs.tm_year;
+    if (lhs.tm_mon != rhs.tm_mon) return lhs.tm_mon < rhs.tm_mon;
+    return lhs.tm_mday < rhs.tm_mday;
+}
+inline bool operator> (const std::tm& lhs, const std::tm& rhs) { return rhs < lhs; }
+inline bool operator<=(const std::tm& lhs, const std::tm& rhs) { return !(lhs > rhs); }
+inline bool operator>=(const std::tm& lhs, const std::tm& rhs) { return !(lhs < rhs); }
+
 const char* c_str_int(int num);
 std::string to_string(JTime value);
 std::string to_string(JTime begin, JTime end);
@@ -62,19 +73,3 @@ int get_number_of_days(int month, int year_starting_from_zero);
 int get_first_mwday(int month, int year);
 int get_wday(int day, int month, int year);
 void HelpMarker(const char* desc);
-
-/*template<class Archive>
-void serialize(Archive & ar, std::tm & g, const unsigned int version)
-{
-    ar & g.tm_gmtoff;
-    ar & g.tm_hour;
-    ar & g.tm_isdst;
-    ar & g.tm_mday;
-    ar & g.tm_min;
-    ar & g.tm_mon;
-    ar & g.tm_sec;
-    ar & g.tm_wday;
-    ar & g.tm_yday;
-    ar & g.tm_year;
-    ar & g.tm_zone;
-}*/

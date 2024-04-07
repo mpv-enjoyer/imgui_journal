@@ -17,12 +17,6 @@ void Mainwindow::show_frame()
     {
         graphical->popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(graphical);
     }
-        
-    ImGui::SameLine();
-    if (ImGui::Button("Добавить группу"))
-    {
-        graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
-    }
     ImGui::SameLine();
     if (ImGui::Button("Ученики"))
     {

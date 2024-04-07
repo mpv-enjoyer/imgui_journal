@@ -4,7 +4,7 @@ Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical
 {
     graphical = _graphical;
     journal = &(graphical->journal);
-    day_of_the_week = _graphical->wday;
+    day_of_the_week = CONVERT_TO_EN_CALENDAR(_graphical->wday);
     lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
 }
 
@@ -13,6 +13,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
     POPUP_INIT_FRAME(("Добавить группу на " + Day_Names[day_of_the_week]).c_str())
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        ImGui::Combo("День недели", &day_of_the_week, "Пн\0Вт\0Ср\0Чт\0Пт\0Сб\0Вс\0\0", 7);
         ImGui::Combo("Программа", &combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
         for (int i = 0; i < 2; i++)
         {
@@ -108,5 +109,6 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
     }
     else lesson_pairs.erase(lesson_pairs.begin() + 1);
 
+    day_of_the_week = CONVERT_TO_RU_CALENDAR(day_of_the_week);
     journal->add_merged_lesson(day_of_the_week, group_number, group_comment, age_group, lesson_pairs);
 }

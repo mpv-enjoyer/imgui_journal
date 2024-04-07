@@ -5,7 +5,7 @@ void Test_Journal::add_student()
 {
     Journal journal;
     journal.set_date(3, 2024 - 1900);
-    journal.generate_current();
+    journal.generate();
     journal.add_student_to_base("test_student", 10);
     IM_ASSERT(journal._all_students[0]->get_name() == "test_student");
     IM_ASSERT(journal._all_students[0]->get_age_group() == -1);
@@ -16,7 +16,7 @@ void Test_Journal::add_merged_lesson()
 {
     Journal journal;
     journal.set_date(3, 2024 - 1900);
-    journal.generate_current();
+    journal.generate();
     Lesson_Pair lesson_pair;
     lesson_pair.lesson_name_id = NAME_TECHDRAWING;
     lesson_pair.time_begin = (JTime){10, 40};
@@ -38,7 +38,7 @@ void Test_Journal::add_workout()
 {
     Journal journal;
     journal.set_date(3, 2024 - 1900);
-    journal.generate_current();
+    journal.generate();
     Lesson_Pair lesson_pair;
     lesson_pair.lesson_name_id = NAME_TECHDRAWING;
     lesson_pair.time_begin = (JTime){10, 40};
@@ -66,7 +66,7 @@ void Test_Journal::discount()
 {
     Journal journal;
     journal.set_date(3, 2024 - 1900);
-    journal.generate_current();
+    journal.generate();
     journal.add_student_to_base("test_student_1", 1);
     journal.add_student_to_base("test_student_2", 1);
     int discount_status = journal._discount_status(1);
@@ -85,11 +85,37 @@ void Test_Journal::discount()
     IM_ASSERT(journal.lesson_current_price({0, 0}, 0, 0) == 50);
 }
 
+void Test_Journal::merged_lesson_sort()
+{
+    Journal journal;
+    journal.set_date(3, 2024 - 1900);
+    journal.generate();
+    journal.add_student_to_base("test_student_1", 1);
+    journal.add_student_to_base("test_student_2", 1);
+    Lesson_Pair lesson_pair;
+    lesson_pair.lesson_name_id = NAME_TECHDRAWING;
+    lesson_pair.time_begin = (JTime){10, 40};
+    lesson_pair.time_end = (JTime){11, 25};
+    journal.add_merged_lesson(0, 1, "test_comment", -1, {lesson_pair});
+    journal.add_merged_lesson(0, 1, "test_comment", -1, {lesson_pair});
+    lesson_pair.time_begin = (JTime){12, 00};
+    lesson_pair.time_end = (JTime){12, 40};
+    journal.add_merged_lesson(0, 2, "test_comment", -1, {lesson_pair});
+    lesson_pair.time_begin = (JTime){9, 30};
+    lesson_pair.time_end = (JTime){10, 10};
+    journal.add_merged_lesson(0, 0, "test_comment", -1, {lesson_pair});
+    IM_ASSERT(journal.lesson_info(0, 0)->get_group().get_number() == 0);
+    IM_ASSERT(journal.lesson_info(0, 1)->get_group().get_number() == 1);
+    IM_ASSERT(journal.lesson_info(0, 2)->get_group().get_number() == 1);
+    IM_ASSERT(journal.lesson_info(0, 3)->get_group().get_number() == 2);
+}
+
 Test_Journal::Test_Journal()
 {
     add_merged_lesson();
     add_student();
     add_workout();
     discount();
+    merged_lesson_sort();
     std::cout << "All tests passed!";
 }

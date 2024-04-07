@@ -322,7 +322,7 @@ void Journal::remove_lesson(int wday, int merged_lesson_id)
 void Journal::restore_lesson(int wday, int merged_lesson_id)
 {
     _all_lessons[wday][merged_lesson_id]->restore();
-    //TODO CRITICAL: replace NAW's with zeros
+    //TODO: replace NAW's with zeros?
 }
 void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed)
 {

@@ -73,5 +73,5 @@ bool Student::is_identical(const Student& rhs) const
 
 bool Student::operator==(const Student& rhs) const { return this == &rhs; }
 bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
-bool Student::operator< (const Student& rhs) const { return name < rhs.get_name() || (name == rhs.get_name() && contract < rhs.get_contract()); }
-bool Student::operator> (const Student& rhs) const { return name > rhs.get_name() || (name == rhs.get_name() && contract > rhs.get_contract()); }
+bool Student::operator< (const Student& rhs) const { return contract < rhs.get_contract() || (contract == rhs.get_contract() && name < rhs.get_name()); }
+bool Student::operator> (const Student& rhs) const { return contract > rhs.get_contract() || (contract == rhs.get_contract() && name > rhs.get_name()); }
