@@ -90,6 +90,12 @@ class Journal
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
 
+    enum State
+    {
+        Empty,
+        Readonly,
+        Fullaccess
+    };
     bool _generated = false;
 public:
     Journal();
