@@ -73,6 +73,8 @@ const int LESSON_TYPE_COUNT = 5;
 const int LESSON_PRICES_COUNT = 3;
 const int AGE_GROUP_COUNT = 8;
 
+const int STUDY_YEAR_BEGIN_MONTH = 8;
+
 //TODO: remove
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
 const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";

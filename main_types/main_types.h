@@ -5,3 +5,4 @@
 #include "group.h"
 #include "lesson_info.h"
 #include "calendar_day.h"
+#include "workout_info.h"

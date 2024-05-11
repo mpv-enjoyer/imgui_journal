@@ -69,7 +69,7 @@ struct Student_Status
 struct Internal_Attendance_Status
 {
     std::vector<Student_Status> planned;
-    std::vector<Workout_Info>  workouts;
+    std::vector<Workout_Info> workouts;
     Internal_Attendance_Status() {};
 };
 
