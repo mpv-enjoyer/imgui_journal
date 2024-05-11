@@ -11,19 +11,20 @@ struct Workout_Info_
     Lesson should_lesson;
     std::tm should_attend;
 
-    bool operator==(const Workout_Info_ &other) const
-    {
-        return (student_id == other.student_id
-            && real_attend == other.real_attend
-            && should_attend == other.should_attend
-            && real_lesson == other.real_lesson
-            && should_lesson == other.should_lesson);
-    }
+
 };
 
 struct Workout_Hash_Container
 {
-    Workout_Info_* info;
+    const Workout_Info_* info;
+    bool operator==(const Workout_Hash_Container &other) const
+    {
+        return (info->student_id    == other.info->student_id
+            &&  info->real_attend   == other.info->real_attend
+            &&  info->should_attend == other.info->should_attend
+            &&  info->real_lesson   == other.info->real_lesson
+            &&  info->should_lesson == other.info->should_lesson);
+    }
 };
 
 struct Real_Workout_Hash

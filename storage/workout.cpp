@@ -47,3 +47,15 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     }
     return output;
 }
+
+void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
+{
+    //raw data access here!
+    Workout_Hash_Container container = { workout_info };
+    _real_hashes.erase(container); //TODO IMPORTANT: check if equal hashes are removed
+    _last_real_hashes.erase(container);
+    _should_hashes.erase(container);
+    int index = workout_info - _all_workouts.data();
+    auto iter = _all_workouts.begin() + index;
+    _all_workouts.erase(iter);
+}
