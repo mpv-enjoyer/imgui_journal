@@ -21,10 +21,11 @@ int get_mday_index_for_wday(int mday, int wday, int month, int year)
     return -1;
 }
 
-std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson real_lesson)
+std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson_Info* real_lesson_info, int real_internal_lesson)
 {
     Workout_Info_ request;
-    request.real_lesson = real_lesson;
+    request.real_lesson_info = real_lesson_info;
+    request.real_internal_lesson = real_internal_lesson;
     request.real_attend.tm_wday = real_wday;
     request.real_attend.tm_mon = real_month;
     Workout_Hash_Container container = { &request };
