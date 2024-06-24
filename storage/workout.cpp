@@ -50,7 +50,6 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
 
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
-    //raw data access here!
     Workout_Hash_Container container = { workout_info };
     _real_hashes.erase(container); //TODO IMPORTANT: check if equal hashes are removed
     _last_real_hashes.erase(container);
