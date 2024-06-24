@@ -21,11 +21,24 @@ struct Workout_Info
 {
     const Student* student = nullptr;
     Lesson_Info* lesson_info = nullptr;
+    //Lesson_Info: nullptr if pointing to a previous or the next month
+    //If pointing to the next ungenerated month, stores pointer to a current month Lesson_Info*
+    //used for generating the next month's Lesson_Info*
     int internal_lesson;
     std::tm date;
     Lesson recovery_hint = {-1, -1};
+    //recovery_hint: used to store previous month's lesson info.
+    //set to != {-1, -1} while creating workout between months and
+    //while migrating future workout for current month
+
+    //TODO: using current structure is impossible due to one edge case
+    //where we want to delete a workout while being on a previous month.
+    //(cross-month recovery references are impossible because lesson_info position in
+    // general vector can be changed)
+    //use common list defined in storage/workout.h instead
     Workout_Info() {};
-    Workout_Info(const Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date) : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
+    Workout_Info(const Student* _student, Lesson_Info* _lesson_info, int _internal_lesson, std::tm _date)
+        : student(_student), lesson_info(_lesson_info), internal_lesson(_internal_lesson), date(_date) {};
 template<class Archive>
 void save(Archive & ar, const unsigned int version) const
 {
