@@ -50,7 +50,6 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
 
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
-    //raw data access here!
     Workout_Hash_Container container = { workout_info };
     _real_hashes.erase(container); //TODO IMPORTANT: check if equal hashes are removed
     _last_real_hashes.erase(container);
@@ -59,3 +58,61 @@ void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
     auto iter = _all_workouts.begin() + index;
     _all_workouts.erase(iter);
 }
+
+void Workout_Handler::change_lesson_info_position(int real_month, int real_wday, int old_merged_lesson_id, int new_merged_lesson_id)
+{
+    if (old_merged_lesson_id == new_merged_lesson_id) return;
+    bool moved_right = new_merged_lesson_id > old_merged_lesson_id;
+    int min_affected = moved_right ? old_merged_lesson_id : new_merged_lesson_id;
+    int max_affected = moved_right ? new_merged_lesson_id : old_merged_lesson_id;
+    for (int merged_lesson = min_affected; merged_lesson <= max_affected; merged_lesson++)
+    {
+        bool decrement = moved_right && (merged_lesson != min_affected);
+        bool increment = !moved_right && (merged_lesson != max_affected);
+        bool to_max = moved_right && merged_lesson == min_affected;
+        bool to_min = !moved_right && merged_lesson == max_affected;
+        for (int internal_lesson = 0; internal_lesson < MAX_INTERNAL_LESSONS; internal_lesson++)
+        {
+            Lesson lesson = {.merged_lesson_id = merged_lesson, .internal_lesson_id = internal_lesson};
+            auto info = get_info(real_month, real_wday, lesson);
+            for (int i = 0; i < info.size(); i++)
+            {
+                for (int j = 0; j < info[i].size(); j++)
+                {
+                    Workout_Info_ new_info = *(info[i][j]);
+
+                    if (decrement) new_info.real_lesson.merged_lesson_id--;
+                    else if (increment) new_info.real_lesson.merged_lesson_id++;
+                    else if (to_max) new_info.real_lesson.merged_lesson_id = max_affected;
+                    else if (to_min) new_info.real_lesson.merged_lesson_id = min_affected;
+                    else throw std::invalid_argument("");
+
+                    delete_info(info[i][j]);
+                    insert_info(new_info);
+                }
+            }
+
+            Workout_Info_ request;
+            request.should_lesson.merged_lesson_id = merged_lesson;
+            request.should_lesson.internal_lesson_id = internal_lesson;
+            request.should_attend.tm_wday = real_wday;
+            request.should_attend.tm_mon = real_month;
+            Workout_Hash_Container container = { &request };
+            auto should_result = _should_hashes.find(container);
+            for (; should_result != _should_hashes.end(); ++should_result)
+            {
+                Workout_Info_ new_info = *(should_result->info);
+
+                if (decrement) new_info.real_lesson.merged_lesson_id--;
+                else if (increment) new_info.real_lesson.merged_lesson_id++;
+                else if (to_max) new_info.real_lesson.merged_lesson_id = max_affected;
+                else if (to_min) new_info.real_lesson.merged_lesson_id = min_affected;
+                else throw std::invalid_argument("");
+
+                delete_info(should_result->info);
+                insert_info(new_info);
+            }
+        }
+    }
+}
+
