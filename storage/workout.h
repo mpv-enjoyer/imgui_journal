@@ -11,6 +11,6 @@ class Workout_Handler
     std::unordered_set<Workout_Hash_Container, Last_Real_Workout_Hash> _last_real_hashes;
     std::unordered_set<Workout_Hash_Container, Should_Workout_Hash> _should_hashes;
     void insert_info(Workout_Info_ workout_info);
-    std::vector<std::vector<const Workout_Info_*>> get_info(int real_month, int real_wday, Lesson_Info* real_lesson_info, int internal_lesson_info);
+    std::vector<std::vector<const Workout_Info_*>> get_info(int real_month, int real_wday, Lesson real_lesson);
     void delete_info(const Workout_Info_* workout_info);
 };
