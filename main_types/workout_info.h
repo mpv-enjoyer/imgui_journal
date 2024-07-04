@@ -6,7 +6,7 @@
 
 struct Workout_Info_
 {
-    Student* student;
+    int student_id;
     Lesson real_lesson;
     std::tm real_attend;
     Lesson should_lesson;
@@ -18,7 +18,7 @@ struct Workout_Hash_Container
     const Workout_Info_* info;
     bool operator==(const Workout_Hash_Container &other) const
     {
-        return (info->student       == other.info->student
+        return (info->student_id    == other.info->student_id
             &&  info->real_attend   == other.info->real_attend
             &&  info->should_attend == other.info->should_attend
             &&  info->real_lesson   == other.info->real_lesson
@@ -44,7 +44,7 @@ struct Last_Real_Workout_Hash
     std::size_t operator()(const Workout_Hash_Container& s) const noexcept
     {
         std::size_t seed = 0;
-        boost::hash_combine(seed, s.info->student);
+        boost::hash_combine(seed, s.info->student_id);
         boost::hash_combine(seed, s.info->real_attend.tm_mon);
         boost::hash_combine(seed, s.info->real_attend.tm_wday);
         boost::hash_combine(seed, s.info->real_lesson.merged_lesson_id);

@@ -1,6 +1,7 @@
 #pragma once
 #include "../main_types/main_types.h"
 #include "../helpers/helpers.h"
+#include "workout.h"
 
 #define NAME_DRAWING 0
 #define NAME_SCULPTING 1
@@ -89,6 +90,8 @@ class Journal
     std::vector<Group*> _all_groups;
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
+
+    Workout_Handler* _all_workouts;
 
     enum State
     {

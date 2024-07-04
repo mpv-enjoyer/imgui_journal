@@ -212,14 +212,16 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     caller_workout_info.internal_lesson = select_lesson.internal_lesson_id;
     caller_workout_info.date = select_date;
     caller_workout_info.recovery_hint = select_lesson;
-    _day(caller_date.tm_mday)->add_workout(student, caller_lesson, caller_workout_info);
+    
+    Workout_Info_ workout;
+    workout.real_attend = caller_date;
+    workout.should_attend = select_date;
+    workout.real_lesson = caller_lesson;
+    workout.should_lesson = select_lesson;
+    workout.student_id = student_id;
+    _all_workouts->insert_info(workout);
+
     _day(select_date.tm_mday)->set_status(select_lesson, internal_student_id, STATUS_WORKED_OUT);
-    Workout_Info select_workout_info;
-    select_workout_info.date = caller_date;
-    select_workout_info.lesson_info = _all_lessons[caller_date.tm_wday][caller_lesson.merged_lesson_id];
-    select_workout_info.student = &student;
-    select_workout_info.internal_lesson = caller_lesson.internal_lesson_id;
-    _day(select_date.tm_mday)->insert_workout_into_status(select_lesson, internal_student_id, select_workout_info);
     int discount_status = _discount_status(student.get_contract());
     _day(select_date.tm_mday)->set_discount_status(select_lesson, internal_student_id, discount_status);
 }
@@ -243,6 +245,7 @@ void Journal::edit_lesson(int wday, int merged_lesson_id, int number, std::strin
     {
         current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);
     }
+
 }
 void Journal::append_workout_students(Day_With_Info visible_day, Lesson lesson, std::vector<const Student*>& workout_students)
 {

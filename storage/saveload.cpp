@@ -44,8 +44,7 @@ void Journal::generate()
     _all_groups.clear();
     _all_lessons.clear();
     _all_students.clear();
-    //TODO CRITICAL: Look up for workouts and repair their pointers
-    //TODO: Do not expect 
+    //TODO CRITICAL: Do not erase hidden students.
     bool surpass_year = _current_month == 0;
     int previous_month = (_current_month + 12 - 1) % 12;
     int previous_year = surpass_year ? _current_year - 1 : _current_year;

@@ -34,7 +34,7 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     std::vector<std::vector<const Workout_Info_*>> output;
     for (; real_result != _real_hashes.end(); ++real_result)
     {
-        request.student = real_result->info->student;
+        request.student_id = real_result->info->student_id;
         auto last_result = _last_real_hashes.find(container);
         int current_year = real_month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
         int day_count = get_number_of_days(real_month, current_year);
@@ -73,12 +73,19 @@ void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
     _all_workouts.erase(iter);
 }
 
-void Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id, int new_merged_lesson_id)
+void Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
+    int new_merged_lesson_id, bool is_new, int max_merged_lessons_size)
 {
     if (old_merged_lesson_id == new_merged_lesson_id) return;
     bool moved_right = new_merged_lesson_id > old_merged_lesson_id;
     int min_affected = moved_right ? old_merged_lesson_id : new_merged_lesson_id;
     int max_affected = moved_right ? new_merged_lesson_id : old_merged_lesson_id;
+    if (is_new) // newly created lesson
+    {
+        max_affected
+        min_affected = new_merged_lesson_id;
+    }
+    std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
     for (int merged_lesson = min_affected; merged_lesson <= max_affected; merged_lesson++)
     {
         bool decrement = moved_right && (merged_lesson != min_affected);
@@ -89,7 +96,6 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         {
             Lesson lesson = {.merged_lesson_id = merged_lesson, .internal_lesson_id = internal_lesson};
             auto info = get_info(month, wday, lesson);
-            std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
             for (int i = 0; i < info.size(); i++)
             {
                 for (int j = 0; j < info[i].size(); j++)
@@ -105,13 +111,12 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
                     new_and_to_remove.push_back({new_info, info[i][j]});
                 }
             }
-
-            for (auto info : new_and_to_remove)
-            {
-                delete_info(info.second);
-                insert_info(info.first);
-            }
         }
+    }
+    for (auto info : new_and_to_remove)
+    {
+        delete_info(info.second);
+        insert_info(info.first);
     }
     std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
     for (const auto& workout : _all_workouts)
@@ -135,8 +140,6 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         else throw std::invalid_argument("");
 
         new_and_to_remove.push_back({new_info, &workout});
-
-
     }
     for (auto workout : new_and_to_remove)
     {
