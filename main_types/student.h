@@ -1,5 +1,6 @@
 #pragma once
 #include "main_types.h"
+#include <boost/container_hash/hash.hpp>
 
 class Student
 {
@@ -28,4 +29,11 @@ public:
     bool operator!=(const Student& rhs) const;
     bool operator< (const Student& rhs) const;
     bool operator> (const Student& rhs) const;
+    std::size_t operator()() const noexcept
+    {
+        std::size_t seed = 0;
+        boost::hash_combine(seed, name);
+        boost::hash_combine(seed, contract);
+        return seed;
+    };
 };
