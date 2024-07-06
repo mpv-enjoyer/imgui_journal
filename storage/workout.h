@@ -15,5 +15,7 @@ public:
     std::vector<std::vector<const Workout_Info_*>> get_info(int real_month, int real_wday, Lesson real_lesson);
     const Workout_Info_ *get_info(int should_month, std::tm should_day, Lesson lesson, const Student *student);
     void delete_info(const Workout_Info_ *workout_info);
-    void change_lesson_info_position(int month, int wday, int old_merged_lesson_id, int new_merged_lesson_id, bool is_new = false, int max_merged_lessons_size = -1);
+    bool change_lesson_info_position(int month, int wday, int old_merged_lesson_id, int new_merged_lesson_id, bool is_new = false, bool is_remove = false, int max_merged_lessons_size = -1);
+    // old_merged_lesson_id set to -1 if is_new = true.
+    // returns false if tried to delete a valid lesson_info.
 };

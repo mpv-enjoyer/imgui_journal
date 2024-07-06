@@ -65,25 +65,33 @@ const Workout_Info_* Workout_Handler::get_info(int should_month, std::tm should_
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
     Workout_Hash_Container container = { workout_info };
-    _real_hashes.erase(container); //TODO IMPORTANT: check if equal hashes are removed
+    _real_hashes.erase(container);
+    _real_hashes.erase(container);
     _last_real_hashes.erase(container);
     _should_hashes.erase(container);
     int index = workout_info - _all_workouts.data();
     auto iter = _all_workouts.begin() + index;
-    _all_workouts.erase(iter);
+    if (iter != _all_workouts.end()) _all_workouts.erase(iter);
 }
 
-void Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
-    int new_merged_lesson_id, bool is_new, int max_merged_lessons_size)
+bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
+    int new_merged_lesson_id, bool is_new, bool is_remove, int max_merged_lessons_size)
 {
+    IM_ASSERT(!(old_merged_lesson_id == -1 ^ is_new));
+    IM_ASSERT(!(new_merged_lesson_id == -1 ^ is_remove));
+    IM_ASSERT(!(is_new && is_remove));
     if (old_merged_lesson_id == new_merged_lesson_id) return;
     bool moved_right = new_merged_lesson_id > old_merged_lesson_id;
     int min_affected = moved_right ? old_merged_lesson_id : new_merged_lesson_id;
     int max_affected = moved_right ? new_merged_lesson_id : old_merged_lesson_id;
     if (is_new) // newly created lesson
     {
-        max_affected
         min_affected = new_merged_lesson_id;
+        max_affected = max_merged_lessons_size;
+    } else if (is_remove)
+    {
+        min_affected = old_merged_lesson_id;
+        max_affected = max_merged_lessons_size;
     }
     std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
     for (int merged_lesson = min_affected; merged_lesson <= max_affected; merged_lesson++)
@@ -92,12 +100,27 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         bool increment = !moved_right && (merged_lesson != max_affected);
         bool to_max = moved_right && merged_lesson == min_affected;
         bool to_min = !moved_right && merged_lesson == max_affected;
+        if (is_new)
+        {
+            decrement = false;
+            increment = true;
+            to_max = false;
+            to_min = false;
+        }
+        else if (is_remove)
+        {
+            decrement = true;
+            increment = false;
+            to_max = false;
+            to_min = false;
+        }
         for (int internal_lesson = 0; internal_lesson < MAX_INTERNAL_LESSONS; internal_lesson++)
         {
             Lesson lesson = {.merged_lesson_id = merged_lesson, .internal_lesson_id = internal_lesson};
             auto info = get_info(month, wday, lesson);
             for (int i = 0; i < info.size(); i++)
             {
+                if (is_remove && merged_lesson == min_affected) return false;
                 for (int j = 0; j < info[i].size(); j++)
                 {
                     Workout_Info_ new_info = *(info[i][j]);
@@ -113,11 +136,6 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
             }
         }
     }
-    for (auto info : new_and_to_remove)
-    {
-        delete_info(info.second);
-        insert_info(info.first);
-    }
     std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
     for (const auto& workout : _all_workouts)
     {
@@ -126,10 +144,18 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         if (workout.should_lesson.merged_lesson_id < min_affected) continue;
         if (workout.should_lesson.merged_lesson_id > max_affected) continue;
         int merged_lesson = workout.should_lesson.merged_lesson_id;
+        if (is_remove && merged_lesson == min_affected) return false;
         bool decrement = moved_right && (merged_lesson != min_affected);
         bool increment = !moved_right && (merged_lesson != max_affected);
         bool to_max = moved_right && merged_lesson == min_affected;
         bool to_min = !moved_right && merged_lesson == max_affected;
+        if (is_new)
+        {
+            decrement = false;
+            increment = true;
+            to_max = false;
+            to_min = false;
+        }
 
         Workout_Info_ new_info = workout;
 
@@ -141,9 +167,21 @@ void Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
 
         new_and_to_remove.push_back({new_info, &workout});
     }
+    for (auto info : new_and_to_remove)
+    {
+        delete_info(info.second);
+    }
     for (auto workout : new_and_to_remove)
     {
         delete_info(workout.second);
+    }
+
+    for (auto info : new_and_to_remove)
+    {
+        insert_info(info.first);
+    }
+    for (auto workout : new_and_to_remove)
+    {
         insert_info(workout.first);
     }
 }
