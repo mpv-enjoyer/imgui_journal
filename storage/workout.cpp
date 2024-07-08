@@ -68,7 +68,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
     bool is_new = old_merged_lesson_id == -1;
     bool is_remove = new_merged_lesson_id == -1;
     IM_ASSERT(!(is_new && is_remove));
-    if (old_merged_lesson_id == new_merged_lesson_id) return;
+    if (old_merged_lesson_id == new_merged_lesson_id) return false;
     bool moved_right = new_merged_lesson_id > old_merged_lesson_id;
     int min_affected = moved_right ? old_merged_lesson_id : new_merged_lesson_id;
     int max_affected = moved_right ? new_merged_lesson_id : old_merged_lesson_id;

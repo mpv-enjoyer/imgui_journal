@@ -381,7 +381,7 @@ void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id
     Calendar_Day* current_day = _day(mday);
     const Student& student = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id);
     int contract = student.get_contract();
-    auto student_iterator = std::find(_all_students.begin(), _all_students.end(), student);
+    auto student_iterator = std::find(_all_students.begin(), _all_students.end(), &student);
     auto student_id = student_iterator - _all_students.begin();
     int new_discount_status = _discount_status(contract);
     if (status.status != STATUS_WORKED_OUT)
