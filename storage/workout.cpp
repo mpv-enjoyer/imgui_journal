@@ -15,7 +15,7 @@ void Workout_Handler::insert_info(Workout_Info_ workout_info)
 int get_mday_index_for_wday(int mday, int wday, int month, int year)
 {
     int day = get_first_wday(month, year, wday) - MDAY_DIFF;
-    int day_count = get_number_of_days(month, year);
+    int day_count = get_number_of_days(month, year + 1900);
     for (int i = 0; day <= day_count; day += 7, i++)
     {
         if (day == mday) return i;
@@ -34,10 +34,10 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     std::vector<std::vector<const Workout_Info_*>> output;
     for (; real_result != _real_hashes.end(); ++real_result)
     {
-        request.student_id = real_result->info->student_id;
+        request.real_student_id = real_result->info->real_student_id;
         auto last_result = _last_real_hashes.find(container);
         int current_year = real_month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
-        int day_count = get_number_of_days(real_month, current_year);
+        int day_count = get_number_of_days(real_month, current_year + 1900);
         if (last_result == _last_real_hashes.end()) continue;
         output.push_back(std::vector<const Workout_Info_*>(day_count, nullptr));
         for (; last_result != _last_real_hashes.end(); ++last_result)
@@ -50,12 +50,13 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     return output;
 }
 
-const Workout_Info_* Workout_Handler::get_info(int should_month, std::tm should_day, Lesson should_lesson, const Student* student)
+const Workout_Info_* Workout_Handler::get_info(int should_month, std::tm should_day, Lesson should_lesson, int should_student_id)
 {
     Workout_Info_ request;
     request.should_attend.tm_mon = should_month;
     request.should_attend.tm_mday = should_day.tm_mday;
     request.should_lesson = should_lesson;
+    request.should_student_id = should_student_id;
     Workout_Hash_Container container = { &request };
     auto found = _should_hashes.find(container);
     if (found == _should_hashes.end()) return nullptr;
@@ -75,10 +76,10 @@ void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 }
 
 bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
-    int new_merged_lesson_id, bool is_new, bool is_remove, int max_merged_lessons_size)
+    int new_merged_lesson_id, int max_merged_lessons_size)
 {
-    IM_ASSERT(!(old_merged_lesson_id == -1 ^ is_new));
-    IM_ASSERT(!(new_merged_lesson_id == -1 ^ is_remove));
+    bool is_new = old_merged_lesson_id == -1;
+    bool is_remove = new_merged_lesson_id == -1;
     IM_ASSERT(!(is_new && is_remove));
     if (old_merged_lesson_id == new_merged_lesson_id) return;
     bool moved_right = new_merged_lesson_id > old_merged_lesson_id;
@@ -93,6 +94,30 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         min_affected = old_merged_lesson_id;
         max_affected = max_merged_lessons_size;
     }
+
+    // check if should remove anything (for should_):
+    for (const auto& workout : _all_workouts)
+    {
+        if (workout.should_attend.tm_wday != wday) continue;
+        if (workout.should_attend.tm_mon != month) continue;
+        if (workout.should_lesson.merged_lesson_id < min_affected) continue;
+        if (workout.should_lesson.merged_lesson_id > max_affected) continue;
+        int merged_lesson = workout.should_lesson.merged_lesson_id;
+        if (is_remove && merged_lesson == min_affected) return false;
+    }
+
+    // check if should remove anything (for real_):
+    for (const auto& workout : _all_workouts)
+    {
+        if (workout.real_attend.tm_wday != wday) continue;
+        if (workout.real_attend.tm_mon != month) continue;
+        if (workout.real_lesson.merged_lesson_id < min_affected) continue;
+        if (workout.real_lesson.merged_lesson_id > max_affected) continue;
+        int merged_lesson = workout.real_lesson.merged_lesson_id;
+        if (is_remove && merged_lesson == min_affected) return false;
+    }
+
+    // fill replacement table for real_
     std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
     for (int merged_lesson = min_affected; merged_lesson <= max_affected; merged_lesson++)
     {
@@ -136,7 +161,20 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
             }
         }
     }
-    std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
+
+    for (auto info : new_and_to_remove)
+    {
+        delete_info(info.second);
+    }
+
+    for (auto info : new_and_to_remove)
+    {
+        insert_info(info.first);
+    }
+
+    new_and_to_remove.clear();
+
+    // fill replacement table for should_
     for (const auto& workout : _all_workouts)
     {
         if (workout.should_attend.tm_wday != wday) continue;
@@ -156,33 +194,63 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
             to_max = false;
             to_min = false;
         }
-
+        else if (is_remove)
+        {
+            decrement = true;
+            increment = false;
+            to_max = false;
+            to_min = false;
+        }
         Workout_Info_ new_info = workout;
 
         if (decrement) new_info.real_lesson.merged_lesson_id--;
         else if (increment) new_info.real_lesson.merged_lesson_id++;
         else if (to_max) new_info.real_lesson.merged_lesson_id = max_affected;
         else if (to_min) new_info.real_lesson.merged_lesson_id = min_affected;
-        else throw std::invalid_argument("");
 
         new_and_to_remove.push_back({new_info, &workout});
     }
+
     for (auto info : new_and_to_remove)
     {
         delete_info(info.second);
-    }
-    for (auto workout : new_and_to_remove)
-    {
-        delete_info(workout.second);
     }
 
     for (auto info : new_and_to_remove)
     {
         insert_info(info.first);
     }
-    for (auto workout : new_and_to_remove)
-    {
-        insert_info(workout.first);
-    }
+    return true;
 }
 
+bool Workout_Handler::remove_student(int month, int student_id)
+{
+    // check if student is present in workouts (it shouldn't)
+    for (auto& workout : _all_workouts)
+    {
+        if (workout.should_attend.tm_mon != month) continue;
+        if (workout.should_student_id == student_id || workout.real_student_id == student_id) return false;
+    }
+
+    std::vector<std::pair<Workout_Info_, const Workout_Info_*>> new_and_to_remove;
+    for (auto& workout : _all_workouts)
+    {
+        if (workout.should_attend.tm_mon != month) continue;
+        if (workout.should_student_id < student_id && workout.real_student_id < student_id) continue;
+        Workout_Info_ new_info = workout;
+        if (new_info.real_student_id > student_id) new_info.real_student_id--;
+        if (new_info.should_student_id > student_id) new_info.should_student_id--;
+        new_and_to_remove.push_back({new_info, &workout});
+    }
+    
+    for (auto info : new_and_to_remove)
+    {
+        delete_info(info.second);
+    }
+
+    for (auto info : new_and_to_remove)
+    {
+        insert_info(info.first);
+    }
+    return true;
+}

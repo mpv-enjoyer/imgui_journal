@@ -218,7 +218,7 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     workout.should_attend = select_date;
     workout.real_lesson = caller_lesson;
     workout.should_lesson = select_lesson;
-    workout.student_id = student_id;
+    workout.real_student_id = student_id;
     _all_workouts->insert_info(workout);
 
     _day(select_date.tm_mday)->set_status(select_lesson, internal_student_id, STATUS_WORKED_OUT);

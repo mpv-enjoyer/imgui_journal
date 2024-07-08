@@ -6,9 +6,10 @@
 
 struct Workout_Info_
 {
-    int student_id;
+    int real_student_id;
     Lesson real_lesson;
     std::tm real_attend;
+    int should_student_id; // The same as real_student_id except for when it's for the other month
     Lesson should_lesson;
     std::tm should_attend;
 };
@@ -18,11 +19,12 @@ struct Workout_Hash_Container
     const Workout_Info_* info;
     bool operator==(const Workout_Hash_Container &other) const
     {
-        return (info->student_id    == other.info->student_id
-            &&  info->real_attend   == other.info->real_attend
-            &&  info->should_attend == other.info->should_attend
-            &&  info->real_lesson   == other.info->real_lesson
-            &&  info->should_lesson == other.info->should_lesson);
+        return (info->real_student_id   == other.info->real_student_id
+            &&  info->real_lesson       == other.info->real_lesson
+            &&  info->real_attend       == other.info->real_attend
+            &&  info->should_student_id == other.info->should_student_id
+            &&  info->should_attend     == other.info->should_attend
+            &&  info->should_lesson     == other.info->should_lesson);
     }
 };
 
@@ -44,7 +46,7 @@ struct Last_Real_Workout_Hash
     std::size_t operator()(const Workout_Hash_Container& s) const noexcept
     {
         std::size_t seed = 0;
-        boost::hash_combine(seed, s.info->student_id);
+        boost::hash_combine(seed, s.info->real_student_id);
         boost::hash_combine(seed, s.info->real_attend.tm_mon);
         boost::hash_combine(seed, s.info->real_attend.tm_wday);
         boost::hash_combine(seed, s.info->real_lesson.merged_lesson_id);
@@ -62,6 +64,7 @@ struct Should_Workout_Hash
         boost::hash_combine(seed, s.info->should_attend.tm_mday);
         boost::hash_combine(seed, s.info->should_lesson.merged_lesson_id);
         boost::hash_combine(seed, s.info->should_lesson.internal_lesson_id);
+        boost::hash_combine(seed, s.info->should_student_id);
         return seed;
     }
 };
