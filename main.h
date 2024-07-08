@@ -35,6 +35,10 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 
+#ifndef NULL
+    #define NULL 0
+#endif
+
 #define STATUS_INVALID     -2
 #define STATUS_NOT_AWAITED -1
 #define STATUS_NO_DATA      0

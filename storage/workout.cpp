@@ -12,21 +12,9 @@ void Workout_Handler::insert_info(Workout_Info_ workout_info)
     _should_hashes.insert(container);
 }
 
-int get_mday_index_for_wday(int mday, int wday, int month, int year)
-{
-    int day = get_first_wday(month, year, wday) - MDAY_DIFF;
-    int day_count = get_number_of_days(month, year + 1900);
-    for (int i = 0; day <= day_count; day += 7, i++)
-    {
-        if (day == mday) return i;
-    }
-    return -1;
-}
-
 std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson real_lesson)
 {
     Workout_Info_ request;
-    request.real_lesson = real_lesson;
     request.real_attend.tm_wday = real_wday;
     request.real_attend.tm_mon = real_month;
     Workout_Hash_Container container = { &request };
@@ -37,9 +25,8 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
         request.real_student_id = real_result->info->real_student_id;
         auto last_result = _last_real_hashes.find(container);
         int current_year = real_month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
-        int day_count = get_number_of_days(real_month, current_year + 1900);
         if (last_result == _last_real_hashes.end()) continue;
-        output.push_back(std::vector<const Workout_Info_*>(day_count, nullptr));
+        output.push_back(std::vector<const Workout_Info_*>(get_wday_count_in_month(real_wday, real_month, current_year), nullptr));
         for (; last_result != _last_real_hashes.end(); ++last_result)
         {
             int index = get_mday_index_for_wday(last_result->info->real_attend.tm_mday, real_wday, real_month, current_year);
@@ -50,11 +37,11 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     return output;
 }
 
-const Workout_Info_* Workout_Handler::get_info(int should_month, std::tm should_day, Lesson should_lesson, int should_student_id)
+const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday, Lesson should_lesson, int should_student_id)
 {
     Workout_Info_ request;
     request.should_attend.tm_mon = should_month;
-    request.should_attend.tm_mday = should_day.tm_mday;
+    request.should_attend.tm_mday = should_mday;
     request.should_lesson = should_lesson;
     request.should_student_id = should_student_id;
     Workout_Hash_Container container = { &request };

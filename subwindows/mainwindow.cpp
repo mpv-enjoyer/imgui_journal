@@ -294,7 +294,6 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
     } 
     if (disabled) ImGui::EndDisabled();
 
-    std::vector<const Student*> workout_students;
     for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
     {
         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
@@ -304,7 +303,6 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
             lesson.merged_lesson_id = merged_lesson_id;
             lesson.internal_lesson_id = internal_lesson;
             Day_With_Info visible_day = graphical->visible_days[day_id];
-            journal->append_workout_students(visible_day, lesson, workout_students);
             if (!graphical->edit_mode) continue;
             if (graphical->visible_days[day_id].is_future) continue;
             if (internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
@@ -318,13 +316,18 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         }
     }
 
-    for (int workout_student_id = 0; workout_student_id < workout_students.size(); workout_student_id++)
+    std::vector<int> student_ids;
+    auto workouts = journal->get_workout_info(graphical->wday, merged_lesson_id, &student_ids);
+
+    for (int workouts_id = 0; workouts_id < workouts.size(); workouts_id++)
     {
+        const Student* student = journal->student(student_ids[workouts_id]);
+        int student_id = student_ids[workouts_id];
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::Text(c_str_int(counter));
         ImGui::TableSetColumnIndex(1);
-        ImGui::Text(workout_students[workout_student_id]->get_name().c_str());
+        ImGui::Text(student->get_name().c_str());
         for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
         {
             bool first_present = false;
@@ -336,11 +339,12 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 if (internal_lesson == 0) first_present = true;
                 lesson.internal_lesson_id = internal_lesson;
                 ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
-                Workout_Info current_workout_info = graphical->visible_days[day_id].day->get_workout_info(lesson, PTRREF(workout_students[workout_student_id]));
-                if (current_workout_info.internal_lesson == -1) continue;
+
+                const Workout_Info_* current_workout_info = internal_lesson == 0 ? workouts[workouts_id][day_id].first : workouts[workouts_id][day_id].second;
+                if (current_workout_info == nullptr) continue;
                 if (internal_lesson == 0) first_present = false;
                 bool create_fake_radio = internal_lesson != 0 && !first_present;
-                std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {day_id, workout_student_id, internal_lesson, merged_lesson_id});
+                std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {day_id, student_id, internal_lesson, merged_lesson_id});
                 if (create_fake_radio)
                 {
                     std::string fake_radio_name = generate_label("##fake_radio", {day_id, 0, internal_lesson, -1});
@@ -351,14 +355,16 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 ImGui::SameLine();
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    if (current_workout_info.date.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
-                    int internal_student_id = group.find_student(PTRREF(current_workout_info.student));
+                    if (current_workout_info->should_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
+                    if (current_workout_info->real_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
+                    int internal_student_id = group.find_student(PTRREF(student));
                     Student_Status new_status;
                     new_status.discount_status = -1;
                     new_status.status = STATUS_NO_DATA;
-                    journal->set_lesson_status(current_workout_info.date.tm_mday - MDAY_DIFF, lesson, internal_student_id, new_status, true);
+                    journal->set_lesson_status(current_workout_info->should_attend.tm_mday - MDAY_DIFF, lesson, internal_student_id, new_status, true);
                 }
-                ImGui::SetItemTooltip(to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end).c_str());
+                // TODO: Show correct should_time.
+                ImGui::SetItemTooltip(to_string(current_workout_info->should_attend, {0, 0}).c_str());
             }
         }
     }

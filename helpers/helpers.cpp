@@ -297,3 +297,23 @@ int get_wday(int day, int month, int year)
   const std::tm * time_out = std::localtime(&time_temp);
   return time_out->tm_wday;
 }
+
+int get_mday_index_for_wday(int mday, int wday, int month, int year)
+{
+    int day = get_first_wday(month, year, wday) - MDAY_DIFF;
+    int day_count = get_number_of_days(month, year + 1900);
+    for (int i = 0; day <= day_count; day += 7, i++)
+    {
+        if (day == mday) return i;
+    }
+    return -1;
+};
+
+int get_wday_count_in_month(int wday, int month, int year)
+{
+    int output = 0;
+    int day = get_first_wday(month, year, wday);
+    int day_count = get_number_of_days(month, year);
+    for ( ; day <= day_count; day+=7, output++) { };
+    return output;
+}

@@ -91,7 +91,7 @@ class Journal
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
 
-    Workout_Handler* _all_workouts;
+    Workout_Handler* _workout_handler;
 
     enum State
     {
@@ -135,7 +135,8 @@ public:
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
     void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
-    void append_workout_students(Day_With_Info visible_day, Lesson lesson, std::vector<const Student *> &workout_students);
+    const std::vector<std::vector<std::pair<const Workout_Info_ *, const Workout_Info_ *>>> get_workout_info(int real_wday, int real_merged_lesson, std::vector<int> *student_ids);
+    const Workout_Info_ *get_workout_info(int should_mday, Lesson should_lesson, int should_student_id);
     void remove_student(int id);
     void restore_student(int id);
     void remove_lesson(int wday, int merged_lesson_id);

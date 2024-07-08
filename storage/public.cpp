@@ -219,7 +219,7 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     workout.real_lesson = caller_lesson;
     workout.should_lesson = select_lesson;
     workout.real_student_id = student_id;
-    _all_workouts->insert_info(workout);
+    _workout_handler->insert_info(workout);
 
     _day(select_date.tm_mday)->set_status(select_lesson, internal_student_id, STATUS_WORKED_OUT);
     int discount_status = _discount_status(student.get_contract());
@@ -240,30 +240,79 @@ void Journal::edit_lesson(int wday, int merged_lesson_id, int number, std::strin
     int new_merged_lesson_id = _emplace_lesson_info(wday, lesson_info);
     //workaround???
     //if (new_index >= merged_lesson_id && new_index != all_lessons[day].size() - 1) new_index++;
+    _workout_handler->change_lesson_info_position(current_month(), wday, merged_lesson_id, new_merged_lesson_id, _all_lessons[wday].size());
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (auto current : affected_days)
     {
         current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);
     }
-
 }
-void Journal::append_workout_students(Day_With_Info visible_day, Lesson lesson, std::vector<const Student*>& workout_students)
+
+const std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>> Journal::get_workout_info(int real_wday, int real_merged_lesson, std::vector<int>* student_ids)
 {
-    const Calendar_Day* current_day = visible_day.day;
-    for (int workout_num = 0; workout_num < current_day->get_workout_size(lesson); workout_num++)
+    Lesson real_lesson;
+    real_lesson.merged_lesson_id = real_merged_lesson;
+    real_lesson.internal_lesson_id = 0;
+    std::vector<std::vector<const Workout_Info_*>> workouts1 = _workout_handler->get_info(current_month(), real_wday, real_lesson);
+    real_lesson.internal_lesson_id = 1;
+    std::vector<std::vector<const Workout_Info_*>> workouts2 = _workout_handler->get_info(current_month(), real_wday, real_lesson);
+    student_ids->clear();
+    
+    for (auto& workouts : workouts1)
     {
-        const Student* current_workout_student = current_day->get_workout_student(lesson, workout_num);
-        bool is_in_vector = false;
-        for (int repeat_check_id = 0; repeat_check_id < workout_students.size(); repeat_check_id++)
+        for (auto& workout : workouts)
         {
-            if (workout_students[repeat_check_id] == current_workout_student) 
-            { 
-                is_in_vector = true;
-                break;
-            }
+            if (workout == nullptr) continue;
+            student_ids->push_back(workout->real_student_id);
+            break;
         }
-        if (!is_in_vector) workout_students.push_back(current_workout_student);
     }
+    for (auto& workouts : workouts2)
+    {
+        for (auto& workout : workouts)
+        {
+            if (workout == nullptr) continue;
+            auto iter = std::find(student_ids->begin(), student_ids->end(), workout->real_student_id);
+            if (iter == student_ids->end()) student_ids->push_back(workout->real_student_id);
+            break;
+        }
+    }
+
+    int day_count_for_wday = get_wday_count_in_month(real_wday, current_month(), current_year());
+    auto output = std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>>
+        (student_ids->size(), std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>
+        (day_count_for_wday, std::pair<const Workout_Info_*, const Workout_Info_ *>
+        (nullptr, nullptr)));
+
+    for (auto& workouts : workouts1)
+    {
+        for (int i = 0; i < workouts.size(); i++)
+        {
+            if (workouts[i] == nullptr) continue;
+            auto iter = std::find(student_ids->begin(), student_ids->end(), workouts[i]->real_student_id);
+            IM_ASSERT(iter != student_ids->end());
+            int student_index = iter - student_ids->begin();
+            output[student_index][i].first = workouts[i];
+        }
+    }
+
+    for (auto& workouts : workouts2)
+    {
+        for (int i = 0; i < workouts.size(); i++)
+        {
+            if (workouts[i] == nullptr) continue;
+            auto iter = std::find(student_ids->begin(), student_ids->end(), workouts[i]->real_student_id);
+            IM_ASSERT(iter != student_ids->end());
+            int student_index = iter - student_ids->begin();
+            output[student_index][i].second = workouts[i];
+        }
+    }
+    return output;
+}
+
+const Workout_Info_* Journal::get_workout_info(int should_mday, Lesson should_lesson, int should_student_id)
+{
+    return _workout_handler->get_info(current_month(), should_mday, should_lesson, should_student_id);
 }
 
 bool Journal::_match_lesson_types(int l, int r)
@@ -330,7 +379,10 @@ void Journal::restore_lesson(int wday, int merged_lesson_id)
 void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed)
 {
     Calendar_Day* current_day = _day(mday);
-    int contract = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id).get_contract();
+    const Student& student = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id);
+    int contract = student.get_contract();
+    auto student_iterator = std::find(_all_students.begin(), _all_students.end(), student);
+    auto student_id = student_iterator - _all_students.begin();
     int new_discount_status = _discount_status(contract);
     if (status.status != STATUS_WORKED_OUT)
     {
@@ -339,7 +391,10 @@ void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id
             Workout_Info distant_workout_info = status.workout_info;
             int day_index = status.workout_info.date.tm_mday - 1;
             int internal_lesson_id = status.workout_info.internal_lesson;
-            _day(day_index)->delete_workout(PTRREF(distant_workout_info.lesson_info), internal_lesson_id, PTRREF(distant_workout_info.student));
+
+            const Workout_Info_* workout = _workout_handler->get_info(current_month(), mday, lesson, student_id);
+            IM_ASSERT(workout != nullptr);
+            _workout_handler->delete_info(workout);
         }
         current_day->set_status(lesson, internal_student_id, status.status);
         current_day->set_discount_status(lesson, internal_student_id, new_discount_status);

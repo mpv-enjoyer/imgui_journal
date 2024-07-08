@@ -72,4 +72,6 @@ int get_first_wday(int month, int year, int wday);
 int get_number_of_days(int month, int year_starting_from_zero);
 int get_first_mwday(int month, int year);
 int get_wday(int day, int month, int year);
-void HelpMarker(const char* desc);
+int get_mday_index_for_wday(int mday, int wday, int month, int year);
+int get_wday_count_in_month(int wday, int month, int year);
+void HelpMarker(const char *desc);
