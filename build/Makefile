@@ -44,7 +44,7 @@ LINUX_GL_LIBS = -lGL -licui18n -licuuc
 BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
-CXXFLAGS += -g -Wall -Wformat
+CXXFLAGS += -g -Wall -Wformat -O0
 LIBS =
 
 ##---------------------------------------------------------------------

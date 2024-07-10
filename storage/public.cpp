@@ -29,6 +29,7 @@ Journal::Journal()
     _current_year = _current_time.tm_year;
     _current_month = _current_time.tm_mon;
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
+    _workout_handler = new Workout_Handler();
 }
 const Student* Journal::student(int id) 
 { 
@@ -166,7 +167,7 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
     group->set_number(number);
     _all_groups.push_back(group);
     Lesson_Info* current = new Lesson_Info();
-    for (int i = 0; i < MAX_INTERNAL_LESSONS; i++)
+    for (int i = 0; i < lesson_pairs.size(); i++)
         current->add_lesson_pair(lesson_pairs[i]);
     current->set_group(PTRREF(group));
     std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
@@ -179,6 +180,7 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
         if (!(affected_days[i].is_future || affected_days[i].is_today)) await_no_one = true;
         affected_days[i].day->add_merged_lesson(PTRREF(current), await_no_one, new_merged_lesson_known_id);
     }
+    _workout_handler->change_lesson_info_position(current_month(), wday, -1, new_merged_lesson_known_id, lessons_in_this_day.size());
 }
 void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_id)
 {
@@ -208,7 +210,8 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
     Workout_Info caller_workout_info;
     caller_workout_info.student = &student;
-    caller_workout_info.lesson_info = _all_lessons[select_date.tm_wday][select_lesson.merged_lesson_id];
+    int wday = Journal::wday(select_date.tm_mday);
+    caller_workout_info.lesson_info = _all_lessons[wday][select_lesson.merged_lesson_id];
     caller_workout_info.internal_lesson = select_lesson.internal_lesson_id;
     caller_workout_info.date = select_date;
     caller_workout_info.recovery_hint = select_lesson;
@@ -219,6 +222,9 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     workout.real_lesson = caller_lesson;
     workout.should_lesson = select_lesson;
     workout.real_student_id = student_id;
+    if (workout.should_attend.tm_mon != workout.real_attend.tm_mon)
+        throw std::invalid_argument("not implemented");
+    workout.should_student_id = student_id;
     _workout_handler->insert_info(workout);
 
     _day(select_date.tm_mday)->set_status(select_lesson, internal_student_id, STATUS_WORKED_OUT);
@@ -306,6 +312,26 @@ const std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info
             int student_index = iter - student_ids->begin();
             output[student_index][i].second = workouts[i];
         }
+    }
+    return output;
+}
+
+const std::vector<std::vector<const Workout_Info_*>> Journal::get_workout_info(int real_wday, Lesson real_lesson, std::vector<int>* student_ids)
+{
+    std::vector<std::vector<const Workout_Info_ *>> output = _workout_handler->get_info(current_month(), real_wday, real_lesson);
+    if (student_ids == nullptr) return output;
+    student_ids->clear();
+    for (int i = 0; i < output.size(); i++)
+    {
+        int student_id = -1;
+        for (int j = 0; j < output[i].size(); j++)
+        {
+            if (output[i][j] == nullptr) continue;
+            student_id = output[i][j]->real_student_id;
+            break;
+        }
+        IM_ASSERT(student_id != -1);
+        student_ids->push_back(student_id);
     }
     return output;
 }

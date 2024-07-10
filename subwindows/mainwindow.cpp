@@ -185,8 +185,8 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
         if (status.status == STATUS_WORKED_OUT)
         {
             workout_exists = true;
-            auto current_workout_info = day->get_status(lesson, internal_student_id).workout_info;
-            tooltip = to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end);
+            //auto current_workout_info = day->get_status(lesson, internal_student_id).workout_info;
+            //tooltip = to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end);
         }
         if (attendance_combo(combo_attendance_name.c_str(), &(status.status), tooltip))
         {

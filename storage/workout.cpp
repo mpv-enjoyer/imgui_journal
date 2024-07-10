@@ -1,5 +1,13 @@
 #include "workout.h"
 
+Workout_Handler::Workout_Handler()
+{
+    _all_workouts = std::vector<Workout_Info_>();
+    _real_hashes.clear();
+    _last_real_hashes.clear();
+    _should_hashes.clear();
+}
+
 void Workout_Handler::insert_info(Workout_Info_ workout_info)
 {
     IM_ASSERT(workout_info.real_attend.tm_wday < 7);
@@ -15,10 +23,12 @@ void Workout_Handler::insert_info(Workout_Info_ workout_info)
 std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson real_lesson)
 {
     Workout_Info_ request;
+    request.real_lesson = real_lesson;
     request.real_attend.tm_wday = real_wday;
     request.real_attend.tm_mon = real_month;
     Workout_Hash_Container container = { &request };
-    auto real_result = _real_hashes.find(container);
+    auto real_result = _real_hashes.equal_range(container);
+    //TODO CRITICAL: replace find() with equal_range() here.
     std::vector<std::vector<const Workout_Info_*>> output;
     for (; real_result != _real_hashes.end(); ++real_result)
     {

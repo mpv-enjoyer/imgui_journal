@@ -13,10 +13,16 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
         if (journal->student(i)->is_removed()) continue;
         if (current_group->is_in_group(PTRREF(journal->student(i))) && !current_group->is_deleted(PTRREF(journal->student(i)))) continue;
         bool was_found = false;
-        for (int j = 0; j < journal->day(current_lesson_time.tm_mday)->get_workout_size(current_lesson); j++)
+        std::vector<int> student_ids;
+        int wday = graphical->wday;
+        journal->get_workout_info(wday, current_lesson, &student_ids);
+        for (int j = 0; j < student_ids.size(); j++)
         {
-            const Student* student = journal->day(current_lesson_time.tm_mday)->get_workout_student(current_lesson, j);
-            if (journal->student(i) == student) was_found = true;
+            if (student_ids[j] == i)
+            {
+                was_found = true;
+                break;
+            }
         }
         if (was_found) continue;
         possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
@@ -44,6 +50,7 @@ void Popup_Add_Working_Out::update_possible_lessons()
     possible_lessons = std::vector<std::vector<Lesson>>(journal->day_count());
     std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
+    if (select_student == -1) return;
     Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
     for (int i = 0; i < journal->day_count(); i++)
@@ -76,6 +83,7 @@ bool Popup_Add_Working_Out::show_frame()
         int result = picker.show();
         if (result != select_student)
         {
+            select_student = result;
             update_possible_lessons();
         }
         bool select_student_visible = result != -1;
@@ -123,6 +131,7 @@ bool Popup_Add_Working_Out::show_frame()
                 ImGui::TableNextColumn();
             }
         }
+        ImGui::EndTable();
         if (!select_student_visible)
         {
             ImGui::EndDisabled();
@@ -136,11 +145,11 @@ bool Popup_Add_Working_Out::show_frame()
                 const Lesson_Info* current = journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
                 std::string description = current->get_description(i);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
-                select_lesson_shown |= checkbox_value;
                 if (ImGui::Checkbox(description.c_str(), &checkbox_value))
                 {
                     select_lesson = possible_lessons[select_day][i];
                 }
+                select_lesson_shown |= checkbox_value;
             }
             if (!select_lesson_shown)
                 select_lesson = {-1, -1};
@@ -219,6 +228,6 @@ int Popup_Add_Working_Out::Picker::show()
         ImGui::Text(_descriptions[i].c_str());
     }
     ImGui::EndChild();
-    if (use_id_list) return _id_list[current];
+    if (use_id_list && current != -1) return _id_list[current];
     else return current;
 }
