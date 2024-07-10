@@ -208,20 +208,16 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
         throw std::invalid_argument("not implemented");
     Student& student = PTRREF(_all_students[student_id]);
     int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
-    Workout_Info caller_workout_info;
-    caller_workout_info.student = &student;
-    int wday = Journal::wday(select_date.tm_mday);
-    caller_workout_info.lesson_info = _all_lessons[wday][select_lesson.merged_lesson_id];
-    caller_workout_info.internal_lesson = select_lesson.internal_lesson_id;
-    caller_workout_info.date = select_date;
-    caller_workout_info.recovery_hint = select_lesson;
-    
+
     Workout_Info_ workout;
     workout.real_attend = caller_date;
     workout.should_attend = select_date;
     workout.real_lesson = caller_lesson;
     workout.should_lesson = select_lesson;
     workout.real_student_id = student_id;
+
+    workout.real_attend.tm_wday = Journal::wday(workout.real_attend.tm_mday);
+    workout.should_attend.tm_wday = Journal::wday(workout.should_attend.tm_mday);
     if (workout.should_attend.tm_mon != workout.real_attend.tm_mon)
         throw std::invalid_argument("not implemented");
     workout.should_student_id = student_id;

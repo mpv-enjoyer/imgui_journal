@@ -300,7 +300,7 @@ int get_wday(int day, int month, int year)
 
 int get_mday_index_for_wday(int mday, int wday, int month, int year)
 {
-    int day = get_first_wday(month, year, wday) - MDAY_DIFF;
+    int day = get_first_wday(month, year, wday);
     int day_count = get_number_of_days(month, year + 1900);
     for (int i = 0; day <= day_count; day += 7, i++)
     {

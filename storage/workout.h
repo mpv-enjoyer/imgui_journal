@@ -4,8 +4,8 @@
 
 class Workout_Handler
 {
-    int _bottom_year = 2024;
-    int _top_year = 2023;
+    int _bottom_year = 2023;
+    int _top_year = 2024;
     std::vector<Workout_Info_> _all_workouts;
     std::unordered_set<Workout_Hash_Container, Real_Workout_Hash> _real_hashes;
     std::unordered_set<Workout_Hash_Container, Last_Real_Workout_Hash> _last_real_hashes;

@@ -27,21 +27,22 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
     request.real_attend.tm_wday = real_wday;
     request.real_attend.tm_mon = real_month;
     Workout_Hash_Container container = { &request };
-    auto real_result = _real_hashes.equal_range(container);
-    //TODO CRITICAL: replace find() with equal_range() here.
+    auto real_hash = _real_hashes.bucket(container);
+    auto real_result = _real_hashes.begin(real_hash);
     std::vector<std::vector<const Workout_Info_*>> output;
-    for (; real_result != _real_hashes.end(); ++real_result)
+    for (auto iter = real_result; iter != _real_hashes.end(real_hash); ++iter)
     {
-        request.real_student_id = real_result->info->real_student_id;
-        auto last_result = _last_real_hashes.find(container);
+        request.real_student_id = iter->info->real_student_id;
+        auto last_hash = _last_real_hashes.bucket(container);
+        auto last_result = _last_real_hashes.begin(last_hash);
         int current_year = real_month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
-        if (last_result == _last_real_hashes.end()) continue;
+        if (last_result == _last_real_hashes.end(last_hash)) continue;
         output.push_back(std::vector<const Workout_Info_*>(get_wday_count_in_month(real_wday, real_month, current_year), nullptr));
-        for (; last_result != _last_real_hashes.end(); ++last_result)
+        for (auto last_iter = last_result; last_iter != _last_real_hashes.end(last_hash); ++last_iter)
         {
-            int index = get_mday_index_for_wday(last_result->info->real_attend.tm_mday, real_wday, real_month, current_year);
+            int index = get_mday_index_for_wday(last_iter->info->real_attend.tm_mday, real_wday, real_month, current_year);
             IM_ASSERT(output[output.size() - 1][index] == nullptr);
-            output[output.size() - 1][index] = last_result->info; 
+            output[output.size() - 1][index] = last_iter->info; 
         }
     }
     return output;
@@ -55,15 +56,15 @@ const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday
     request.should_lesson = should_lesson;
     request.should_student_id = should_student_id;
     Workout_Hash_Container container = { &request };
-    auto found = _should_hashes.find(container);
-    if (found == _should_hashes.end()) return nullptr;
-    return found->info;
+    auto hash = _should_hashes.bucket(container);
+    auto iter = _should_hashes.begin(hash);
+    if (iter == _should_hashes.end(hash)) return nullptr;
+    return iter->info;
 }
 
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
     Workout_Hash_Container container = { workout_info };
-    _real_hashes.erase(container);
     _real_hashes.erase(container);
     _last_real_hashes.erase(container);
     _should_hashes.erase(container);

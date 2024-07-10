@@ -357,11 +357,13 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 {
                     if (current_workout_info->should_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
                     if (current_workout_info->real_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
-                    int internal_student_id = group.find_student(PTRREF(student));
+                    Lesson should_lesson = current_workout_info->should_lesson;
+                    const Group& distant_group = journal->lesson_info(graphical->wday, should_lesson.merged_lesson_id)->get_group();
+                    int internal_student_id = distant_group.find_student(PTRREF(student));
                     Student_Status new_status;
                     new_status.discount_status = -1;
                     new_status.status = STATUS_NO_DATA;
-                    journal->set_lesson_status(current_workout_info->should_attend.tm_mday - MDAY_DIFF, lesson, internal_student_id, new_status, true);
+                    journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
                 }
                 // TODO: Show correct should_time.
                 ImGui::SetItemTooltip(to_string(current_workout_info->should_attend, {0, 0}).c_str());
