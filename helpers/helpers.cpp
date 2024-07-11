@@ -317,3 +317,21 @@ int get_wday_count_in_month(int wday, int month, int year)
     for ( ; day <= day_count; day+=7, output++) { };
     return output;
 }
+
+Time_Archiver::Time_Archiver(std::tm tm)
+{
+    mday = tm.tm_mday;
+    month = tm.tm_mon;
+    wday = tm.tm_wday;
+    year = tm.tm_yday;
+}
+
+std::tm Time_Archiver::to_tm()
+{
+    std::tm tm;
+    tm.tm_mday = mday;
+    tm.tm_mon = month;
+    tm.tm_wday = wday;
+    tm.tm_yday = year;
+    return tm;
+}

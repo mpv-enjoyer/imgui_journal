@@ -1,22 +1,6 @@
 #pragma once
 #include "main_types.h"
 
-struct Time_Archiver
-{
-    int year;
-    int month;
-    int mday;
-    int wday;
-template<class Archive>
-void serialize(Archive & ar, const unsigned int version)
-{
-    ar & mday;
-    ar & month;
-    ar & year;
-    ar & wday;
-}
-};
-
 struct Workout_Info
 {
     const Student* student = nullptr;

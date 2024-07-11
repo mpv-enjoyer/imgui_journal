@@ -12,6 +12,32 @@ struct Workout_Info_
     int should_student_id; // The same as real_student_id except for when it's for the other month
     Lesson should_lesson;
     std::tm should_attend;
+template<class Archive>
+void save(Archive & ar, const unsigned int version) const
+{
+    ar << real_student_id;
+    ar << real_lesson;
+    ar << Time_Archiver(real_attend);
+    ar << should_student_id;
+    ar << should_lesson;
+    ar << Time_Archiver(should_attend);
+}
+
+template<class Archive>
+void load(Archive & ar, const unsigned int version)
+{
+    ar >> real_student_id;
+    ar >> real_lesson;
+    Time_Archiver real_attend_ar;
+    ar >> real_attend_ar;
+    real_attend = real_attend_ar.to_tm();
+    ar >> should_student_id;
+    ar >> should_lesson;
+    Time_Archiver should_attend_ar;
+    ar >> should_attend_ar;
+    should_attend = should_attend_ar.to_tm();
+}
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 struct Workout_Hash_Container

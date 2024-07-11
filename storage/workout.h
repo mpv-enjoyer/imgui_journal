@@ -4,6 +4,33 @@
 
 class Workout_Handler
 {
+    friend class boost::serialization::access;
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
+        ar << _bottom_year;
+        ar << _top_year;
+        ar << _all_workouts;
+    }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        ar >> _bottom_year;
+        ar >> _top_year;
+        std::vector<Workout_Info_> workouts;
+        ar >> workouts;
+        _all_workouts.clear();
+        _real_hashes.clear();
+        _should_hashes.clear();
+        _last_real_hashes.clear();
+        for (auto workout : workouts)
+        {
+            insert_info(workout);
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
     int _bottom_year = 2023;
     int _top_year = 2024;
     std::vector<Workout_Info_> _all_workouts;

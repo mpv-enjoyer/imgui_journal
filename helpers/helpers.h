@@ -24,6 +24,12 @@ struct Lesson
 {
     int merged_lesson_id;
     int internal_lesson_id;
+template<class Archive>
+void serialize(Archive & ar, const unsigned int version)
+{
+    ar & merged_lesson_id;
+    ar & internal_lesson_id;
+}
 };
 
 struct Lesson_Full
@@ -31,6 +37,25 @@ struct Lesson_Full
     Lesson lesson;
     int day_of_the_week;
     Lesson_Full() {};
+};
+
+struct Time_Archiver
+{
+    int year;
+    int month;
+    int mday;
+    int wday;
+template<class Archive>
+void serialize(Archive & ar, const unsigned int version)
+{
+    ar & mday;
+    ar & month;
+    ar & year;
+    ar & wday;
+}
+    Time_Archiver() { };
+    Time_Archiver(std::tm tm);
+    std::tm to_tm();
 };
 
 inline bool operator==(const Lesson& lhs, const Lesson& rhs) { return lhs.internal_lesson_id == rhs.internal_lesson_id && lhs.merged_lesson_id == rhs.merged_lesson_id; }
