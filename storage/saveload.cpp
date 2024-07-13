@@ -5,6 +5,11 @@ std::string generate_file_name(int month, int year)
     return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y.data";
 }
 
+Journal::State Journal::get_state()
+{
+    return _state;
+}
+
 void Journal::save()
 {
     std::ofstream ofs(generate_file_name(_current_month, _current_year));

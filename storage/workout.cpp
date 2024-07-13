@@ -8,6 +8,18 @@ Workout_Handler::Workout_Handler()
     _should_hashes.clear();
 }
 
+bool Workout_Handler::is_month_here(int month, int year)
+{
+    int want_bottom_year = year;
+    if (month < STUDY_YEAR_BEGIN_MONTH) want_bottom_year--;
+    return want_bottom_year == _bottom_year;
+}
+
+int Workout_Handler::get_year(int month)
+{
+    return month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
+}
+
 void Workout_Handler::insert_info(Workout_Info_ workout_info)
 {
     IM_ASSERT(workout_info.real_attend.tm_wday < 7);
@@ -35,7 +47,7 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
         request.real_student_id = iter->info->real_student_id;
         auto last_hash = _last_real_hashes.bucket(container);
         auto last_result = _last_real_hashes.begin(last_hash);
-        int current_year = real_month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
+        int current_year = get_year(real_month);
         if (last_result == _last_real_hashes.end(last_hash)) continue;
         output.push_back(std::vector<const Workout_Info_*>(get_wday_count_in_month(real_wday, real_month, current_year), nullptr));
         for (auto last_iter = last_result; last_iter != _last_real_hashes.end(last_hash); ++last_iter)

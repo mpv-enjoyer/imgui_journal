@@ -82,6 +82,8 @@ class Journal
     int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
 
+    Journal* generation_base = nullptr;
+
     int _current_year;
     int _current_month;
     int _current_month_days_num;
@@ -92,14 +94,6 @@ class Journal
     std::vector<Calendar_Day*> _all_days;
 
     Workout_Handler* _workout_handler;
-
-    enum State
-    {
-        Empty,
-        Readonly,
-        Fullaccess
-    };
-    bool _generated = false;
 public:
     Journal();
 
@@ -150,9 +144,20 @@ public:
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);
     void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data);
 
+    enum State
+    {
+        Empty, // No file was loaded, no generation needed. (not generated year or a month earlier than first generated in current year)
+        Preview, // No file was loaded, generation needed. (current year is generated, the month is bigger than last generated in current year)
+        Limited, // File was loaded (earlier than current month)
+        Fullaccess // File was loaded or generated (current month)
+    };
+    State get_state();
+
     void save();
     bool load();
     void generate();
     bool is_generated();
     bool is_full_access();
+private:
+    State _state;
 };
