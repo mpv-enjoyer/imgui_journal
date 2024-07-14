@@ -59,6 +59,9 @@ Render::Render(Journal* _journal, Graphical *_graphical)
     }
     #endif //not supporting apple platform
 
+    graphical_main = graphical;
+    journal_main = journal;
+
     graphical->mainwindow = &mainwindow;
 }
 
