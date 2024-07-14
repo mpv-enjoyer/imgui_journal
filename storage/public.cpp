@@ -24,14 +24,104 @@ std::string Journal::Age_group(int number)
 {
     return _age_group_names[number];
 }
+
+// WARNING: Delete manually after using
+bool Journal::_search_last_generated_month(int* month, int* year)
+{
+    bool is_bottom_year = _current_month >= STUDY_YEAR_BEGIN_MONTH;
+    int check_year = _current_year;
+    if (!is_bottom_year)
+    {
+        for (int i = _current_month - 1; i >= 0; i--)
+        {
+            if (Journal::save_file_exists(i, check_year))
+            {
+                *month = i;
+                *year = check_year;
+                return true;
+            }
+        }
+    }
+    int check_month_begin = _current_month;
+    if (!is_bottom_year)
+    {
+        check_month_begin = 11;
+        check_year--;
+    }
+    for (int i = check_month_begin; i >= STUDY_YEAR_BEGIN_MONTH; i--)
+    {
+        if (Journal::save_file_exists(i, check_year))
+        {
+            *month = i;
+            *year = check_year;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Any month and year
+Journal::Journal(int month, int year, Journal* journal_main)
+{
+    _current_year = year;
+    _current_month = month;
+    _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
+
+    int bottom_year = Workout_Handler::get_bottom_year(month, year);
+    if (journal_main->workout_handler()->bottom_year() < bottom_year)
+    {
+        _state = State::Empty;
+        return;
+    }
+
+    bool is_before = _current_time.tm_year > year;
+    is_before |= _current_time.tm_year == year && _current_time.tm_mon > month;
+    bool is_current = _current_time.tm_year == year && _current_time.tm_mon == month;
+    bool is_future = !(is_before || is_current);
+    IM_ASSERT(!is_current && "Check for current before it's generated");
+    bool load_result = load();
+    if (load_result)
+    {
+        IM_ASSERT(!is_future);
+        // Workouts loaded, journal loaded.
+        if (is_before) _state = State::Limited;
+        return;
+    }
+    // Check if current month is in main year or before it:
+    bool in_this_year = journal_main->workout_handler()->is_month_here(_current_month, _current_year);
+    if (in_this_year && is_future)
+    {
+        _workout_handler = journal_main->workout_handler();
+        _state = State::Preview;
+        generate(journal_main->current_month(), journal_main->current_year());
+        return;
+    }
+
+    if (!_load_workouts()) _workout_handler = new Workout_Handler(_current_month, _current_year);
+    _state = State::Limited;
+    int month, year;
+    if (_search_last_generated_month(&month, &year)) generate(month, year);
+    else generate();
+}
+
+// Current month and year
 Journal::Journal()
 {
     _current_year = _current_time.tm_year;
     _current_month = _current_time.tm_mon;
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
-    _workout_handler = new Workout_Handler();
+    _state = State::Fullaccess;
+    bool load_result = load();
+    if (load_result) return;
+    int month, year;
+    if (_search_last_generated_month(&month, &year)) generate(month, year);
+    else generate();
 }
-const Student* Journal::student(int id) 
+Workout_Handler* Journal::workout_handler()
+{
+    return _workout_handler;
+}
+const Student *Journal::student(int id)
 { 
     return _all_students[id]; 
 }

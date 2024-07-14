@@ -6,6 +6,8 @@
 
 class Render
 {
+    Journal* journal_main;
+    Graphical* graphical_main;
     Journal* journal;
     Graphical* graphical;
     GLFWwindow* window;
@@ -13,7 +15,6 @@ class Render
     Mainwindow mainwindow;
     double poll_time;
     void set_update_time(int ms);
-    void prepare_first_frame();
     bool show_subwindows();
     bool show_popups();
     void show_frame();

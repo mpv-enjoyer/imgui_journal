@@ -81,6 +81,7 @@ class Journal
     int _discount_status(int student_contract);
     int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
+    bool _search_last_generated_month(int *month, int *year);
 
     Journal* generation_base = nullptr;
 
@@ -94,8 +95,10 @@ class Journal
     std::vector<Calendar_Day*> _all_days;
 
     Workout_Handler* _workout_handler;
+    bool _load_workouts();
 public:
     Journal();
+    Journal(int month, int year, Journal *journal_main);
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
@@ -107,6 +110,7 @@ public:
     std::string Wday_name_short(int wday);
     std::string Age_group(int number);
 
+    Workout_Handler *workout_handler();
     const Student* student(int id);
     const int student_count();
     const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
@@ -153,8 +157,10 @@ public:
     };
     State get_state();
 
+    static bool save_file_exists(int month, int year);
     void save();
     bool load();
+    void generate(int base_month, int base_year);
     void generate();
     bool is_generated();
     bool is_full_access();

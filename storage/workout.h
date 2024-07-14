@@ -31,8 +31,8 @@ class Workout_Handler
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    int _bottom_year = 2023;
-    int _top_year = 2024;
+    int _bottom_year;
+    int _top_year;
     std::vector<Workout_Info_> _all_workouts;
     std::unordered_set<Workout_Hash_Container, Real_Workout_Hash> _real_hashes;
     std::unordered_set<Workout_Hash_Container, Last_Real_Workout_Hash> _last_real_hashes;
@@ -40,7 +40,10 @@ class Workout_Handler
     bool remove_student(int month, int student_id);
     // we don't need this if students never get deleted.
 public:
-    Workout_Handler();
+    Workout_Handler(int month, int year);
+    static int get_bottom_year(int month, int year);
+    int bottom_year();
+    int top_year();
     bool is_month_here(int month, int year);
     int get_year(int month);
     void insert_info(Workout_Info_ workout_info);

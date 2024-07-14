@@ -5,9 +5,20 @@ std::string generate_file_name(int month, int year)
     return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y.data";
 }
 
+std::string generate_workout_name(int bottom_year)
+{
+    return "save_" + std::to_string(bottom_year + 1900) + "y_workouts.data";
+}
+
 Journal::State Journal::get_state()
 {
     return _state;
+}
+
+bool Journal::save_file_exists(int month, int year)
+{
+    std::ifstream ifs(generate_file_name(month, year));
+    return ifs.good();
 }
 
 void Journal::save()
@@ -20,6 +31,18 @@ void Journal::save()
     oa << _all_days;
 }
 
+bool Journal::_load_workouts()
+{
+    std::ifstream workout_ifs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
+    if (workout_ifs.fail())
+    {
+        return false;
+    }
+    boost::archive::text_iarchive workout_ia(workout_ifs);
+    workout_ia >> _workout_handler;
+    return true;
+}
+
 bool Journal::load()
 {
     _all_days.clear();
@@ -29,7 +52,6 @@ bool Journal::load()
     std::ifstream ifs(generate_file_name(_current_month, _current_year));
     if (ifs.fail()) 
     {
-        _generated = false;
         return false;
     }
     boost::archive::text_iarchive ia(ifs);
@@ -37,42 +59,46 @@ bool Journal::load()
     ia >> _all_groups;
     ia >> _all_lessons;
     ia >> _all_days;
-    _generated = true;
-    //TODO: repair workout pointers
+
+    if (!_load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
     return true;
 }
 
-void Journal::generate()
+void Journal::generate(int base_month, int base_year)
 {
-    _generated = true;
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
     _all_students.clear();
-    //TODO CRITICAL: Do not erase hidden students.
-    bool surpass_year = _current_month == 0;
-    int previous_month = (_current_month + 12 - 1) % 12;
-    int previous_year = surpass_year ? _current_year - 1 : _current_year;
-    std::ifstream previous_ifs(generate_file_name(previous_month, previous_year));
+
+    std::ifstream ifs(generate_file_name(_current_month, _current_year));
+    IM_ASSERT(ifs.good());
+    boost::archive::text_iarchive ia(ifs);
+    ia >> _all_students;
+    ia >> _all_groups;
+    ia >> _all_lessons;
     int first_day_of_the_week = get_first_mwday(_current_month, _current_year);
-    _all_lessons = std::vector<std::vector<Lesson_Info*>>(7);
     for (int i = 0; i < _current_month_days_num; i++)
     {
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
-    if (previous_ifs.fail())
-    {
-        return;
-    }
-    throw std::invalid_argument("not implemented");
-    //TODO: do not forget to add _days for imported previous Lesson_Info
-    //TODO: also looks like I only need to have all_lessons in my inter_month save files
+    // Remove removed lessons for real?
 }
 
-bool Journal::is_generated()
+void Journal::generate()
 {
-    return _generated;
+    //_generated = true;
+    _all_days.clear();
+    _all_groups.clear();
+    _all_lessons.clear();
+    _all_students.clear();
+    int first_day_of_the_week = get_first_mwday(_current_month, _current_year);
+    for (int i = 0; i < _current_month_days_num; i++)
+    {
+        int wday = (first_day_of_the_week + i) % 7;
+        _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
+    }
 }
 
 //Limited access should be given to other months to prevent weird behaviour.

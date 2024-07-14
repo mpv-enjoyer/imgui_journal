@@ -1,11 +1,26 @@
 #include "workout.h"
 
-Workout_Handler::Workout_Handler()
+Workout_Handler::Workout_Handler(int month, int year)
 {
-    _all_workouts = std::vector<Workout_Info_>();
-    _real_hashes.clear();
-    _last_real_hashes.clear();
-    _should_hashes.clear();
+    _bottom_year = get_bottom_year(month, year);
+    _top_year = _bottom_year + 1;
+}
+
+int Workout_Handler::get_bottom_year(int month, int year)
+{
+    int bottom_year = year;
+    if (month < STUDY_YEAR_BEGIN_MONTH) bottom_year--;
+    return bottom_year;
+}
+
+int Workout_Handler::bottom_year()
+{
+    return _bottom_year;
+}
+
+int Workout_Handler::top_year()
+{
+    return _top_year;
 }
 
 bool Workout_Handler::is_month_here(int month, int year)
