@@ -97,7 +97,12 @@ Journal::Journal(int month, int year, Journal* journal_main)
         return;
     }
 
-    if (!_load_workouts()) _workout_handler = new Workout_Handler(_current_month, _current_year);
+    if (!_load_workouts())
+    {
+        _workout_handler = new Workout_Handler(_current_month, _current_year);
+        generate();
+        return;
+    }
     _state = State::Limited;
     int month, year;
     if (_search_last_generated_month(&month, &year)) generate(month, year);
@@ -113,6 +118,12 @@ Journal::Journal()
     _state = State::Fullaccess;
     bool load_result = load();
     if (load_result) return;
+    if (!_load_workouts())
+    {
+        _workout_handler = new Workout_Handler(_current_month, _current_year);
+        generate();
+        return;
+    }
     int month, year;
     if (_search_last_generated_month(&month, &year)) generate(month, year);
     else generate();
