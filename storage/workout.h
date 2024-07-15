@@ -41,6 +41,7 @@ class Workout_Handler
     // we don't need this if students never get deleted.
 public:
     Workout_Handler(int month, int year);
+    Workout_Handler();
     static int get_bottom_year(int month, int year);
     int bottom_year();
     int top_year();
@@ -48,7 +49,8 @@ public:
     int get_year(int month);
     void insert_info(Workout_Info_ workout_info);
     std::vector<std::vector<const Workout_Info_ *>> get_info(int real_month, int real_wday, Lesson real_lesson);
-    const Workout_Info_ *get_info(int should_month, int should_mday, Lesson lesson, int should_student_id);
+    const Workout_Info_* get_info(int should_month, int should_mday, Lesson lesson, int should_student_id);
+    const std::vector<const Workout_Info_*> search_info(int should_month);
     void delete_info(const Workout_Info_ *workout_info);
     bool change_lesson_info_position(int month, int wday, int old_merged_lesson_id, int new_merged_lesson_id, int max_merged_lessons_size);
     // set old_merged_lesson_id to -1 if new lesson.

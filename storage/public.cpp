@@ -25,7 +25,6 @@ std::string Journal::Age_group(int number)
     return _age_group_names[number];
 }
 
-// WARNING: Delete manually after using
 bool Journal::_search_last_generated_month(int* month, int* year)
 {
     bool is_bottom_year = _current_month >= STUDY_YEAR_BEGIN_MONTH;
@@ -104,8 +103,8 @@ Journal::Journal(int month, int year, Journal* journal_main)
         return;
     }
     _state = State::Limited;
-    int month, year;
-    if (_search_last_generated_month(&month, &year)) generate(month, year);
+    int found_month, found_year;
+    if (_search_last_generated_month(&found_month, &found_year)) generate(found_month, found_year);
     else generate();
 }
 
@@ -203,26 +202,32 @@ const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_st
 }
 void Journal::set_student_name(int id, std::string name)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->set_name(name);
 }
 void Journal::set_student_age_group(int id, int age_group)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->set_age_group(age_group);
 }
 void Journal::set_student_contract(int id, int contract)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->set_contract(contract);
 }
 void Journal::set_group_number(int wday, int merged_lesson_id, int number)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
 }
 void Journal::set_group_comment(int wday, int merged_lesson_id, std::string comment)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_lessons[wday][merged_lesson_id]->_group().set_comment(comment);
 }
 void Journal::set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     Lesson current_lesson;
     current_lesson.merged_lesson_id = merged_lesson_id;
     const auto visible_days = _enumerate_days(wday);
@@ -242,17 +247,9 @@ void Journal::set_student_attend_data(int wday, int merged_lesson_id, int intern
     }
     _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, new_attend_data);
 }
-void Journal::set_date(int month, int year)
-{
-    if (month != current_time.tm_mon || year != current_time.tm_year)
-        throw std::invalid_argument("not implemented");
-    //TODO CRITICAL: check if journal is available for this month and load.
-    _current_month = month;
-    _current_year = year;
-    _current_month_days_num = get_number_of_days(month, year + 1900);
-}
 void Journal::add_student_to_base(std::string name, int contract)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     IM_ASSERT(contract >= 0 && name.size() > 0);
     Student* current = new Student();
     current->set_contract(contract);
@@ -261,6 +258,7 @@ void Journal::add_student_to_base(std::string name, int contract)
 }
 void Journal::add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     IM_ASSERT(wday >= 0 && wday <= 6 && number >= 0 && age_group >= -1 && age_group <= AGE_GROUP_COUNT);
     Group* group = new Group();
     group->set_age_group(age_group);
@@ -285,6 +283,7 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
 }
 void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_id)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     Student* student = _all_students[student_id];
     Lesson_Info* merged_lesson = _all_lessons[wday][merged_lesson_id];
     Group& group = merged_lesson->_group();
@@ -305,6 +304,7 @@ void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_i
 }
 void Journal::add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson)
 {
+    if (!_check_rights({State::Limited, State::Preview, State::Fullaccess})) return;
     if (caller_date.tm_mon != select_date.tm_mon || caller_date.tm_year != select_date.tm_year)
         throw std::invalid_argument("not implemented");
     Student& student = PTRREF(_all_students[student_id]);
@@ -330,6 +330,7 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
 }
 void Journal::edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     Lesson_Info& lesson_info = PTRREF(_all_lessons[wday][merged_lesson_id]);
     Group& group = lesson_info._group();
     while (lesson_info.get_lessons_size() != 0)
@@ -484,23 +485,29 @@ const std::string Journal::merged_lesson_name(int wday, int merged_lesson_id, in
 }
 void Journal::remove_student(int id)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->remove();
 }
 void Journal::restore_student(int id)
 {
+    if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->restore();
 }
 void Journal::remove_lesson(int wday, int merged_lesson_id)
 {
+    if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->discontinue();
 }
 void Journal::restore_lesson(int wday, int merged_lesson_id)
 {
+    if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->restore();
     //TODO: replace NAW's with zeros?
 }
 void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed)
 {
+    if (!_check_rights({ State::Fullaccess, State::Limited, State::Preview })) return;
+    // State::Preview shouldn't allow direct access from user because it will not be saved. 
     Calendar_Day* current_day = _day(mday);
     const Student& student = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id);
     int contract = student.get_contract();

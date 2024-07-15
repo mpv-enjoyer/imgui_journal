@@ -82,6 +82,7 @@ class Journal
     int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
     bool _search_last_generated_month(int *month, int *year);
+    
 
     Journal* generation_base = nullptr;
 
@@ -126,8 +127,7 @@ public:
     const int lesson_current_price(Lesson lesson, int mday, int internal_student_id);
     const bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
     const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
-    
-    void set_date(int month, int year);
+
     void add_student_to_base(std::string name, int contract);
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
@@ -156,6 +156,7 @@ public:
         Fullaccess // File was loaded or generated (current month)
     };
     State get_state();
+    // Almost every action requires certain State. State must never be changed after construction.
 
     static bool save_file_exists(int month, int year);
     void save();
@@ -166,4 +167,5 @@ public:
     bool is_full_access();
 private:
     State _state;
+    bool _check_rights(std::vector<State> states);
 };

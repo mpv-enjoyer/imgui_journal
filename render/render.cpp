@@ -101,6 +101,55 @@ void Render::show_frame()
     ImGui::NewFrame();
 
     graphical->mainwindow->show_frame();
+    Mainwindow::Callback callback = graphical->mainwindow->get_callback();
+    if (callback == Mainwindow::Callback::month_left)
+    {
+        int month = journal->current_month();
+        int year = journal->current_year();
+        if (month == 0)
+        {
+            month = 11;
+            year = year - 1;
+        }
+        else
+        {
+            month--;
+        }
+        if (journal_main->current_month() == month && journal_main->current_year() == year)
+        {
+            journal = journal_main;
+            graphical = graphical_main;
+        }
+        else
+        {
+            journal = new Journal(month, year, journal_main);
+            graphical = new Graphical(PTRREF(journal));
+        }
+    }
+    else if (callback == Mainwindow::Callback::month_right)
+    {
+        int month = journal->current_month();
+        int year = journal->current_year();
+        if (month == 11)
+        {
+            month = 0;
+            year = year + 1;
+        }
+        else
+        {
+            month++;
+        }
+        if (journal_main->current_month() == month && journal_main->current_year() == year)
+        {
+            journal = journal_main;
+            graphical = graphical_main;
+        }
+        else
+        {
+            journal = new Journal(month, year, journal_main);
+            graphical = new Graphical(PTRREF(journal));
+        }
+    }
     show_subwindows();
     show_popups();
 

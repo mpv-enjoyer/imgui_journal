@@ -6,6 +6,11 @@ Workout_Handler::Workout_Handler(int month, int year)
     _top_year = _bottom_year + 1;
 }
 
+Workout_Handler::Workout_Handler()
+{
+    
+}
+
 int Workout_Handler::get_bottom_year(int month, int year)
 {
     int bottom_year = year;
@@ -87,6 +92,16 @@ const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday
     auto iter = _should_hashes.begin(hash);
     if (iter == _should_hashes.end(hash)) return nullptr;
     return iter->info;
+}
+
+const std::vector<const Workout_Info_ *> Workout_Handler::search_info(int should_month)
+{
+    std::vector<const Workout_Info_*> output;
+    for (const auto& info : _all_workouts)
+    {
+        if (info.should_attend.tm_mon == should_month) output.push_back(&(info));
+    }
+    return output;
 }
 
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)

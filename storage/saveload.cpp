@@ -23,6 +23,7 @@ bool Journal::save_file_exists(int month, int year)
 
 void Journal::save()
 {
+    _check_rights({State::Fullaccess, State::Limited});
     std::ofstream ofs(generate_file_name(_current_month, _current_year));
     boost::archive::text_oarchive oa(ofs);
     oa << _all_students;
@@ -83,16 +84,31 @@ void Journal::generate(int base_month, int base_year)
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
-    // Remove removed lessons for real?
+
+    /* Remove removed lessons for real? */
+
+    // Fill lessons status for workouts depending on other months:
+    auto workouts = _workout_handler->search_info(_current_month);
+    for (auto workout : workouts)
+    {
+        int student_id = workout->should_student_id;
+        const Student& current_student = PTRREF(student(student_id));
+        const Group& group = lesson_info(wday(workout->should_attend.tm_mday), workout->should_lesson.merged_lesson_id)->get_group();
+        int internal_student_id = group.find_student(current_student);
+        Student_Status status;
+        status.discount_status = _discount_status(current_student.get_contract());
+        status.status = STATUS_WORKED_OUT;
+        set_lesson_status(workout->should_attend.tm_mday, workout->should_lesson, internal_student_id, status, false);
+    }
 }
 
 void Journal::generate()
 {
-    //_generated = true;
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
     _all_students.clear();
+    _all_lessons = std::vector<std::vector<Lesson_Info*>>(7);
     int first_day_of_the_week = get_first_mwday(_current_month, _current_year);
     for (int i = 0; i < _current_month_days_num; i++)
     {
@@ -101,11 +117,16 @@ void Journal::generate()
     }
 }
 
-//Limited access should be given to other months to prevent weird behaviour.
-//Limited access will allow to:
-// set status
-// set/unset workouts
 bool Journal::is_full_access()
 {
     return _current_month == current_time.tm_mon && _current_year == current_time.tm_year;
+}
+
+bool Journal::_check_rights(std::vector<State> states)
+{
+    for (auto state : states)
+    {
+        if (state == _state) return true;
+    }
+    return false;
 }

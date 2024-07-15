@@ -57,6 +57,8 @@
 #define CONVERT_TO_RU_CALENDAR(wday) wday == 6 ? 0 : wday + 1;
 #define CONVERT_TO_EN_CALENDAR(wday) wday == 0 ? 6 : wday - 1;
 
+#define LOOP_PLUS(value, base) ((value + 1) % base)
+#define LOOP_MINUS(value, base) ((value + (base - 1)) % base)
 #define ONE_LINE(STD_STRINGS)        one_line(STD_STRINGS).c_str()
 #define POPUP_INIT_FRAME(POPUP_NAME) ImGui::OpenPopup(POPUP_NAME); \
                                      ImVec2 center = ImGui::GetMainViewport()->GetCenter(); \

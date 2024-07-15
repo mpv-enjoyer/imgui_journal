@@ -1,6 +1,11 @@
 #include "mainwindow.h"
 
-Mainwindow::Mainwindow(Graphical* _graphical)
+Mainwindow::Callback Mainwindow::get_callback()
+{
+    return _callback;
+}
+
+Mainwindow::Mainwindow(Graphical *_graphical)
 {
     graphical = _graphical;
     journal = &(graphical->journal);
@@ -36,16 +41,14 @@ void Mainwindow::show_frame()
     if (ImGui::Checkbox("Режим редактирования", &edit_mode))
         graphical->set_edit_mode(edit_mode);
     ImGui::Text("Выбран день %s, %s текущего года", journal->Wday_name(graphical->wday).c_str(), journal->Month_name(journal->current_month()).c_str());
-    ImGui::BeginChild("Child", ImVec2(0, -20), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
-    if (!journal->is_generated())
+    if (!journal->get_state() == Journal::State::Empty)
     {
-        ImGui::Text("У текущего месяца нет журнала.\n"
-                    "Нажмите на кнопку ниже для создания...");
-        if (ImGui::Button("Создать журнал"))
-            journal->generate();
+        ImGui::Text("У текущего месяца нет журнала.\n");
+        ImGui::PopStyleVar();
         ImGui::End();
         return;
     }
+    ImGui::BeginChild("Child", ImVec2(0, -20), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
     if (journal->lesson_info_count(graphical->wday) == 0) 
         ImGui::Text("На текущий день не запланированы уроки.");
     for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)
@@ -54,6 +57,15 @@ void Mainwindow::show_frame()
     }
     ImGui::PopStyleVar();
     ImGui::EndChild();
+
+    if (ImGui::BeginTable("##table_bottom_group", 3, ImGuiTableFlags_SizingFixedFit))
+    {
+        ImGui::TableNextColumn(); if (ImGui::Button(" < ")) _callback = Callback::month_left;
+        ImGui::TableNextColumn(); ImGui::Button(" Текущий месяц ", ImVec2(-1, 0));
+        ImGui::TableNextColumn(); if (ImGui::Button(" > ")) _callback = Callback::month_right;
+        ImGui::EndTable();
+    }
+
     ImGui::End();
 }
 
