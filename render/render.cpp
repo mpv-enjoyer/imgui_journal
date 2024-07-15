@@ -119,11 +119,15 @@ void Render::show_frame()
         {
             journal = journal_main;
             graphical = graphical_main;
+            graphical->mainwindow = &mainwindow;
+            graphical->mainwindow->update_graphical(graphical);
         }
         else
         {
             journal = new Journal(month, year, journal_main);
             graphical = new Graphical(PTRREF(journal));
+            graphical->mainwindow = &mainwindow;
+            graphical->mainwindow->update_graphical(graphical);
         }
     }
     else if (callback == Mainwindow::Callback::month_right)
@@ -143,11 +147,15 @@ void Render::show_frame()
         {
             journal = journal_main;
             graphical = graphical_main;
+            graphical->mainwindow = &mainwindow;
+            graphical->mainwindow->update_graphical(graphical);
         }
         else
         {
             journal = new Journal(month, year, journal_main);
             graphical = new Graphical(PTRREF(journal));
+            graphical->mainwindow = &mainwindow;
+            graphical->mainwindow->update_graphical(graphical);
         }
     }
     show_subwindows();

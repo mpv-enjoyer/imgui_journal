@@ -88,15 +88,17 @@ Journal::Journal(int month, int year, Journal* journal_main)
     }
     // Check if current month is in main year or before it:
     bool in_this_year = journal_main->workout_handler()->is_month_here(_current_month, _current_year);
-    if (in_this_year && is_future)
+    if (in_this_year)
     {
         _workout_handler = journal_main->workout_handler();
-        _state = State::Preview;
-        generate(journal_main->current_month(), journal_main->current_year());
-        return;
+        if (is_future)
+        {
+            _state = State::Preview;
+            generate(journal_main->current_month(), journal_main->current_year());
+            return;
+        }
     }
-
-    if (!_load_workouts())
+    else if (!_load_workouts())
     {
         _workout_handler = new Workout_Handler(_current_month, _current_year);
         generate();
