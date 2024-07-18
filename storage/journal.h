@@ -159,12 +159,12 @@ public:
     // Almost every action requires certain State. State must never be changed after construction.
 
     static bool save_file_exists(int month, int year);
+    void save_workouts();
     void save();
     bool load();
     void generate(int base_month, int base_year);
     void generate();
-    bool is_generated();
-    bool is_full_access();
+    ~Journal();
 private:
     State _state;
     bool _check_rights(std::vector<State> states);

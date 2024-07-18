@@ -5,6 +5,38 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+void Render::change_current_month(int month, int year)
+{
+    bool is_current_month_main = journal_main == journal;
+    bool is_changed_month_main = journal_main->current_month() == month && journal_main->current_year() == year;
+    if (is_changed_month_main && is_current_month_main) return;
+
+    if (is_current_month_main)
+    {
+        journal->save();
+    }
+    else
+    {
+        delete journal;
+    }
+
+    // Data saved. Now load everything for another month
+
+    if (is_changed_month_main)
+    {
+        journal = journal_main;
+        graphical = graphical_main;
+    }
+    else
+    {
+        journal = new Journal(month, year, journal_main);
+        graphical = new Graphical(PTRREF(journal));
+    }
+
+    graphical->mainwindow = &mainwindow;
+    graphical->mainwindow->update_graphical(graphical);
+}
+
 Render::Render(Journal* _journal, Graphical *_graphical)
  : journal(_journal), graphical(_graphical), mainwindow(graphical)
 {
@@ -115,20 +147,7 @@ void Render::show_frame()
         {
             month--;
         }
-        if (journal_main->current_month() == month && journal_main->current_year() == year)
-        {
-            journal = journal_main;
-            graphical = graphical_main;
-            graphical->mainwindow = &mainwindow;
-            graphical->mainwindow->update_graphical(graphical);
-        }
-        else
-        {
-            journal = new Journal(month, year, journal_main);
-            graphical = new Graphical(PTRREF(journal));
-            graphical->mainwindow = &mainwindow;
-            graphical->mainwindow->update_graphical(graphical);
-        }
+        change_current_month(month, year);
     }
     else if (callback == Mainwindow::Callback::month_right)
     {
@@ -143,20 +162,7 @@ void Render::show_frame()
         {
             month++;
         }
-        if (journal_main->current_month() == month && journal_main->current_year() == year)
-        {
-            journal = journal_main;
-            graphical = graphical_main;
-            graphical->mainwindow = &mainwindow;
-            graphical->mainwindow->update_graphical(graphical);
-        }
-        else
-        {
-            journal = new Journal(month, year, journal_main);
-            graphical = new Graphical(PTRREF(journal));
-            graphical->mainwindow = &mainwindow;
-            graphical->mainwindow->update_graphical(graphical);
-        }
+        change_current_month(month, year);
     }
     show_subwindows();
     show_popups();

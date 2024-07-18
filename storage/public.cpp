@@ -100,8 +100,9 @@ Journal::Journal(int month, int year, Journal* journal_main)
     }
     else if (!_load_workouts())
     {
-        _workout_handler = new Workout_Handler(_current_month, _current_year);
-        generate();
+        // Cannot load workouts -> year not generated (from the past)
+        IM_ASSERT(is_before);
+        _state = State::Empty;
         return;
     }
     _state = State::Limited;
@@ -166,6 +167,7 @@ const int Journal::current_month() { return _current_month; };
 const int Journal::current_month_days_num() { return _current_month_days_num; };
 const std::vector<Day_With_Info> Journal::enumerate_days(int wday)
 {
+    if (_state == State::Empty) return std::vector<Day_With_Info>();
     std::vector<Day_With_Info> output;
     int day = get_first_wday(_current_month, _current_year, wday);
     int day_count = get_number_of_days(_current_month, _current_year);

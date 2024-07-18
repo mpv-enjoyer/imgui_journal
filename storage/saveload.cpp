@@ -21,9 +21,18 @@ bool Journal::save_file_exists(int month, int year)
     return ifs.good();
 }
 
+void Journal::save_workouts()
+{
+    if (!_check_rights({State::Fullaccess, State::Limited, State::Preview})) return;
+    std::ofstream ofs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
+    boost::archive::text_oarchive oa(ofs);
+    oa << _workout_handler;
+}
+
 void Journal::save()
 {
-    _check_rights({State::Fullaccess, State::Limited});
+    save_workouts();
+    if (!_check_rights({State::Fullaccess, State::Limited})) return;
     std::ofstream ofs(generate_file_name(_current_month, _current_year));
     boost::archive::text_oarchive oa(ofs);
     oa << _all_students;
@@ -72,7 +81,7 @@ void Journal::generate(int base_month, int base_year)
     _all_lessons.clear();
     _all_students.clear();
 
-    std::ifstream ifs(generate_file_name(_current_month, _current_year));
+    std::ifstream ifs(generate_file_name(base_month, base_year));
     IM_ASSERT(ifs.good());
     boost::archive::text_iarchive ia(ifs);
     ia >> _all_students;
@@ -117,11 +126,6 @@ void Journal::generate()
     }
 }
 
-bool Journal::is_full_access()
-{
-    return _current_month == current_time.tm_mon && _current_year == current_time.tm_year;
-}
-
 bool Journal::_check_rights(std::vector<State> states)
 {
     for (auto state : states)
@@ -129,4 +133,24 @@ bool Journal::_check_rights(std::vector<State> states)
         if (state == _state) return true;
     }
     return false;
+}
+
+Journal::~Journal()
+{
+    save();
+    for (auto& lesson_info_day : _all_lessons)
+    {
+        for (auto& lesson_info : lesson_info_day)
+        {
+            delete lesson_info;
+        }
+    }
+    for (auto& group : _all_groups)
+    {
+        delete group;
+    }
+    for (auto& student : _all_students)
+    {
+        delete student;
+    }
 }

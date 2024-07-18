@@ -19,7 +19,8 @@ class Render
     bool show_popups();
     void show_frame();
     void prepare_shutdown();
+    void change_current_month(int month, int year);
 public:
-    Render(Journal* _journal, Graphical* _graphical);
+    Render(Journal *_journal, Graphical *_graphical);
     void main_loop();
 };
