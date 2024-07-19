@@ -50,5 +50,5 @@ void Popup_Edit_Lesson::accept_changes()
 {
     std::vector<Lesson_Pair> input_pairs = { first_lesson_pair };
     if (second_lesson_exists) input_pairs.push_back(second_lesson_pair);
-    journal->edit_lesson(wday, merged_lesson_id, group_number, group_description, input_pairs);
+    //journal->edit_lesson_pairs(wday, merged_lesson_id, group_number, group_description, input_pairs);
 }

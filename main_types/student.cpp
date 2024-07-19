@@ -34,34 +34,15 @@ bool Student::remove()
     return true;
 }
 
-bool Student::set_age_group(int new_age_group)
-{
-    if (new_age_group >= AGE_GROUP_COUNT) return false;
-    age_group = new_age_group;
-    return true;
-}
-
-std::string Student::get_age_group_string()
-{
-    if (age_group == -1) return "не задана";
-    return Age_Group_Names[age_group];
-}
-
 bool Student::restore()
 {
     removed = false;
     return true;
 }
 
-int Student::get_age_group() const
-{
-    return age_group;
-}
-
 Student::Student()
 {
     contract = -1;
-    age_group = -1;
 }
 
 bool Student::is_identical(const Student& rhs) const

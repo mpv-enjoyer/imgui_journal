@@ -65,7 +65,8 @@ class Journal
         "Пт", 
         "Сб"};
     const std::array<std::string, AGE_GROUP_COUNT> _age_group_names = 
-        {"4 года, дошкольная группа", 
+        {"не указан"
+        "4 года, дошкольная группа", 
         "5 лет, дошкольная группа", 
         "6 лет, дошкольная группа", 
         "7 лет, школьная группа", 
@@ -132,7 +133,7 @@ public:
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
-    void edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs);
+    void edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Lesson_Pair> pairs);
     const std::vector<std::vector<std::pair<const Workout_Info_ *, const Workout_Info_ *>>> get_workout_info(int real_wday, int real_merged_lesson, std::vector<int> *student_ids);
     const std::vector<std::vector<const Workout_Info_ *>> get_workout_info(int real_wday, Lesson real_lesson, std::vector<int> *student_ids);
     const Workout_Info_ *get_workout_info(int should_mday, Lesson should_lesson, int should_student_id);
@@ -142,7 +143,7 @@ public:
     void restore_lesson(int wday, int merged_lesson_id);
     void set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed);
     void set_student_name(int id, std::string name);
-    void set_student_age_group(int id, int age_group);
+    void set_group_age_group(int wday, int merged_lesson_id, int age_group);
     void set_student_contract(int id, int contract);
     void set_group_number(int wday, int merged_lesson_id, int number);
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);

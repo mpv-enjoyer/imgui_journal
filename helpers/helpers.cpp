@@ -104,39 +104,46 @@ int validate_time_int(std::string input_string, int upper_limit)
 
 bool j_input_time(std::string label, JTime& time)
 {
+    bool result = false;
     std::string pre_input_buffer;
     char input_buffer[3];
-    if (ImGui::BeginTable(label.c_str(), 3, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_PreciseWidths | ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX))
+    if (ImGui::BeginTable(label.c_str(), 3, ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_PreciseWidths | ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_SizingFixedFit))
     {
         ImGui::TableNextColumn();
         ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
         pre_input_buffer = std::to_string(time.hours); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
-        strcpy(input_buffer, pre_input_buffer.c_str());
-        //TODO: I don't know whether this strcpy command is safe or not, I've heard complains.
-        //      This might lead to unknown bugs
+        strncpy(input_buffer, pre_input_buffer.c_str(), 3);
+        IM_ASSERT(input_buffer[2] == '\0' || input_buffer[1] == '\0' || input_buffer[0] == '\0');
         std::string hours_name = generate_label(label, { 0 });
         if (ImGui::InputText(hours_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
             int new_hours = validate_time_int(std::string(input_buffer), 24);
-            if (new_hours != -1) time.hours = new_hours;
+            if (new_hours != -1) 
+            {
+                time.hours = new_hours;
+                result = true;
+            }
         }
         ImGui::TableNextColumn();
         ImGui::Text(":");
         ImGui::TableNextColumn();
         ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
         pre_input_buffer = std::to_string(time.minutes); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
-        strcpy(input_buffer, pre_input_buffer.c_str());
-        //TODO: I don't know whether this strcpy command is safe or not, I've heard complains.
-        //      This might lead to unknown bugs
+        strncpy(input_buffer, pre_input_buffer.c_str(), 3);
+        IM_ASSERT(input_buffer[2] == '\0' || input_buffer[1] == '\0' || input_buffer[0] == '\0');
         std::string minutes_name = generate_label(label, { 1 });
         if (ImGui::InputText(minutes_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
         {
             int new_minutes = validate_time_int(std::string(input_buffer), 60);
-            if (new_minutes != -1) time.minutes = new_minutes;
+            if (new_minutes != -1)
+            {
+                time.minutes = new_minutes;
+                result = true;
+            }
         }
         ImGui::EndTable();
     }
-    return true;
+    return result;
 }
 
 std::string generate_label(const std::string prefix, std::vector<int> unique)
@@ -148,6 +155,29 @@ std::string generate_label(const std::string prefix, std::vector<int> unique)
     }
     return output;
 }
+
+bool j_age_group_combo(const char* label, int* age_group)
+{
+    const char* combo_preview_value = Age_Group_Names[*age_group].c_str(); 
+    if (ImGui::BeginCombo(label, combo_preview_value, ImGuiComboFlags_WidthFitPreview | ImGuiComboFlags_HeightLargest))
+    {
+        for (int n = 0; n < Age_Group_Names.size(); n++)
+        {
+            const bool is_selected = (*age_group == n);
+            if (ImGui::Selectable(Age_Group_Names[n].c_str(), is_selected))
+            {
+                *age_group = n;
+                ImGui::EndCombo();
+                return true;
+            }
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    return false;
+};
 
 bool j_attendance_combo(const char* label, int* status, std::string tooltip)
 {

@@ -26,10 +26,10 @@ int Group::get_age_group() const
     return age_group;
 }
 
-bool Group::set_age_group(int new_day)
+bool Group::set_age_group(int new_age_group)
 {
-    if (new_day < -1 || new_day >= AGE_GROUP_COUNT) return false;
-    age_group = new_day;
+    if (new_age_group < 0 || new_age_group >= AGE_GROUP_COUNT) return false;
+    age_group = new_age_group;
     return true;
 }
 
@@ -165,7 +165,7 @@ std::string Group::get_description() const
 
 Group::Group()
 {
-    age_group = -1;
+    age_group = 0;
     number = -1;
 }
 

@@ -143,7 +143,7 @@ bool Popup_Add_Working_Out::show_frame()
             for (int i = 0; i < possible_lessons[select_day].size(); i++)
             {
                 const Lesson_Info* current = journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
-                std::string description = current->get_description(i);
+                std::string description = current->get_description(possible_lessons[select_day][i].internal_lesson_id);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
                 if (ImGui::Checkbox(description.c_str(), &checkbox_value))
                 {

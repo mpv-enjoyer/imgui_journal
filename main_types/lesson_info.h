@@ -36,6 +36,7 @@ public:
     const Group& get_group() const;
     Group& _group();
     bool set_group(Group &new_group);
+    std::vector<Lesson_Pair> get_lesson_pairs() const;
     Lesson_Pair get_lesson_pair(int id) const; bool add_lesson_pair(Lesson_Pair new_lesson_pair); bool delete_lesson_pair(int id);
     bool discontinue(); bool is_discontinued() const; bool restore();
     bool should_attend(int known_internal_student_id, int internal_lesson) const;

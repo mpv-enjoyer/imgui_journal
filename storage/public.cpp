@@ -209,19 +209,27 @@ void Journal::set_student_name(int id, std::string name)
     if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->set_name(name);
 }
-void Journal::set_student_age_group(int id, int age_group)
-{
-    if (!_check_rights({ State::Fullaccess })) return; 
-    _all_students[id]->set_age_group(age_group);
-}
 void Journal::set_student_contract(int id, int contract)
 {
     if (!_check_rights({ State::Fullaccess })) return; 
     _all_students[id]->set_contract(contract);
 }
+void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
+{
+    if (!_check_rights({ State::Fullaccess })) return;
+    _all_lessons[wday][merged_lesson_id]->_group().set_age_group(age_group); 
+}
 void Journal::set_group_number(int wday, int merged_lesson_id, int number)
 {
-    if (!_check_rights({ State::Fullaccess })) return; 
+    if (!_check_rights({ State::Fullaccess })) return;
+    // Check if new number is unique
+    for (const auto& lesson_infos : _all_lessons)
+    {
+        for (const auto& lesson_info : lesson_infos)
+        {
+            if (lesson_info->get_group().get_number() == number) return;
+        }
+    }
     _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
 }
 void Journal::set_group_comment(int wday, int merged_lesson_id, std::string comment)
@@ -275,7 +283,6 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
     current->set_group(PTRREF(group));
     std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
     int new_merged_lesson_known_id = _emplace_lesson_info(wday, PTRREF(current));
-    lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, current);
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (int i = 0; i < affected_days.size(); i++)
     {
@@ -332,18 +339,24 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     int discount_status = _discount_status(student.get_contract());
     _day(select_date.tm_mday)->set_discount_status(select_lesson, internal_student_id, discount_status);
 }
-void Journal::edit_lesson(int wday, int merged_lesson_id, int number, std::string comment, std::vector<Lesson_Pair> pairs)
+void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Lesson_Pair> pairs)
 {
     if (!_check_rights({ State::Fullaccess })) return; 
     Lesson_Info& lesson_info = PTRREF(_all_lessons[wday][merged_lesson_id]);
     Group& group = lesson_info._group();
-    while (lesson_info.get_lessons_size() != 0)
-        lesson_info.delete_lesson_pair(0);
+
+    Lesson_Info lesson_info_checked = lesson_info;
+
+    while (lesson_info_checked.get_lessons_size() != 0)
+    {
+        lesson_info_checked.delete_lesson_pair(0);
+    }
     for (int i = 0; i < pairs.size(); i++)
-        lesson_info.add_lesson_pair(pairs[i]);
-    
-    group.set_number(number);
-    group.set_comment(comment);
+    {
+        if (!lesson_info_checked.add_lesson_pair(pairs[i])) return; // Cannot add pair, no changes.
+    }
+
+    lesson_info = lesson_info_checked;
     _all_lessons[wday].erase(_all_lessons[wday].begin() + merged_lesson_id);
     int new_merged_lesson_id = _emplace_lesson_info(wday, lesson_info);
     //workaround???

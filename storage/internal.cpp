@@ -41,7 +41,7 @@ int Journal::_discount_status(int student_contract)
 
 int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
 {
-    auto lessons_in_this_day = _all_lessons[wday];
+    auto& lessons_in_this_day = _all_lessons[wday];
     int new_merged_lesson_known_id = lessons_in_this_day.size();
     for (int i = 0; i < lessons_in_this_day.size(); i++)
     {

@@ -28,6 +28,11 @@ bool Lesson_Info::set_group(Group& new_group)
     return true;
 }
 
+std::vector<Lesson_Pair> Lesson_Info::get_lesson_pairs() const
+{
+    return lesson_pairs;
+}
+
 //Changed behaviour: no more sort check
 bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
 {

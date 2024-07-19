@@ -11,7 +11,7 @@ private:
     int group_number = 0;
     std::string group_comment;
     int combo_lesson_name_id = 0;
-    int age_group = -1;
+    int age_group = 0;
     std::vector<Lesson_Pair> lesson_pairs;
 public:
     Popup_Add_Merged_Lesson_To_Journal(Graphical* graphical); 

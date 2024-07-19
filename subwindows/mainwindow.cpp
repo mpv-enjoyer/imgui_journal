@@ -50,7 +50,7 @@ void Mainwindow::show_frame()
         ImGui::End();
         return;
     }
-    ImGui::BeginChild("Child", ImVec2(0, -25), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
     if (journal->lesson_info_count(graphical->wday) == 0) 
         ImGui::Text("На текущий день не запланированы уроки.");
     for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)
