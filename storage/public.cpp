@@ -230,6 +230,7 @@ void Journal::set_group_number(int wday, int merged_lesson_id, int number)
             if (lesson_info->get_group().get_number() == number) return;
         }
     }
+    if (number < 0) return;
     _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
 }
 void Journal::set_group_comment(int wday, int merged_lesson_id, std::string comment)

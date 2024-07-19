@@ -10,7 +10,7 @@
         } \
         if (is_done) \
         { \
-            free(N); \
+            delete N; \
             N = nullptr; \
         } \
         return true; \

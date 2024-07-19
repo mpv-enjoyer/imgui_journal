@@ -31,6 +31,7 @@ void Journal::save_workouts()
 
 void Journal::save()
 {
+    if (restrict_saving) return;
     save_workouts();
     if (!_check_rights({State::Fullaccess, State::Limited})) return;
     std::ofstream ofs(generate_file_name(_current_month, _current_year));

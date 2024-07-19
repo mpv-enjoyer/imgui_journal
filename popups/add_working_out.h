@@ -14,6 +14,7 @@ private:
     int select_day = -1;
     int select_month = -1;
     int select_year = -1;
+    Journal* current_journal;
     Lesson select_lesson = {-1, -1};
     int caller_month = -1;
     int caller_mday = -1;
@@ -39,7 +40,9 @@ private:
 public:
     Popup_Add_Working_Out(Graphical* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
     void update_possible_lessons();
+    void update_journal(int month, int year);
     bool show_frame();
     bool is_ok_possible(bool is_calendar_filled);
     void accept_changes();
+    ~Popup_Add_Working_Out();
 };

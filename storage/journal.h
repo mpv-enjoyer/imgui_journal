@@ -157,6 +157,7 @@ public:
         Fullaccess // File was loaded or generated (current month)
     };
     State get_state();
+    bool restrict_saving = false;
     // Almost every action requires certain State. State must never be changed after construction.
 
     static bool save_file_exists(int month, int year);
