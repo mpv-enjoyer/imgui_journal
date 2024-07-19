@@ -98,6 +98,7 @@ class Journal
 
     Workout_Handler* _workout_handler;
     bool _load_workouts();
+    int _journal_main_bottom_year;
 public:
     Journal();
     Journal(int month, int year, Journal *journal_main);
@@ -160,6 +161,7 @@ public:
     bool restrict_saving = false;
     // Almost every action requires certain State. State must never be changed after construction.
 
+    
     static bool save_file_exists(int month, int year);
     void save_workouts();
     void save();

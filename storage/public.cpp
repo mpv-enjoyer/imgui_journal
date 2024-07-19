@@ -62,6 +62,7 @@ bool Journal::_search_last_generated_month(int* month, int* year)
 // Any month and year
 Journal::Journal(int month, int year, Journal* journal_main)
 {
+    _journal_main_bottom_year = Workout_Handler::get_bottom_year(journal_main->current_month(), journal_main->current_year());
     _current_year = year;
     _current_month = month;
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
@@ -116,6 +117,7 @@ Journal::Journal()
 {
     _current_year = _current_time.tm_year;
     _current_month = _current_time.tm_mon;
+    _journal_main_bottom_year = Workout_Handler::get_bottom_year(_current_month, _current_year);
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
     _state = State::Fullaccess;
     bool load_result = load();

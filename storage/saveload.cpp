@@ -154,4 +154,6 @@ Journal::~Journal()
     {
         delete student;
     }
+    bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
+    if (is_current_year_allocated) delete _workout_handler;
 }
