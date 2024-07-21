@@ -24,6 +24,8 @@ void Render::change_current_month(int month, int year)
 
     if (is_changed_month_main)
     {
+        // Months with State::Preview can generate workouts that affect main journal.
+        journal_main->load_workouts();
         journal = journal_main;
         graphical = graphical_main;
     }
@@ -138,30 +140,14 @@ void Render::show_frame()
     {
         int month = journal->current_month();
         int year = journal->current_year();
-        if (month == 0)
-        {
-            month = 11;
-            year = year - 1;
-        }
-        else
-        {
-            month--;
-        }
+        previous_month_for(month, year);
         change_current_month(month, year);
     }
     else if (callback == Mainwindow::Callback::month_right)
     {
         int month = journal->current_month();
         int year = journal->current_year();
-        if (month == 11)
-        {
-            month = 0;
-            year = year + 1;
-        }
-        else
-        {
-            month++;
-        }
+        next_month_for(month, year);
         change_current_month(month, year);
     }
     show_subwindows();

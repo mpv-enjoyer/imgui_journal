@@ -60,7 +60,7 @@ bool Journal::_search_last_generated_month(int* month, int* year)
 }
 
 // Any month and year
-Journal::Journal(int month, int year, Journal* journal_main)
+Journal::Journal(int month, int year, Journal* journal_main) : journal_main(journal_main)
 {
     _journal_main_bottom_year = Workout_Handler::get_bottom_year(journal_main->current_month(), journal_main->current_year());
     _current_year = year;
@@ -99,7 +99,7 @@ Journal::Journal(int month, int year, Journal* journal_main)
             return;
         }
     }
-    else if (!_load_workouts())
+    else if (!load_workouts())
     {
         // Cannot load workouts -> year not generated (from the past)
         IM_ASSERT(is_before);
@@ -122,7 +122,7 @@ Journal::Journal()
     _state = State::Fullaccess;
     bool load_result = load();
     if (load_result) return;
-    if (!_load_workouts())
+    if (!load_workouts())
     {
         _workout_handler = new Workout_Handler(_current_month, _current_year);
         generate();
@@ -319,8 +319,6 @@ void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_i
 void Journal::add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson)
 {
     if (!_check_rights({State::Limited, State::Preview, State::Fullaccess})) return;
-    if (caller_date.tm_mon != select_date.tm_mon || caller_date.tm_year != select_date.tm_year)
-        throw std::invalid_argument("not implemented");
     Student& student = PTRREF(_all_students[student_id]);
     int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
 
@@ -331,10 +329,9 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     workout.should_lesson = select_lesson;
     workout.real_student_id = student_id;
 
-    workout.real_attend.tm_wday = Journal::wday(workout.real_attend.tm_mday);
-    workout.should_attend.tm_wday = Journal::wday(workout.should_attend.tm_mday);
-    if (workout.should_attend.tm_mon != workout.real_attend.tm_mon)
-        throw std::invalid_argument("not implemented");
+    workout.real_attend.tm_wday = get_wday(caller_date.tm_mday, caller_date.tm_mon, caller_date.tm_year);
+    workout.should_attend.tm_wday = get_wday(select_date.tm_mday, select_date.tm_mon, select_date.tm_year);
+
     workout.should_student_id = student_id;
     _workout_handler->insert_info(workout);
 
@@ -471,6 +468,7 @@ bool Journal::_match_lesson_types(int l, int r)
 
 const bool Journal::is_workout_possible(const Lesson_Info* select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id)
 {
+    if (student_id < 0) return false;
     const Student* current_student = student(student_id);
     if (current_student->is_removed()) return false;
     if (select_lesson->is_discontinued()) return false;
@@ -527,7 +525,7 @@ void Journal::restore_lesson(int wday, int merged_lesson_id)
 void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed)
 {
     if (!_check_rights({ State::Fullaccess, State::Limited, State::Preview })) return;
-    // State::Preview shouldn't allow direct access from user because it will not be saved. 
+    // State::Preview shouldn't allow direct access from user because it will not be saved.
     Calendar_Day* current_day = _day(mday);
     const Student& student = lesson_info(wday(mday), lesson.merged_lesson_id)->get_group().get_student(internal_student_id);
     int contract = student.get_contract();

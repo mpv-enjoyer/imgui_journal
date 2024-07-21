@@ -42,7 +42,7 @@ void Journal::save()
     oa << _all_days;
 }
 
-bool Journal::_load_workouts()
+bool Journal::load_workouts()
 {
     std::ifstream workout_ifs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
     if (workout_ifs.fail())
@@ -71,7 +71,7 @@ bool Journal::load()
     ia >> _all_lessons;
     ia >> _all_days;
 
-    if (!_load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
+    if (!load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
     return true;
 }
 
@@ -108,8 +108,12 @@ void Journal::generate(int base_month, int base_year)
         Student_Status status;
         status.discount_status = _discount_status(current_student.get_contract());
         status.status = STATUS_WORKED_OUT;
-        set_lesson_status(workout->should_attend.tm_mday, workout->should_lesson, internal_student_id, status, false);
+        _day(workout->should_attend.tm_mday)->set_status(workout->should_lesson, internal_student_id, STATUS_WORKED_OUT);
+        int discount_status = _discount_status(current_student.get_contract());
+        _day(workout->should_attend.tm_mday)->set_discount_status(workout->should_lesson, internal_student_id, discount_status);
     }
+
+    save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
 void Journal::generate()
@@ -125,6 +129,7 @@ void Journal::generate()
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
+    save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
 bool Journal::_check_rights(std::vector<State> states)

@@ -49,7 +49,7 @@ void Popup_Add_Working_Out::update_possible_lessons()
     possible_lessons = std::vector<std::vector<Lesson>>(current_journal->day_count());
     std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
-    if (select_student == -1) return;
+    //if (select_student == -1) return;
     Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
     for (int i = 0; i < current_journal->day_count(); i++)
@@ -109,19 +109,38 @@ bool Popup_Add_Working_Out::show_frame()
     }
     POPUP_INIT_FRAME("Добавление отработки")
     {
+        ImGui::BeginGroup();
         int result = picker.show();
+        ImGui::EndGroup();
         if (result != select_student)
         {
             select_student = result;
             update_possible_lessons();
         }
+        ImGui::SameLine();
+        ImGui::BeginGroup();
+        if (ImGui::Button("<##workout"))
+        {
+            int month = select_month;
+            int year = select_year;
+            previous_month_for(month, year);
+            update_journal(month, year);
+        }; 
+        ImGui::SameLine();
+        ImGui::Button(current_journal->Month_name(current_journal->current_month()).c_str());
+        ImGui::SameLine();
+        if (ImGui::Button(">##workout"))
+        {
+            int month = select_month;
+            int year = select_year;
+            next_month_for(month, year);
+            update_journal(month, year);
+        };
         bool select_student_visible = result != -1;
         if (!select_student_visible)
         {
             ImGui::BeginDisabled();
         }
-        ImGui::SameLine();
-        ImGui::BeginGroup();
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
         bool is_calendar_filled = false;
         if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame))
@@ -218,16 +237,16 @@ void Popup_Add_Working_Out::accept_changes()
     select_day, select_month, select_year };
     std::tm caller_date = { 0, 0, 0,
     caller_mday, caller_month, caller_year };
-
-    journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+    current_journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
 }
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()
 {
     if (journal != current_journal)
     {
-        current_journal->restrict_saving = true;
         delete current_journal;
+        // Destructor saved new workout to the list so we need to load the list again
+        journal->load_workouts();
     }
 }
 

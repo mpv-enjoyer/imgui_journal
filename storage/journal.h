@@ -97,7 +97,7 @@ class Journal
     std::vector<Calendar_Day*> _all_days;
 
     Workout_Handler* _workout_handler;
-    bool _load_workouts();
+    
     int _journal_main_bottom_year;
 public:
     Journal();
@@ -105,6 +105,7 @@ public:
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
+    Journal* const journal_main = nullptr;
 
     std::string Lesson_name(int type);
     const int Lesson_price(int type, int discount_status);
@@ -165,6 +166,7 @@ public:
     static bool save_file_exists(int month, int year);
     void save_workouts();
     void save();
+    bool load_workouts();
     bool load();
     void generate(int base_month, int base_year);
     void generate();

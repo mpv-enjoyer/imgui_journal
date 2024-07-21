@@ -100,4 +100,6 @@ int get_first_mwday(int month, int year);
 int get_wday(int day, int month, int year);
 int get_mday_index_for_wday(int mday, int wday, int month, int year);
 int get_wday_count_in_month(int wday, int month, int year);
+void next_month_for(int& month, int& year);
+void previous_month_for(int& month, int& year);
 void HelpMarker(const char *desc);

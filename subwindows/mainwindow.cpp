@@ -293,6 +293,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         second_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(1).lesson_name_id);
     if (!graphical->edit_mode && ImGui::Button(first_lesson_name.c_str()))
     {
+        journal->save(); // Cross month actions may break without saving here.
         std::tm current_lesson_time = { 0, 0, 0, 
         journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
         Lesson lesson = {merged_lesson_id, 0};
@@ -301,6 +302,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
     ImGui::SameLine(0.0f, 2.0f);
     if (!graphical->edit_mode && merged_lesson.get_lessons_size() == 2 && ImGui::Button(second_lesson_name.c_str()))
     {
+        journal->save(); // Cross month actions may break without saving here.
         std::tm current_lesson_time = { 0, 0, 0, 
         journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
         Lesson lesson = {merged_lesson_id, 1};
@@ -325,6 +327,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
             {
                 std::tm current_lesson_time = { 0, 0, 0,
                         graphical->visible_days[day_id].number - MDAY_DIFF, journal->current_month(), journal->current_year() };
+                journal->save(); // Cross month actions may break without saving here.
                 graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
             }
         }
@@ -369,14 +372,13 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 ImGui::SameLine();
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    if (current_workout_info->should_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
-                    if (current_workout_info->real_attend.tm_mon != journal->current_time.tm_mon) throw std::invalid_argument("not implemented");
                     Lesson should_lesson = current_workout_info->should_lesson;
                     const Group& distant_group = journal->lesson_info(graphical->wday, should_lesson.merged_lesson_id)->get_group();
                     int internal_student_id = distant_group.find_student(PTRREF(student));
                     Student_Status new_status;
                     new_status.discount_status = -1;
                     new_status.status = STATUS_NO_DATA;
+                    if (current_workout_info->real_attend.tm_mon != current_workout_info->should_attend.tm_mon) throw std::invalid_argument("not implemented");
                     journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
                 }
                 // TODO: Show correct should_time.

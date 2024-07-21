@@ -348,6 +348,32 @@ int get_wday_count_in_month(int wday, int month, int year)
     return output;
 }
 
+void next_month_for(int& month, int& year)
+{
+    if (month == 11)
+    {
+        month = 0;
+        year = year + 1;
+    }
+    else
+    {
+        month += 1;
+    }
+}
+
+void previous_month_for(int& month, int& year)
+{
+    if (month == 0)
+    {
+        month = 11;
+        year = year - 1;
+    }
+    else
+    {
+        month -= 1;
+    }
+}
+
 Time_Archiver::Time_Archiver(std::tm tm)
 {
     mday = tm.tm_mday;

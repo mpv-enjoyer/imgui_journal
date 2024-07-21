@@ -45,6 +45,7 @@ BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
 CXXFLAGS += -g -Wall -Wformat -O0
+# would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
 LIBS =
 
 ##---------------------------------------------------------------------
