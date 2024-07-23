@@ -46,7 +46,7 @@ public:
     int bottom_year();
     int top_year();
     bool is_month_here(int month, int year);
-    int get_year(int month);
+    int get_year(int month) const;
     void insert_info(Workout_Info_ workout_info);
     std::vector<std::vector<const Workout_Info_ *>> get_info(int real_month, int real_wday, Lesson real_lesson);
     const Workout_Info_* get_info(int should_month, int should_mday, Lesson lesson, int should_student_id);

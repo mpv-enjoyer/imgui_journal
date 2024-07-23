@@ -378,8 +378,32 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                     Student_Status new_status;
                     new_status.discount_status = -1;
                     new_status.status = STATUS_NO_DATA;
-                    if (current_workout_info->real_attend.tm_mon != current_workout_info->should_attend.tm_mon) throw std::invalid_argument("not implemented");
-                    journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
+                    if (current_workout_info->real_attend.tm_mon != current_workout_info->should_attend.tm_mon)
+                    {
+                        // should_attend is distant, try to access it to modify
+                        int should_month = current_workout_info->should_attend.tm_mon;
+                        int should_year = journal->workout_handler()->get_year(should_month);
+                        // do not check for year because only one year is loaded.
+                        Journal* main_journal = journal->journal_main != nullptr ? journal->journal_main : journal;
+                        if (main_journal->current_month() == should_month)
+                        {
+                            main_journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
+                        }
+                        else
+                        {
+                            // distant attend is not loaded, try to load
+                            {
+                                Journal journal_distant(should_month, should_year, main_journal);
+                                journal_distant.set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
+                            }
+                            // journal destructor will save the changes or discard saving them
+                            journal->load_workouts();
+                        }
+                    }
+                    else
+                    {
+                        journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
+                    }
                 }
                 // TODO: Show correct should_time.
                 ImGui::SetItemTooltip(to_string(current_workout_info->should_attend, {0, 0}).c_str());

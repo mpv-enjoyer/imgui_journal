@@ -35,7 +35,7 @@ bool Workout_Handler::is_month_here(int month, int year)
     return want_bottom_year == _bottom_year;
 }
 
-int Workout_Handler::get_year(int month)
+int Workout_Handler::get_year(int month) const
 {
     return month >= STUDY_YEAR_BEGIN_MONTH ? _bottom_year : _top_year;
 }
@@ -68,12 +68,20 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
         auto last_result = _last_real_hashes.begin(last_hash);
         int current_year = get_year(real_month);
         if (last_result == _last_real_hashes.end(last_hash)) continue;
+        // Here we check if values are actually valid (searched by hash equality but need the exact results).
+        if (iter->info().real_attend.tm_wday != real_wday) continue;
+        if (iter->info().real_student_id != request[0].real_student_id) continue;
+        if (iter->info().real_attend.tm_mon != real_month) continue;
+        if (iter->info().real_lesson != real_lesson) continue;
+
         output.push_back(std::vector<const Workout_Info_*>(get_wday_count_in_month(real_wday, real_month, current_year), nullptr));
+        
         for (auto last_iter = last_result; last_iter != _last_real_hashes.end(last_hash); ++last_iter)
         {
             int index = get_mday_index_for_wday(last_iter->info().real_attend.tm_mday, real_wday, real_month, current_year);
             IM_ASSERT(output[output.size() - 1][index] == nullptr);
             output[output.size() - 1][index] = &(last_iter->all_workouts->at(last_iter->index)); //WARNING: this pointer will break after vector reallocation
+            IM_ASSERT(output[output.size() - 1][index]->real_lesson == real_lesson);
         }
     }
     return output;
@@ -90,6 +98,11 @@ const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday
     auto hash = _should_hashes.bucket(container);
     auto iter = _should_hashes.begin(hash);
     if (iter == _should_hashes.end(hash)) return nullptr;
+    // Here we check if values are actually valid (searched by hash equality but need the exact results).
+    if (iter->info().should_attend.tm_mon != should_month) return nullptr;
+    if (iter->info().should_attend.tm_mday != should_mday) return nullptr;
+    if (iter->info().should_lesson != should_lesson) return nullptr;
+    if (iter->info().should_student_id != should_student_id) return nullptr;
     return &(iter->all_workouts->at(iter->index)); //WARNING: this pointer will break after vector reallocation
 }
 
@@ -141,7 +154,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         max_affected = max_merged_lessons_size;
     }
 
-    // check if should remove anything (for should_):
+    // check if can remove anything (for should_):
     for (const auto& workout : _all_workouts)
     {
         if (workout.should_attend.tm_wday != wday) continue;
@@ -152,7 +165,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         if (is_remove && merged_lesson == min_affected) return false;
     }
 
-    // check if should remove anything (for real_):
+    // check if can remove anything (for real_):
     for (const auto& workout : _all_workouts)
     {
         if (workout.real_attend.tm_wday != wday) continue;
@@ -194,6 +207,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
                 if (is_remove && merged_lesson == min_affected) return false;
                 for (int j = 0; j < info[i].size(); j++)
                 {
+                    if (info[i][j] == nullptr) continue;
                     Workout_Info_ new_info = *(info[i][j]);
 
                     if (decrement) new_info.real_lesson.merged_lesson_id--;
@@ -249,10 +263,10 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
         }
         Workout_Info_ new_info = workout;
 
-        if (decrement) new_info.real_lesson.merged_lesson_id--;
-        else if (increment) new_info.real_lesson.merged_lesson_id++;
-        else if (to_max) new_info.real_lesson.merged_lesson_id = max_affected;
-        else if (to_min) new_info.real_lesson.merged_lesson_id = min_affected;
+        if (decrement) new_info.should_lesson.merged_lesson_id--;
+        else if (increment) new_info.should_lesson.merged_lesson_id++;
+        else if (to_max) new_info.should_lesson.merged_lesson_id = max_affected;
+        else if (to_min) new_info.should_lesson.merged_lesson_id = min_affected;
 
         new_and_to_remove.push_back({new_info, &workout});
     }

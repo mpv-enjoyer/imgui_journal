@@ -28,7 +28,7 @@ int Group::get_age_group() const
 
 bool Group::set_age_group(int new_age_group)
 {
-    if (new_age_group < 0 || new_age_group >= AGE_GROUP_COUNT) return false;
+    if (new_age_group < 0) return false;
     age_group = new_age_group;
     return true;
 }

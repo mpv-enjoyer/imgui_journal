@@ -543,6 +543,7 @@ void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id
             const Workout_Info_* workout = _workout_handler->get_info(current_month(), mday, lesson, student_id);
             IM_ASSERT(workout != nullptr);
             _workout_handler->delete_info(workout);
+            IM_ASSERT(current_day->get_status(lesson, internal_student_id).status == STATUS_WORKED_OUT);
         }
         current_day->set_status(lesson, internal_student_id, status.status);
         current_day->set_discount_status(lesson, internal_student_id, new_discount_status);

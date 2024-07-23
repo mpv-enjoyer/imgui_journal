@@ -217,7 +217,10 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
 bool Calendar_Day::swap_merged_lessons(int old_id, int new_id)
 {
     if (old_id == new_id) return false;
-    std::swap(attendance_info[old_id], attendance_info[new_id]);
+    auto begin = attendance_info.begin();
+    auto backup = attendance_info[old_id];
+    attendance_info.erase(begin + old_id);
+    attendance_info.insert(begin + new_id, backup);
     return true;
 }
 
