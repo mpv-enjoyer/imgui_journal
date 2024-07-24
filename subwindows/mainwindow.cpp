@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "../helpers/helpers.h"
 
 Mainwindow::Callback Mainwindow::get_callback()
 {
@@ -20,17 +21,12 @@ void Mainwindow::show_frame()
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Журнал версии 0.1.0", nullptr, WINDOW_FLAGS);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-    if(ImGui::Button("Изменить день"))
-    {
-        graphical->popup_select_day_of_the_week = new Popup_Select_Day_Of_The_Week(graphical);
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Ученики"))
+    if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
         graphical->subwindow_students_list = new Subwindow_Students_List(graphical);
     }
     ImGui::SameLine();
-    if (ImGui::Button("Группы"))
+    if (graphical->button_colored("Группы", 0.85f, 0.85f, 0.60f))
     {
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
@@ -43,28 +39,38 @@ void Mainwindow::show_frame()
     if (ImGui::Checkbox("Режим редактирования", &edit_mode))
         graphical->set_edit_mode(edit_mode);
     ImGui::Text("Выбран день %s, %s текущего года", journal->Wday_name(graphical->wday).c_str(), journal->Month_name(journal->current_month()).c_str());
+
+    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
     if (journal->get_state() == Journal::State::Empty)
     {
         ImGui::Text("У текущего месяца нет журнала.\n");
-        ImGui::PopStyleVar();
-        ImGui::End();
-        return;
     }
-    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
-    if (journal->lesson_info_count(graphical->wday) == 0) 
-        ImGui::Text("На текущий день не запланированы уроки.");
-    for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)
+    else
     {
-        table(merged_lesson_id);
+        if (journal->lesson_info_count(graphical->wday) == 0) 
+            ImGui::Text("На текущий день не запланированы уроки.");
+        for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)
+        {
+            table(merged_lesson_id);
+        }
     }
-    ImGui::PopStyleVar();
     ImGui::EndChild();
+    ImGui::PopStyleVar();
 
-    if (ImGui::BeginTable("##table_bottom_group", 3, ImGuiTableFlags_SizingFixedFit))
+    if (ImGui::BeginTable("##table_bottom_group", 3, ImGuiTableFlags_SizingStretchProp))
     {
-        ImGui::TableNextColumn(); if (ImGui::Button(" < ")) _callback = Callback::month_left;
-        ImGui::TableNextColumn(); ImGui::Button(" Текущий месяц ", ImVec2(0, 0));
-        ImGui::TableNextColumn(); if (ImGui::Button(" > ")) _callback = Callback::month_right;
+        ImGui::TableNextColumn(); if (ImGui::Button("     <     ")) _callback = Callback::month_left;
+        std::string month_label = journal->Month_name(journal->current_month()) + ", " + std::to_string(journal->current_year() + 1900);
+        ImGui::TableNextColumn(); ImGui::Button(month_label.c_str(), ImVec2(-FLT_MIN, 0));
+        ImGui::TableNextColumn(); if (ImGui::Button("     >     ")) _callback = Callback::month_right;
+        ImGui::EndTable();
+    }
+
+    if (ImGui::BeginTable("##table_bottom_group_2", 3, ImGuiTableFlags_SizingStretchProp))
+    {
+        ImGui::TableNextColumn(); if (ImGui::Button("     <     ")) graphical->select_wday(LOOP_MINUS(graphical->wday, 7));
+        ImGui::TableNextColumn(); ImGui::Button(Day_Names[graphical->wday].c_str(), ImVec2(-FLT_MIN, 0));
+        ImGui::TableNextColumn(); if (ImGui::Button("     >     ")) graphical->select_wday(LOOP_PLUS(graphical->wday, 7));
         ImGui::EndTable();
     }
 
@@ -178,6 +184,14 @@ bool Mainwindow::table_row(int merged_lesson_id, int internal_student_id, int co
 int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int visible_day_id)
 {
     ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + visible_day_id);
+    const Group& group = journal->lesson_info(graphical->wday, merged_lesson_id)->get_group();
+    const Student& student = group.get_student(internal_student_id);
+    int found_student_id = -1;
+    for (int i = 0; i < journal->student_count(); i++)
+    {
+        if (journal->student(i) == &student) found_student_id = i;
+    }
+    IM_ASSERT(found_student_id != -1);
     auto visible_day = graphical->visible_days[visible_day_id];
     bool enabled = visible_day.is_today && !graphical->edit_mode;
     enabled |= (!visible_day.is_future && graphical->edit_mode);
@@ -199,8 +213,8 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
         if (status.status == STATUS_WORKED_OUT)
         {
             workout_exists = true;
-            //auto current_workout_info = day->get_status(lesson, internal_student_id).workout_info;
-            //tooltip = to_string(current_workout_info.date, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_begin, current_workout_info.lesson_info->get_lesson_pair(current_workout_info.internal_lesson).time_end);
+            auto workout_info = journal->workout_handler()->get_info(journal->current_month(), visible_day.number - MDAY_DIFF, lesson, found_student_id);
+            tooltip = "Отработан " + std::to_string(workout_info->real_attend.tm_mday + MDAY_DIFF) + " " + journal->Month_name(journal->current_month()) + ", " + journal->Wday_name(workout_info->real_attend.tm_wday);
         }
         if (attendance_combo(combo_attendance_name.c_str(), &(status.status), tooltip))
         {
@@ -343,6 +357,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::Text(c_str_int(counter));
+        counter++;
         ImGui::TableSetColumnIndex(1);
         ImGui::Text(student->get_name().c_str());
         for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)

@@ -105,3 +105,12 @@ bool Graphical::input_time(std::string label, JTime& time)
     }
     return true;
 }
+
+bool Graphical::button_colored(const char* label, float r, float g, float b)
+{
+    ImVec4 color(r, g, b, 1.0f);
+    ImGui::PushStyleColor(ImGuiCol_Button, color);
+    bool result = ImGui::Button(label);
+    ImGui::PopStyleColor();
+    return result;
+}

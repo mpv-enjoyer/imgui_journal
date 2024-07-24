@@ -60,8 +60,12 @@ bool Journal::_search_last_generated_month(int* month, int* year)
 }
 
 // Any month and year
-Journal::Journal(int month, int year, Journal* journal_main) : journal_main(journal_main)
+Journal::Journal(int month, int year, Journal* _journal_main)
 {
+    // Reach the real "main" journal:
+    while (_journal_main->journal_main != nullptr) _journal_main = _journal_main->journal_main;
+    journal_main = _journal_main;
+
     _journal_main_bottom_year = Workout_Handler::get_bottom_year(journal_main->current_month(), journal_main->current_year());
     _current_year = year;
     _current_month = month;
@@ -71,6 +75,7 @@ Journal::Journal(int month, int year, Journal* journal_main) : journal_main(jour
     if (journal_main->workout_handler()->bottom_year() < bottom_year)
     {
         _state = State::Empty;
+        generate_empty();
         return;
     }
 
@@ -104,6 +109,7 @@ Journal::Journal(int month, int year, Journal* journal_main) : journal_main(jour
         // Cannot load workouts -> year not generated (from the past)
         IM_ASSERT(is_before);
         _state = State::Empty;
+        generate_empty();
         return;
     }
     _state = State::Limited;

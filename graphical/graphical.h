@@ -44,4 +44,5 @@ public:
     bool button_selectable(const char *label, bool selected, bool small);
     bool button_dangerous(const char *label);
     bool input_time(std::string label, JTime &time);
+    bool button_colored(const char *label, float r, float g, float b);
 };

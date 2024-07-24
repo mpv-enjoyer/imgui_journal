@@ -68,21 +68,24 @@ std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int rea
         auto last_result = _last_real_hashes.begin(last_hash);
         int current_year = get_year(real_month);
         if (last_result == _last_real_hashes.end(last_hash)) continue;
-        // Here we check if values are actually valid (searched by hash equality but need the exact results).
-        if (iter->info().real_attend.tm_wday != real_wday) continue;
-        if (iter->info().real_student_id != request[0].real_student_id) continue;
-        if (iter->info().real_attend.tm_mon != real_month) continue;
-        if (iter->info().real_lesson != real_lesson) continue;
 
-        output.push_back(std::vector<const Workout_Info_*>(get_wday_count_in_month(real_wday, real_month, current_year), nullptr));
+        std::vector<const Workout_Info_*> possible_append(get_wday_count_in_month(real_wday, real_month, current_year), nullptr);
+        bool found_equal_workouts = false;
         
         for (auto last_iter = last_result; last_iter != _last_real_hashes.end(last_hash); ++last_iter)
         {
+            // Here we check if values are actually valid (searched by hash equality but need the exact results).
+            if (last_iter->info().real_attend.tm_wday != real_wday) continue;
+            if (last_iter->info().real_student_id != request[0].real_student_id) continue;
+            if (last_iter->info().real_attend.tm_mon != real_month) continue;
+            if (last_iter->info().real_lesson != real_lesson) continue;
+            found_equal_workouts = true;
             int index = get_mday_index_for_wday(last_iter->info().real_attend.tm_mday, real_wday, real_month, current_year);
-            IM_ASSERT(output[output.size() - 1][index] == nullptr);
-            output[output.size() - 1][index] = &(last_iter->all_workouts->at(last_iter->index)); //WARNING: this pointer will break after vector reallocation
-            IM_ASSERT(output[output.size() - 1][index]->real_lesson == real_lesson);
+            IM_ASSERT(possible_append[index] == nullptr);
+            possible_append[index] = &(last_iter->all_workouts->at(last_iter->index)); //WARNING: this pointer will break after vector reallocation
+            IM_ASSERT(possible_append[index]->real_lesson == real_lesson);
         }
+        if (found_equal_workouts) output.push_back(possible_append);
     }
     return output;
 }
@@ -97,13 +100,16 @@ const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday
     Workout_Hash_Container container = { &request, 0 };
     auto hash = _should_hashes.bucket(container);
     auto iter = _should_hashes.begin(hash);
-    if (iter == _should_hashes.end(hash)) return nullptr;
-    // Here we check if values are actually valid (searched by hash equality but need the exact results).
-    if (iter->info().should_attend.tm_mon != should_month) return nullptr;
-    if (iter->info().should_attend.tm_mday != should_mday) return nullptr;
-    if (iter->info().should_lesson != should_lesson) return nullptr;
-    if (iter->info().should_student_id != should_student_id) return nullptr;
-    return &(iter->all_workouts->at(iter->index)); //WARNING: this pointer will break after vector reallocation
+    for (; iter != _should_hashes.end(hash); ++iter)
+    {
+        // Here we check if values are actually valid (searched by hash equality but need the exact results).
+        if (iter->info().should_attend.tm_mon != should_month) continue;
+        if (iter->info().should_attend.tm_mday != should_mday) continue;
+        if (iter->info().should_lesson != should_lesson) continue;
+        if (iter->info().should_student_id != should_student_id) continue;
+        return &(iter->all_workouts->at(iter->index)); //WARNING: this pointer will break after vector reallocation
+    }
+    return nullptr;
 }
 
 const std::vector<const Workout_Info_ *> Workout_Handler::search_info(int should_month)

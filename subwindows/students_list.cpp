@@ -37,6 +37,7 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
 
 bool Subwindow_Students_List::show_frame()
 {
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -49,6 +50,7 @@ bool Subwindow_Students_List::show_frame()
     if (ImGui::Button("Вернуться к журналу"))
     {
         ImGui::End();
+        ImGui::PopStyleColor(); //BG
         return true;
     }
     ImGui::Text("Список всех учеников");
@@ -56,6 +58,7 @@ bool Subwindow_Students_List::show_frame()
     if (lessons_per_student.size() != journal->student_count())
         update_lessons_per_student();
 
+    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
         ImGui::TableSetupColumn("Фамилия и имя");
@@ -151,6 +154,8 @@ bool Subwindow_Students_List::show_frame()
         }
         ImGui::EndTable();
     }
+    ImGui::EndChild();
     ImGui::End();
+    ImGui::PopStyleColor(); //BG
     return false;
 }

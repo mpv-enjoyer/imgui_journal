@@ -8,12 +8,14 @@ Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
 
 bool Subwindow_Lessons_List::show_frame()
 {
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Список всех групп", nullptr, WINDOW_FLAGS);
     if (ImGui::Button("Вернуться к журналу"))
     {
+        ImGui::PopStyleColor();
         ImGui::End();
         return true;
     }
@@ -22,7 +24,7 @@ bool Subwindow_Lessons_List::show_frame()
     {
         graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
     }
-    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::Text("Список всех групп");
     if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
@@ -96,5 +98,6 @@ bool Subwindow_Lessons_List::show_frame()
     }
     ImGui::EndChild();
     ImGui::End();
+    ImGui::PopStyleColor(); // BG
     return false;
 }

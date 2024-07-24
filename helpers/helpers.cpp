@@ -391,3 +391,11 @@ std::tm Time_Archiver::to_tm()
     tm.tm_yday = year;
     return tm;
 }
+
+bool j_button_colored(const char* label, float r, float g, float b)
+{
+    ImVec4 color(r, g, b, 1.0f);
+    ImGui::PushStyleColor(ImGuiCol_Button, color);
+    bool result = ImGui::Button(label);
+    ImGui::PopStyleColor();
+}

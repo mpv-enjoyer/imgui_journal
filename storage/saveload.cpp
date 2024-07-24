@@ -116,6 +116,21 @@ void Journal::generate(int base_month, int base_year)
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
+void Journal::generate_empty()
+{
+    _all_days.clear();
+    _all_groups.clear();
+    _all_lessons.clear();
+    _all_students.clear();
+    _all_lessons = std::vector<std::vector<Lesson_Info*>>(7);
+    int first_day_of_the_week = get_first_mwday(_current_month, _current_year);
+    for (int i = 0; i < _current_month_days_num; i++)
+    {
+        int wday = (first_day_of_the_week + i) % 7;
+        _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
+    }
+}
+
 void Journal::generate()
 {
     _all_days.clear();
@@ -159,6 +174,7 @@ Journal::~Journal()
     {
         delete student;
     }
+    if (_state == State::Empty) return;
     bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
     if (is_current_year_allocated) delete _workout_handler;
 }

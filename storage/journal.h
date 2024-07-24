@@ -105,7 +105,7 @@ public:
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
-    Journal* const journal_main = nullptr;
+    Journal* journal_main = nullptr;
 
     std::string Lesson_name(int type);
     const int Lesson_price(int type, int discount_status);
@@ -169,6 +169,7 @@ public:
     bool load_workouts();
     bool load();
     void generate(int base_month, int base_year);
+    void generate_empty();
     void generate();
     ~Journal();
 private:
