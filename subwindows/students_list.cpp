@@ -42,17 +42,17 @@ bool Subwindow_Students_List::show_frame()
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Список всех учеников", nullptr, WINDOW_FLAGS);
-    if (ImGui::Button("Добавить ученика##в общий список"))
-    {
-        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
-    } 
-    ImGui::SameLine();
     if (ImGui::Button("Вернуться к журналу"))
     {
         ImGui::End();
         ImGui::PopStyleColor(); //BG
         return true;
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Добавить ученика##в общий список"))
+    {
+        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
+    } 
     ImGui::Text("Список всех учеников");
 
     if (lessons_per_student.size() != journal->student_count())

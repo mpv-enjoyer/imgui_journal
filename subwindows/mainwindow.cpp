@@ -30,16 +30,6 @@ void Mainwindow::show_frame()
     {
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
-    ImGui::SameLine();
-    ImGui::Button("Журнал оплаты");
-    ImGui::SameLine();
-    ImGui::Button("Справка");
-    ImGui::SameLine();
-    bool edit_mode = graphical->edit_mode;
-    if (ImGui::Checkbox("Режим редактирования", &edit_mode))
-        graphical->set_edit_mode(edit_mode);
-    ImGui::Text("Выбран день %s, %s текущего года", journal->Wday_name(graphical->wday).c_str(), journal->Month_name(journal->current_month()).c_str());
-
     ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
     if (journal->get_state() == Journal::State::Empty)
     {

@@ -54,7 +54,7 @@
 #define DEFAULT_COLUMN_COUNT 5
 #define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
-#define TABLE_BOTTOM_OFFSET_PXLS -30
+#define TABLE_BOTTOM_OFFSET_PXLS -32
 #define CONVERT_TO_RU_CALENDAR(wday) wday == 6 ? 0 : wday + 1;
 #define CONVERT_TO_EN_CALENDAR(wday) wday == 0 ? 6 : wday - 1;
 

@@ -11,6 +11,7 @@ void Render::change_current_month(int month, int year)
     bool is_changed_month_main = journal_main->current_month() == month && journal_main->current_year() == year;
     if (is_changed_month_main && is_current_month_main) return;
 
+    int backup_wday = graphical->wday;
     if (is_current_month_main)
     {
         journal->save();
@@ -18,6 +19,7 @@ void Render::change_current_month(int month, int year)
     else
     {
         delete journal;
+        delete graphical;
     }
 
     // Data saved. Now load everything for another month
@@ -35,6 +37,7 @@ void Render::change_current_month(int month, int year)
         graphical = new Graphical(PTRREF(journal));
     }
 
+    graphical->select_wday(backup_wday);
     graphical->mainwindow = &mainwindow;
     graphical->mainwindow->update_graphical(graphical);
 }
