@@ -156,10 +156,12 @@ std::string generate_label(const std::string prefix, std::vector<int> unique)
     return output;
 }
 
-bool j_age_group_combo(const char* label, int* age_group)
+bool j_age_group_combo(const char* label, int* age_group, bool shrink)
 {
-    const char* combo_preview_value = Age_Group_Names[*age_group].c_str(); 
-    if (ImGui::BeginCombo(label, combo_preview_value, ImGuiComboFlags_WidthFitPreview | ImGuiComboFlags_HeightLargest))
+    const char* combo_preview_value = Age_Group_Names[*age_group].c_str();
+    ImGuiComboFlags flags = ImGuiComboFlags_HeightLargest;
+    if (shrink) flags |= ImGuiComboFlags_WidthFitPreview;
+    if (ImGui::BeginCombo(label, combo_preview_value, flags))
     {
         for (int n = 0; n < Age_Group_Names.size(); n++)
         {

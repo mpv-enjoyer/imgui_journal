@@ -12,7 +12,7 @@ bool Popup_Add_Student_To_Base::show_frame()
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         ImGui::InputText("ФИ ученика", &name);
-        if (ImGui::InputInt("No договора", &contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
+        if (ImGui::InputInt("Номер договора", &contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
         {
             if (contract < 0) contract = 0;
         }

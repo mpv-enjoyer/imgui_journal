@@ -62,7 +62,7 @@ bool Subwindow_Students_List::show_frame()
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
         ImGui::TableSetupColumn("Фамилия и имя");
-        ImGui::TableSetupColumn("No договора");
+        ImGui::TableSetupColumn("Номер договора");
         ImGui::TableSetupColumn("Группы");
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();

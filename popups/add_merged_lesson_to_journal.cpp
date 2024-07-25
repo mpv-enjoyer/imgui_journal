@@ -38,14 +38,12 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
             j_input_time("##LessonEnd", lesson_pairs[i].time_end);
             ImGui::PopID();
         }
-        ImGui::SeparatorText("Данные новой группы");
         if (ImGui::InputInt("Номер", &group_number))
         {
             if (group_number < 0) group_number = 0;
         };
-        ImGui::InputText("Описание", &group_comment);
-        ImGui::SeparatorText("Возраст (необязательно)");
-        j_age_group_combo("##Возрастная группа", &age_group);
+        ImGui::InputText("Описание (необязательно)", &group_comment);
+        j_age_group_combo("Возраст (необязательно)", &age_group, false);
         ImGui::PopStyleColor();
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
