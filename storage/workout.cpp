@@ -122,6 +122,29 @@ const std::vector<const Workout_Info_ *> Workout_Handler::search_info(int should
     return output;
 }
 
+template <typename eq>
+void fix_indexes_after_removal(std::unordered_set<Workout_Hash_Container, eq>& hashes, int index)
+{
+    std::vector<std::pair<Workout_Hash_Container, const Workout_Hash_Container&>> new_and_to_remove;
+    for (const auto& container : hashes)
+    {
+        if (container.index > index)
+        {
+            auto backup = container;
+            if (index != -1) backup.index--;
+            new_and_to_remove.push_back({backup, container});
+        }
+    }
+    for (auto& replace : new_and_to_remove)
+    {
+        hashes.erase(replace.second);
+    }
+    for (auto replace : new_and_to_remove)
+    {
+        hashes.insert(replace.first);
+    }
+};
+
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
     int index = -1;
@@ -136,8 +159,18 @@ void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
     _last_real_hashes.erase(container);
     _should_hashes.erase(container);
     IM_ASSERT(workout_info - _all_workouts.data() == index);
+    // container.index breaks for every > index so we fix it here
+    fix_indexes_after_removal<Real_Workout_Hash>(_real_hashes, index);
+    fix_indexes_after_removal<Last_Real_Workout_Hash>(_last_real_hashes, index);
+    fix_indexes_after_removal<Should_Workout_Hash>(_should_hashes, index);
     auto iter = _all_workouts.begin() + index;
     if (iter != _all_workouts.end()) _all_workouts.erase(iter);
+    // We need the following because previous inserts were pointing at the wrong
+    // Workout_Info_* and formed invalid hashes. We need to basically rehash all
+    _real_hashes.reserve(_real_hashes.size());
+    _last_real_hashes.reserve(_last_real_hashes.size());
+    _should_hashes.reserve(_should_hashes.size());
+    //TODO CRITICAL: check reserve behaviour with IM_ASSERT
 }
 
 bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
