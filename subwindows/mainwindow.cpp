@@ -30,6 +30,29 @@ void Mainwindow::show_frame()
     {
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+            static bool dummy = false;
+            ImGui::Checkbox("Показать удаленные", &dummy);
+            ImGui::PopStyleColor();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            ImGui::Separator();
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+    bool edit_mode_buffer = graphical->edit_mode;
     ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
     if (journal->get_state() == Journal::State::Empty)
     {

@@ -143,7 +143,14 @@ bool Subwindow_Students_List::show_frame()
             }
 
             ImGui::TableNextColumn();
-            if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
+            if (!edit_mode)
+            {
+                if (ImGui::Button("Выбыл"))
+                {
+                    graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
+                }
+            }
+            else if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
             {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
                 if (is_removed_input_buffer) journal->remove_student(student_id);

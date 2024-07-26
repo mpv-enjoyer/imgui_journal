@@ -24,3 +24,4 @@ public:
 #include "select_day_of_the_week.h"
 #include "edit_lesson.h"
 #include "confirm_delete_workout.h"
+#include "confirm_delete_student.h"
