@@ -204,7 +204,7 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
         {
             workout_exists = true;
             auto workout_info = journal->workout_handler()->get_info(journal->current_month(), visible_day.number - MDAY_DIFF, lesson, found_student_id);
-            tooltip = "Отработан " + std::to_string(workout_info->real_attend.tm_mday + MDAY_DIFF) + " " + journal->Month_name(journal->current_month()) + ", " + journal->Wday_name(workout_info->real_attend.tm_wday);
+            tooltip = "Отработан " + std::to_string(workout_info->real_attend.tm_mday + MDAY_DIFF) + " " + journal->Month_name(workout_info->real_attend.tm_mon) + ", " + journal->Wday_name(workout_info->real_attend.tm_wday);
         }
         if (attendance_combo(combo_attendance_name.c_str(), &(status.status), tooltip))
         {
@@ -377,41 +377,12 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    Lesson should_lesson = current_workout_info->should_lesson;
-                    const Group& distant_group = journal->lesson_info(graphical->wday, should_lesson.merged_lesson_id)->get_group();
-                    int internal_student_id = distant_group.find_student(PTRREF(student));
-                    Student_Status new_status;
-                    new_status.discount_status = -1;
-                    new_status.status = STATUS_NO_DATA;
-                    if (current_workout_info->real_attend.tm_mon != current_workout_info->should_attend.tm_mon)
-                    {
-                        // should_attend is distant, try to access it to modify
-                        int should_month = current_workout_info->should_attend.tm_mon;
-                        int should_year = journal->workout_handler()->get_year(should_month);
-                        // do not check for year because only one year is loaded.
-                        Journal* main_journal = journal->journal_main != nullptr ? journal->journal_main : journal;
-                        if (main_journal->current_month() == should_month)
-                        {
-                            main_journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
-                        }
-                        else
-                        {
-                            // distant attend is not loaded, try to load
-                            {
-                                Journal journal_distant(should_month, should_year, main_journal);
-                                journal_distant.set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
-                            }
-                            // journal destructor will save the changes or discard saving them
-                            journal->load_workouts();
-                        }
-                    }
-                    else
-                    {
-                        journal->set_lesson_status(current_workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
-                    }
+                    graphical->popup_confirm_delete_workout = new Popup_Confirm_Delete_Workout(graphical, current_workout_info, student);
                 }
                 // TODO: Show correct should_time.
-                ImGui::SetItemTooltip(to_string(current_workout_info->should_attend, {0, 0}).c_str());
+                std::string tooltip = "Отработка за " + std::to_string(current_workout_info->should_attend.tm_mday + MDAY_DIFF) + " " +
+                                        journal->Month_name(current_workout_info->should_attend.tm_mon) + ", " + journal->Wday_name(current_workout_info->should_attend.tm_wday);
+                ImGui::SetItemTooltip(tooltip.c_str());
             }
         }
     }

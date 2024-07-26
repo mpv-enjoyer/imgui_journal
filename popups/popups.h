@@ -23,4 +23,4 @@ public:
 #include "add_working_out.h"
 #include "select_day_of_the_week.h"
 #include "edit_lesson.h"
-#include "confirm.h"
+#include "confirm_delete_workout.h"

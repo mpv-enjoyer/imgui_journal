@@ -61,12 +61,12 @@ bool Subwindow_Lessons_List::show_frame()
                     for (int i = 0; i < pairs_buffer.size(); i++)
                     {
                         ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());
-                        std::string label = generate_label("##LessonBegin", {current_group.get_number(), i});
+                        std::string label = generate_label("##LessonBegin" + current_group.get_description(), {current_group.get_number(), i});
                         if (j_input_time(label, pairs_buffer[i].time_begin)) should_update_pairs = true;
                         ImGui::SameLine();
                         ImGui::Text(" _ ");
                         ImGui::SameLine();
-                        label = generate_label("##LessonEnd", {current_group.get_number(), i});
+                        label = generate_label("##LessonEnd" + current_group.get_description(), {current_group.get_number(), i});
                         if (j_input_time(label, pairs_buffer[i].time_end)) should_update_pairs = true;
                     }
                     if (should_update_pairs)

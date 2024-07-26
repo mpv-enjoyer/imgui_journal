@@ -238,7 +238,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
             auto info = get_info(month, wday, lesson);
             for (int i = 0; i < info.size(); i++)
             {
-                if (is_remove && merged_lesson == min_affected) return false;
+                if (is_remove && merged_lesson == min_affected) IM_ASSERT(false && "tried to remove existing workout index (precheck passed)");
                 for (int j = 0; j < info[i].size(); j++)
                 {
                     if (info[i][j] == nullptr) continue;

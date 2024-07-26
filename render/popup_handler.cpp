@@ -23,5 +23,6 @@ bool Render::show_popups()
     DEFAULT_POPUP_HANDLER(graphical->popup_add_student_to_group, );
     DEFAULT_POPUP_HANDLER(graphical->popup_add_working_out, );
     DEFAULT_POPUP_HANDLER(graphical->popup_select_day_of_the_week, );
+    DEFAULT_POPUP_HANDLER(graphical->popup_confirm_delete_workout, );
     return false;
 }
