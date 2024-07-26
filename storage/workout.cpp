@@ -45,70 +45,104 @@ void Workout_Handler::insert_info(Workout_Info_ workout_info)
     IM_ASSERT(workout_info.real_attend.tm_wday < 7);
     IM_ASSERT(workout_info.should_attend.tm_wday < 7);
     _all_workouts.push_back(workout_info);
-    Workout_Hash_Container container = { &_all_workouts, _all_workouts.size() - 1 };
-    _real_hashes.insert(container);
-    _last_real_hashes.insert(container);
-    _should_hashes.insert(container);
 }
 
-std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson real_lesson)
+std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_*>>> Workout_Handler::get_info(int real_month, int real_wday, int real_merged_lesson, std::vector<int>& student_ids)
 {
-    std::vector<Workout_Info_> request(1);
-    request[0].real_lesson = real_lesson;
-    request[0].real_attend.tm_wday = real_wday;
-    request[0].real_attend.tm_mon = real_month;
-    Workout_Hash_Container container = { &request, 0 };
-    auto real_hash = _real_hashes.bucket(container);
-    auto real_result = _real_hashes.begin(real_hash);
-    std::vector<std::vector<const Workout_Info_*>> output;
-    for (auto iter = real_result; iter != _real_hashes.end(real_hash); ++iter)
+    Lesson lesson = {.merged_lesson_id = real_merged_lesson, .internal_lesson_id = 0};
+    std::vector<int> temp_student_ids1;
+    std::vector<std::vector<const Workout_Info_*>> info1 = get_info(real_month, real_wday, lesson, &temp_student_ids1);
+    student_ids = temp_student_ids1;
+    lesson.internal_lesson_id = 1;
+    std::vector<int> temp_student_ids2;
+    std::vector<std::vector<const Workout_Info_*>> info2 = get_info(real_month, real_wday, lesson, &temp_student_ids2);
+    for (auto id : temp_student_ids2)
     {
-        request[0].real_student_id = iter->info().real_student_id;
-        auto last_hash = _last_real_hashes.bucket(container);
-        auto last_result = _last_real_hashes.begin(last_hash);
-        int current_year = get_year(real_month);
-        if (last_result == _last_real_hashes.end(last_hash)) continue;
-
-        std::vector<const Workout_Info_*> possible_append(get_wday_count_in_month(real_wday, real_month, current_year), nullptr);
-        bool found_equal_workouts = false;
-        
-        for (auto last_iter = last_result; last_iter != _last_real_hashes.end(last_hash); ++last_iter)
-        {
-            // Here we check if values are actually valid (searched by hash equality but need the exact results).
-            if (last_iter->info().real_attend.tm_wday != real_wday) continue;
-            if (last_iter->info().real_student_id != request[0].real_student_id) continue;
-            if (last_iter->info().real_attend.tm_mon != real_month) continue;
-            if (last_iter->info().real_lesson != real_lesson) continue;
-            found_equal_workouts = true;
-            int index = get_mday_index_for_wday(last_iter->info().real_attend.tm_mday, real_wday, real_month, current_year);
-            IM_ASSERT(possible_append[index] == nullptr);
-            possible_append[index] = &(last_iter->all_workouts->at(last_iter->index)); //WARNING: this pointer will break after vector reallocation
-            IM_ASSERT(possible_append[index]->real_lesson == real_lesson);
-        }
-        if (found_equal_workouts) output.push_back(possible_append);
+        if (std::find(student_ids.begin(), student_ids.end(), id) == student_ids.end()) student_ids.push_back(id);
     }
+    // All ids are in list, now fill the list.
+    // Sorting students by id to avoid weird replacement after removing / inserting workouts
+    std::sort(student_ids.begin(), student_ids.end());
+
+    const int output_width = get_wday_count_in_month(real_wday, real_month, get_year(real_month));
+    // We have ids list for every info stored in temp vectors, use them to navigate
+    std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_*>>> output =
+    std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_*>>>
+    (student_ids.size(), std::vector<std::pair<const Workout_Info_*, const Workout_Info_*>>
+    (output_width, std::pair<const Workout_Info_*, const Workout_Info_*>
+    ({nullptr, nullptr})));
+    for (int i = 0; i < info1.size(); i++)
+    {
+        int student_id = temp_student_ids1[i];
+        int output_index = std::distance(student_ids.begin(), std::find(student_ids.begin(), student_ids.end(), student_id));
+        for (int j = 0; j < info1[i].size(); j++)
+        {
+            auto current = info1[i][j];
+            if (current == nullptr) continue;
+            output[output_index][j].first = current;
+        }
+    }
+    for (int i = 0; i < info2.size(); i++)
+    {
+        int student_id = temp_student_ids2[i];
+        int output_index = std::distance(student_ids.begin(), std::find(student_ids.begin(), student_ids.end(), student_id));
+        for (int j = 0; j < info2[i].size(); j++)
+        {
+            auto current = info2[i][j];
+            if (current == nullptr) continue;
+            output[output_index][j].second = current;
+        }
+    }
+    return output;
+}
+
+std::vector<std::vector<const Workout_Info_*>> Workout_Handler::get_info(int real_month, int real_wday, Lesson real_lesson, std::vector<int>* student_ids)
+{
+    std::vector<int> _student_ids;
+    std::vector<std::vector<const Workout_Info_*>> output;
+    int current_year = get_year(real_month);
+    const int output_width = get_wday_count_in_month(real_wday, real_month, current_year);
+    for (auto& workout : _all_workouts)
+    {
+        if (workout.real_attend.tm_mon != real_month) continue;
+        if (workout.real_attend.tm_wday != real_wday) continue;
+        if (workout.real_lesson != real_lesson) continue;
+        int workout_student_id = workout.real_student_id;
+        int found_student_id = -1;
+        for (int i = 0; i < _student_ids.size(); i++)
+        {
+            if (_student_ids[i] == workout_student_id)
+            {
+                found_student_id = i;
+                break;
+            }
+        }
+        int index = get_mday_index_for_wday(workout.real_attend.tm_mday, real_wday, real_month, current_year);
+        if (found_student_id == -1)
+        {
+            output.push_back(std::vector<const Workout_Info_*>(output_width, nullptr));
+            output[output.size() - 1][index] = &workout;
+            _student_ids.push_back(workout_student_id);
+        }
+        else
+        {
+            output[found_student_id][index] = &workout;
+        }
+    }
+    if (student_ids != nullptr) *student_ids = _student_ids;
     return output;
 }
 
 const Workout_Info_* Workout_Handler::get_info(int should_month, int should_mday, Lesson should_lesson, int should_student_id)
 {
-    std::vector<Workout_Info_> request(1);
-    request[0].should_attend.tm_mon = should_month;
-    request[0].should_attend.tm_mday = should_mday;
-    request[0].should_lesson = should_lesson;
-    request[0].should_student_id = should_student_id;
-    Workout_Hash_Container container = { &request, 0 };
-    auto hash = _should_hashes.bucket(container);
-    auto iter = _should_hashes.begin(hash);
-    for (; iter != _should_hashes.end(hash); ++iter)
+    for (const auto& workout : _all_workouts)
     {
-        // Here we check if values are actually valid (searched by hash equality but need the exact results).
-        if (iter->info().should_attend.tm_mon != should_month) continue;
-        if (iter->info().should_attend.tm_mday != should_mday) continue;
-        if (iter->info().should_lesson != should_lesson) continue;
-        if (iter->info().should_student_id != should_student_id) continue;
-        return &(iter->all_workouts->at(iter->index)); //WARNING: this pointer will break after vector reallocation
-    }
+        if (workout.should_attend.tm_mon != should_month) continue;
+        if (workout.should_attend.tm_mday != should_mday) continue;
+        if (workout.should_lesson != should_lesson) continue;
+        if (workout.should_student_id != should_student_id) continue;
+        return &workout;
+    };
     return nullptr;
 }
 
@@ -122,29 +156,6 @@ const std::vector<const Workout_Info_ *> Workout_Handler::search_info(int should
     return output;
 }
 
-template <typename eq>
-void fix_indexes_after_removal(std::unordered_set<Workout_Hash_Container, eq>& hashes, int index)
-{
-    std::vector<std::pair<Workout_Hash_Container, const Workout_Hash_Container&>> new_and_to_remove;
-    for (const auto& container : hashes)
-    {
-        if (container.index > index)
-        {
-            auto backup = container;
-            if (index != -1) backup.index--;
-            new_and_to_remove.push_back({backup, container});
-        }
-    }
-    for (auto& replace : new_and_to_remove)
-    {
-        hashes.erase(replace.second);
-    }
-    for (auto replace : new_and_to_remove)
-    {
-        hashes.insert(replace.first);
-    }
-};
-
 void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
 {
     int index = -1;
@@ -153,24 +164,8 @@ void Workout_Handler::delete_info(const Workout_Info_ *workout_info)
         if (&(_all_workouts[i]) == workout_info) index = i; // just in case
     }
     IM_ASSERT(index != -1 && "workout_info* doesn't exist. It was probably deallocated by vector.");
-    std::vector<Workout_Info_> info(1, *workout_info);
-    Workout_Hash_Container container = { &info, 0 };
-    _real_hashes.erase(container);
-    _last_real_hashes.erase(container);
-    _should_hashes.erase(container);
-    IM_ASSERT(workout_info - _all_workouts.data() == index);
-    // container.index breaks for every > index so we fix it here
-    fix_indexes_after_removal<Real_Workout_Hash>(_real_hashes, index);
-    fix_indexes_after_removal<Last_Real_Workout_Hash>(_last_real_hashes, index);
-    fix_indexes_after_removal<Should_Workout_Hash>(_should_hashes, index);
     auto iter = _all_workouts.begin() + index;
     if (iter != _all_workouts.end()) _all_workouts.erase(iter);
-    // We need the following because previous inserts were pointing at the wrong
-    // Workout_Info_* and formed invalid hashes. We need to basically rehash all
-    _real_hashes.reserve(_real_hashes.size());
-    _last_real_hashes.reserve(_last_real_hashes.size());
-    _should_hashes.reserve(_should_hashes.size());
-    //TODO CRITICAL: check reserve behaviour with IM_ASSERT
 }
 
 bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_merged_lesson_id,
@@ -256,6 +251,7 @@ bool Workout_Handler::change_lesson_info_position(int month, int wday, int old_m
                     else throw std::invalid_argument("");
 
                     new_and_to_remove.push_back({new_info, info[i][j]});
+                    // TODO: remove this nonsense
                 }
             }
         }

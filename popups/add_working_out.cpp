@@ -16,10 +16,11 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
         bool was_found = false;
         std::vector<int> student_ids;
         int wday = graphical->wday;
-        journal->get_workout_info(wday, current_lesson, &student_ids);
+        int cell_index = get_mday_index_for_wday(current_lesson_time.tm_mday, wday, current_lesson_time.tm_mon, current_lesson_time.tm_year);
+        const std::vector<std::vector<const Workout_Info_ *>> caller_lesson_workout_info = journal->get_workout_info(wday, current_lesson, &student_ids);
         for (int j = 0; j < student_ids.size(); j++)
         {
-            if (student_ids[j] == i)
+            if (student_ids[j] == i && caller_lesson_workout_info[j][cell_index] != nullptr) // Current student already working out on that lesson?
             {
                 was_found = true;
                 break;
@@ -237,7 +238,17 @@ void Popup_Add_Working_Out::accept_changes()
     select_day, select_month, select_year };
     std::tm caller_date = { 0, 0, 0,
     caller_mday, caller_month, caller_year };
-    current_journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+    const Student& student = PTRREF(current_journal->student(select_student));
+    int student_id_true = -1;
+    for (int i = 0; i < journal->student_count(); i++)
+    {
+        if (journal->student(i) == &student)
+        {
+            student_id_true = i;
+            break;
+        };
+    }
+    current_journal->add_working_out(caller_date, select_date, student_id_true, caller_lesson, select_lesson );
 }
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()

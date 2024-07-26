@@ -377,64 +377,7 @@ void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Less
 
 const std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>> Journal::get_workout_info(int real_wday, int real_merged_lesson, std::vector<int>* student_ids)
 {
-    Lesson real_lesson;
-    real_lesson.merged_lesson_id = real_merged_lesson;
-    real_lesson.internal_lesson_id = 0;
-    std::vector<std::vector<const Workout_Info_*>> workouts1 = _workout_handler->get_info(current_month(), real_wday, real_lesson);
-    real_lesson.internal_lesson_id = 1;
-    std::vector<std::vector<const Workout_Info_*>> workouts2 = _workout_handler->get_info(current_month(), real_wday, real_lesson);
-    student_ids->clear();
-    
-    for (auto& workouts : workouts1)
-    {
-        for (auto& workout : workouts)
-        {
-            if (workout == nullptr) continue;
-            student_ids->push_back(workout->real_student_id);
-            break;
-        }
-    }
-    for (auto& workouts : workouts2)
-    {
-        for (auto& workout : workouts)
-        {
-            if (workout == nullptr) continue;
-            auto iter = std::find(student_ids->begin(), student_ids->end(), workout->real_student_id);
-            if (iter == student_ids->end()) student_ids->push_back(workout->real_student_id);
-            break;
-        }
-    }
-
-    int day_count_for_wday = get_wday_count_in_month(real_wday, current_month(), current_year());
-    auto output = std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>>
-        (student_ids->size(), std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>
-        (day_count_for_wday, std::pair<const Workout_Info_*, const Workout_Info_ *>
-        (nullptr, nullptr)));
-
-    for (auto& workouts : workouts1)
-    {
-        for (int i = 0; i < workouts.size(); i++)
-        {
-            if (workouts[i] == nullptr) continue;
-            auto iter = std::find(student_ids->begin(), student_ids->end(), workouts[i]->real_student_id);
-            IM_ASSERT(iter != student_ids->end());
-            int student_index = iter - student_ids->begin();
-            output[student_index][i].first = workouts[i];
-        }
-    }
-
-    for (auto& workouts : workouts2)
-    {
-        for (int i = 0; i < workouts.size(); i++)
-        {
-            if (workouts[i] == nullptr) continue;
-            auto iter = std::find(student_ids->begin(), student_ids->end(), workouts[i]->real_student_id);
-            IM_ASSERT(iter != student_ids->end());
-            int student_index = iter - student_ids->begin();
-            output[student_index][i].second = workouts[i];
-        }
-    }
-    return output;
+    return _workout_handler->get_info(current_month(), real_wday, real_merged_lesson, PTRREF(student_ids));
 }
 
 const std::vector<std::vector<const Workout_Info_*>> Journal::get_workout_info(int real_wday, Lesson real_lesson, std::vector<int>* student_ids)

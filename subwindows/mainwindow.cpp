@@ -358,13 +358,12 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 Lesson lesson;
                 lesson.merged_lesson_id = merged_lesson_id;
                 lesson.internal_lesson_id = internal_lesson;
-                if (internal_lesson == 0) first_present = true;
                 lesson.internal_lesson_id = internal_lesson;
                 ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
 
                 const Workout_Info_* current_workout_info = internal_lesson == 0 ? workouts[workouts_id][day_id].first : workouts[workouts_id][day_id].second;
                 if (current_workout_info == nullptr) continue;
-                if (internal_lesson == 0) first_present = false;
+                if (internal_lesson == 0) first_present = true;
                 bool create_fake_radio = internal_lesson != 0 && !first_present;
                 std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {day_id, student_id, internal_lesson, merged_lesson_id});
                 if (create_fake_radio)
@@ -373,8 +372,9 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                     ImGui::InvisibleButton(fake_radio_name.c_str(), ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight()));
                 };
                 bool dummy = true;
+                if (internal_lesson == 0) ImGui::SameLine();
+                else ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
-                ImGui::SameLine();
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
                     Lesson should_lesson = current_workout_info->should_lesson;
