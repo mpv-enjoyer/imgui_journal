@@ -30,6 +30,8 @@ void Mainwindow::show_frame()
     {
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
+    ImGui::TextDisabled("%.3f", ImGui::GetTime());
+    ImGui::TextDisabled(ImGui::GetIO().AnyKeyPressed ? "Any key pressed" : "Any key not pressed");
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))

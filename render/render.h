@@ -13,8 +13,8 @@ class Render
     GLFWwindow* window;
     ImGuiIO* io;
     Mainwindow mainwindow;
-    double poll_time;
-    void set_update_time(int ms);
+    double poll_until = 0;
+    void set_poll_time(int ms);
     bool show_subwindows();
     bool show_popups();
     void show_frame();

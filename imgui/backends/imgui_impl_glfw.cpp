@@ -400,6 +400,9 @@ void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, i
 
     ImGuiIO& io = ImGui::GetIO();
     ImGuiKey imgui_key = ImGui_ImplGlfw_KeyToImGuiKey(keycode);
+    // HACK BY MPV-ENJOYER
+    io.AnyKeyPressed = true;
+    // HACK BY MPV-ENJOYER
     io.AddKeyEvent(imgui_key, (action == GLFW_PRESS));
     io.SetKeyEventNativeData(imgui_key, keycode, scancode); // To support legacy indexing (<1.87 user code)
 }
@@ -817,6 +820,10 @@ void ImGui_ImplGlfw_NewFrame()
         current_time = bd->Time + 0.00001f;
     io.DeltaTime = bd->Time > 0.0 ? (float)(current_time - bd->Time) : (float)(1.0f / 60.0f);
     bd->Time = current_time;
+
+    // HACK BY MPV-ENJOYER
+    io.AnyKeyPressed = false;
+    // HACK BY MPV-ENJOYER
 
     ImGui_ImplGlfw_UpdateMouseData();
     ImGui_ImplGlfw_UpdateMouseCursor();

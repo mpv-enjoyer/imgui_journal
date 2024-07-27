@@ -2302,6 +2302,10 @@ struct ImGuiIO
     // Optional: Platform locale
     ImWchar     PlatformLocaleDecimalPoint;     // '.'              // [Experimental] Configure decimal point e.g. '.' or ',' useful for some languages (e.g. German), generally pulled from *localeconv()->decimal_point
 
+    // HACK BY MPV-ENJOYER
+    bool AnyKeyPressed;
+    // HACK BY MPV-ENJOYER
+
     //------------------------------------------------------------------
     // Input - Call before calling NewFrame()
     //------------------------------------------------------------------

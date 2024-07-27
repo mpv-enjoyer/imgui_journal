@@ -44,7 +44,7 @@ LINUX_GL_LIBS = -lGL -licui18n -licuuc
 BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
-CXXFLAGS += -g -Wall -Wformat -O0
+CXXFLAGS += -g -Wall -Wformat 
 # would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
 LIBS =
 
@@ -63,7 +63,7 @@ LIBS =
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "Linux"
 	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization
-	CXXFLAGS += `pkg-config --cflags glfw3`
+	CXXFLAGS += `pkg-config --cflags glfw3` -O0
 	CFLAGS = $(CXXFLAGS)
 endif
 
@@ -74,7 +74,7 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 	#LIBS += -lglfw3
 	LIBS += -lglfw
 
-	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
+	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include -O3
 	CFLAGS = $(CXXFLAGS)
 endif
 

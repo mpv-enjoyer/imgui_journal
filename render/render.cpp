@@ -106,28 +106,29 @@ void Render::main_loop()
 {
     while (!glfwWindowShouldClose(window))
     {
-        if (poll_time >= ImGui::GetTime())
-        {
-            glfwPollEvents();
-        }
-        else
-        {
-            //glfwWaitEvents();
-            glfwPollEvents();
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) set_poll_time(1);
             //bool should_update = io->MouseDelta.x && io->MouseDelta.y;
             //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
             //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
             //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
             //if (!should_update) continue;
+        if (poll_until >= ImGui::GetTime())
+        {
+            glfwWaitEventsTimeout(0.05f);
+        }
+        else
+        {
+            glfwWaitEvents();
         }
         show_frame();
     }
 }
 
-void Render::set_update_time(int ms)
+// the program usually doesn't update the screen by itself
+// but if poll_until > GetTime() it updates at some frequency
+void Render::set_poll_time(int active_s)
 {
-    if (poll_time > ms) return;
-    poll_time = ms + ImGui::GetTime();
+    poll_until = ImGui::GetTime() + active_s;
 }
 
 void Render::show_frame()
