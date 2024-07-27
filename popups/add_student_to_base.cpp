@@ -8,7 +8,7 @@ Popup_Add_Student_To_Base::Popup_Add_Student_To_Base(Graphical *_graphical)
 
 bool Popup_Add_Student_To_Base::show_frame()
 {
-    POPUP_INIT_FRAME("Добавить ученика в базу")
+    if (begin_frame("Добавить ученика в базу"))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         ImGui::InputText("ФИ ученика", &name);
@@ -19,7 +19,7 @@ bool Popup_Add_Student_To_Base::show_frame()
         ImGui::PopStyleColor(1);
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

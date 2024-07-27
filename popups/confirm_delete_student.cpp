@@ -11,13 +11,13 @@ bool Popup_Confirm_Delete_Student::show_frame()
 {
     const Student* student = journal->student(_student_id);
     IM_ASSERT(!student->is_removed());
-    POPUP_INIT_FRAME("Удалить ученика?")
+    if (begin_frame("Удалить ученика?"))
     {
         ImGui::Text(("Номер договора: " + std::to_string(student->get_contract())).c_str());
         ImGui::Text(("ФИ: " + student->get_name()).c_str());
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

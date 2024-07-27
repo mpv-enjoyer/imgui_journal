@@ -11081,6 +11081,13 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 // [SECTION] POPUPS
 //-----------------------------------------------------------------------------
 
+// HACK BY MPV-ENJOYER
+int ImGui::GetPopupCount()
+{
+    return GImGui->OpenPopupStack.size();
+}
+// HACK BY MPV-ENJOYER
+
 // Supported flags: ImGuiPopupFlags_AnyPopupId, ImGuiPopupFlags_AnyPopupLevel
 bool ImGui::IsPopupOpen(ImGuiID id, ImGuiPopupFlags popup_flags)
 {

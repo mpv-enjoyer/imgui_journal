@@ -58,7 +58,7 @@ bool Popup_Confirm_Delete_Workout::show_frame()
     JTime real_lesson_begin = real_pair.time_begin;
     JTime real_lesson_end = real_pair.time_end;
     std::string real_group_description = real_group.get_description();
-    POPUP_INIT_FRAME("Удалить отработку?")
+    if (begin_frame("Удалить отработку?"))
     {
         ImVec4 red = ImVec4(0.9f, 0.2f, 0.2f, 1.0f);
         ImGui::TextColored(red, "Ученик должен был прийти на урок:");
@@ -79,7 +79,7 @@ bool Popup_Confirm_Delete_Workout::show_frame()
         ImGui::Text(("Группа " + real_group_description).c_str());
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

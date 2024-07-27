@@ -12,7 +12,12 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
     for (int i = 0; i < journal->student_count(); i++)
     {
         if (journal->student(i)->is_removed()) continue;
-        if (current_group->is_in_group(PTRREF(journal->student(i))) && !current_group->is_deleted(PTRREF(journal->student(i)))) continue;
+        int internal_student_id = current_group->find_student(PTRREF(journal->student(i)));
+        if (internal_student_id != -1 && !current_group->is_deleted(PTRREF(journal->student(i))))
+        {
+            if (current_lesson_info->should_attend(internal_student_id, current_lesson.internal_lesson_id)) continue;;
+        }
+
         bool was_found = false;
         std::vector<int> student_ids;
         int wday = graphical->wday;
@@ -108,7 +113,7 @@ bool Popup_Add_Working_Out::show_frame()
         cancel();
         return true;
     }
-    POPUP_INIT_FRAME("Добавление отработки")
+    if (begin_frame("Добавление отработки"))
     {
         ImGui::BeginGroup();
         int result = picker.show();
@@ -206,7 +211,7 @@ bool Popup_Add_Working_Out::show_frame()
         ImGui::EndGroup();
         if (ImGui::Button("OK") && is_ok_possible(is_calendar_filled)) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

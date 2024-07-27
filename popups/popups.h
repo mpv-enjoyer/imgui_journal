@@ -6,9 +6,14 @@ class Popup
 private:
     bool accept_edit = false;
     std::string last_error = "";
+    bool any_item_active = false;
+    int popup_count = 1;
+    bool popup_count_became_one = false;
 protected:
     Graphical* graphical = nullptr;
     Journal* journal = nullptr;
+    bool begin_frame(const char* label);
+    bool should_exit();
 public:
     bool check_ok() { return accept_edit; }
     void cancel() { accept_edit = false; }

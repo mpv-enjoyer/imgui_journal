@@ -19,7 +19,7 @@ Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Graphical* _graphical, co
 
 bool Popup_Add_Student_To_Group::show_frame()
 {
-    POPUP_INIT_FRAME("Добавление ученика в группу")
+    if (begin_frame("Добавление ученика в группу"))
     {
         if (possible_student_ids.size() == 0) POPUP_CANCEL;
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
@@ -48,7 +48,7 @@ bool Popup_Add_Student_To_Group::show_frame()
         ImGui::SetItemDefaultFocus();
         if (ImGui::Button("OK") && is_ok_possible(select_visible)) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

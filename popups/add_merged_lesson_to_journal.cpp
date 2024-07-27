@@ -10,8 +10,12 @@ Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical
 
 bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 {
-    POPUP_INIT_FRAME(("Добавить группу на " + Day_Names[day_of_the_week]).c_str())
+    if (begin_frame(("Добавить группу на " + Day_Names[day_of_the_week]).c_str()))
     {
+        ImGuiID id = ImGui::GetID(("Добавить группу на " + Day_Names[day_of_the_week]).c_str());
+        ImGui::Text(ImGui::GetIO().WantCaptureMouseUnlessPopupClose ? "WantCaptureMouseUnlessPopupClose" : "not WantCaptureMouseUnlessPopupClose");
+        ImGui::Text(ImGui::GetIO().NavActive ? "NavActive" : "not NavActive");
+        ImGui::Text(ImGui::IsAnyItemActive() ? "Item active" : "Item not active");
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         ImGui::Combo("День недели", &day_of_the_week, "Пн\0Вт\0Ср\0Чт\0Пт\0Сб\0Вс\0\0", 7);
         ImGui::Combo("Программа", &combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
@@ -48,7 +52,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

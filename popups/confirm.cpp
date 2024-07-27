@@ -8,12 +8,12 @@ Popup_Confirm::Popup_Confirm(std::string description, void (*action)())
 
 bool Popup_Confirm::show_frame()
 {
-    POPUP_INIT_FRAME("Подтверждение")
+    if (begin_frame("Подтверждение"))
     {
         ImGui::Text(text.c_str());
         if (ImGui::Button("Да")) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
     }
     ImGui::EndPopup();
 }

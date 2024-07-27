@@ -11,7 +11,7 @@ Popup_Select_Day_Of_The_Week::Popup_Select_Day_Of_The_Week(Graphical* _graphical
 
 bool Popup_Select_Day_Of_The_Week::show_frame()
 {
-    POPUP_INIT_FRAME("Выбрать день недели")
+    if (begin_frame("Выбрать день недели"))
     {
         for (int i = 1; i < 7; i++)
         {
@@ -27,7 +27,7 @@ bool Popup_Select_Day_Of_The_Week::show_frame()
         ImGui::InputInt("##Year", &year, 0, 0);
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Отмена")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
         ImGui::EndPopup();
     }

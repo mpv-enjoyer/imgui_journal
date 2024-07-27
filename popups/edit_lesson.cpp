@@ -19,7 +19,7 @@ Popup_Edit_Lesson::Popup_Edit_Lesson(Graphical* _graphical, int wday, int merged
 
 bool Popup_Edit_Lesson::show_frame()
 {
-    POPUP_INIT_FRAME("Изменить группу")
+    if (begin_frame("Изменить группу"))
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         ImGui::Text(("1." + Lesson_Names[first_lesson_pair.lesson_name_id]).c_str());
@@ -38,7 +38,7 @@ bool Popup_Edit_Lesson::show_frame()
         ImGui::PopStyleColor();
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
-        if (ImGui::Button("Cancel")) POPUP_CANCEL;
+        if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine();
         print_error();
     }
