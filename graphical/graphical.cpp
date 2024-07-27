@@ -14,6 +14,11 @@ void Graphical::select_wday(int wday)
     _visible_days = journal.enumerate_days(_wday);
 }
 
+void Graphical::set_edit_mode(bool value)
+{
+    _edit_mode = value;
+}
+
 bool Graphical::attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name)
 {
     std::string lesson_concat = to_string({ first_lesson_name, second_lesson_name}, "+").c_str();

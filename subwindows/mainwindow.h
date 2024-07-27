@@ -14,6 +14,7 @@ public:
     {
         none,
         month_left,
+        month_default,
         month_right
     };
     Callback get_callback();

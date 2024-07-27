@@ -11,7 +11,6 @@ class Subwindow_Students_List : public Subwindow
     };
     std::vector<std::vector<Lesson_Info_Position>> lessons_per_student;
     const ImVec4 background = ImVec4(0.7f, 0.85f, 0.85f, 1.0f);
-    const bool edit_mode = true; 
 public:
     Subwindow_Students_List(Graphical* graphical);
     void update_lessons_per_student();

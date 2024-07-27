@@ -8,6 +8,7 @@ Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
 
 bool Subwindow_Lessons_List::show_frame()
 {
+    bool edit_mode = graphical->edit_mode;
     ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);

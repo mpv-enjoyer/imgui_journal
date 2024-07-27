@@ -37,6 +37,7 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
 
 bool Subwindow_Students_List::show_frame()
 {
+    bool edit_mode = graphical->edit_mode;
     ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);

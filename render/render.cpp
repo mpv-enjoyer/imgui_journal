@@ -153,6 +153,9 @@ void Render::show_frame()
         int year = journal->current_year();
         next_month_for(month, year);
         change_current_month(month, year);
+    } else if (callback == Mainwindow::Callback::month_default)
+    {
+        change_current_month(journal_main->current_month(), journal_main->current_year());
     }
     show_subwindows();
     show_popups();

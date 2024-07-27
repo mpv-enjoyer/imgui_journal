@@ -37,8 +37,11 @@ void Mainwindow::show_frame()
         if (ImGui::BeginMenu("File"))
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-            static bool dummy = false;
-            ImGui::Checkbox("Показать удаленные", &dummy);
+            bool edit_mode_buffer = graphical->edit_mode;
+            if (ImGui::Checkbox("Показать удаленные", &edit_mode_buffer))
+            {
+                graphical->set_edit_mode(edit_mode_buffer);
+            };
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
@@ -76,7 +79,7 @@ void Mainwindow::show_frame()
     {
         ImGui::TableNextColumn(); if (ImGui::Button("     <     ")) _callback = Callback::month_left;
         std::string month_label = journal->Month_name(journal->current_month()) + ", " + std::to_string(journal->current_year() + 1900);
-        ImGui::TableNextColumn(); ImGui::Button(month_label.c_str(), ImVec2(-FLT_MIN, 0));
+        ImGui::TableNextColumn(); if (ImGui::Button(month_label.c_str(), ImVec2(-FLT_MIN, 0))) _callback = Callback::month_default;
         ImGui::TableNextColumn(); if (ImGui::Button("     >     ")) _callback = Callback::month_right;
         ImGui::EndTable();
     }
@@ -84,7 +87,7 @@ void Mainwindow::show_frame()
     if (ImGui::BeginTable("##table_bottom_group_2", 3, ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableNextColumn(); if (ImGui::Button("     <     ")) graphical->select_wday(LOOP_MINUS(graphical->wday, 7));
-        ImGui::TableNextColumn(); ImGui::Button(Day_Names[graphical->wday].c_str(), ImVec2(-FLT_MIN, 0));
+        ImGui::TableNextColumn(); if (ImGui::Button(Day_Names[graphical->wday].c_str(), ImVec2(-FLT_MIN, 0))) graphical->select_wday(journal->current_time.tm_wday);
         ImGui::TableNextColumn(); if (ImGui::Button("     >     ")) graphical->select_wday(LOOP_PLUS(graphical->wday, 7));
         ImGui::EndTable();
     }
@@ -208,8 +211,7 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
     }
     IM_ASSERT(found_student_id != -1);
     auto visible_day = graphical->visible_days[visible_day_id];
-    bool enabled = visible_day.is_today && !graphical->edit_mode;
-    enabled |= (!visible_day.is_future && graphical->edit_mode);
+    bool enabled = !visible_day.is_future;
     if (!enabled) ImGui::BeginDisabled();
     const Calendar_Day* day = visible_day.day;
     const int mday = visible_day.number - MDAY_DIFF;
@@ -225,16 +227,20 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
         std::string combo_attendance_name = generate_label("##combo_attendance", {merged_lesson_id, internal_lesson, visible_day_id, internal_student_id});
         std::string tooltip = "";
         bool workout_exists = false;
+        bool enabled_because_workout = !enabled && status.status == STATUS_WORKED_OUT;
         if (status.status == STATUS_WORKED_OUT)
         {
             workout_exists = true;
             auto workout_info = journal->workout_handler()->get_info(journal->current_month(), visible_day.number - MDAY_DIFF, lesson, found_student_id);
             tooltip = "Отработан " + std::to_string(workout_info->real_attend.tm_mday + MDAY_DIFF) + " " + journal->Month_name(workout_info->real_attend.tm_mon) + ", " + journal->Wday_name(workout_info->real_attend.tm_wday);
         }
+        // In case someone worked out to a future lesson
+        if (enabled_because_workout) ImGui::EndDisabled();
         if (attendance_combo(combo_attendance_name.c_str(), &(status.status), tooltip))
         {
             journal->set_lesson_status(mday, lesson, internal_student_id, status, workout_exists);
         }
+        if (enabled_because_workout) ImGui::BeginDisabled();
         int price = journal->lesson_current_price(lesson, mday, internal_student_id);
         if (price != -1)
         {
@@ -313,14 +319,14 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
     ImGui::TextDisabled(c_str_int(counter));
     ImGui::TableSetColumnIndex(1);
     ImGui::AlignTextToFramePadding();
-    ImGui::Text("Отр.:"); ImGui::SameLine();
+    ImGui::TextDisabled("Отработки:"); ImGui::SameLine();
     bool disabled = journal->current_time.tm_wday != graphical->wday;
     if (disabled) ImGui::BeginDisabled();
-    std::string first_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(0).lesson_name_id);
-    std::string second_lesson_name;
-    if (merged_lesson.get_lessons_size() == 2)
-        second_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(1).lesson_name_id);
-    if (!graphical->edit_mode && ImGui::Button(first_lesson_name.c_str()))
+    //std::string first_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(0).lesson_name_id);
+    //std::string second_lesson_name;
+    //if (merged_lesson.get_lessons_size() == 2)
+    //    second_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(1).lesson_name_id);
+    /*if (!graphical->edit_mode && ImGui::Button(first_lesson_name.c_str()))
     {
         journal->save(); // Cross month actions may break without saving here.
         std::tm current_lesson_time = { 0, 0, 0, 
@@ -336,7 +342,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
         journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
         Lesson lesson = {merged_lesson_id, 1};
         graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
-    } 
+    }*/
     if (disabled) ImGui::EndDisabled();
 
     for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
@@ -348,8 +354,8 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
             lesson.merged_lesson_id = merged_lesson_id;
             lesson.internal_lesson_id = internal_lesson;
             Day_With_Info visible_day = graphical->visible_days[day_id];
-            if (!graphical->edit_mode) continue;
-            if (graphical->visible_days[day_id].is_future) continue;
+            bool disabled = graphical->visible_days[day_id].is_future;
+            if (disabled) ImGui::BeginDisabled();
             if (internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
             std::string add_workout_button_name = generate_label("Отр##add_workout_button", {merged_lesson_id, day_id, internal_lesson});
             if (ImGui::Button(add_workout_button_name.c_str(), ImVec2(SUBCOLUMN_WIDTH_PXLS, 0.0f)))
@@ -359,6 +365,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
                 journal->save(); // Cross month actions may break without saving here.
                 graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
             }
+            if (disabled) ImGui::EndDisabled();
         }
     }
 
