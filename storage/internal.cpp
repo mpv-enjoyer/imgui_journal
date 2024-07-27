@@ -31,7 +31,7 @@ int Journal::_discount_status(int student_contract)
     int output = 0;
     for (auto student : _all_students)
     {
-        if (output == LESSON_PRICES_COUNT) return output;
+        if (output == _lesson_prices[0].size()) return output;
         if (student->get_contract() == student_contract && !student->is_removed())
             output++;
     }

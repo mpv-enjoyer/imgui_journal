@@ -29,12 +29,14 @@ class Journal
         "Дизайн",
         "Черчение",
         "Спецкурс"};
-    const int _lesson_prices[LESSON_TYPE_COUNT][LESSON_PRICES_COUNT] = 
-        {{100, 99, 98}, 
+    std::vector<std::vector<int>> _lesson_prices = 
+        {{100, 99, 98},
         {200, 199, 198}, 
         {300, 299, 298}, 
         {400, 399, 398}, 
         {500, 499, 498}};
+    int _lesson_price_skipped = 50;
+    int _lesson_price_was_ill = 0;
     const std::array<std::string, 12> _month_names = 
         {"Январь", 
         "Февраль", 
@@ -166,8 +168,10 @@ public:
     static bool save_file_exists(int month, int year);
     void save_workouts();
     void save();
+    void save_prices();
     bool load_workouts();
     bool load();
+    bool load_prices();
     void generate(int base_month, int base_year);
     void generate_empty();
     void generate();

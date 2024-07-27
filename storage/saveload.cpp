@@ -10,6 +10,11 @@ std::string generate_workout_name(int bottom_year)
     return "save_" + std::to_string(bottom_year + 1900) + "y_workouts.data";
 }
 
+std::string generate_prices_name(int month, int year)
+{
+    return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y_prices.data";
+}
+
 Journal::State Journal::get_state()
 {
     return _state;
@@ -40,6 +45,16 @@ void Journal::save()
     oa << _all_groups;
     oa << _all_lessons;
     oa << _all_days;
+    save_prices();
+}
+
+void Journal::save_prices()
+{
+    std::ofstream ofs(generate_prices_name(_current_month, _current_year));
+    boost::archive::text_oarchive oa(ofs);
+    oa << _lesson_prices;
+    oa << _lesson_price_skipped;
+    oa << _lesson_price_was_ill;
 }
 
 bool Journal::load_workouts()
@@ -72,6 +87,21 @@ bool Journal::load()
     ia >> _all_days;
 
     if (!load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
+    load_prices();
+    return true;
+}
+
+bool Journal::load_prices()
+{
+    std::ifstream ifs(generate_prices_name(_current_month, _current_year));
+    if (ifs.fail())
+    {
+        return false;
+    }
+    boost::archive::text_iarchive ia(ifs);
+    ia >> _lesson_prices;
+    ia >> _lesson_price_skipped;
+    ia >> _lesson_price_was_ill;
     return true;
 }
 

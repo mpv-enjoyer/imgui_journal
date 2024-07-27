@@ -184,8 +184,24 @@ const std::vector<Day_With_Info> Journal::enumerate_days(int wday)
         Day_With_Info current;
         current.day = _day(day - 1);
         current.number = day;
-        current.is_future = day > _current_time.tm_mday;
-        current.is_today = day == _current_time.tm_mday;
+        if (_current_time.tm_mon == current_month() && _current_time.tm_year == current_year())
+        {
+            current.is_future = day > _current_time.tm_mday;
+            current.is_today = day == _current_time.tm_mday;
+        }
+        else
+        {
+            if (_current_time.tm_year == current_year())
+            {
+                current.is_future = current_month() > _current_time.tm_mon;
+                current.is_today = false;
+            }
+            else
+            {
+                current.is_future = current_year() > _current_time.tm_year;
+                current.is_today = false;
+            }
+        }
         output.push_back(current);
     }
     return output;
@@ -200,8 +216,8 @@ const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_st
 {
     int status = day(mday)->get_status(lesson, internal_student_id).status;
     if (status == STATUS_NO_DATA) return -1;
-    if (status == STATUS_SKIPPED) return 50;
-    if (status == STATUS_WAS_ILL) return 0;
+    if (status == STATUS_SKIPPED) return _lesson_price_skipped;
+    if (status == STATUS_WAS_ILL) return _lesson_price_was_ill;
     if (status == STATUS_NOT_AWAITED) return -1;
     int defined_status = _day(mday)->get_discount_status(lesson, internal_student_id);
     int wday = get_wday(mday, _current_month, _current_year);
