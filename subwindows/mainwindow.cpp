@@ -28,13 +28,12 @@ void Mainwindow::show_frame()
     ImGui::SameLine();
     if (graphical->button_colored("Группы", 0.85f, 0.85f, 0.60f))
     {
+	IM_ASSERT(false && "something idk");
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
-    ImGui::TextDisabled("%.3f", ImGui::GetTime());
-    ImGui::TextDisabled(ImGui::GetIO().AnyKeyPressed ? "Any key pressed" : "Any key not pressed");
     if (ImGui::BeginMainMenuBar())
     {
-        if (ImGui::BeginMenu("File"))
+        if (ImGui::BeginMenu("Файл"))
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
             bool edit_mode_buffer = graphical->edit_mode;
@@ -45,14 +44,8 @@ void Mainwindow::show_frame()
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Edit"))
+        if (ImGui::BeginMenu("Справка"))
         {
-            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-            ImGui::Separator();
-            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
