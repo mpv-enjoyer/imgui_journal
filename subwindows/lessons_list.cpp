@@ -48,12 +48,7 @@ bool Subwindow_Lessons_List::show_frame()
                 if (is_removed_input_buffer) ImGui::BeginDisabled();
                 ImGui::TableNextRow(); 
                 ImGui::TableSetColumnIndex(0);
-                    int number_input_buffer = current_group.get_number();
-                    std::string number_label = generate_label("##input_number", {wday, merged_lesson_id});
-                    if (ImGui::InputInt(number_label.c_str(), &number_input_buffer))
-                    {
-                        journal->set_group_number(wday, merged_lesson_id, number_input_buffer);
-                    }
+                    ImGui::Text("%i", current_group.get_number());
                 ImGui::TableSetColumnIndex(1);
                     ImGui::Text(Day_Names[wday].c_str());
                 ImGui::TableSetColumnIndex(2);

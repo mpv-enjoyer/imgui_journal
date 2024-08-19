@@ -243,13 +243,21 @@ void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
     if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->_group().set_age_group(age_group); 
 }
+void Journal::remove_student_from_group(int wday, int merged_lesson_id, int student_id)
+{
+    _all_lessons[wday][merged_lesson_id]->_group().delete_student(PTRREF(_all_students[student_id]));
+}
+void Journal::restore_student_to_group(int wday, int merged_lesson_id, int student_id)
+{
+    _all_lessons[wday][merged_lesson_id]->_group().restore_student(PTRREF(_all_students[student_id]));
+}
 bool Journal::does_group_exist(int number)
 {
     for (const auto& lesson_infos : _all_lessons)
     {
         for (const auto& lesson_info : lesson_infos)
         {
-            if (lesson_info->get_group().get_number() == number) return true;
+            if (lesson_info->get_group().get_number() == number && !lesson_info->is_discontinued()) return true;
         }
     }
     return false;

@@ -117,6 +117,7 @@ bool Subwindow_Students_List::show_frame()
                 const auto& current_lesson_info = journal->lesson_info(current_wday, current_merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
                 const int internal_student_id = lessons_per_student[student_id][i].internal_student_id;
+                if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 ImGui::BeginGroup();
                 
                 std::string label = generate_label("##attend", {student_id, i});
@@ -135,11 +136,33 @@ bool Subwindow_Students_List::show_frame()
                     ImGui::Text(first_name.c_str());
                 }
                 ImGui::AlignTextToFramePadding();
+
+                if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
+                ImGui::SameLine();
+                if (!current_group.is_deleted(PTRREF(journal->student(student_id))))
+                {
+                    std::string label_delete = generate_label("Удалить из группы##", {student_id, i});
+                    if (j_button_dangerous(label_delete.c_str()))
+                    {
+                        journal->remove_student_from_group(current_wday, current_merged_lesson_id, student_id);
+                    }
+                }
+                else
+                {
+                    std::string label_restore = generate_label("Восстановить в группе##", {student_id, i});
+                    if (j_button_colored(label_restore.c_str(), 0.1, 0.9, 0.1))
+                    {
+                        journal->restore_student_to_group(current_wday, current_merged_lesson_id, student_id);
+                    }
+                }
+
+                if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
                 ImGui::Text(text.c_str());
 
                 //TODO CRITICAL: deletion here?
                 ImGui::EndGroup();
+                if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
                 if (i != lessons_per_student[student_id].size() - 1)
                     ImGui::Separator();
             }
