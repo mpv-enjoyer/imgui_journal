@@ -9,6 +9,7 @@ class Popup_Select_Day_Of_The_Week;
 class Popup_Edit_Lesson;
 class Popup_Confirm_Delete_Workout;
 class Popup_Confirm_Delete_Student;
+class Popup_Confirm_Delete_Lesson;
 
 class Subwindow_Students_List;
 class Subwindow_Lessons_List;
@@ -29,6 +30,7 @@ public:
     Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
     Popup_Confirm_Delete_Workout* popup_confirm_delete_workout = nullptr;
     Popup_Confirm_Delete_Student* popup_confirm_delete_student = nullptr;
+    Popup_Confirm_Delete_Lesson* popup_confirm_delete_lesson = nullptr;
 
     Subwindow_Students_List* subwindow_students_list = nullptr;
     Subwindow_Lessons_List* subwindow_lessons_list = nullptr;

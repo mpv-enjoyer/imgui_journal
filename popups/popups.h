@@ -30,3 +30,4 @@ public:
 #include "edit_lesson.h"
 #include "confirm_delete_workout.h"
 #include "confirm_delete_student.h"
+#include "confirm_delete_lesson.h"

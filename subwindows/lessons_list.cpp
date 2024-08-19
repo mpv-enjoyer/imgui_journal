@@ -63,32 +63,35 @@ bool Subwindow_Lessons_List::show_frame()
                     for (int i = 0; i < pairs_buffer.size(); i++)
                     {
                         ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());
-                        std::string label = generate_label("##LessonBegin" + current_group.get_description(), {current_group.get_number(), i});
-                        if (j_input_time(label, pairs_buffer[i].time_begin)) should_update_pairs = true;
-                        ImGui::SameLine();
-                        ImGui::Text(" _ ");
-                        ImGui::SameLine();
-                        label = generate_label("##LessonEnd" + current_group.get_description(), {current_group.get_number(), i});
-                        if (j_input_time(label, pairs_buffer[i].time_end)) should_update_pairs = true;
+                        //std::string label = generate_label("##LessonBegin" + current_group.get_description(), {current_group.get_number(), i});
+                        ImGui::Text(to_string(pairs_buffer[i].time_begin, pairs_buffer[i].time_end).c_str());
+                        //if (j_input_time(label, pairs_buffer[i].time_begin)) should_update_pairs = true;
+                        //ImGui::SameLine();
+                        //ImGui::Text(" _ ");
+                        //ImGui::SameLine();
+                        //label = generate_label("##LessonEnd" + current_group.get_description(), {current_group.get_number(), i});
+                        //if (j_input_time(label, pairs_buffer[i].time_end)) should_update_pairs = true;
                     }
                     if (should_update_pairs)
                     {
                         journal->edit_lesson_pairs(wday, merged_lesson_id, pairs_buffer);
                     }
                 ImGui::TableSetColumnIndex(3);
-                    std::string comment_input_buffer = current_group.get_comment();
-                    std::string comment_label = generate_label("##input_comment", {wday, merged_lesson_id});
-                    if (ImGui::InputText(comment_label.c_str(), &comment_input_buffer))
-                    {
-                        journal->set_group_comment(wday, merged_lesson_id, comment_input_buffer);
-                    }
+                    ImGui::Text(current_group.get_comment().c_str());
+                    //std::string comment_input_buffer = current_group.get_comment();
+                    //std::string comment_label = generate_label("##input_comment", {wday, merged_lesson_id});
+                    //if (ImGui::InputText(comment_label.c_str(), &comment_input_buffer))
+                    //{
+                    //    journal->set_group_comment(wday, merged_lesson_id, comment_input_buffer);
+                    //}
                 ImGui::TableSetColumnIndex(4);
                     int age_group_buffer = current_group.get_age_group();
-                    std::string age_group_label = generate_label("##age_group", {current_group.get_number()});
-                    if (j_age_group_combo(age_group_label.c_str(), &age_group_buffer))
-                    {
-                        journal->set_group_age_group(wday, merged_lesson_id, age_group_buffer);
-                    }
+                    //std::string age_group_label = generate_label("##age_group", {current_group.get_number()});
+                    ImGui::Text(Age_Group_Names[age_group_buffer].c_str());
+                    //if (j_age_group_combo(age_group_label.c_str(), &age_group_buffer))
+                    //{
+                    //    journal->set_group_age_group(wday, merged_lesson_id, age_group_buffer);
+                    //}
                 ImGui::TableSetColumnIndex(5);
                 if (is_removed_input_buffer) ImGui::EndDisabled();
 
@@ -103,12 +106,15 @@ bool Subwindow_Lessons_List::show_frame()
                     }
                     else
                     {
-                        if (j_button_dangerous(delete_label.c_str())) journal->remove_lesson(wday, merged_lesson_id);
+                        if (j_button_dangerous(delete_label.c_str()))
+                        {
+                            graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
+                        }
                     }
                 }
                 else if (j_button_dangerous(delete_label.c_str()))
                 {
-                    journal->remove_lesson(wday, merged_lesson_id);
+                    graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
                 }
                 if (!is_removed_input_buffer && ImGui::Button(edit_label.c_str()))
                 {
