@@ -104,14 +104,18 @@ Render::Render(Journal* _journal, Graphical *_graphical)
 
 void Render::main_loop()
 {
+    int save_counter = 0;
+    const int save_every_n_seconds = 300;
     while (!glfwWindowShouldClose(window))
     {
+        if (save_counter != (int)ImGui::GetTime() / save_every_n_seconds)
+        {
+            save_counter = (int)ImGui::GetTime() / save_every_n_seconds;
+            journal->save();
+            printf("Automatic save at %f seconds.\n", ImGui::GetTime());
+        }
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) set_poll_time(1);
-            //bool should_update = io->MouseDelta.x && io->MouseDelta.y;
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Left);
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Middle);
-            //should_update |= ImGui::IsMouseDown(ImGuiMouseButton_Right);
-            //if (!should_update) continue;
+        if (io->AnyKeyPressed) set_poll_time(0.2);
         if (poll_until >= ImGui::GetTime())
         {
             glfwWaitEventsTimeout(0.05f);
@@ -128,6 +132,7 @@ void Render::main_loop()
 // but if poll_until > GetTime() it updates at some frequency
 void Render::set_poll_time(int active_s)
 {
+    if (ImGui::GetTime() + active_s < poll_until) return;
     poll_until = ImGui::GetTime() + active_s;
 }
 

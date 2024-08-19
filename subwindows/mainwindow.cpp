@@ -28,7 +28,6 @@ void Mainwindow::show_frame()
     ImGui::SameLine();
     if (graphical->button_colored("Группы", 0.85f, 0.85f, 0.60f))
     {
-	IM_ASSERT(false && "something idk");
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
     if (ImGui::BeginMainMenuBar())

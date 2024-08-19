@@ -28,14 +28,15 @@ Calendar_Day* Journal::_day(int mday)
 
 int Journal::_discount_status(int student_contract)
 {
-    int output = 0;
+    int found_students = 0;
     for (auto student : _all_students)
     {
-        if (output == _lesson_prices[0].size()) return output;
-        if (student->get_contract() == student_contract && !student->is_removed())
-            output++;
+        if (student->get_contract() == student_contract && !student->is_removed()) found_students++;
     }
-    if (output > 0) output--;
+    int output = found_students - 1;
+    if (output < 0) output = 0; // Probably requested by the deleted student?
+    int discounts_size = _lesson_prices[0].size();
+    if (output >= discounts_size) output = discounts_size - 1;
     return output;
 }
 
