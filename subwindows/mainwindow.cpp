@@ -113,7 +113,7 @@ void Mainwindow::table(int merged_lesson_id)
         ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, row_bg_color);
         ImGui::TableNextColumn(); ImGui::Text("No");
         ImGui::TableNextColumn(); ImGui::Text("ФИ ученика");
-        ImGui::TableNextColumn(); ImGui::Text("Д-р");
+        ImGui::TableNextColumn(); ImGui::Text("Дог-р");
         ImGui::TableNextColumn(); ImGui::Text("Программа");
         ImGui::TableNextColumn(); ImGui::Text("Цена");
         for (int i = 0; i < graphical->visible_days.size(); i++)
@@ -292,8 +292,6 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     const Group& group = merged_lesson.get_group();
     ImGui::TableNextRow();
-    ImGui::TableSetColumnIndex(0);
-    ImGui::TextDisabled(c_str_int(counter));
     ImGui::TableSetColumnIndex(1);
     std::string add_student_button_name = generate_label("Добавить ученика##", {merged_lesson_id});
     if (ImGui::Button(add_student_button_name.c_str()))
@@ -307,8 +305,6 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     const Group& group = merged_lesson.get_group();
     ImGui::TableNextRow();
-    ImGui::TableSetColumnIndex(0);
-    ImGui::TextDisabled(c_str_int(counter));
     ImGui::TableSetColumnIndex(1);
     ImGui::AlignTextToFramePadding();
     ImGui::TextDisabled("Отработки:"); ImGui::SameLine();

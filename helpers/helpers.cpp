@@ -400,4 +400,5 @@ bool j_button_colored(const char* label, float r, float g, float b)
     ImGui::PushStyleColor(ImGuiCol_Button, color);
     bool result = ImGui::Button(label);
     ImGui::PopStyleColor();
+    return result;
 }

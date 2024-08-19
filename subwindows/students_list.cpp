@@ -75,6 +75,7 @@ bool Subwindow_Students_List::show_frame()
         {
             const Student* current_student = journal->student(student_id);
             if (!edit_mode && current_student->is_removed()) continue;
+            if (current_student->is_removed()) ImGui::BeginDisabled();
             ImGui::PushID(student_id);
             name_input_buffer = current_student->get_name();
             contract_input_buffer = current_student->get_contract();
@@ -142,7 +143,7 @@ bool Subwindow_Students_List::show_frame()
                 if (i != lessons_per_student[student_id].size() - 1)
                     ImGui::Separator();
             }
-
+            if (current_student->is_removed()) ImGui::EndDisabled();
             ImGui::TableNextColumn();
             if (!edit_mode)
             {

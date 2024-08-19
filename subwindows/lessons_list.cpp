@@ -44,7 +44,8 @@ bool Subwindow_Lessons_List::show_frame()
                 const auto& current_lesson_info = journal->lesson_info(wday, merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
                 bool is_removed_input_buffer = current_lesson_info->is_discontinued();
-                if (is_removed_input_buffer) continue;
+                if (is_removed_input_buffer && !edit_mode) continue;
+                if (is_removed_input_buffer) ImGui::BeginDisabled();
                 ImGui::TableNextRow(); 
                 ImGui::TableSetColumnIndex(0);
                     int number_input_buffer = current_group.get_number();
@@ -89,9 +90,29 @@ bool Subwindow_Lessons_List::show_frame()
                         journal->set_group_age_group(wday, merged_lesson_id, age_group_buffer);
                     }
                 ImGui::TableSetColumnIndex(5);
-                if (ImGui::Button("Удалить группу"))
+                if (is_removed_input_buffer) ImGui::EndDisabled();
+
+                std::string restore_label = generate_label("Восстановить группу##", {wday, merged_lesson_id});
+                std::string delete_label = generate_label("Удалить группу##", {wday, merged_lesson_id});
+                std::string edit_label = generate_label("Изменить группу##", {wday, merged_lesson_id});
+                if (edit_mode)
+                {
+                    if (is_removed_input_buffer)
+                    {
+                        if (j_button_colored(restore_label.c_str(), 0.1, 0.9, 0.1)) journal->restore_lesson(wday, merged_lesson_id);
+                    }
+                    else
+                    {
+                        if (j_button_dangerous(delete_label.c_str())) journal->remove_lesson(wday, merged_lesson_id);
+                    }
+                }
+                else if (j_button_dangerous(delete_label.c_str()))
                 {
                     journal->remove_lesson(wday, merged_lesson_id);
+                }
+                if (!is_removed_input_buffer && ImGui::Button(edit_label.c_str()))
+                {
+                    graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday);
                 }
             }
         }

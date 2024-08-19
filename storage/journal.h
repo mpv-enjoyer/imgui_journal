@@ -3,11 +3,11 @@
 #include "../helpers/helpers.h"
 #include "workout.h"
 
-#define NAME_DRAWING 0
-#define NAME_SCULPTING 1
-#define NAME_DESIGN 2
-#define NAME_TECHDRAWING 3
-#define NAME_SPECIALCOURSE 4
+#define NAME_DRAWING 0       // ИЗО
+#define NAME_SCULPTING 1     // Лепка
+#define NAME_DESIGN 2        // Дизайн
+#define NAME_TECHDRAWING 3   // Черчение
+#define NAME_SPECIALCOURSE 4 // Спецкурс
 
 class Test_Journal
 {
@@ -148,6 +148,7 @@ public:
     void set_lesson_status(int mday, Lesson lesson, int internal_student_id, Student_Status status, bool workout_existed);
     void set_student_name(int id, std::string name);
     void set_group_age_group(int wday, int merged_lesson_id, int age_group);
+    bool does_group_exist(int number);
     void set_student_contract(int id, int contract);
     void set_group_number(int wday, int merged_lesson_id, int number);
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);

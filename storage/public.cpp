@@ -243,17 +243,22 @@ void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
     if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->_group().set_age_group(age_group); 
 }
-void Journal::set_group_number(int wday, int merged_lesson_id, int number)
+bool Journal::does_group_exist(int number)
 {
-    if (!_check_rights({ State::Fullaccess })) return;
-    // Check if new number is unique
     for (const auto& lesson_infos : _all_lessons)
     {
         for (const auto& lesson_info : lesson_infos)
         {
-            if (lesson_info->get_group().get_number() == number) return;
+            if (lesson_info->get_group().get_number() == number) return true;
         }
     }
+    return false;
+}
+void Journal::set_group_number(int wday, int merged_lesson_id, int number)
+{
+    if (!_check_rights({ State::Fullaccess })) return;
+    // Check if new number is unique
+    if (does_group_exist(number)) return;
     if (number < 0) return;
     _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
 }
