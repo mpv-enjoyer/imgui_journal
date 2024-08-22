@@ -243,17 +243,8 @@ void Popup_Add_Working_Out::accept_changes()
     select_day, select_month, select_year };
     std::tm caller_date = { 0, 0, 0,
     caller_mday, caller_month, caller_year };
-    const Student& student = PTRREF(current_journal->student(select_student));
-    int student_id_true = -1;
-    for (int i = 0; i < journal->student_count(); i++)
-    {
-        if (journal->student(i) == &student)
-        {
-            student_id_true = i;
-            break;
-        };
-    }
-    current_journal->add_working_out(caller_date, select_date, student_id_true, caller_lesson, select_lesson );
+    // Assume that students aren't being deleted
+    current_journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
 }
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()

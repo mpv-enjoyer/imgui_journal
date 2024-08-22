@@ -26,6 +26,8 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
                 Journal journal_distant(should_month, should_year, main_journal);
                 should_pair = journal_distant.lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_lesson_pair(workout_info->should_lesson.internal_lesson_id);
                 should_group = (journal_distant.lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_group());
+                const Student* should_student = journal_distant.student(workout_info->should_student_id);
+                _internal_student_id = should_group.find_student(PTRREF(should_student));
             }
         }
     }
@@ -34,14 +36,19 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
         should_pair = journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_lesson_pair(workout_info->should_lesson.internal_lesson_id);
         should_group = (journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_group());
     }
-    for (int i = 0; i < should_group.get_size(); i++)
+    
+    if (_internal_student_id == -1)
     {
-        if (should_group.get_student(i) == *student)
+        for (int i = 0; i < should_group.get_size(); i++)
         {
-            _internal_student_id = i;
-            break;
+            if (should_group.get_student(i) == *student)
+            {
+                _internal_student_id = i;
+                break;
+            }
         }
     }
+
     IM_ASSERT(_internal_student_id != -1);
     _should_time_begin = should_pair.time_begin;
     _should_time_end = should_pair.time_end;

@@ -80,7 +80,7 @@ Render::Render(Journal* _journal, Graphical *_graphical)
     ImGui::CreateContext();
     io = &ImGui::GetIO();
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    //io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     ImGui::StyleColorsLight();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
@@ -115,22 +115,26 @@ void Render::main_loop()
             printf("Automatic save at %f seconds.\n", ImGui::GetTime());
         }
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) set_poll_time(1);
-        if (io->AnyKeyPressed) set_poll_time(0.2);
         if (poll_until >= ImGui::GetTime())
         {
-            glfwWaitEventsTimeout(0.05f);
+            glfwWaitEventsTimeout(0.025f);
         }
         else
         {
             glfwWaitEvents();
         }
+        if (io->AnyKeyPressed)
+        {
+            set_poll_time(0.2f);
+        }
         show_frame();
+
     }
 }
 
 // the program usually doesn't update the screen by itself
 // but if poll_until > GetTime() it updates at some frequency
-void Render::set_poll_time(int active_s)
+void Render::set_poll_time(float active_s)
 {
     if (ImGui::GetTime() + active_s < poll_until) return;
     poll_until = ImGui::GetTime() + active_s;

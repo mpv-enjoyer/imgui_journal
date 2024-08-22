@@ -14,6 +14,7 @@ Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Graphical* _graphical, co
         if (current_group.is_in_group(PTRREF(journal->student(i)))) continue;
         possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
+        selected_students.push_back(false);
     }
 };
 
@@ -29,17 +30,20 @@ bool Popup_Add_Student_To_Group::show_frame()
         ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
-            if (!text_filter.PassFilter(possible_student_descriptions[i].c_str())) continue;
-            if (current_selected_student == possible_student_ids[i])
+            if (!text_filter.PassFilter(possible_student_descriptions[i].c_str()))
+            {
+                continue;
+            }
+            if (selected_students[i])
             {
                 std::string next_button_name = generate_label("Выбран.##", { i });
-                j_button_selectable(next_button_name.c_str(), true);
+                if (j_button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
                 select_visible = true;
             }
             else
             {
                 std::string next_button_name = generate_label("Выбрать##", { i });
-                if (ImGui::Button(next_button_name.c_str())) current_selected_student = possible_student_ids[i];
+                if (ImGui::Button(next_button_name.c_str())) selected_students[i] = true;
             }
             ImGui::SameLine();
             ImGui::Text(possible_student_descriptions[i].c_str());
@@ -58,5 +62,9 @@ bool Popup_Add_Student_To_Group::show_frame()
 //only works for 1 lesson = 1 group
 void Popup_Add_Student_To_Group::accept_changes()
 {
-    journal->add_student_to_group(current_selected_student, current_wday, get_merged_lesson_known_id());
+    for (int i = 0; i < possible_student_ids.size(); i++)
+    {
+        if (!selected_students[i]) continue;
+        journal->add_student_to_group(possible_student_ids[i], current_wday, merged_lesson_known_id);
+    }
 }

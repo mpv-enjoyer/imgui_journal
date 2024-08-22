@@ -29,7 +29,7 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
         {
             int internal_student_id = journal->lesson_info(wday, merged_lesson_id)->get_group().find_student(student);
             if (internal_student_id == -1) continue;
-            if (journal->lesson_info(wday, merged_lesson_id)->get_group().is_deleted(student)) continue;
+            // Do not discard deleted students because we need to be able to restore them
             lessons_per_student[student_id].push_back({wday, merged_lesson_id, internal_student_id});
         }
     }
@@ -83,25 +83,12 @@ bool Subwindow_Students_List::show_frame()
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
             ImGui::SetNextItemWidth(-1);
-            if (edit_mode)
+            if (ImGui::InputText("##ФИ", &name_input_buffer))
             {
-                if (ImGui::InputText("##ФИ", &name_input_buffer))
-                {
-                    journal->set_student_name(student_id, name_input_buffer);
-                };
-            }
-            else
-            {
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text(name_input_buffer.c_str());
-            }
+                journal->set_student_name(student_id, name_input_buffer);
+            };
             ImGui::TableNextColumn(); 
-            if (!edit_mode) 
-            {
-                ImGui::AlignTextToFramePadding();
-                ImGui::Text(std::to_string(current_student->get_contract()).c_str());
-            }
-            else if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
+            if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
                 journal->set_student_contract(student_id, contract_input_buffer);
@@ -170,17 +157,21 @@ bool Subwindow_Students_List::show_frame()
             ImGui::TableNextColumn();
             if (!edit_mode)
             {
-                if (ImGui::Button("Выбыл"))
+                if (j_button_dangerous("Удалить ученика"))
                 {
                     graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
                 }
             }
-            else if (ImGui::Checkbox("Выбыл?", &is_removed_input_buffer))
+            else
             {
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-                if (is_removed_input_buffer) journal->remove_student(student_id);
-                if (!is_removed_input_buffer) journal->restore_student(student_id);
-                ImGui::PopStyleColor();
+                if (is_removed_input_buffer && j_button_colored("Восстановить ученика", 0.1, 0.9, 0.1))
+                {
+                    journal->restore_student(student_id);
+                }
+                else if (!is_removed_input_buffer && j_button_dangerous("Удалить ученика"))
+                {
+                    graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
+                }
             }
             ImGui::PopID();
         }

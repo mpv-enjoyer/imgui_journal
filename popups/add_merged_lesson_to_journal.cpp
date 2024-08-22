@@ -98,9 +98,9 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
     {
         /* Existing lesson info didn't change the number */
     }
-    else if (journal->does_group_exist(group_number))
+    else if (journal->does_group_exist(day_of_the_week, group_number))
     {
-        error("Группа с таким номером уже существует");
+        error("Группа с таким номером в " + Day_Names[day_of_the_week] + " уже существует");
         return false;
     }
     if (combo_lesson_name_id >= 2)

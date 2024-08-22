@@ -111,11 +111,11 @@ bool j_input_time(std::string label, JTime& time)
     {
         ImGui::TableNextColumn();
         ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
-        pre_input_buffer = std::to_string(time.hours); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
+        pre_input_buffer = std::to_string(time.hours); if (pre_input_buffer.size() == 1) pre_input_buffer = "0" + pre_input_buffer;
         strncpy(input_buffer, pre_input_buffer.c_str(), 3);
         IM_ASSERT(input_buffer[2] == '\0' || input_buffer[1] == '\0' || input_buffer[0] == '\0');
         std::string hours_name = generate_label(label, { 0 });
-        if (ImGui::InputText(hours_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
+        if (ImGui::InputText(hours_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsDecimal))
         {
             int new_hours = validate_time_int(std::string(input_buffer), 24);
             if (new_hours != -1) 
@@ -128,11 +128,11 @@ bool j_input_time(std::string label, JTime& time)
         ImGui::Text(":");
         ImGui::TableNextColumn();
         ImGui::SetNextItemWidth(ImGui::CalcTextSize("8888").x);
-        pre_input_buffer = std::to_string(time.minutes); if (pre_input_buffer.size()==1) pre_input_buffer = "0" + pre_input_buffer;
+        pre_input_buffer = std::to_string(time.minutes); if (pre_input_buffer.size() == 1) pre_input_buffer = "0" + pre_input_buffer;
         strncpy(input_buffer, pre_input_buffer.c_str(), 3);
         IM_ASSERT(input_buffer[2] == '\0' || input_buffer[1] == '\0' || input_buffer[0] == '\0');
         std::string minutes_name = generate_label(label, { 1 });
-        if (ImGui::InputText(minutes_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer)))
+        if (ImGui::InputText(minutes_name.c_str(), input_buffer, IM_ARRAYSIZE(input_buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CharsDecimal))
         {
             int new_minutes = validate_time_int(std::string(input_buffer), 60);
             if (new_minutes != -1)

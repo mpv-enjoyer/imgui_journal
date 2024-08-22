@@ -49,6 +49,10 @@ bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags f
     IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
     flags |= ImGuiInputTextFlags_CallbackResize;
 
+    // HACK BY MPV-ENJOYER
+    flags |= ImGuiInputTextFlags_AutoSelectAll;
+    // HACK BY MPV-ENJOYER
+
     InputTextCallback_UserData cb_user_data;
     cb_user_data.Str = str;
     cb_user_data.ChainCallback = callback;

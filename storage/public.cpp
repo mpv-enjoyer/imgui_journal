@@ -251,14 +251,12 @@ void Journal::restore_student_to_group(int wday, int merged_lesson_id, int stude
 {
     _all_lessons[wday][merged_lesson_id]->_group().restore_student(PTRREF(_all_students[student_id]));
 }
-bool Journal::does_group_exist(int number)
+bool Journal::does_group_exist(int wday, int number)
 {
-    for (const auto& lesson_infos : _all_lessons)
+    const auto& lesson_infos = _all_lessons[wday];
+    for (const auto& lesson_info : lesson_infos)
     {
-        for (const auto& lesson_info : lesson_infos)
-        {
-            if (lesson_info->get_group().get_number() == number && !lesson_info->is_discontinued()) return true;
-        }
+        if (lesson_info->get_group().get_number() == number && !lesson_info->is_discontinued()) return true;
     }
     return false;
 }
@@ -266,7 +264,7 @@ void Journal::set_group_number(int wday, int merged_lesson_id, int number)
 {
     if (!_check_rights({ State::Fullaccess })) return;
     // Check if new number is unique
-    if (does_group_exist(number)) return;
+    if (does_group_exist(wday, number)) return;
     if (number < 0) return;
     _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
 }
@@ -356,6 +354,8 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     if (!_check_rights({State::Limited, State::Preview, State::Fullaccess})) return;
     Student& student = PTRREF(_all_students[student_id]);
     int internal_student_id = _day(select_date.tm_mday)->find_student(student, select_lesson.merged_lesson_id);
+
+    IM_ASSERT(internal_student_id != -1);
 
     Workout_Info_ workout;
     workout.real_attend = caller_date;

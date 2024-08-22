@@ -87,6 +87,31 @@ void Mainwindow::show_frame()
     ImGui::End();
 }
 
+void Mainwindow::table_student_count_row(int merged_lesson_id, std::vector<std::vector<int>> attended_counter_increase)
+{
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Посетили: ");
+    int student_count = journal->lesson_info(graphical->wday, merged_lesson_id)->get_group().get_size();
+    for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
+    {
+        ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
+        const Calendar_Day* day = graphical->visible_days[day_id].day;
+        for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
+        {
+            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+            int counter = 0;
+            Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
+            for (int internal_student_id = 0; internal_student_id < student_count; internal_student_id++)
+            {
+                const Student_Status status = day->get_status(lesson, internal_student_id);
+                if (status.status == STATUS_ON_LESSON) counter++;
+            }
+            counter += attended_counter_increase[day_id][internal_lesson];
+            ImGui::Text("    %i", counter);
+        }
+    }
+}
+
 void Mainwindow::table(int merged_lesson_id)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
@@ -95,7 +120,14 @@ void Mainwindow::table(int merged_lesson_id)
     if (disabled) ImGui::BeginDisabled();
     if (merged_lesson_id != 0 && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->get_lesson_pair(0).time_begin == merged_lesson.get_lesson_pair(0).time_begin)
     {
-        ImGui::SameLine();
+        if (!graphical->edit_mode && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->is_discontinued())
+        {
+            /* First merged lesson is invisible so we don't need to offset */
+        }
+        else
+        {
+            ImGui::SameLine();
+        }
     }
     ImGui::BeginGroup();
     if (disabled)
@@ -131,7 +163,9 @@ void Mainwindow::table(int merged_lesson_id)
             if (enabled) counter++;
         }
         table_add_student_row(merged_lesson_id, counter);
-        table_add_workout_row(merged_lesson_id, counter);
+        std::vector<std::vector<int>> attended_counter_increase;
+        table_add_workout_row(merged_lesson_id, counter, &attended_counter_increase);
+        table_student_count_row(merged_lesson_id, attended_counter_increase);
         ImGui::EndTable();
         ImGui::EndGroup();
     }
@@ -300,39 +334,21 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
     }
 }
 
-void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
+void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase)
 {
+
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     const Group& group = merged_lesson.get_group();
+    bool write_increases = false;
+    if (attended_counter_increase != nullptr)
+    {
+        write_increases = true;
+        *attended_counter_increase = std::vector<std::vector<int>>(graphical->visible_days.size(), std::vector<int>(merged_lesson.get_lessons_size(), 0));
+    }
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
     ImGui::AlignTextToFramePadding();
     ImGui::TextDisabled("Отработки:"); ImGui::SameLine();
-    bool disabled = journal->current_time.tm_wday != graphical->wday;
-    if (disabled) ImGui::BeginDisabled();
-    //std::string first_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(0).lesson_name_id);
-    //std::string second_lesson_name;
-    //if (merged_lesson.get_lessons_size() == 2)
-    //    second_lesson_name = journal->Lesson_name(merged_lesson.get_lesson_pair(1).lesson_name_id);
-    /*if (!graphical->edit_mode && ImGui::Button(first_lesson_name.c_str()))
-    {
-        journal->save(); // Cross month actions may break without saving here.
-        std::tm current_lesson_time = { 0, 0, 0, 
-        journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
-        Lesson lesson = {merged_lesson_id, 0};
-        graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
-    }
-    ImGui::SameLine(0.0f, 2.0f);
-    if (!graphical->edit_mode && merged_lesson.get_lessons_size() == 2 && ImGui::Button(second_lesson_name.c_str()))
-    {
-        journal->save(); // Cross month actions may break without saving here.
-        std::tm current_lesson_time = { 0, 0, 0, 
-        journal->current_time.tm_mday - MDAY_DIFF, journal->current_month(), journal->current_year() };
-        Lesson lesson = {merged_lesson_id, 1};
-        graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
-    }*/
-    if (disabled) ImGui::EndDisabled();
-
     for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
     {
         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
@@ -383,6 +399,12 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter)
 
                 const Workout_Info_* current_workout_info = internal_lesson == 0 ? workouts[workouts_id][day_id].first : workouts[workouts_id][day_id].second;
                 if (current_workout_info == nullptr) continue;
+
+                if (write_increases)
+                {
+                    ((*attended_counter_increase)[day_id][internal_lesson])++;
+                }
+
                 if (internal_lesson == 0) first_present = true;
                 bool create_fake_radio = internal_lesson != 0 && !first_present;
                 std::string workout_info_radio_tooltip_name = generate_label("##workout_info_radio_tooltip", {day_id, student_id, internal_lesson, merged_lesson_id});
