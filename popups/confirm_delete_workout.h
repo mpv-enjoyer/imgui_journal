@@ -15,7 +15,7 @@ class Popup_Confirm_Delete_Workout : public Popup
     std::string _should_group_description;
     const Workout_Info_* _workout_info;
 public:
-    Popup_Confirm_Delete_Workout(Graphical* _graphical, const Workout_Info_* workout_info, const Student* student);
+    Popup_Confirm_Delete_Workout(Graphical* _graphical, const Workout_Info_* workout_info, int student_id);
     bool show_frame();
     bool is_ok_possible() { return true; }
     void accept_changes();

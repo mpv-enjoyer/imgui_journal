@@ -9,6 +9,7 @@ Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
 bool Subwindow_Lessons_List::show_frame()
 {
     bool edit_mode = graphical->edit_mode;
+    bool is_current = journal->get_state() == Journal::State::Fullaccess;
     ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -21,11 +22,20 @@ bool Subwindow_Lessons_List::show_frame()
         return true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Добавить группу"))
+    if (is_current)
     {
-        graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
+        if (ImGui::Button("Добавить группу"))
+        {
+            graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
+        }
     }
-    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_HorizontalScrollbar);
+    else
+    {
+        ImVec4 red = ImVec4(0.9f, 0.2f, 0.2f, 1.0f);
+        ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
+    }
+
+    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::Text("Список всех групп");
     if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
@@ -65,6 +75,8 @@ bool Subwindow_Lessons_List::show_frame()
                 ImGui::TableSetColumnIndex(5);
                 if (is_removed_input_buffer) ImGui::EndDisabled();
 
+                if (!is_current) ImGui::BeginDisabled();
+
                 std::string restore_label = generate_label("Восстановить группу##", {wday, merged_lesson_id});
                 std::string delete_label = generate_label("Удалить группу##", {wday, merged_lesson_id});
                 std::string edit_label = generate_label("Изменить группу##", {wday, merged_lesson_id});
@@ -90,6 +102,8 @@ bool Subwindow_Lessons_List::show_frame()
                 {
                     graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday);
                 }
+
+                if (!is_current) ImGui::EndDisabled();
             }
         }
         ImGui::EndTable();

@@ -1,6 +1,6 @@
 #include "confirm_delete_workout.h"
 
-Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical, const Workout_Info_ *workout_info, const Student* student)
+Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical, const Workout_Info_ *workout_info, int student_id)
 : _workout_info(workout_info)
 {
     graphical = _graphical;
@@ -18,6 +18,7 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
         {
             should_pair = main_journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_lesson_pair(workout_info->should_lesson.internal_lesson_id);
             should_group = (main_journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_group());
+            _internal_student_id = should_group.find_student(PTRREF(main_journal->student(student_id)));
         }
         else
         {
@@ -26,8 +27,7 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
                 Journal journal_distant(should_month, should_year, main_journal);
                 should_pair = journal_distant.lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_lesson_pair(workout_info->should_lesson.internal_lesson_id);
                 should_group = (journal_distant.lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_group());
-                const Student* should_student = journal_distant.student(workout_info->should_student_id);
-                _internal_student_id = should_group.find_student(PTRREF(should_student));
+                _internal_student_id = should_group.find_student(PTRREF(journal_distant.student(student_id)));
             }
         }
     }
@@ -35,18 +35,7 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
     {
         should_pair = journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_lesson_pair(workout_info->should_lesson.internal_lesson_id);
         should_group = (journal->lesson_info(workout_info->should_attend.tm_wday, workout_info->should_lesson.merged_lesson_id)->get_group());
-    }
-    
-    if (_internal_student_id == -1)
-    {
-        for (int i = 0; i < should_group.get_size(); i++)
-        {
-            if (should_group.get_student(i) == *student)
-            {
-                _internal_student_id = i;
-                break;
-            }
-        }
+        _internal_student_id = should_group.find_student(PTRREF(journal->student(student_id)));
     }
 
     IM_ASSERT(_internal_student_id != -1);
@@ -112,6 +101,7 @@ void Popup_Confirm_Delete_Workout::accept_changes()
         if (main_journal->current_month() == should_month)
         {
             main_journal->set_lesson_status(workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
+            if (journal != main_journal) journal->workout_handler()->delete_info(workout_info); // Do the same thing main_journal did.
         }
         else
         {

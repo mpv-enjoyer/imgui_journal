@@ -38,6 +38,7 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
 bool Subwindow_Students_List::show_frame()
 {
     bool edit_mode = graphical->edit_mode;
+    bool is_current = journal->get_state() == Journal::State::Fullaccess;
     ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -50,16 +51,24 @@ bool Subwindow_Students_List::show_frame()
         return true;
     }
     ImGui::SameLine();
-    if (ImGui::Button("Добавить ученика##в общий список"))
+    if (is_current)
     {
-        graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
-    } 
+        if (ImGui::Button("Добавить ученика##в общий список"))
+        {
+            graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
+        } 
+    }
+    else
+    {
+        ImVec4 red = ImVec4(0.9f, 0.2f, 0.2f, 1.0f);
+        ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
+    }
     ImGui::Text("Список всех учеников");
 
     if (lessons_per_student.size() != journal->student_count())
         update_lessons_per_student();
 
-    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS), true, ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
         ImGui::TableSetupColumn("Фамилия и имя");
@@ -76,6 +85,7 @@ bool Subwindow_Students_List::show_frame()
             const Student* current_student = journal->student(student_id);
             if (!edit_mode && current_student->is_removed()) continue;
             if (current_student->is_removed()) ImGui::BeginDisabled();
+            if (!is_current) ImGui::BeginDisabled();
             ImGui::PushID(student_id);
             name_input_buffer = current_student->get_name();
             contract_input_buffer = current_student->get_contract();
@@ -173,6 +183,7 @@ bool Subwindow_Students_List::show_frame()
                     graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
                 }
             }
+            if (!is_current) ImGui::EndDisabled();
             ImGui::PopID();
         }
         ImGui::EndTable();

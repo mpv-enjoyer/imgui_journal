@@ -303,11 +303,13 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
     const Group& group = merged_lesson.get_group();
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
+    if (journal->get_state() != Journal::State::Fullaccess) ImGui::BeginDisabled();
     std::string add_student_button_name = generate_label("Добавить ученика##", {merged_lesson_id});
     if (ImGui::Button(add_student_button_name.c_str()))
     {
         graphical->popup_add_student_to_group = new Popup_Add_Student_To_Group(graphical, merged_lesson, merged_lesson_id, graphical->wday);
     }
+    if (journal->get_state() != Journal::State::Fullaccess) ImGui::EndDisabled();
 }
 
 void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase)
@@ -394,7 +396,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    graphical->popup_confirm_delete_workout = new Popup_Confirm_Delete_Workout(graphical, current_workout_info, student);
+                    graphical->popup_confirm_delete_workout = new Popup_Confirm_Delete_Workout(graphical, current_workout_info, current_workout_info->should_student_id);
                 }
                 // TODO: Show correct should_time.
                 std::string tooltip = "Отработка за " + std::to_string(current_workout_info->should_attend.tm_mday + MDAY_DIFF) + " " +

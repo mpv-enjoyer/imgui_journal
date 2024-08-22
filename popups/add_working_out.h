@@ -15,6 +15,7 @@ private:
     int select_month = -1;
     int select_year = -1;
     Journal* current_journal;
+    Journal* main_journal;
     Lesson select_lesson = {-1, -1};
     int caller_month = -1;
     int caller_mday = -1;

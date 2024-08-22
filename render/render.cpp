@@ -122,6 +122,7 @@ void Render::main_loop()
         else
         {
             glfwWaitEvents();
+            set_poll_time(0.05f); // Update one or two more frames
         }
         if (io->AnyKeyPressed)
         {

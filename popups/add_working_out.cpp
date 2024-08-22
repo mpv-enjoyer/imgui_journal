@@ -4,6 +4,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
 {
     graphical = _graphical;
     journal = &(graphical->journal);
+    main_journal = journal->journal_main ? journal->journal_main : journal;
     current_journal = journal;
     caller_lesson_info = current_lesson_info;
     current_group = &(caller_lesson_info->get_group());
@@ -78,17 +79,21 @@ void Popup_Add_Working_Out::update_possible_lessons()
 
 void Popup_Add_Working_Out::update_journal(int month, int year)
 {
-    bool is_current_month_main = current_journal == journal;
-    bool is_changed_month_main = journal->current_month() == month && journal->current_year() == year;
-    if (is_changed_month_main && is_current_month_main) return;
+    bool dealloc_current_month = current_journal != journal && current_journal != main_journal;
+    bool is_changed_month_main = main_journal->current_month() == month && main_journal->current_year() == year;
+    bool is_changed_month_caller = journal->current_month() == month && journal->current_year() == year;
 
-    if (!is_current_month_main)
+    if (dealloc_current_month)
     {
         current_journal->restrict_saving = true;
         delete current_journal;
     }
 
     if (is_changed_month_main)
+    {
+        current_journal = main_journal;
+    }
+    else if (is_changed_month_caller)
     {
         current_journal = journal;
     }
@@ -249,11 +254,31 @@ void Popup_Add_Working_Out::accept_changes()
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()
 {
-    if (journal != current_journal)
+    if (journal != main_journal)
+    {
+        if (current_journal == journal)
+        {
+            current_journal->save_workouts();
+            main_journal->load_workouts();
+            return;
+        }
+        if (current_journal == main_journal)
+        {
+            current_journal->save_workouts();
+            journal->load_workouts();
+            return;
+        }
+        delete current_journal;
+        journal->load_workouts();
+        return;
+    }
+
+    // Caller is current month
+    if (main_journal != current_journal)
     {
         delete current_journal;
         // Destructor saved new workout to the list so we need to load the list again
-        journal->load_workouts();
+        main_journal->load_workouts();
     }
 }
 
