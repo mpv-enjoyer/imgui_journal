@@ -83,13 +83,30 @@ class Calendar_Day
 {
     friend class boost::serialization::access;
     template<class Archive>
-    void serialize(Archive & ar, const unsigned int version)
+    void save(Archive & ar, const unsigned int version) const
     {
         ar & lessons;
         ar & attendance_info;
+        ar & teacher_names;
     }
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        ar & lessons;
+        ar & attendance_info;
+        if (version > 0)
+        {
+            ar & teacher_names;
+        }
+        else
+        {
+            teacher_names = std::vector<std::vector<std::string>>(lessons->size(), std::vector<std::string>(2));
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 private:
     std::vector<Lesson_Info*>* lessons;
+    std::vector<std::vector<std::string>> teacher_names;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
     Calendar_Day() { };
@@ -117,6 +134,8 @@ public:
     int get_discount_status(Lesson known_lesson, int known_id_student);
     int find_merged_lesson(const Lesson_Info& l_info) const;
     int find_student(Student& student, int known_merged_lesson_id) const;
+    std::string get_teacher_name(Lesson lesson) const;
+    void set_teacher_name(Lesson lesson, std::string name);
     //the following is needed to properly update the journal
     bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
     bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);
@@ -124,6 +143,8 @@ public:
     bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
     //...
 };
+
+BOOST_CLASS_VERSION(Calendar_Day, 1); // Version 1: added teacher_names
 
 struct _Day_With_Info
 {

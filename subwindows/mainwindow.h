@@ -10,6 +10,8 @@ class Mainwindow : public Subwindow
     void table_add_student_row(int merged_lesson_id, int counter);
     void table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase = nullptr);
     void table_student_count_row(int merged_lesson_id, std::vector<std::vector<int>> attended_counter_increase);
+    void table_teacher_names_row(int merged_lesson_id);
+
 public:
     enum Callback
     {

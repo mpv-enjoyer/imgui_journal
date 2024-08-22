@@ -155,6 +155,7 @@ public:
     void set_group_number(int wday, int merged_lesson_id, int number);
     void set_group_comment(int wday, int merged_lesson_id, std::string comment);
     void set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data);
+    void set_teacher_name(int mday, Lesson lesson, std::string name);
 
     enum State
     {

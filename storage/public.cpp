@@ -295,6 +295,10 @@ void Journal::set_student_attend_data(int wday, int merged_lesson_id, int intern
     }
     _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, new_attend_data);
 }
+void Journal::set_teacher_name(int mday, Lesson lesson, std::string name)
+{
+    _day(mday)->set_teacher_name(lesson, name);
+}
 void Journal::add_student_to_base(std::string name, int contract)
 {
     if (!_check_rights({ State::Fullaccess })) return; 

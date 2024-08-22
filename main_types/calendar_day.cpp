@@ -5,6 +5,8 @@ Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : les
     Student_Status default_status;
     default_status.status = STATUS_NO_DATA;
 
+    teacher_names = std::vector<std::vector<std::string>>(lessons->size(), std::vector<std::string>(2));
+
     attendance_info = std::vector<std::vector<Internal_Attendance_Status>>();
     for (int i = 0; i < lessons_in_this_day.size(); i++)
     {
@@ -97,6 +99,20 @@ bool Calendar_Day::insert_workout_into_status(Lesson known_lesson, int known_id_
 int Calendar_Day::find_student(Student& student, int known_merged_lesson_id) const
 {
     return lessons->at(known_merged_lesson_id)->get_group().find_student(student);
+}
+
+std::string Calendar_Day::get_teacher_name(Lesson lesson) const
+{
+    IM_ASSERT(lesson.internal_lesson_id < 2);
+    IM_ASSERT(lesson.merged_lesson_id < lessons->size());
+    return teacher_names[lesson.merged_lesson_id][lesson.internal_lesson_id];
+}
+
+void Calendar_Day::set_teacher_name(Lesson lesson, std::string name)
+{
+    IM_ASSERT(lesson.internal_lesson_id < 2);
+    IM_ASSERT(lesson.merged_lesson_id < lessons->size());
+    teacher_names[lesson.merged_lesson_id][lesson.internal_lesson_id] = name;
 }
 
 bool Calendar_Day::set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status)
@@ -221,12 +237,17 @@ bool Calendar_Day::swap_merged_lessons(int old_id, int new_id)
     auto backup = attendance_info[old_id];
     attendance_info.erase(begin + old_id);
     attendance_info.insert(begin + new_id, backup);
+    auto begin_teachers_names = teacher_names.begin();
+    auto backup_teachers_names = teacher_names[old_id];
+    teacher_names.erase(begin_teachers_names + old_id);
+    teacher_names.insert(begin_teachers_names + new_id, backup_teachers_names);
     return true;
 }
 
 bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id)
 {
     attendance_info.insert(attendance_info.begin() + known_new_merged_lesson_id, std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
+    teacher_names.insert(teacher_names.begin() + known_new_merged_lesson_id, std::vector<std::string>(2));
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {
         Student_Status new_status;

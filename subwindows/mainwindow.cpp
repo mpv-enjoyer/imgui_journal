@@ -87,31 +87,6 @@ void Mainwindow::show_frame()
     ImGui::End();
 }
 
-void Mainwindow::table_student_count_row(int merged_lesson_id, std::vector<std::vector<int>> attended_counter_increase)
-{
-    ImGui::TableNextRow();
-    ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Посетили: ");
-    int student_count = journal->lesson_info(graphical->wday, merged_lesson_id)->get_group().get_size();
-    for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
-    {
-        ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
-        const Calendar_Day* day = graphical->visible_days[day_id].day;
-        for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
-        {
-            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
-            int counter = 0;
-            Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
-            for (int internal_student_id = 0; internal_student_id < student_count; internal_student_id++)
-            {
-                const Student_Status status = day->get_status(lesson, internal_student_id);
-                if (status.status == STATUS_ON_LESSON) counter++;
-            }
-            counter += attended_counter_increase[day_id][internal_lesson];
-            ImGui::Text("    %i", counter);
-        }
-    }
-}
-
 void Mainwindow::table(int merged_lesson_id)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
@@ -166,6 +141,7 @@ void Mainwindow::table(int merged_lesson_id)
         std::vector<std::vector<int>> attended_counter_increase;
         table_add_workout_row(merged_lesson_id, counter, &attended_counter_increase);
         table_student_count_row(merged_lesson_id, attended_counter_increase);
+        table_teacher_names_row(merged_lesson_id);
         ImGui::EndTable();
         ImGui::EndGroup();
     }
@@ -336,7 +312,6 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
 
 void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase)
 {
-
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     const Group& group = merged_lesson.get_group();
     bool write_increases = false;
@@ -426,6 +401,53 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                                         journal->Month_name(current_workout_info->should_attend.tm_mon) + ", " + journal->Wday_name(current_workout_info->should_attend.tm_wday);
                 ImGui::SetItemTooltip(tooltip.c_str());
             }
+        }
+    }
+}
+
+void Mainwindow::table_student_count_row(int merged_lesson_id, std::vector<std::vector<int>> attended_counter_increase)
+{
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Посетили: ");
+    int student_count = journal->lesson_info(graphical->wday, merged_lesson_id)->get_group().get_size();
+    for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
+    {
+        ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
+        const Calendar_Day* day = graphical->visible_days[day_id].day;
+        for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
+        {
+            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+            int counter = 0;
+            Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
+            for (int internal_student_id = 0; internal_student_id < student_count; internal_student_id++)
+            {
+                const Student_Status status = day->get_status(lesson, internal_student_id);
+                if (status.status == STATUS_ON_LESSON) counter++;
+            }
+            counter += attended_counter_increase[day_id][internal_lesson];
+            ImGui::Text("    %i", counter);
+        }
+    }
+}
+
+void Mainwindow::table_teacher_names_row(int merged_lesson_id)
+{
+    const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Преподаватель: ");
+    for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
+    {
+        ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
+        int mday = graphical->visible_days[day_id].number - MDAY_DIFF;
+        const Calendar_Day* day = graphical->visible_days[day_id].day;
+        for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
+        {
+            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+            Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
+            std::string label = generate_label("##teacher_name", {merged_lesson_id, day_id, internal_lesson});
+            std::string teacher_name_buf = day->get_teacher_name(lesson);
+            ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS - 2);
+            if (ImGui::InputText(label.c_str(), &teacher_name_buf)) journal->set_teacher_name(mday, lesson, teacher_name_buf);
         }
     }
 }
