@@ -85,7 +85,6 @@ class Journal
     int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
     bool _search_last_generated_month(int *month, int *year);
-    
 
     Journal* generation_base = nullptr;
 
@@ -108,6 +107,12 @@ public:
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
     Journal* journal_main = nullptr;
+
+    const std::vector<std::vector<int>> get_lesson_prices();
+    const int get_ill_price();
+    const int get_skipped_price();
+    static void set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price);
+    static bool get_default_prices(std::vector<std::vector<int>>& prices, int& ill_price, int& skipped_price);
 
     std::string Lesson_name(int type);
     const int Lesson_price(int type, int discount_status);
@@ -167,11 +172,11 @@ public:
     State get_state();
     bool restrict_saving = false;
     // Almost every action requires certain State. State must never be changed after construction.
-
     
     static bool save_file_exists(int month, int year);
     void save_workouts();
     void save();
+    void save_default_prices();
     void save_prices();
     bool load_workouts();
     bool load();

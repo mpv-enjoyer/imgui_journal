@@ -40,6 +40,10 @@ void Mainwindow::show_frame()
             {
                 graphical->set_edit_mode(edit_mode_buffer);
             };
+            if (!(graphical->subwindow_prices_list || graphical->subwindow_students_list || graphical->subwindow_lessons_list) && ImGui::Button("Изменить цены"))
+            {
+                graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical);
+            };
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }

@@ -15,6 +15,22 @@ std::string generate_prices_name(int month, int year)
     return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y_prices.data";
 }
 
+std::string generate_prices_name()
+{
+    return "prices_default.data";
+}
+
+bool Journal::get_default_prices(std::vector<std::vector<int>> &prices, int &ill_price, int &skipped_price)
+{
+    std::ifstream ifs(generate_prices_name());
+    if (ifs.fail()) return false;
+    boost::archive::text_iarchive ia(ifs);
+    ia >> prices;
+    ia >> skipped_price;
+    ia >> ill_price;
+    return true;
+}
+
 Journal::State Journal::get_state()
 {
     return _state;
@@ -48,8 +64,22 @@ void Journal::save()
     save_prices();
 }
 
+void Journal::set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price)
+{
+    for (int i = 1; i < prices.size(); i++)
+    {
+        IM_ASSERT(prices[0].size() == prices[i].size());
+    }
+    std::ofstream ofs_default(generate_prices_name());
+    boost::archive::text_oarchive oa_default(ofs_default);
+    oa_default << prices;
+    oa_default << skipped_price;
+    oa_default << ill_price;
+}
+
 void Journal::save_prices()
 {
+    if (!_check_rights({State::Fullaccess})) return;
     std::ofstream ofs(generate_prices_name(_current_month, _current_year));
     boost::archive::text_oarchive oa(ofs);
     oa << _lesson_prices;
@@ -96,7 +126,9 @@ bool Journal::load_prices()
     std::ifstream ifs(generate_prices_name(_current_month, _current_year));
     if (ifs.fail())
     {
-        return false;
+        ifs = std::ifstream(generate_prices_name());
+        if (ifs.fail()) return false;
+        // Fallback to default price
     }
     boost::archive::text_iarchive ia(ifs);
     ia >> _lesson_prices;
@@ -125,7 +157,7 @@ void Journal::generate(int base_month, int base_year)
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
 
-    /* Remove removed lessons for real? */
+    /* TODO: Remove removed lessons for real? */
 
     // Fill lessons status for workouts depending on other months:
     auto workouts = _workout_handler->search_info(_current_month);

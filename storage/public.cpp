@@ -1,5 +1,17 @@
 #include "journal.h"
 
+const std::vector<std::vector<int>> Journal::get_lesson_prices()
+{
+    return _lesson_prices;
+}
+const int Journal::get_ill_price()
+{
+    return _lesson_price_was_ill;
+}
+const int Journal::get_skipped_price()
+{
+    return _lesson_price_skipped;
+}
 std::string Journal::Lesson_name(int type)
 {
     return _lesson_names[type];
@@ -281,8 +293,7 @@ void Journal::set_student_attend_data(int wday, int merged_lesson_id, int intern
     const auto visible_days = _enumerate_days(wday);
     for (int i = 0; i < visible_days.size(); i++)
     {
-        if (!(visible_days[i].is_future || visible_days[i].is_today)) continue;
-        for (int j = 0; j < 2; j++)
+        for (int j = 0; j < MAX_INTERNAL_LESSONS; j++)
         {
             current_lesson.internal_lesson_id = j;
             Student_Status current_status = visible_days[i].day->get_status(current_lesson, internal_student_id);
@@ -327,7 +338,6 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
     for (int i = 0; i < affected_days.size(); i++)
     {
         bool await_no_one = false;
-        if (!(affected_days[i].is_future || affected_days[i].is_today)) await_no_one = true;
         affected_days[i].day->add_merged_lesson(PTRREF(current), await_no_one, new_merged_lesson_known_id);
     }
     _workout_handler->change_lesson_info_position(current_month(), wday, -1, new_merged_lesson_known_id, lessons_in_this_day.size());
@@ -348,7 +358,6 @@ void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_i
         {
             Lesson current_known_lesson = {merged_lesson_id, internal_lesson_id};
             int status = STATUS_NO_DATA;
-            if (!(affected_days[current_day_cell].is_future || affected_days[current_day_cell].is_today)) status = STATUS_NOT_AWAITED;
             affected_days[current_day_cell].day->set_status(current_known_lesson, new_student_id, status);
         }
     }

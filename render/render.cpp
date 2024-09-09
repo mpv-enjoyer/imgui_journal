@@ -129,7 +129,6 @@ void Render::main_loop()
             set_poll_time(0.2f);
         }
         show_frame();
-
     }
 }
 
