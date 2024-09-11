@@ -235,6 +235,7 @@ const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_st
     int wday = get_wday(mday, _current_month, _current_year);
     Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
     int lesson_type = pair.lesson_name_id;
+    if (defined_status >= get_lesson_prices()[lesson_type].size()) defined_status = get_lesson_prices()[lesson_type].size() - 1; /* Status set, then discounts shrink */
     if (defined_status != -1) return _lesson_prices[lesson_type][defined_status];
     //discount status is undefined at this point, fall back to common
     int contract = lesson_info(wday, lesson.merged_lesson_id)->get_group().get_student(internal_student_id).get_contract();

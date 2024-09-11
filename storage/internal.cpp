@@ -28,16 +28,26 @@ Calendar_Day* Journal::_day(int mday)
 
 int Journal::_discount_status(int student_contract)
 {
-    int found_students = 0;
-    for (auto student : _all_students)
+    int lessons_contract_counter = -1;
+    for (const auto& lessons : _all_lessons)
     {
-        if (student->get_contract() == student_contract && !student->is_removed()) found_students++;
+        for (const auto& lesson : lessons)
+        {
+            const Group& group = lesson->get_group();
+            for (int student_id = 0; student_id < group.get_size(); student_id++)
+            {
+                const Student& student = group.get_student(student_id);
+                if (group.is_deleted(student)) continue;
+                if (student.is_removed()) continue;
+                if (group.get_student(student_id).get_contract() == student_contract) lessons_contract_counter++;
+            }
+        }
     }
-    int output = found_students - 1;
-    if (output < 0) output = 0; // Probably requested by the deleted student?
+    if (lessons_contract_counter == -1) lessons_contract_counter = 0; // Called by the deleted student?
+
     int discounts_size = _lesson_prices[0].size();
-    if (output >= discounts_size) output = discounts_size - 1;
-    return output;
+    if (lessons_contract_counter >= discounts_size) lessons_contract_counter = discounts_size - 1;
+    return lessons_contract_counter;
 }
 
 int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
