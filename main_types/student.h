@@ -18,6 +18,7 @@ private:
     std::string name;
 public:
     Student();
+    Student(int contract, std::string name);
     int get_contract() const; bool set_contract(int new_contract);
     std::string get_name() const; bool set_name(std::string new_name);
     bool is_removed() const; bool remove(); bool restore();

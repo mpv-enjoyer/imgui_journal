@@ -45,6 +45,10 @@ Student::Student()
     contract = -1;
 }
 
+Student::Student(int contract, std::string name) : contract(contract), name(name)
+{
+}
+
 bool Student::is_identical(const Student& rhs) const
 {
     if (removed) return false;
