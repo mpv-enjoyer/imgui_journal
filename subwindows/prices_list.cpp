@@ -18,7 +18,7 @@ bool Subwindow_Prices_List::show_frame()
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Задать цены для следующих месяцев", nullptr, WINDOW_FLAGS);
+    ImGui::Begin("Задать цены для следующих месяцев", nullptr, WINDOW_FLAGS | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     if (ImGui::Button("Вернуться к журналу"))
     {
