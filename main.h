@@ -24,6 +24,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <tuple>
 
 #include <boost/archive/tmpdir.hpp>
 
@@ -76,6 +77,28 @@ typedef short Attend_Data;
 #define ATTEND_FIRST 1
 #define ATTEND_SECOND 2
 #define INTERVAL_CHECK(left1, right1, left2, right2) (!(left1 < right1 && right1 < left2 && left2 < right2))
+
+#define NON_COPYABLE_NOR_MOVABLE(T) \ 
+    T(T const &) = delete; \
+    void operator=(T const &t) = delete; \
+    T(T &&) = delete;
+
+#define NO_IMPLICIT_CONVERSION_T(BASET, T) \
+struct T \
+{ \
+    BASET value; \
+    T(BASET _value) : value(_value) { }; \
+    template <class t> \
+    T(t) = delete; \
+    template <class t> \
+    T& operator=(const t&) = delete; \
+    bool operator==(const T& rhs) const { return value == rhs.value; }; \
+    bool operator!=(const T& rhs) const { return !(*this == rhs)   ; }; \
+    bool operator< (const T& rhs) const { return value < rhs.value ; }; \
+    bool operator> (const T& rhs) const { return rhs < *this       ; }; \
+    bool operator<=(const T& rhs) const { return !(*this > rhs)    ; }; \
+    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; } \
+} \
 
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;

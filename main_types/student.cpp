@@ -1,25 +1,25 @@
 #include "student.h"
 
-int Student::get_contract() const
+Student::Contract Student::get_contract() const
 {
-    return contract;
+    return _contract;
 }
 
-std::string Student::get_name() const
+Student::Name Student::get_name() const
 {
-    return name;
+    return _name;
 }
 
-bool Student::set_contract(int new_contract)
+bool Student::set_contract(Contract contract)
 {
-    contract = new_contract;
+    _contract = contract;
     return true;
 }
 
-bool Student::set_name(std::string new_name)
+bool Student::set_name(Name name)
 {
-    if (new_name.length()==0) return false;
-    name = new_name;
+    // Allow empty names
+    _name = name;
     return true;
 }
 
@@ -40,23 +40,24 @@ bool Student::restore()
     return true;
 }
 
-Student::Student()
+Student::Student(Contract contract, Name name) : _contract(contract), _name(name) { }
+
+bool operator==(const Student &lhs, const Student &rhs)
 {
-    contract = -1;
+    return std::tie(lhs._name, lhs._contract) == std::tie(rhs._name, rhs._contract);
 }
 
-Student::Student(int contract, std::string name) : contract(contract), name(name)
+bool operator!=(const Student &lhs, const Student &rhs)
 {
+    return !(lhs == rhs);
 }
 
-bool Student::is_identical(const Student& rhs) const
+bool operator<(const Student &lhs, const Student &rhs)
 {
-    if (removed) return false;
-    if (name == rhs.name && contract == rhs.contract) return true;
-    return false;
+    return std::tie(lhs._name, lhs._contract) < std::tie(rhs._name, rhs._contract);
 }
 
-bool Student::operator==(const Student& rhs) const { return this == &rhs; }
-bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
-bool Student::operator< (const Student& rhs) const { return contract < rhs.get_contract() || (contract == rhs.get_contract() && name < rhs.get_name()); }
-bool Student::operator> (const Student& rhs) const { return contract > rhs.get_contract() || (contract == rhs.get_contract() && name > rhs.get_name()); }
+bool operator>(const Student &lhs, const Student &rhs)
+{
+    return rhs < lhs;
+}

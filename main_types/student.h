@@ -12,26 +12,24 @@ class Student
         ar & contract;
         ar & removed;
     }
-private:
-    bool removed = 0;
-    int contract;
-    std::string name;
 public:
-    Student();
-    Student(int contract, std::string name);
-    int get_contract() const; bool set_contract(int new_contract);
-    std::string get_name() const; bool set_name(std::string new_name);
+    NO_IMPLICIT_CONVERSION_T(int, Contract);
+    NO_IMPLICIT_CONVERSION_T(std::string, Name);
+    NON_COPYABLE_NOR_MOVABLE(Student);
+private:
+    Student() { };
+    bool removed = 0;
+    Contract _contract = 0;
+    Name _name = std::string();
+public:
+    Student(Contract contract, Name name);
+    Student::Contract get_contract() const;
+    Student::Name get_name() const;
+    bool set_contract(Contract contract);
+    bool set_name(Name new_name);
     bool is_removed() const; bool remove(); bool restore();
-    bool is_identical(const Student& rhs) const; //this is an entry check. Once there is an identical student for some reason, do nothing about it.
-    bool operator==(const Student& rhs) const;
-    bool operator!=(const Student& rhs) const;
-    bool operator< (const Student& rhs) const;
-    bool operator> (const Student& rhs) const;
-    std::size_t operator()() const noexcept
-    {
-        std::size_t seed = 0;
-        boost::hash_combine(seed, name);
-        boost::hash_combine(seed, contract);
-        return seed;
-    };
+    friend bool operator==(const Student& lhs, const Student& rhs);
+    friend bool operator!=(const Student& lhs, const Student& rhs);
+    friend bool operator< (const Student& lhs, const Student& rhs);
+    friend bool operator> (const Student& lhs, const Student& rhs);
 };
