@@ -1,13 +1,9 @@
 #pragma once
 #include "main_types.h"
 
-struct Students_List
-{
-    Student* student;
-    bool is_deleted;
-    Attend_Data attend_data; //this is like student_ignore_lesson_ids
-};
-
+#define ATTEND_BOTH ((Group::AttendData)0)
+#define ATTEND_FIRST ((Group::AttendData)1)
+#define ATTEND_SECOND ((Group::AttendData)2)
 
 template<class Archive>
 void serialize(Archive & ar, Students_List & g, const unsigned int version)
@@ -28,27 +24,47 @@ class Group
         ar & students;
         ar & comment;
     }
-private:
-    int number;
-    int age_group;
-    std::vector<Students_List> students;
-    std::string comment;
 public:
-    Group();
-    int get_size() const;
-    int get_number() const; bool set_number(int new_number);
-    int find_student(const Student& student) const;
-    int get_age_group() const;
-    bool set_age_group(int new_day);
-    bool check_with_attend_data(int known_student_id, int internal_lesson) const;
-    bool check_no_attend_data(const Student &student) const;
-    Attend_Data get_attend_data(int known_student_id) const;
-    bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
-    const Student& get_student(int student) const; int add_student(Student& new_student); bool delete_student(Student& to_remove_student);
-    std::string get_comment() const; bool set_comment(std::string new_comment);
+    NO_IMPLICIT_CONVERSION_T(short, AttendData);
+    NO_IMPLICIT_CONVERSION_T(int, Number);
+    NO_IMPLICIT_CONVERSION_T(std::size_t, AgeGroup);
+    NO_IMPLICIT_CONVERSION_T(std::string, Comment);
+    NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
+    NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
+    NON_COPYABLE_NOR_MOVABLE(Group);
+private:
+    struct Students_List
+    {
+        Student* student;
+        typedef std::pair<bool, time_t> RemovedInfo; // { IsRemoved, Removed/Added time }
+        RemovedInfo removed_info;
+        AttendData attend_data;
+    };
+    Group() { };
+    Number _number = -1;
+    AgeGroup _age_group = 0;
+    std::vector<Students_List> students;
+    Comment _comment = std::string("");
+public:
+    Group(Number number, AgeGroup age_group);
+    std::size_t get_size() const;
+    const Student &get_student(StudentID id) const;
+    Number get_number() const;
+    bool set_number(Number number);
+    StudentID find_student(const Student& student) const;
+    AgeGroup get_age_group() const;
+    bool set_age_group(AgeGroup age_group);
+    bool should_attend(StudentID id, InternalLessonID internal_lesson_id) const;
+    AttendData get_attend_data(StudentID id) const;
+    bool set_attend_data(StudentID id, AttendData new_attend_data);
+    StudentID add_student(Student& new_student);
+    bool delete_student(StudentID id);
+    bool is_in_group(const Student &student, StudentID *id) const;
+    bool is_deleted(StudentID id) const;
+    bool restore_student(StudentID id);
+    bool set_comment(Comment comment);
+    Comment get_comment() const;
     std::string get_description() const;
-    bool is_in_group(const Student& student) const;
-    bool is_deleted(const Student & student) const;
-    bool restore_student(Student &student);
+    time_t get_removed_time(StudentID id) const;
     bool operator==(const Group &rhs) const;
 };

@@ -52,7 +52,6 @@ bool Lesson_Info::delete_lesson_pair(int id)
 bool Lesson_Info::should_attend(int known_internal_student_id, int internal_lesson) const
 {
     const Student& student = group->get_student(known_internal_student_id);
-    if (!group->is_in_group(student)) return false;
     if (group->is_deleted(student)) return false;
     if (!group->check_with_attend_data(known_internal_student_id, internal_lesson)) return false;
     return true;

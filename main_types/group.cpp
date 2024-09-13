@@ -1,64 +1,51 @@
 #include "group.h"
 
-const Student& Group::get_student(int known_student_id) const
+Group::Group(Number number, AgeGroup age_group) : _number(number), _age_group(age_group) { }
+
+const Student& Group::get_student(StudentID id) const
 {
-    return PTRREF(students[known_student_id].student);
+    return PTRREF(students[id].student);
 }
 
-int Group::get_number() const
+Group::Number Group::get_number() const
 {
-    return number;
+    return _number;
 }
 
-bool Group::set_number(int new_number)
+bool Group::set_number(Number number)
 {
-    number = new_number;
+    _number = number;
     return true;
 }
 
-int Group::get_size() const
+std::size_t Group::get_size() const
 {
     return students.size();
 }
 
-int Group::get_age_group() const
+Group::AgeGroup Group::get_age_group() const
 {
-    return age_group;
+    return _age_group;
 }
 
-bool Group::set_age_group(int new_age_group)
+bool Group::set_age_group(AgeGroup age_group)
 {
-    if (new_age_group < 0) return false;
-    age_group = new_age_group;
+    if (age_group.value < 0) return false;
+    _age_group = age_group;
     return true;
 }
 
-bool Group::check_with_attend_data(int known_student_id, int internal_lesson) const
+bool Group::should_attend(StudentID id, InternalLessonID internal_lesson_id) const
 {
-    Attend_Data attend_data = students[known_student_id].attend_data;
-    if (students[known_student_id].is_deleted) return false;
-    if (attend_data == ATTEND_FIRST && internal_lesson == 1) return false;
-    if (attend_data == ATTEND_SECOND && internal_lesson == 0) return false;
+    IM_ASSERT(id < students.size());
+    Attend_Data attend_data = students[id].attend_data;
+    if (is_deleted(id)) return false;
+    if (attend_data == ATTEND_FIRST && internal_lesson_id == INTERNAL_LESSON_SECOND) return false;
+    if (attend_data == ATTEND_SECOND && internal_lesson_id == INTERNAL_LESSON_FIRST) return false;
     return true; 
 }
 
-bool Group::check_no_attend_data(const Student& student) const
-{
-    int found = -1;
-    for (int i = 0; i < students.size(); i++)
-    {
-        if (PTRREF(students[i].student) == student)
-        {
-            found = i;
-            break;
-        }
-    }
-    if (found == -1) return false;
-    if (students[found].is_deleted) return false;
-    return true;
-}
-
-int Group::find_student(const Student& student) const
+Group::StudentID Group::find_student(const Student& student) const
 {
     for (int i = 0; i < students.size(); i++)
     {
@@ -67,118 +54,80 @@ int Group::find_student(const Student& student) const
     return -1;
 }
 
-int Group::add_student(Student& new_student) //returns his internal id
+Group::StudentID Group::add_student(Student& new_student)
 {
-    int new_student_sort_by_name_id = students.size(); //ascending
-    for (int i = 0; i < (students.size()); i++)
-    {
-        if (new_student == PTRREF(students[i].student))
-        {
-            return -1; //already in the list
-        }
-        if (new_student < PTRREF(students[i].student))
-        {
-            new_student_sort_by_name_id = i; break;
-        }
-    }
-    students.insert(students.begin()+new_student_sort_by_name_id, {&new_student, false});
-    return new_student_sort_by_name_id;
+    StudentID id(students.size());
+    Students_List list = (Students_List){.student = &new_student, .removed_info = {false, time(NULL)}, .attend_data = ATTEND_BOTH};
+    students.push_back(list);
+    return id;
 };
 
-bool Group::delete_student(Student& to_remove_student)
+bool Group::delete_student(StudentID id)
 {
-    bool is_found_sort_id = false;
-    for (int i = 0; i < students.size(); i++)
-    {
-        if (!is_found_sort_id)
-        {
-            if (to_remove_student==PTRREF(students[i].student))
-            {
-                if (students[i].is_deleted) break;
-                students[i].is_deleted = true;
-                is_found_sort_id = true;
-                break;
-            }
-        }
-    }
-    return is_found_sort_id;
-}
-
-bool Group::is_in_group(const Student& student) const
-{
-    for (int i = 0; i < students.size(); i++)
-    {
-        if (student==PTRREF(students[i].student)) 
-        {
-            //if (students[i].is_deleted) return false;
-            //if (student.is_removed()) return false;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Group::is_deleted(const Student& student) const
-{
-    for (int i = 0; i < students.size(); i++)
-    {
-        if (student==PTRREF(students[i].student)) 
-        {
-            if (students[i].is_deleted) return true;
-            return false;
-        }
-    }
-    return false;
-}
-
-bool Group::restore_student(Student& student)
-{
-    for (int i = 0; i < students.size(); i++)
-    {
-        if (student==PTRREF(students[i].student)) 
-        {
-            students[i].is_deleted = false;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Group::set_comment(std::string new_comment)
-{
-    comment = new_comment;
+    IM_ASSERT(id < students.size());
+    if (is_deleted(id)) return false;
+    students[id].removed_info.first = true;
+    students[id].removed_info.second = time(NULL);
     return true;
 }
 
-std::string Group::get_comment() const
+bool Group::is_in_group(const Student& student, StudentID* id) const
 {
-    return comment;
+    StudentID result = find_student(student);
+    if (id != nullptr) *id = result;
+    return result.value != -1;
+}
+
+bool Group::is_deleted(StudentID id) const
+{
+    IM_ASSERT(id < students.size());
+    return students[id].removed_info.first;
+}
+
+bool Group::restore_student(StudentID id)
+{
+    IM_ASSERT(id < students.size());
+    if (!is_deleted(id)) return false;
+    students[id].removed_info.first = false;
+    students[id].removed_info.second = time(NULL);
+    return true;
+}
+
+bool Group::set_comment(Comment comment)
+{
+    _comment = comment;
+    return true;
+}
+
+Group::Comment Group::get_comment() const
+{
+    return _comment;
 }
 
 std::string Group::get_description() const
 {
-    std::string output = "#" + std::to_string(get_number());
-    if (age_group != -1) output.append(", " + Age_Group_Names[age_group]);
-    if (comment.size() != 0) output.append(", " + get_comment());
+    std::string output = "#" + std::to_string(get_number().value);
+    output.append(", " + Age_Group_Names[get_age_group().value]);
+    if (_comment.value.size() != 0) output.append(", " + get_comment().value);
     return output;
 }
 
-Group::Group()
+time_t Group::get_removed_time(StudentID id) const
 {
-    age_group = 0;
-    number = -1;
+    IM_ASSERT(id < students.size());
+    return students[id].removed_info.second;
 }
 
 bool Group::operator==(const Group& rhs) const { return this == &rhs; };
 
-Attend_Data Group::get_attend_data(int known_student_id) const
+Group::AttendData Group::get_attend_data(StudentID id) const
 {
-    return students[known_student_id].attend_data;
+    return students[id].attend_data;
 }
 
-bool Group::set_attend_data(int known_student_id, Attend_Data new_attend_data)
+bool Group::set_attend_data(StudentID id, AttendData attend_data)
 {
-    if (new_attend_data > 2 || new_attend_data < 0) return false;
-    students[known_student_id].attend_data = new_attend_data;
+    IM_ASSERT(attend_data == ATTEND_BOTH || attend_data == ATTEND_FIRST || attend_data == ATTEND_SECOND);
+    students[id].attend_data = attend_data;
     return true;
 }

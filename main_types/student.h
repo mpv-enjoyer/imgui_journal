@@ -1,6 +1,5 @@
 #pragma once
 #include "main_types.h"
-#include <boost/container_hash/hash.hpp>
 
 class Student
 {
@@ -18,7 +17,8 @@ public:
     NON_COPYABLE_NOR_MOVABLE(Student);
 private:
     Student() { };
-    bool removed = 0;
+    typedef std::pair<bool, time_t> RemovedInfo; // { IsRemoved, Removed/Added time }
+    RemovedInfo removed = {false, time(NULL)};
     Contract _contract = 0;
     Name _name = std::string();
 public:
@@ -27,7 +27,10 @@ public:
     Student::Name get_name() const;
     bool set_contract(Contract contract);
     bool set_name(Name new_name);
-    bool is_removed() const; bool remove(); bool restore();
+    time_t get_removed_time() const;
+    bool is_removed() const;
+    bool remove();
+    bool restore();
     friend bool operator==(const Student& lhs, const Student& rhs);
     friend bool operator!=(const Student& lhs, const Student& rhs);
     friend bool operator< (const Student& lhs, const Student& rhs);

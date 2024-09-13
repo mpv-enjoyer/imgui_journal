@@ -73,9 +73,6 @@
 #define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
 typedef short Attend_Data;
-#define ATTEND_BOTH 0
-#define ATTEND_FIRST 1
-#define ATTEND_SECOND 2
 #define INTERVAL_CHECK(left1, right1, left2, right2) (!(left1 < right1 && right1 < left2 && left2 < right2))
 
 #define NON_COPYABLE_NOR_MOVABLE(T) \ 
@@ -89,21 +86,30 @@ struct T \
     BASET value; \
     T(BASET _value) : value(_value) { }; \
     template <class t> \
-    T(t) = delete; \
-    template <class t> \
     T& operator=(const t&) = delete; \
+    \
     bool operator==(const T& rhs) const { return value == rhs.value; }; \
     bool operator!=(const T& rhs) const { return !(*this == rhs)   ; }; \
     bool operator< (const T& rhs) const { return value < rhs.value ; }; \
     bool operator> (const T& rhs) const { return rhs < *this       ; }; \
     bool operator<=(const T& rhs) const { return !(*this > rhs)    ; }; \
-    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; } \
+    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; }; \
+    \
+    bool operator==(const BASET& rhs) const { return value == rhs   ; }; \
+    bool operator!=(const BASET& rhs) const { return !(value == rhs); }; \
+    bool operator< (const BASET& rhs) const { return value < rhs    ; }; \
+    bool operator> (const BASET& rhs) const { return rhs < value    ; }; \
+    bool operator<=(const BASET& rhs) const { return !(value > rhs) ; }; \
+    bool operator>=(const BASET& rhs) const { return !(value < rhs) ; }; \
+    \
+    operator BASET() const { return value; } \
+    template <class t> \
+    operator t() const = delete; \
 } \
 
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;
 const int AGE_GROUP_COUNT = 8;
-
 const int STUDY_YEAR_BEGIN_MONTH = 8;
 
 //TODO: remove

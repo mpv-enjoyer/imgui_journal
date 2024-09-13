@@ -23,20 +23,27 @@ bool Student::set_name(Name name)
     return true;
 }
 
+time_t Student::get_removed_time() const
+{
+    return removed.second;
+}
+
 bool Student::is_removed() const
 {
-    return removed;
+    return removed.first;
 }
 
 bool Student::remove()
 {
-    removed = true;
+    removed.first = true;
+    removed.second = time(NULL);
     return true;
 }
 
 bool Student::restore()
 {
-    removed = false;
+    removed.first = false;
+    removed.second = time(NULL);
     return true;
 }
 
