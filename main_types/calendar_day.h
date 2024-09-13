@@ -156,8 +156,6 @@ private:
     };
     Lessons_Day* const lessons_day = nullptr;
     Attendance attendance;
-    std::vector<std::vector<std::string>> teacher_names;
-    std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
     Calendar_Day(Lessons_Day* lessons_day);
     MergedLessonID find_merged_lesson(const Lesson_Info& lesson_info) const;
@@ -167,7 +165,6 @@ public:
     void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
     //the following is needed to properly update the journal
     void sync();
-    //...
 };
 
 BOOST_CLASS_VERSION(Calendar_Day, 1); // Version 1: added teacher_names
