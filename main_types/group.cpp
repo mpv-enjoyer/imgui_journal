@@ -37,7 +37,7 @@ bool Group::set_age_group(AgeGroup age_group)
 
 bool Group::should_attend(StudentID id, InternalLessonID internal_lesson_id) const
 {
-    IM_ASSERT(id < _students.size());
+    IM_ASSERT(id.value < _students.size());
     Attend_Data attend_data = _students[id].attend_data;
     if (is_deleted(id)) return false;
     if (attend_data == ATTEND_FIRST && internal_lesson_id == INTERNAL_LESSON_SECOND) return false;
@@ -64,7 +64,7 @@ Group::StudentID Group::add_student(Student& new_student)
 
 bool Group::delete_student(StudentID id)
 {
-    IM_ASSERT(id < _students.size());
+    IM_ASSERT(id.value < _students.size());
     return _students[id].remove();
 }
 
@@ -77,13 +77,13 @@ bool Group::is_in_group(const Student& student, StudentID* id) const
 
 bool Group::is_deleted(StudentID id) const
 {
-    IM_ASSERT(id < _students.size());
+    IM_ASSERT(id.value < _students.size());
     return _students[id].is_removed();
 }
 
 bool Group::restore_student(StudentID id)
 {
-    IM_ASSERT(id < _students.size());
+    IM_ASSERT(id.value < _students.size());
     return _students[id].restore();
 }
 
@@ -108,7 +108,7 @@ std::string Group::get_description() const
 
 time_t Group::get_removed_timestamp(StudentID id) const
 {
-    IM_ASSERT(id < _students.size());
+    IM_ASSERT(id.value < _students.size());
     return _students[id].get_removed_timestamp();
 }
 

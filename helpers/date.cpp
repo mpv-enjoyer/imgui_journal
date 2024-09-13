@@ -1,30 +1,30 @@
 #include "date.h"
 #include "helpers.h"
 
-MdayFrom1 get_number_of_days(MonthFrom0 month, YearFrom0 year)
+MdayFrom0 get_number_of_days(MonthFrom0 month, YearFrom0 year)
 {
-    month.value++;
+    MonthFrom1 month = month;
     // leap year condition, if month is 2
-    if (month == 2) {
+    if (MonthFrom1(month) == MonthFrom1(2)) {
         if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
             return 29;
         else
             return 28;
     }
     // months which have 31 days
-    else if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8
-        || month == 10 || month == 12)
+    else if (month == MonthFrom1(1) || month == MonthFrom1(3) || month == MonthFrom1(5) || month == MonthFrom1(7)
+          || month == MonthFrom1(8) || month == MonthFrom1(10) || month == MonthFrom1(12))
         return 31;
     else
         return 30;
 }
 
-int get_first_mwday(int month, int year)
+WdayEnglish get_first_mwday(MonthFrom0 month, YearFrom1900 year)
 {
-    return get_wday(0, month, year);
+    return get_wday(MdayFrom0(0), month, year);
 }
 
-int get_first_wday(int month, int year, int wday)
+MdayFrom1 get_first_wday(MonthFrom0 month, YearFrom1900 year, WdayEnglish wday)
 {
   std::tm time_in = { 0, 0, 0, // second, minute, hour
       1, month, year}; // 1-based day, 0-based month, year since 1900
@@ -39,7 +39,7 @@ int get_first_wday(int month, int year, int wday)
   return diff + 1;
 }
 
-int get_wday(int day, int month, int year)
+WdayEnglish get_wday(MdayFrom0 day, MonthFrom0 month, YearFrom1900 year)
 {
   std::tm time_in = { 0, 0, 0, // second, minute, hour
       day + 1, month, year }; // 1-based day, 0-based month, year since 1900
@@ -50,23 +50,23 @@ int get_wday(int day, int month, int year)
   return time_out->tm_wday;
 }
 
-int get_mday_index_for_wday(int mday, int wday, int month, int year)
+MdayIDWday get_mday_index_for_wday(MdayFrom1 mday, WdayEnglish wday, MonthFrom0 month, YearFrom1900 year)
 {
-    int day = get_first_wday(month, year, wday) - MDAY_DIFF;
-    int day_count = get_number_of_days(month, year + 1900);
-    for (int i = 0; day <= day_count; day += 7, i++)
+    MdayFrom1 day = get_first_wday(month, year, wday);
+    MdayFrom0 day_count = get_number_of_days(month, year);
+    for (int i = 0; day <= day_count; day.value += 7, i++)
     {
         if (day == mday) return i;
     }
-    return -1;
+    IM_ASSERT(false && "Mday index for wday isn't valid.");
 };
 
-int get_wday_count_in_month(int wday, int month, int year)
+int get_wday_count_in_month(WdayEnglish wday, MonthFrom0 month, YearFrom1900 year)
 {
     int output = 0;
-    int day = get_first_wday(month, year, wday);
+    MdayFrom1 day = get_first_wday(month, year, wday);
     int day_count = get_number_of_days(month, year);
-    for ( ; day <= day_count; day+=7, output++) { };
+    for ( ; day <= day_count; day.value += 7, output++) { };
     return output;
 }
 

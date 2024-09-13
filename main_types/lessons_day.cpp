@@ -2,7 +2,7 @@
 
 const Lesson_Info *Lessons_Day::lesson_info(InternalLessonID id) const
 {
-    IM_ASSERT(id < _lessons.size());
+    IM_ASSERT(id.value < _lessons.size());
     return _lessons[id];
 }
 

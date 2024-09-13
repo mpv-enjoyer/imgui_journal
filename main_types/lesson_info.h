@@ -23,9 +23,9 @@ class InternalLessonInfos
 public:
     InternalLessonInfos(std::vector<InternalLessonInfo> lesson_pairs) : _lesson_pairs(lesson_pairs) { };
     std::vector<InternalLessonInfo> get_lesson_pairs() const { return _lesson_pairs; };
-    InternalLessonInfo get_lesson_pair(InternalLessonID id) const { IM_ASSERT(id < size()); };
+    InternalLessonInfo get_lesson_pair(InternalLessonID id) const { IM_ASSERT(id.value < size()); };
     const std::size_t size() const { return _lesson_pairs.size(); };
-    void edit_pair(InternalLessonID id, JTime begin, JTime end) { IM_ASSERT(id < size()); _lesson_pairs[id].time_begin = begin; _lesson_pairs[id].time_end = end; };
+    void edit_pair(InternalLessonID id, JTime begin, JTime end) { IM_ASSERT(id.value < size()); _lesson_pairs[id].time_begin = begin; _lesson_pairs[id].time_end = end; };
 };
 
 class Lesson_Info : public Removable //can contain multiple lessons which will be merged in the table.

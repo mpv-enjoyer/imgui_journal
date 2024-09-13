@@ -25,9 +25,9 @@ class Group
         ar & comment;
     }
 public:
-    NO_IMPLICIT_CONVERSION_T(short, AttendData);
+    NO_IMPLICIT_CONVERSION_T_CHECKED(short, AttendData, value < MAX_INTERNAL_LESSONS * MAX_INTERNAL_LESSONS);
     NO_IMPLICIT_CONVERSION_T(int, Number);
-    NO_IMPLICIT_CONVERSION_T(std::size_t, AgeGroup);
+    NO_IMPLICIT_CONVERSION_T_CHECKED(std::size_t, AgeGroup, value < AGE_GROUP_COUNT);
     NO_IMPLICIT_CONVERSION_T(std::string, Comment);
     NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
     NON_COPYABLE_NOR_MOVABLE(Group);

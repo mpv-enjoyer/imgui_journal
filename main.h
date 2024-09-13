@@ -80,32 +80,32 @@ typedef short Attend_Data;
     void operator=(T const &t) = delete; \
     T(T &&) = delete;
 
-#define NO_IMPLICIT_CONVERSION_T(BASET, T) \
-struct T \
-{ \
-    BASET value; \
-    T(BASET _value) : value(_value) { }; \
-    template <class t> \
-    T& operator=(const t&) = delete; \
-    \
+template <class T>
+struct NotImplicitlyConvertable
+{
+    T value;
+    NotImplicitlyConvertable(T _value) : value(_value) { };
+    template <class t>
+    NotImplicitlyConvertable<T>& operator=(const t&) = delete;
+    operator T() const { return value; } 
+    template <class t> 
+    operator t() const = delete; 
+};
+
+#define NO_IMPLICIT_CONVERSION_T_COMPARISON(T) \
     bool operator==(const T& rhs) const { return value == rhs.value; }; \
     bool operator!=(const T& rhs) const { return !(*this == rhs)   ; }; \
     bool operator< (const T& rhs) const { return value < rhs.value ; }; \
     bool operator> (const T& rhs) const { return rhs < *this       ; }; \
     bool operator<=(const T& rhs) const { return !(*this > rhs)    ; }; \
-    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; }; \
-    \
-    bool operator==(const BASET& rhs) const { return value == rhs   ; }; \
-    bool operator!=(const BASET& rhs) const { return !(value == rhs); }; \
-    bool operator< (const BASET& rhs) const { return value < rhs    ; }; \
-    bool operator> (const BASET& rhs) const { return rhs < value    ; }; \
-    bool operator<=(const BASET& rhs) const { return !(value > rhs) ; }; \
-    bool operator>=(const BASET& rhs) const { return !(value < rhs) ; }; \
-    \
-    operator BASET() const { return value; } \
-    template <class t> \
-    operator t() const = delete; \
-} \
+    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; };
+#define NO_IMPLICIT_CONVERSION_T_CHECKED(BASET, T, CHECK) \
+    struct T : NotImplicitlyConvertable<BASET> \
+    { \
+        T(BASET _value) : NotImplicitlyConvertable(_value) { IM_ASSERT(CHECK); } \
+        NO_IMPLICIT_CONVERSION_T_COMPARISON(T); \
+    }
+#define NO_IMPLICIT_CONVERSION_T(BASET, T) NO_IMPLICIT_CONVERSION_T_CHECKED(BASET, T, true)
 
 class Removable
 {
