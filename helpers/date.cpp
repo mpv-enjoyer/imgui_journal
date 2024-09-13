@@ -1,9 +1,9 @@
 #include "date.h"
 #include "helpers.h"
 
-MdayFrom0 get_number_of_days(MonthFrom0 month, YearFrom0 year)
+MdayFrom0 get_number_of_days(MonthFrom0 _month, YearFrom0 year)
 {
-    MonthFrom1 month = month;
+    MonthFrom1 month = _month;
     // leap year condition, if month is 2
     if (MonthFrom1(month) == MonthFrom1(2)) {
         if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
@@ -54,7 +54,7 @@ MdayIDWday get_mday_index_for_wday(MdayFrom1 mday, WdayEnglish wday, MonthFrom0 
 {
     MdayFrom1 day = get_first_wday(month, year, wday);
     MdayFrom0 day_count = get_number_of_days(month, year);
-    for (int i = 0; day <= day_count; day.value += 7, i++)
+    for (int i = 0; day < MdayFrom1(day_count); day.value += 7, i++)
     {
         if (day == mday) return i;
     }
@@ -65,33 +65,33 @@ int get_wday_count_in_month(WdayEnglish wday, MonthFrom0 month, YearFrom1900 yea
 {
     int output = 0;
     MdayFrom1 day = get_first_wday(month, year, wday);
-    int day_count = get_number_of_days(month, year);
-    for ( ; day <= day_count; day.value += 7, output++) { };
+    MdayFrom0 day_count = get_number_of_days(month, year);
+    for ( ; day <= MdayFrom1(day_count); day.value += 7, output++) { };
     return output;
 }
 
-void next_month_for(int& month, int& year)
+void next_month_for(MonthFrom0& month, YearFrom1900& year)
 {
-    if (month == 11)
+    if (month == MonthFrom0(11))
     {
         month = 0;
         year = year + 1;
     }
     else
     {
-        month += 1;
+        month = month + 1;
     }
 }
 
-void previous_month_for(int& month, int& year)
+void previous_month_for(MonthFrom0& month, YearFrom1900& year)
 {
-    if (month == 0)
+    if (month == MonthFrom0(0))
     {
         month = 11;
         year = year - 1;
     }
     else
     {
-        month -= 1;
+        month = month - 1;
     }
 }

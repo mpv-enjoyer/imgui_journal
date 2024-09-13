@@ -21,7 +21,7 @@ InternalLessonInfo Lesson_Info::get_lesson_pair(InternalLessonID id) const
     return _internal_lesson_infos.get_lesson_pair(id);
 }
 
-int Lesson_Info::get_lessons_size() const
+InternalLessonID Lesson_Info::get_lessons_size() const
 {
     return _internal_lesson_infos.size();
 }

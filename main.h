@@ -42,7 +42,7 @@
 #endif
 
 #define STATUS_INVALID     -2
-#define STATUS_NOT_AWAITED -1
+#define STATUS_NOT_AWAITED -1 // Do not set!
 #define STATUS_NO_DATA      0
 #define STATUS_ON_LESSON    1
 #define STATUS_WAS_ILL      2
@@ -98,7 +98,21 @@ struct NotImplicitlyConvertable
     bool operator< (const T& rhs) const { return value < rhs.value ; }; \
     bool operator> (const T& rhs) const { return rhs < *this       ; }; \
     bool operator<=(const T& rhs) const { return !(*this > rhs)    ; }; \
-    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; };
+    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; }; \
+    \
+    template <class t> \
+    bool operator==(const t& rhs) const = delete; \
+    template <class t> \
+    bool operator!=(const t& rhs) const = delete; \
+    template <class t> \
+    bool operator< (const t& rhs) const = delete; \
+    template <class t> \
+    bool operator> (const t& rhs) const = delete; \
+    template <class t> \
+    bool operator<=(const t& rhs) const = delete; \
+    template <class t> \
+    bool operator>=(const t& rhs) const = delete;
+
 #define NO_IMPLICIT_CONVERSION_T_CHECKED(BASET, T, CHECK) \
     struct T : NotImplicitlyConvertable<BASET> \
     { \

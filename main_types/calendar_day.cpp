@@ -1,5 +1,13 @@
 #include "calendar_day.h"
 
+        Calendar_Day::Attendance(Lessons_Day* lessons) : lessons(lessons)
+        {
+            for (std::size_t i = 0; i < lessons->lesson_infos().size(); i++)
+            {
+                merged_lesson_attendance.push_back(MergedLessonAttendance(lessons->lesson_info(i)));
+            }
+        };
+
 Calendar_Day::Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day) : lessons(&lessons_in_this_day)
 {
     Student_Status default_status;

@@ -45,7 +45,7 @@ private:
     Comment _comment = Comment("");
 public:
     Group(Number number, AgeGroup age_group);
-    std::size_t get_size() const;
+    StudentID get_size() const;
     const Student &get_student(StudentID id) const;
     Number get_number() const;
     bool set_number(Number number);

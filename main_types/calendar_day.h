@@ -79,6 +79,9 @@ void serialize(Archive & ar, Internal_Attendance_Status & g, const unsigned int 
     ar & g.workouts;
 }
 
+NO_IMPLICIT_CONVERSION_T(int, AttendanceStatus);
+NO_IMPLICIT_CONVERSION_T(int, DiscountStatus);
+
 class Calendar_Day
 {
     friend class boost::serialization::access;
@@ -105,7 +108,75 @@ class Calendar_Day
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 private:
-    std::vector<Lesson_Info*>* lessons;
+    Lessons_Day* lessons;
+    class Attendance
+    {
+        class MergedLessonAttendance
+        {
+            class InternalLessonAttendance
+            {
+                struct StudentAttendance
+                {
+                    AttendanceStatus status = STATUS_NO_DATA;
+                    DiscountStatus discount_status = -1;
+                    StudentAttendance() {};
+                };
+                std::vector<StudentAttendance> student_attendance;
+            public:
+                const Group* group;
+                InternalLessonAttendance(const Group* group) : group(group)
+                {
+                    student_attendance = std::vector<StudentAttendance>(group->get_size().value);
+                };
+                void sync()
+                {
+                    for (std::size_t i = student_attendance.size(); i < group->get_size(); i++)
+                    {
+                        student_attendance.push_back(StudentAttendance());
+                    }
+                };
+            };
+            std::vector<InternalLessonAttendance> internal_lesson_attendance;
+            const Lesson_Info* lesson_info;
+        public:
+            MergedLessonAttendance(const Lesson_Info* lesson_info) : lesson_info(lesson_info)
+            {
+                for (std::size_t i = 0; i < lesson_info->get_lessons_size(); i++)
+                {
+                    internal_lesson_attendance.push_back(InternalLessonAttendance(&(lesson_info->get_group())));
+                }
+            }
+            void sync()
+            {
+                for (std::size_t i = 0; i < internal_lesson_attendance.size(); i++)
+                {
+                    internal_lesson_attendance[i].sync();
+                }
+            };
+        };
+        std::vector<MergedLessonAttendance> merged_lesson_attendance;
+        const Lessons_Day* lessons;
+    public:
+        Attendance(Lessons_Day* lessons) : lessons(lessons)
+        {
+            for (std::size_t i = 0; i < lessons->lesson_infos().size(); i++)
+            {
+                merged_lesson_attendance.push_back(MergedLessonAttendance(lessons->lesson_info(i)));
+            }
+        };
+        void sync()
+        {
+            for (std::size_t i = 0; i < merged_lesson_attendance.size(); i++)
+            {
+                merged_lesson_attendance[i].sync();
+            }
+            for (std::size_t i = merged_lesson_attendance.size(); i < lessons->lesson_infos().size(); i++)
+            {
+                merged_lesson_attendance.push_back(MergedLessonAttendance(lessons->lesson_info(i)));
+            }
+        };
+    };
+    Attendance attendance;
     std::vector<std::vector<std::string>> teacher_names;
     std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:

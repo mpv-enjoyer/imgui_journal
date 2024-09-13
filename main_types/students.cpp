@@ -7,7 +7,7 @@ void Students::update_contract_counter()
     {
         if (student->is_removed()) continue;
         int contract = student->get_contract();
-        _contract_counter[contract]++;
+        _contract_counter[contract] = _contract_counter[contract] + 1;
     }
 }
 
@@ -27,9 +27,24 @@ const Student* Students::student(int id) const
     return _students[id];
 }
 
-int Students::get_students_size() const
+Students::StudentID Students::get_students_size() const
 {
     return _students.size();
+}
+
+void Students::edit_student(StudentID id, Student::Contract contract, Student::Name name)
+{
+    auto& student = _students[id];
+    bool should_update_students_counter = false;
+    if (student->get_contract() != contract) should_update_students_counter = true;
+    student->set_contract(contract);
+    if (should_update_students_counter) update_contract_counter();
+    student->set_name(name);
+}
+
+Students::Counter Students::get_student_counter(Student::Contract contract)
+{
+    return _contract_counter[contract];
 }
 
 std::vector<const Student*> Students::students() const
@@ -40,20 +55,4 @@ std::vector<const Student*> Students::students() const
         output.push_back(_students[i]);
     }
     return output;
-}
-
-void Students::edit_student(int id, int contract, std::string name)
-{
-    auto& student = _students[id];
-    bool should_update_students_counter = false;
-    if (student->get_contract() != contract) should_update_students_counter = true;
-    student->set_contract(contract);
-    if (should_update_students_counter) update_contract_counter();
-    student->set_name(name); 
-}
-
-int Students::get_student_counter(int contract)
-{
-    // This will create new std::map object with value 0
-    return _contract_counter[contract];
 }

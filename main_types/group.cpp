@@ -18,7 +18,7 @@ bool Group::set_number(Number number)
     return true;
 }
 
-std::size_t Group::get_size() const
+Group::StudentID Group::get_size() const
 {
     return _students.size();
 }

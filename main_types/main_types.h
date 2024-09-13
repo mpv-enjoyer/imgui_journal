@@ -1,7 +1,8 @@
 #pragma once
 #include "../main.h"
 #include "../helpers/helpers.h"
-NO_IMPLICIT_CONVERSION_T(std::size_t, InternalLessonID);
+NO_IMPLICIT_CONVERSION_T(std::size_t, MergedLessonID);
+NO_IMPLICIT_CONVERSION_T_CHECKED(std::size_t, InternalLessonID, value < MAX_INTERNAL_LESSONS);
 #define INTERNAL_LESSON_FIRST ((InternalLessonID)0)
 #define INTERNAL_LESSON_SECOND ((InternalLessonID)1)
 #include "student.h"
