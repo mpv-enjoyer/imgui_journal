@@ -12,12 +12,12 @@ bool Popup_Confirm_Delete_Lesson::show_frame()
 {
     const Lesson_Info* lesson_info = journal->lesson_info(_wday, _merged_lesson_id);
     const Group& group = lesson_info->get_group();
-    IM_ASSERT(!lesson_info->is_discontinued());
+    IM_ASSERT(!lesson_info->is_removed());
     if (begin_frame("Удалить группу?"))
     {
         ImGui::Text("Номер группы: %i", group.get_number());
 
-        std::vector<Lesson_Pair> pairs_buffer = lesson_info->get_lesson_pairs();
+        std::vector<InternalLessonInfo> pairs_buffer = lesson_info->get_lesson_pairs();
         for (int i = 0; i < pairs_buffer.size(); i++)
         {
             ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());

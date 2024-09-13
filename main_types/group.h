@@ -21,7 +21,7 @@ class Group
     {
         ar & number;
         ar & age_group;
-        ar & students;
+        ar & _students;
         ar & comment;
     }
 public:
@@ -30,21 +30,19 @@ public:
     NO_IMPLICIT_CONVERSION_T(std::size_t, AgeGroup);
     NO_IMPLICIT_CONVERSION_T(std::string, Comment);
     NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
-    NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
     NON_COPYABLE_NOR_MOVABLE(Group);
 private:
-    struct Students_List
+    class Students_List : public Removable
     {
+    public:
         Student* student;
-        typedef std::pair<bool, time_t> RemovedInfo; // { IsRemoved, Removed/Added time }
-        RemovedInfo removed_info;
         AttendData attend_data;
     };
     Group() { };
     Number _number = -1;
     AgeGroup _age_group = 0;
-    std::vector<Students_List> students;
-    Comment _comment = std::string("");
+    std::vector<Students_List> _students;
+    Comment _comment = Comment("");
 public:
     Group(Number number, AgeGroup age_group);
     std::size_t get_size() const;
@@ -65,6 +63,6 @@ public:
     bool set_comment(Comment comment);
     Comment get_comment() const;
     std::string get_description() const;
-    time_t get_removed_time(StudentID id) const;
+    time_t get_removed_timestamp(StudentID id) const;
     bool operator==(const Group &rhs) const;
 };

@@ -107,6 +107,18 @@ struct T \
     operator t() const = delete; \
 } \
 
+class Removable
+{
+    time_t timestamp;
+    bool removed;
+public:
+    Removable() : timestamp(time(NULL)), removed(false) { };
+    bool is_removed() const { return removed; };
+    time_t get_removed_timestamp() const { return timestamp; };
+    bool remove() { if (removed) return false; timestamp = time(NULL); removed = true; return true; }
+    bool restore() { if (!removed) return false; timestamp = time(NULL); removed = false; return true; }
+};
+
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;
 const int AGE_GROUP_COUNT = 8;

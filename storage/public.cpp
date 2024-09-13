@@ -233,7 +233,7 @@ const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_st
     if (status == STATUS_NOT_AWAITED) return -1;
     int defined_status = _day(mday)->get_discount_status(lesson, internal_student_id);
     int wday = get_wday(mday, _current_month, _current_year);
-    Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
+    InternalLessonInfo pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
     int lesson_type = pair.lesson_name_id;
     if (defined_status != -1) return _lesson_prices[lesson_type][defined_status];
     //discount status is undefined at this point, fall back to common
@@ -253,22 +253,22 @@ void Journal::set_student_contract(int id, int contract)
 void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
 {
     if (!_check_rights({ State::Fullaccess })) return;
-    _all_lessons[wday][merged_lesson_id]->_group().set_age_group(age_group); 
+    _all_lessons[wday][merged_lesson_id]->get_group().set_age_group(age_group); 
 }
 void Journal::remove_student_from_group(int wday, int merged_lesson_id, int student_id)
 {
-    _all_lessons[wday][merged_lesson_id]->_group().delete_student(PTRREF(_all_students[student_id]));
+    _all_lessons[wday][merged_lesson_id]->get_group().delete_student(PTRREF(_all_students[student_id]));
 }
 void Journal::restore_student_to_group(int wday, int merged_lesson_id, int student_id)
 {
-    _all_lessons[wday][merged_lesson_id]->_group().restore_student(PTRREF(_all_students[student_id]));
+    _all_lessons[wday][merged_lesson_id]->get_group().restore_student(PTRREF(_all_students[student_id]));
 }
 bool Journal::does_group_exist(int wday, int number)
 {
     const auto& lesson_infos = _all_lessons[wday];
     for (const auto& lesson_info : lesson_infos)
     {
-        if (lesson_info->get_group().get_number() == number && !lesson_info->is_discontinued()) return true;
+        if (lesson_info->get_group().get_number() == number && !lesson_info->is_removed()) return true;
     }
     return false;
 }
@@ -278,12 +278,12 @@ void Journal::set_group_number(int wday, int merged_lesson_id, int number)
     // Check if new number is unique
     if (does_group_exist(wday, number)) return;
     if (number < 0) return;
-    _all_lessons[wday][merged_lesson_id]->_group().set_number(number);
+    _all_lessons[wday][merged_lesson_id]->get_group().set_number(number);
 }
 void Journal::set_group_comment(int wday, int merged_lesson_id, std::string comment)
 {
     if (!_check_rights({ State::Fullaccess })) return; 
-    _all_lessons[wday][merged_lesson_id]->_group().set_comment(comment);
+    _all_lessons[wday][merged_lesson_id]->get_group().set_comment(comment);
 }
 void Journal::set_student_attend_data(int wday, int merged_lesson_id, int internal_student_id, Attend_Data new_attend_data)
 {
@@ -304,7 +304,7 @@ void Journal::set_student_attend_data(int wday, int merged_lesson_id, int intern
                 visible_days[i].day->set_status(current_lesson, internal_student_id, STATUS_NO_DATA);
         }
     }
-    _all_lessons[wday][merged_lesson_id]->_group().set_attend_data(internal_student_id, new_attend_data);
+    _all_lessons[wday][merged_lesson_id]->get_group().set_attend_data(internal_student_id, new_attend_data);
 }
 void Journal::set_teacher_name(int mday, Lesson lesson, std::string name)
 {
@@ -319,7 +319,7 @@ void Journal::add_student_to_base(std::string name, int contract)
     current->set_name(name);
     _all_students.push_back(current);
 }
-void Journal::add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs)
+void Journal::add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<InternalLessonInfo> lesson_pairs)
 {
     if (!_check_rights({ State::Fullaccess })) return; 
     IM_ASSERT(wday >= 0 && wday <= 6 && number >= 0 && age_group >= -1 && age_group <= AGE_GROUP_COUNT);
@@ -347,7 +347,7 @@ void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_i
     if (!_check_rights({ State::Fullaccess })) return; 
     Student* student = _all_students[student_id];
     Lesson_Info* merged_lesson = _all_lessons[wday][merged_lesson_id];
-    Group& group = merged_lesson->_group();
+    Group& group = merged_lesson->get_group();
     int new_student_id = group.add_student(PTRREF(student));
     int first_wday = get_first_wday(_current_month, _current_year, wday);
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
@@ -387,11 +387,11 @@ void Journal::add_working_out(const std::tm caller_date, const std::tm select_da
     int discount_status = _discount_status(student.get_contract());
     _day(select_date.tm_mday)->set_discount_status(select_lesson, internal_student_id, discount_status);
 }
-void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Lesson_Pair> pairs)
+void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<InternalLessonInfo> pairs)
 {
     if (!_check_rights({ State::Fullaccess })) return; 
     Lesson_Info& lesson_info = PTRREF(_all_lessons[wday][merged_lesson_id]);
-    Group& group = lesson_info._group();
+    Group& group = lesson_info.get_group();
 
     Lesson_Info lesson_info_checked = lesson_info;
 
@@ -462,11 +462,11 @@ const bool Journal::is_workout_possible(const Lesson_Info* select_lesson, int se
     if (student_id < 0) return false;
     const Student* current_student = student(student_id);
     if (current_student->is_removed()) return false;
-    if (select_lesson->is_discontinued()) return false;
+    if (select_lesson->is_removed()) return false;
     int internal_student_id = select_lesson->get_group().find_student(PTRREF(current_student));
     if (internal_student_id == -1) return false;
     if (!select_lesson->should_attend(internal_student_id, select_internal_lesson)) return false;
-    const Lesson_Pair pair = select_lesson->get_lesson_pair(select_internal_lesson);
+    const InternalLessonInfo pair = select_lesson->get_lesson_pair(select_internal_lesson);
     int current_lesson_name_id = pair.lesson_name_id;
     if (_match_lesson_types(caller_lesson_name_id, current_lesson_name_id))
         return true;
@@ -505,7 +505,7 @@ void Journal::restore_student(int id)
 void Journal::remove_lesson(int wday, int merged_lesson_id)
 {
     if (!_check_rights({ State::Fullaccess })) return;
-    _all_lessons[wday][merged_lesson_id]->discontinue();
+    _all_lessons[wday][merged_lesson_id]->remove();
 }
 void Journal::restore_lesson(int wday, int merged_lesson_id)
 {

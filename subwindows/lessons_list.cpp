@@ -53,7 +53,7 @@ bool Subwindow_Lessons_List::show_frame()
             {
                 const auto& current_lesson_info = journal->lesson_info(wday, merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
-                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
+                bool is_removed_input_buffer = current_lesson_info->is_removed();
                 if (is_removed_input_buffer && !edit_mode) continue;
                 if (is_removed_input_buffer) ImGui::BeginDisabled();
                 ImGui::TableNextRow(); 
@@ -62,7 +62,7 @@ bool Subwindow_Lessons_List::show_frame()
                 ImGui::TableSetColumnIndex(1);
                     ImGui::Text(Day_Names[wday].c_str());
                 ImGui::TableSetColumnIndex(2);
-                    std::vector<Lesson_Pair> pairs_buffer = current_lesson_info->get_lesson_pairs();
+                    std::vector<InternalLessonInfo> pairs_buffer = current_lesson_info->get_lesson_pairs();
                     for (int i = 0; i < pairs_buffer.size(); i++)
                     {
                         ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());

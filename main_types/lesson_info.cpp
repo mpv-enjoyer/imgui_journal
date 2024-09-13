@@ -1,71 +1,45 @@
 #include "lesson_info.h"
 
-Lesson_Info::Lesson_Info(Group& connected_group) : group(&connected_group) {};
-
-const Group& Lesson_Info::get_group() const
+Lesson_Info::Lesson_Info(Group &connected_group, std::vector<InternalLessonInfo> internal_lesson_infos)
+: _group(&connected_group), _internal_lesson_infos(internal_lesson_infos)
 {
-    return PTRREF(group);
+
 }
 
-Group& Lesson_Info::_group()
+const Group &Lesson_Info::get_group() const
 {
-    return PTRREF(group);
+    return PTRREF(_group);
 }
 
-Lesson_Pair Lesson_Info::get_lesson_pair(int id) const
+Group& Lesson_Info::get_group()
 {
-    return lesson_pairs[id];
+    return PTRREF(_group);
+}
+
+InternalLessonInfo Lesson_Info::get_lesson_pair(InternalLessonID id) const
+{
+    return _internal_lesson_infos.get_lesson_pair(id);
 }
 
 int Lesson_Info::get_lessons_size() const
 {
-    return lesson_pairs.size();
+    return _internal_lesson_infos.size();
 }
 
-bool Lesson_Info::set_group(Group& new_group)
+std::vector<InternalLessonInfo> Lesson_Info::get_lesson_pairs() const
 {
-    group = &new_group;
-    return true;
-}
-
-std::vector<Lesson_Pair> Lesson_Info::get_lesson_pairs() const
-{
-    return lesson_pairs;
-}
-
-//Changed behaviour: no more sort check
-bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
-{
-    int new_lesson_pair_id = get_lessons_size();
-    if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;
-    lesson_pairs.push_back(new_lesson_pair);
-    return true;
-}
-
-bool Lesson_Info::delete_lesson_pair(int id)
-{
-    if (id >= get_lessons_size()) return false;
-    lesson_pairs.erase(lesson_pairs.begin()+id);
-    return true;
-}
-
-bool Lesson_Info::should_attend(int known_internal_student_id, int internal_lesson) const
-{
-    const Student& student = group->get_student(known_internal_student_id);
-    if (group->is_deleted(student)) return false;
-    if (!group->check_with_attend_data(known_internal_student_id, internal_lesson)) return false;
-    return true;
+    return _internal_lesson_infos.get_lesson_pairs();
 }
 
 std::string Lesson_Info::get_description(int current_internal_lesson) const
 {
-    std::string to_return = "Группа " + group->get_description();
+    std::string to_return = "Группа " + _group->get_description();
     if (current_internal_lesson == -1)
     {
         for (int i = 0; i < get_lessons_size(); i++)
         {
             to_return.append(", ");
-            Lesson_Pair pair = get_lesson_pair(i);
+            InternalLessonInfo pair = get_lesson_pair(i);
             to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
             to_return.append(std::to_string(pair.time_begin.hours) + ":");
             if (pair.time_begin.minutes < 10) to_return.append("0");
@@ -80,7 +54,7 @@ std::string Lesson_Info::get_description(int current_internal_lesson) const
     {
         int i = current_internal_lesson;
         to_return.append(", ");
-        Lesson_Pair pair = get_lesson_pair(i);
+        InternalLessonInfo pair = get_lesson_pair(i);
         to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
         to_return.append(std::to_string(pair.time_begin.hours) + ":");
         if (pair.time_begin.minutes < 10) to_return.append("0");
@@ -94,29 +68,18 @@ std::string Lesson_Info::get_description(int current_internal_lesson) const
     return to_return;
 }
 
-bool Lesson_Info::discontinue()
+void Lesson_Info::edit_lesson_pair(InternalLessonID id, JTime begin, JTime end)
 {
-    removed = true;
-    return true;
-}
-
-bool Lesson_Info::is_discontinued() const
-{
-    return removed;
-}
-
-bool Lesson_Info::restore()
-{
-    removed = false;
-    return true;
+    _internal_lesson_infos.edit_pair(id, begin, end);
 }
 
 bool Lesson_Info::operator==(const Lesson_Info& rhs) const { return this == &rhs; }
 bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
 bool Lesson_Info::operator< (const Lesson_Info& rhs) const
 {
-    if (lesson_pairs[0].time_begin < rhs.get_lesson_pair(0).time_begin) return true;
-    if (lesson_pairs[0].time_begin > rhs.get_lesson_pair(0).time_begin) return false;
-    return group->get_number() < rhs.get_group().get_number();
+    JTime lhs_begin = _internal_lesson_infos.get_lesson_pair(0).time_begin;
+    JTime rhs_begin = rhs.get_lesson_pair(0).time_begin;
+    return std::tie(lhs_begin.hours, lhs_begin.minutes)
+         < std::tie(rhs_begin.hours, rhs_begin.minutes);
 }
-bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return !(*this < rhs) && (*this != rhs); };
+bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return rhs < *this; };

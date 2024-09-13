@@ -1,6 +1,6 @@
 #include "add_merged_lesson_to_journal.h"
 
-int get_combo_lesson_name_id(std::vector<Lesson_Pair> pairs)
+int get_combo_lesson_name_id(std::vector<InternalLessonInfo> pairs)
 {
     int first_lesson_id = pairs[0].lesson_name_id;
     int second_lesson_id = pairs.size() > 1 ? pairs[1].lesson_name_id : -1;
@@ -31,7 +31,7 @@ Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical
     else
     {
         day_of_the_week = _graphical->wday;
-        lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
+        lesson_pairs = std::vector<InternalLessonInfo>(2, {0,0,0});
     }
     
 }
@@ -129,7 +129,7 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
         journal->set_group_age_group(day_of_the_week, existing_lesson_info_id, age_group);
         journal->set_group_comment(day_of_the_week, existing_lesson_info_id, group_comment);
         journal->set_group_number(day_of_the_week, existing_lesson_info_id, group_number);
-        std::vector<Lesson_Pair> loaded_pairs = journal->lesson_info(day_of_the_week, existing_lesson_info_id)->get_lesson_pairs();
+        std::vector<InternalLessonInfo> loaded_pairs = journal->lesson_info(day_of_the_week, existing_lesson_info_id)->get_lesson_pairs();
         for (int i = 0; i < loaded_pairs.size(); i++)
         {
             loaded_pairs[i].time_begin = lesson_pairs[i].time_begin;

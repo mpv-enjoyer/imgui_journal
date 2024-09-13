@@ -5,7 +5,7 @@ Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical
 {
     graphical = _graphical;
     journal = &(graphical->journal);
-    Lesson_Pair should_pair;
+    InternalLessonInfo should_pair;
     Group should_group;
     if (workout_info->real_attend.tm_mon != workout_info->should_attend.tm_mon)
     {
@@ -49,7 +49,7 @@ bool Popup_Confirm_Delete_Workout::show_frame()
 {
     const Lesson_Info& real_lesson_info = PTRREF(journal->lesson_info(graphical->wday, _workout_info->real_lesson.merged_lesson_id));
     const Group& real_group = real_lesson_info.get_group();
-    const Lesson_Pair real_pair = real_lesson_info.get_lesson_pair(_workout_info->real_lesson.internal_lesson_id);
+    const InternalLessonInfo real_pair = real_lesson_info.get_lesson_pair(_workout_info->real_lesson.internal_lesson_id);
     std::string real_lesson_type = journal->Lesson_name(real_pair.lesson_name_id);
     JTime real_lesson_begin = real_pair.time_begin;
     JTime real_lesson_end = real_pair.time_end;

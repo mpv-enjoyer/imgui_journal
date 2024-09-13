@@ -7,8 +7,8 @@
 class Popup_Edit_Lesson : public Popup
 {
     const Lesson_Info* lesson_info;
-    Lesson_Pair first_lesson_pair;
-    Lesson_Pair second_lesson_pair;
+    InternalLessonInfo first_lesson_pair;
+    InternalLessonInfo second_lesson_pair;
     bool second_lesson_exists = false;
     std::string group_description;
     int group_number;

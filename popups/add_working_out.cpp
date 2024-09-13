@@ -57,7 +57,7 @@ void Popup_Add_Working_Out::update_possible_lessons()
     std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
     //if (select_student == -1) return;
-    Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
+    InternalLessonInfo caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
     for (int i = 0; i < current_journal->day_count(); i++)
     {

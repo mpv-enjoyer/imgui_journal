@@ -94,12 +94,12 @@ void Mainwindow::show_frame()
 void Mainwindow::table(int merged_lesson_id)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
-    if (!graphical->edit_mode && merged_lesson.is_discontinued()) return;
-    bool disabled = merged_lesson.is_discontinued();
+    if (!graphical->edit_mode && merged_lesson.is_removed()) return;
+    bool disabled = merged_lesson.is_removed();
     if (disabled) ImGui::BeginDisabled();
     if (merged_lesson_id != 0 && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->get_lesson_pair(0).time_begin == merged_lesson.get_lesson_pair(0).time_begin)
     {
-        if (!graphical->edit_mode && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->is_discontinued())
+        if (!graphical->edit_mode && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->is_removed())
         {
             /* First merged lesson is invisible so we don't need to offset */
         }

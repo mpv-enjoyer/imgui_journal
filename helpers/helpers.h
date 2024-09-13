@@ -13,7 +13,7 @@ struct Group_Pair
     int age_group;
 };
 
-struct Lesson_Pair
+struct InternalLessonInfo
 {
     JTime time_begin;
     JTime time_end;

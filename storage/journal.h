@@ -139,10 +139,10 @@ public:
     const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
 
     void add_student_to_base(std::string name, int contract);
-    void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
+    void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<InternalLessonInfo> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
-    void edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Lesson_Pair> pairs);
+    void edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<InternalLessonInfo> pairs);
     const std::vector<std::vector<std::pair<const Workout_Info_ *, const Workout_Info_ *>>> get_workout_info(int real_wday, int real_merged_lesson, std::vector<int> *student_ids);
     const std::vector<std::vector<const Workout_Info_ *>> get_workout_info(int real_wday, Lesson real_lesson, std::vector<int> *student_ids);
     const Workout_Info_ *get_workout_info(int should_mday, Lesson should_lesson, int should_student_id);
