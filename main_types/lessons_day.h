@@ -1,5 +1,5 @@
 #pragma once
-#include "../main_types/main_types.h"
+#include "main_types.h"
 
 class Lessons_Day
 {
