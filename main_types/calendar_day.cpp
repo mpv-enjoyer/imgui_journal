@@ -142,6 +142,16 @@ void Calendar_Day::set_teacher_name(MergedLessonID merged_lesson_id, InternalLes
     attendance.set(merged_lesson_id, internal_lesson_id, teacher_name);
 }
 
+void Calendar_Day::student_added()
+{
+    sync();
+}
+
+void Calendar_Day::lesson_info_added()
+{
+    sync();
+}
+
 void Calendar_Day::sync()
 {
     attendance.sync();

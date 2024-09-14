@@ -18,9 +18,9 @@ void serialize(Archive & ar, InternalLessonInfo & g, const unsigned int version)
 
 class InternalLessonInfos
 {
-    InternalLessonInfos() { };
     std::vector<InternalLessonInfo> _lesson_pairs;
 public:
+    InternalLessonInfos() { };
     InternalLessonInfos(std::vector<InternalLessonInfo> lesson_pairs) : _lesson_pairs(lesson_pairs) { };
     std::vector<InternalLessonInfo> get_lesson_pairs() const { return _lesson_pairs; };
     InternalLessonInfo get_lesson_pair(InternalLessonID id) const { IM_ASSERT(id.value < size()); };
@@ -39,7 +39,7 @@ class Lesson_Info : public Removable //can contain multiple lessons which will b
         ar & removed;
     }
 private:
-    Lesson_Info() : _internal_lesson_infos({(InternalLessonInfo){.lesson_name_id = -1, .time_begin = {0}, .time_end = {0}}}), _group(nullptr) {};
+    Lesson_Info() : _group(nullptr) {};
     Group* const _group;
     InternalLessonInfos _internal_lesson_infos;
 public:

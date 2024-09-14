@@ -25,6 +25,7 @@
 #include <sstream>
 #include <algorithm>
 #include <tuple>
+#include <numeric>
 
 #include <boost/archive/tmpdir.hpp>
 
@@ -123,15 +124,38 @@ struct NotImplicitlyConvertable
 
 class Removable
 {
+public:
+    NO_IMPLICIT_CONVERSION_T(bool, IsRemoved);
+private:
     time_t timestamp;
-    bool removed;
+    IsRemoved removed;
 public:
     Removable() : timestamp(time(NULL)), removed(false) { };
-    bool is_removed() const { return removed; };
+    IsRemoved is_removed() const { return removed; };
     time_t get_removed_timestamp() const { return timestamp; };
     bool remove() { if (removed) return false; timestamp = time(NULL); removed = true; return true; }
     bool restore() { if (!removed) return false; timestamp = time(NULL); removed = false; return true; }
 };
+
+template <typename T>
+std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
+
+  // initialize original index locations
+  std::vector<std::size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values 
+  stable_sort(idx.begin(), idx.end(),
+       [&v](std::size_t i1, std::size_t i2) {return v[i1] < v[i2];});
+
+  return idx;
+}
+
+template class Sortable?;
+template class Container?;
 
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;

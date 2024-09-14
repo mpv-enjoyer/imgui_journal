@@ -115,6 +115,7 @@ class Calendar_Day
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 private:
+    NON_COPYABLE_NOR_MOVABLE(Calendar_Day);
     Calendar_Day() { };
     class Attendance
     {
@@ -156,6 +157,7 @@ private:
     };
     Lessons_Day* const lessons_day = nullptr;
     Attendance attendance;
+    void sync();
 public:
     Calendar_Day(Lessons_Day* lessons_day);
     MergedLessonID find_merged_lesson(const Lesson_Info& lesson_info) const;
@@ -163,8 +165,9 @@ public:
     StudentAttendance get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id);
     TeacherName get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
     void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
-    //the following is needed to properly update the journal
-    void sync();
+    /* Now syncing functions */
+    void student_added();
+    void lesson_info_added();
 };
 
 BOOST_CLASS_VERSION(Calendar_Day, 1); // Version 1: added teacher_names
