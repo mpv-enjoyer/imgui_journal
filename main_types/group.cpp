@@ -4,7 +4,7 @@ Group::Group(Number number, AgeGroup age_group) : _number(number), _age_group(ag
 
 const Student& Group::get_student(StudentID id) const
 {
-    return PTRREF(_students.get(id).student);
+    return PTRREF(get(id).student);
 }
 
 Group::Number Group::get_number() const
@@ -16,11 +16,6 @@ bool Group::set_number(Number number)
 {
     _number = number;
     return true;
-}
-
-Group::StudentID Group::get_size() const
-{
-    return _students.size();
 }
 
 Group::AgeGroup Group::get_age_group() const
@@ -37,8 +32,7 @@ bool Group::set_age_group(AgeGroup age_group)
 
 bool Group::should_attend(StudentID id, InternalLessonID internal_lesson_id) const
 {
-    IM_ASSERT(id.value < _students.size());
-    Attend_Data attend_data = _students.get(id).attend_data;
+    Attend_Data attend_data = get(id).attend_data;
     if (is_deleted(id)) return false;
     if (attend_data == ATTEND_FIRST && internal_lesson_id == INTERNAL_LESSON_SECOND) return false;
     if (attend_data == ATTEND_SECOND && internal_lesson_id == INTERNAL_LESSON_FIRST) return false;
@@ -47,25 +41,28 @@ bool Group::should_attend(StudentID id, InternalLessonID internal_lesson_id) con
 
 Group::StudentID Group::find_student(const Student& student) const
 {
-    for (int i = 0; i < _students.size(); i++)
+    for (int i = 0; i < size(); i++)
     {
-        if (PTRREF(_students.get(i).student) == student) return i;
+        if (PTRREF(get(i).student) == student) return i;
     }
     return -1;
 }
 
 Group::StudentID Group::add_student(Student& new_student)
 {
-    StudentID id(_students.size());
-    _students.add(&new_student);
+    StudentID id(size());
+    StudentAttendData data = {.student = &new_student, .attend_data = ATTEND_BOTH};
+    add(data);
     _students_sort_map.sync();
     return id;
 };
 
 bool Group::delete_student(StudentID id)
 {
-    IM_ASSERT(id.value < _students.size());
-    return _students.set(id, Removable::IsRemoved(true));
+    auto data = get(id);
+    bool result = data.remove();
+    set(data, id);
+    return result;
 }
 
 bool Group::is_in_group(const Student& student, StudentID* id) const
@@ -77,14 +74,15 @@ bool Group::is_in_group(const Student& student, StudentID* id) const
 
 Removable::IsRemoved Group::is_deleted(StudentID id) const
 {
-    IM_ASSERT(id.value < _students.size());
-    return _students.get(id).is_removed();
+    return get(id).is_removed();
 }
 
 bool Group::restore_student(StudentID id)
 {
-    IM_ASSERT(id.value < _students.size());
-    return _students.set(id, Removable::IsRemoved(false));
+    auto data = get(id);
+    bool result = data.restore();
+    set(data, id);
+    return result;
 }
 
 bool Group::set_comment(Comment comment)
@@ -108,33 +106,40 @@ std::string Group::get_description() const
 
 time_t Group::get_removed_timestamp(StudentID id) const
 {
-    IM_ASSERT(id.value < _students.size());
-    return _students.get(id).get_removed_timestamp();
+    return get(id).get_removed_timestamp();
 }
 
 bool Group::operator==(const Group& rhs) const { return this == &rhs; }
+
+void Group::set(StudentAttendData data, ID id)
+{
+    _data[id].attend_data = data.attend_data;
+    if (data.is_removed()) _data[id].remove();
+    else _data[id].restore();
+}
 
 void Group::student_changed(Student* student)
 {
     if (is_in_group(PTRREF(student))) sync();
 };
 
-Group::AttendData Group::get_attend_data(StudentID id) const
+AttendData Group::get_attend_data(StudentID id) const
 {
-    return _students.get(id).attend_data;
+    return get(id).attend_data;
 }
 
 bool Group::set_attend_data(StudentID id, AttendData attend_data)
 {
     IM_ASSERT(attend_data == ATTEND_BOTH || attend_data == ATTEND_FIRST || attend_data == ATTEND_SECOND);
-    StudentAttendData data = _students.get(id);
-    _students.set(id, attend_data);
+    StudentAttendData data = get(id);
+    data.attend_data = attend_data;
+    set(data, id);
     return true;
 }
 
 void Group::StudentsSortMap::sync()
 {
-    const auto list = _students_list->get();
+    const auto list = _group->get();
     std::vector<const Student*> students;
     for (std::size_t i = 0; i < list.size(); i++)
     {

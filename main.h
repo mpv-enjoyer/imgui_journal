@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <tuple>
 #include <numeric>
+#include <type_traits>
 
 #include <boost/archive/tmpdir.hpp>
 
@@ -43,7 +44,7 @@
 #endif
 
 #define STATUS_INVALID     -2
-#define STATUS_NOT_AWAITED -1 // Do not set!
+#define STATUS_NOT_AWAITED -1 /* Do not set! Calculate dynamically when lessons shouldn't be attended instead! */
 #define STATUS_NO_DATA      0
 #define STATUS_ON_LESSON    1
 #define STATUS_WAS_ILL      2
@@ -55,7 +56,7 @@
 #define MDAY_DIFF            1
 
 #define DEFAULT_COLUMN_COUNT 5
-#define MAX_INTERNAL_LESSONS 2
+//#define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
 #define TABLE_BOTTOM_OFFSET_PXLS -32
 #define CONVERT_TO_RU_CALENDAR(wday) wday == 6 ? 0 : wday + 1;
@@ -154,8 +155,57 @@ std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
   return idx;
 }
 
-template class Sortable?;
-template class Container?;
+template <class DataT>
+class Container
+{
+public:
+    NO_IMPLICIT_CONVERSION_T(std::size_t, ID);
+protected:
+    std::vector<DataT> _data;
+    void add(DataT data) { _data.push_back(data); }
+    virtual void set(DataT data, ID id) { IM_ASSERT(id < size()); _data[id] = data; }
+public:
+    DataT get(ID id) const { IM_ASSERT(id < size()); return _data[id]; }
+    const std::vector<DataT> get() const { return _data; }
+    ID size() const { return _data.size(); }
+};
+
+template <class SyncT, class StoreT, class ValueT, class... IDs>
+class Syncable
+{
+protected:
+    std::vector<StoreT> store_val;
+    const SyncT* sync_val;
+    constexpr bool is_root() { return ( std::is_same<StoreT, ValueT>::value && sizeof...(IDs) == 0); }
+public:
+    Syncable() { };
+    Syncable(const SyncT* sync_val) : sync_val(sync_val)
+    {
+        sync();
+    };
+    virtual void sync()
+    {
+        for (SyncT::ID i = 0; i < store_val.size(); i++)
+        {
+            store_val[i].sync();
+        }
+        for (SyncT::ID i = store_val.size(); i < sync_val->size(); i++)
+        {
+            if (is_root()) store_val.push_back(StoreT());
+            else store_val.push_back(StoreT(sync_val->get(i)));
+        }
+    };
+    ValueT get(SyncT::ID id, IDs... ids) const
+    {
+        if (is_root()) return store_val[id];
+        return store_val[id].get(ids);
+    };
+    virtual void set(ValueT value, SyncT::ID id, IDs... ids)
+    {
+        if (is_root()) store_val[id] = value;
+        return store_val[id].set(value, ids);
+    };
+};
 
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;

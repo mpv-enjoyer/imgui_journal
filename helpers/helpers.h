@@ -13,13 +13,6 @@ struct Group_Pair
     int age_group;
 };
 
-struct InternalLessonInfo
-{
-    JTime time_begin;
-    JTime time_end;
-    int lesson_name_id;
-};
-
 struct Lesson
 {
     int merged_lesson_id;

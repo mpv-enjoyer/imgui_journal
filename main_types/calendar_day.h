@@ -117,44 +117,9 @@ class Calendar_Day
 private:
     NON_COPYABLE_NOR_MOVABLE(Calendar_Day);
     Calendar_Day() { };
-    class Attendance
-    {
-        class MergedLessonAttendance
-        {
-            class InternalLessonAttendance
-            {
-                std::vector<StudentAttendance> student_attendance;
-                TeacherName teacher_name = std::string();
-                const Group* group;
-            public:
-                InternalLessonAttendance(const Group* group);
-                void sync();
-                TeacherName get() const;
-                StudentAttendance get(Group::StudentID student_id) const;
-                void set(Group::StudentID student_id, StudentAttendance attendance);
-                void set(TeacherName teacher_name);
-            };
-            std::vector<InternalLessonAttendance> internal_lesson_attendance;
-            const Lesson_Info* lesson_info;
-        public:
-            MergedLessonAttendance(const Lesson_Info* lesson_info);
-            void sync();
-            StudentAttendance get(InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
-            TeacherName get(InternalLessonID internal_lesson_id) const;
-            void set(InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance attendance);
-            void set(InternalLessonID internal_lesson_id, TeacherName teacher_name);
-        };
-        std::vector<MergedLessonAttendance> merged_lesson_attendance;
-        const Lessons_Day* lessons;
-    public:
-        Attendance(Lessons_Day* lessons);
-        Attendance() { };
-        void sync();
-        StudentAttendance get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
-        TeacherName get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
-        void set(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance attendance);
-        void set(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
-    };
+    class InternalLessonAttendance : public Syncable<Group, StudentAttendance, StudentAttendance> { };
+    class MergedLessonAttendance : public Syncable<Lesson_Info, InternalLessonAttendance, StudentAttendance, Group::ID> { };
+    class Attendance : public Syncable<Lessons_Day, MergedLessonAttendance, StudentAttendance, InternalLessonID, Group::ID> { };
     Lessons_Day* const lessons_day = nullptr;
     Attendance attendance;
     void sync();

@@ -1,9 +1,10 @@
 #pragma once
 #include "main_types.h"
 
-#define ATTEND_BOTH ((Group::AttendData)0)
-#define ATTEND_FIRST ((Group::AttendData)1)
-#define ATTEND_SECOND ((Group::AttendData)2)
+#define ATTEND_BOTH ((AttendData)0)
+#define ATTEND_FIRST ((AttendData)1)
+#define ATTEND_SECOND ((AttendData)2)
+#define ATTEND_SIZE ((AttendData)3)
 
 template<class Archive>
 void serialize(Archive & ar, Students_List & g, const unsigned int version)
@@ -13,7 +14,15 @@ void serialize(Archive & ar, Students_List & g, const unsigned int version)
     ar & g.is_deleted;
 }
 
-class Group
+NO_IMPLICIT_CONVERSION_T_CHECKED(short, AttendData, value < ATTEND_SIZE);
+class StudentAttendData : public Removable
+{
+public:
+    Student* const student;
+    AttendData attend_data;
+};
+
+class Group : public Container<StudentAttendData>
 {
     friend class boost::serialization::access;
     template<class Archive>
@@ -25,51 +34,32 @@ class Group
         ar & comment;
     }
 public:
-    NO_IMPLICIT_CONVERSION_T_CHECKED(short, AttendData, value < MAX_INTERNAL_LESSONS * MAX_INTERNAL_LESSONS);
     NO_IMPLICIT_CONVERSION_T(int, Number);
     NO_IMPLICIT_CONVERSION_T_CHECKED(std::size_t, AgeGroup, value < AGE_GROUP_COUNT);
     NO_IMPLICIT_CONVERSION_T(std::string, Comment);
-    NO_IMPLICIT_CONVERSION_T(std::size_t, StudentID);
+    typedef ID StudentID;
     NO_IMPLICIT_CONVERSION_T(std::size_t, SortedStudentID);
     NON_COPYABLE_NOR_MOVABLE(Group);
 private:
-    class StudentAttendData : public Removable
-    {
-    public:
-        Student* const student;
-        AttendData attend_data;
-    };
-    class StudentsList
-    {
-        std::vector<StudentAttendData> _students;
-    public:
-        StudentsList() { };
-        void add(Student* student) { _students.push_back((StudentAttendData){.student = student, .attend_data = ATTEND_BOTH}); };
-        const std::vector<StudentAttendData> get() const { return _students; };
-        StudentAttendData get(StudentID id) const { IM_ASSERT(id < size()); return _students[id]; };
-        void set(StudentID id, AttendData attend_data) { IM_ASSERT(id < size()); _students[id].attend_data = attend_data; };
-        bool set(StudentID id, Removable::IsRemoved is_removed) { IM_ASSERT(id < size()); if (is_removed) { _students[id].remove(); } else { _students[id].restore(); } };
-        StudentID size() const { return _students.size(); };
-    };
     Group() { };
     Number _number = -1;
     AgeGroup _age_group = 0;
-    StudentsList _students;
     class StudentsSortMap
     {
         StudentsSortMap() { };
-        StudentsList* _students_list;
+        const Group* _group;
         std::vector<StudentID> _map;
     public:
-        StudentsSortMap(StudentsList* students_list) : _students_list(students_list) { sync(); }
+        StudentsSortMap(Group* group) : _group(group) { sync(); }
         void sync();
         StudentID get(SortedStudentID id) { IM_ASSERT(id.value < _map.size()); return _map[id]; };
     };
-    StudentsSortMap _students_sort_map = StudentsSortMap(&_students);
+    StudentsSortMap _students_sort_map = StudentsSortMap(this);
     Comment _comment = Comment("");
+    void set(StudentAttendData data, ID id) override;
 public:
     Group(Number number, AgeGroup age_group);
-    StudentID get_size() const;
+    StudentID get_size() const = delete; // use size()
     const Student &get_student(StudentID id) const;
     Number get_number() const;
     bool set_number(Number number);
