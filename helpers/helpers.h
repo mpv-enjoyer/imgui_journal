@@ -97,3 +97,5 @@ void next_month_for(int& month, int& year);
 void previous_month_for(int& month, int& year);
 bool j_button_colored(const char *label, float r, float g, float b);
 void HelpMarker(const char *desc);
+
+#include "date.h"

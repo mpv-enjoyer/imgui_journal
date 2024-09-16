@@ -72,8 +72,8 @@ void Lesson_Info::edit_lesson_pair(ID id, JTime begin, JTime end)
 //bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
 bool Lesson_Info::operator< (const Lesson_Info& rhs) const
 {
-    JTime lhs_begin = get_lesson_pair(0).time_begin;
-    JTime rhs_begin = rhs.get_lesson_pair(0).time_begin;
+    JTime lhs_begin = get(0).time_begin;
+    JTime rhs_begin = rhs.get(0).time_begin;
     return std::tie(lhs_begin.hours, lhs_begin.minutes)
          < std::tie(rhs_begin.hours, rhs_begin.minutes);
 }

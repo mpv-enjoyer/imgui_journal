@@ -155,7 +155,7 @@ std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
   return idx;
 }
 
-template <class DataT>
+/*template <class DataT>
 class Container
 {
 public:
@@ -168,43 +168,83 @@ public:
     DataT get(ID id) const { IM_ASSERT(id < size()); return _data[id]; }
     const std::vector<DataT> get() const { return _data; }
     ID size() const { return _data.size(); }
+};*/
+
+template <class DataT, class IDT = std::size_t>
+class Container
+{
+public:
+    NO_IMPLICIT_CONVERSION_T(IDT, ID);
+protected:
+    std::vector<DataT> _data;
+    void add(DataT data) { _data.push_back(data); }
+    virtual void set(DataT data, ID id) { IM_ASSERT(id < size()); _data[id] = data; }
+public:
+    DataT get(ID id) const { IM_ASSERT(id < size()); return _data[id]; }
+    const std::vector<DataT> get() const { return _data; }
+    ID size() const { return _data.size(); }
 };
 
-template <class SyncT, class StoreT, class ValueT, class... IDs>
+
+
+template <class SyncT, class StoreT, class ValueT = StoreT, class SyncIdT = std::size_t, class... IDs>
 class Syncable
 {
 protected:
     std::vector<StoreT> store_val;
     const SyncT* sync_val;
-    constexpr bool is_root() { return ( std::is_same<StoreT, ValueT>::value && sizeof...(IDs) == 0); }
-public:
     Syncable() { };
+public:
     Syncable(const SyncT* sync_val) : sync_val(sync_val)
     {
         sync();
     };
     virtual void sync()
     {
-        for (SyncT::ID i = 0; i < store_val.size(); i++)
+        for (SyncIdT i = store_val.size(); i < sync_val->size(); i++)
+        {
+            store_val.push_back(StoreT(sync_val->get(i)));
+        }
+    };
+    virtual ValueT get(SyncIdT id, IDs... ids) const
+    {
+        return store_val[id];
+    };
+    virtual void set(ValueT value, SyncIdT id, IDs... ids)
+    {
+        store_val[id] = value;
+    };
+};
+
+template <class SyncT, class StoreT, class ValueT, class SyncIdT = std::size_t, class... IDs>
+class SyncableRecursive : public Syncable
+{
+public:
+    void sync() override
+    {
+        for (SyncIdT i = 0; i < store_val.size(); i++)
         {
             store_val[i].sync();
         }
-        for (SyncT::ID i = store_val.size(); i < sync_val->size(); i++)
+        for (SyncIdT i = store_val.size(); i < sync_val->size(); i++)
         {
-            if (is_root()) store_val.push_back(StoreT());
-            else store_val.push_back(StoreT(sync_val->get(i)));
+            store_val.push_back(StoreT(sync_val->get(i)));
         }
-    };
-    ValueT get(SyncT::ID id, IDs... ids) const
+    }
+    ValueT get(SyncIdT id, IDs... ids) const override
     {
-        if (is_root()) return store_val[id];
-        return store_val[id].get(ids);
-    };
-    virtual void set(ValueT value, SyncT::ID id, IDs... ids)
+        return store_val[id].get(ids...);
+    }
+    void set(ValueT value, SyncIdT id, IDs... ids) override
     {
-        if (is_root()) store_val[id] = value;
-        return store_val[id].set(value, ids);
+        return store_val[id].set(value, ids...);
     };
+};
+
+template <class SyncT, class SortedT>
+class SortTable : Syncable<SyncT, SortedT>
+{
+    void sync();
 };
 
 const int LESSON_TYPE_COUNT = 5;

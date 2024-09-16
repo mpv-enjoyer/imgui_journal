@@ -27,6 +27,7 @@ struct InternalLessonInfo
 
 class Lesson_Info : public Removable, public Container<InternalLessonInfo> //can contain multiple lessons which will be merged in the table.
 {
+    NON_COPYABLE_NOR_MOVABLE(Lesson_Info);
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)

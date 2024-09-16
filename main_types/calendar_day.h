@@ -114,12 +114,35 @@ class Calendar_Day
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
+public:
+    NO_IMPLICIT_CONVERSION_T(std::string, TeacherName);
 private:
     NON_COPYABLE_NOR_MOVABLE(Calendar_Day);
     Calendar_Day() { };
-    class InternalLessonAttendance : public Syncable<Group, StudentAttendance, StudentAttendance> { };
-    class MergedLessonAttendance : public Syncable<Lesson_Info, InternalLessonAttendance, StudentAttendance, Group::ID> { };
-    class Attendance : public Syncable<Lessons_Day, MergedLessonAttendance, StudentAttendance, InternalLessonID, Group::ID> { };
+    struct InternalAttendance
+    {
+        std::vector<StudentAttendance> student_attendance;
+        TeacherName teacher_name;
+              StudentAttendance& operator[](std::size_t idx)       { return student_attendance[idx]; }
+        const StudentAttendance& operator[](std::size_t idx) const { return student_attendance[idx]; }
+        std::size_t size() const { return student_attendance.size(); }
+    };
+    struct MergedAttendance
+    {
+        std::vector<InternalAttendance> internal_attendance;
+              InternalAttendance& operator[](std::size_t idx)       { return internal_attendance[idx]; }
+        const InternalAttendance& operator[](std::size_t idx) const { return internal_attendance[idx]; }
+        std::size_t size() const { return internal_attendance.size(); }
+    };
+    struct Attendance
+    {
+        std::vector<MergedAttendance> merged_attendance;
+              MergedAttendance& operator[](std::size_t idx)       { return merged_attendance[idx]; }
+        const MergedAttendance& operator[](std::size_t idx) const { return merged_attendance[idx]; }
+        std::size_t size() const { return merged_attendance.size(); }
+        Attendance(const Lessons_Day* lessons_day);
+        void sync();
+    }
     Lessons_Day* const lessons_day = nullptr;
     Attendance attendance;
     void sync();

@@ -7,4 +7,5 @@
 #include "lesson_info.h"
 #include "lessons_day.h"
 #include "calendar_day.h"
+#include "month_info.h"
 #include "workout_info.h"

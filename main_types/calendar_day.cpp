@@ -14,6 +14,7 @@ MergedLessonID Calendar_Day::find_merged_lesson(const Lesson_Info& lesson_info) 
 
 bool Calendar_Day::set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance student_attendance)
 {
+    attendance.get(merged_lesson_id, internal_lesson_id, student_id);
     attendance.set(student_attendance, merged_lesson_id, internal_lesson_id, student_id);
     return true;
 }
@@ -46,4 +47,8 @@ void Calendar_Day::lesson_info_added()
 void Calendar_Day::sync()
 {
     attendance.sync();
+}
+
+Calendar_Day::Attendance::Attendance(const Lessons_Day *lessons_day)
+{
 }
