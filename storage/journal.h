@@ -176,7 +176,8 @@ public:
     
     static bool save_file_exists(int month, int year);
     void save_workouts();
-    void save();
+    void save_backup();
+    bool save();
     void save_default_prices();
     void save_prices();
     bool load_workouts();

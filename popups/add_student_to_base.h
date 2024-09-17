@@ -15,8 +15,18 @@ public:
     bool show_frame();
     bool is_ok_possible() 
     {
-        if (contract < 0) error("SYSTEM_NEGATIVE_CONTRACT");
-        return contract >= 0;
+        Student student;
+        student.set_contract(contract);
+        student.set_name(name);
+        for (int i = 0; i < journal->student_count(); i++)
+        {
+            if (journal->student(i)->is_identical(student))
+            {
+                error("такой ученик уже существует");
+                return false;
+            }
+        }
+        return true;
     }
     void accept_changes();
 };

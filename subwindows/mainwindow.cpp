@@ -16,10 +16,19 @@ Mainwindow::Mainwindow(Graphical *_graphical)
 
 void Mainwindow::show_frame()
 {
+    if (this->save_counter != (int)ImGui::GetTime() / save_every_n_seconds)
+    {
+        this->save_counter = (int)ImGui::GetTime() / save_every_n_seconds;
+        bool result = journal->save();
+        if (result) _state = Last_Save_State::succeded_auto;
+        else _state = Last_Save_State::failed_auto;
+        printf("Automatic save at %f seconds.\n", ImGui::GetTime());
+    }
+
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Журнал версии 0.1.0", nullptr, WINDOW_FLAGS);
+    ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
@@ -36,19 +45,32 @@ void Mainwindow::show_frame()
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
             bool edit_mode_buffer = graphical->edit_mode;
-            if (ImGui::Checkbox("Показать удаленные", &edit_mode_buffer))
+            if ((journal->get_state() == Journal::State::Fullaccess || journal->get_state() == Journal::State::Limited) && ImGui::Button("Сохранить"))
             {
-                graphical->set_edit_mode(edit_mode_buffer);
-            };
+                bool result = journal->save();
+                if (result) _state = Last_Save_State::succeded_manual;
+                else _state = Last_Save_State::failed_manual;
+            }
             if (!(graphical->subwindow_prices_list || graphical->subwindow_students_list || graphical->subwindow_lessons_list) && ImGui::Button("Изменить цены"))
             {
                 graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical);
             };
+            if (ImGui::Checkbox("Показать удаленные", &edit_mode_buffer))
+            {
+                graphical->set_edit_mode(edit_mode_buffer);
+            };
+            switch (_state)
+            {
+            case Last_Save_State::failed_auto:
+                ImGui::TextColored({0.9f, 0.1f, 0.1f, 1.0f}, "Автосохранение не выполнено");
+                break;
+            case Last_Save_State::failed_manual:
+                ImGui::TextColored({0.9f, 0.1f, 0.1f, 1.0f}, "Сохранение вручную не выполнено");
+                break;
+            default:
+                break;
+            }
             ImGui::PopStyleColor();
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Справка"))
-        {
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

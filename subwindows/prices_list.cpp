@@ -83,6 +83,8 @@ bool Subwindow_Prices_List::show_frame()
         {
             unsaved_changes = false;
             price_loaded_from_journal = false;
+            ImGui::End();
+            return true;
         }
     }
 

@@ -30,6 +30,7 @@ bool Student::is_removed() const
 
 bool Student::remove()
 {
+    name += " [-]";
     removed = true;
     return true;
 }

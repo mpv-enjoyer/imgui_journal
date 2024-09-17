@@ -1,4 +1,5 @@
 #include "journal.h"
+#include <filesystem>
 
 std::string generate_file_name(int month, int year)
 {
@@ -50,18 +51,42 @@ void Journal::save_workouts()
     oa << _workout_handler;
 }
 
-void Journal::save()
+void Journal::save_backup()
 {
-    if (restrict_saving) return;
+    std::string backups_root = "backup";
+    std::string current_folder_name = backups_root + "/" + std::to_string(current_time.tm_mday) + "." + std::to_string(current_time.tm_mon + 1) + "." + std::to_string(current_year() + 1900) + "backup";
+    if (std::filesystem::exists(current_folder_name)) return;
+    std::filesystem::create_directory(current_folder_name);
+    std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year));
+    std::filesystem::copy_file(generate_file_name(_current_month, _current_year), current_folder_name + "/" + generate_file_name(_current_month, _current_year));
+}
+
+bool Journal::save()
+{
+    if (restrict_saving) return false;
     save_workouts();
-    if (!_check_rights({State::Fullaccess, State::Limited})) return;
-    std::ofstream ofs(generate_file_name(_current_month, _current_year));
-    boost::archive::text_oarchive oa(ofs);
-    oa << _all_students;
-    oa << _all_groups;
-    oa << _all_lessons;
-    oa << _all_days;
+    if (!_check_rights({State::Fullaccess, State::Limited})) return false;
+
+    {
+        std::ofstream ofs(generate_file_name(_current_month, _current_year));
+        if (ofs.fail()) return false;
+        boost::archive::text_oarchive oa(ofs);
+        oa << _all_students;
+        oa << _all_groups;
+        oa << _all_lessons;
+        oa << _all_days;
+    }
+
     save_prices();
+    try
+    {
+        save_backup();
+    }
+    catch(const std::exception& e)
+    {
+        printf(e.what());
+    }
+    return true;
 }
 
 void Journal::set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price)

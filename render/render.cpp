@@ -104,16 +104,8 @@ Render::Render(Journal* _journal, Graphical *_graphical)
 
 void Render::main_loop()
 {
-    int save_counter = 0;
-    const int save_every_n_seconds = 300;
     while (!glfwWindowShouldClose(window))
     {
-        if (save_counter != (int)ImGui::GetTime() / save_every_n_seconds)
-        {
-            save_counter = (int)ImGui::GetTime() / save_every_n_seconds;
-            journal->save();
-            printf("Automatic save at %f seconds.\n", ImGui::GetTime());
-        }
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) set_poll_time(1);
         if (poll_until >= ImGui::GetTime())
         {

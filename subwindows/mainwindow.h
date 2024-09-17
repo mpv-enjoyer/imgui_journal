@@ -11,6 +11,17 @@ class Mainwindow : public Subwindow
     void table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase = nullptr);
     void table_student_count_row(int merged_lesson_id, std::vector<std::vector<int>> attended_counter_increase);
     void table_teacher_names_row(int merged_lesson_id);
+    enum class Last_Save_State
+    {
+        none,
+        succeded_auto,
+        failed_auto,
+        succeded_manual,
+        failed_manual
+    };
+    Last_Save_State _state = Last_Save_State::none;
+    int save_counter = 0;
+    const int save_every_n_seconds = 300;
 
 public:
     enum Callback

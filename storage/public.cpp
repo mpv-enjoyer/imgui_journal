@@ -252,13 +252,43 @@ const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_st
 }
 void Journal::set_student_name(int id, std::string name)
 {
-    if (!_check_rights({ State::Fullaccess })) return; 
-    _all_students[id]->set_name(name);
+    if (!_check_rights({ State::Fullaccess })) return;
+    int postfix_iter = 0;
+    bool student_found = false;
+    do
+    {
+        student_found = false;
+        std::string name_to_set = name;
+        if (postfix_iter != 0) name_to_set += " (" + std::to_string(postfix_iter) + ")";
+        _all_students[id]->set_name(name_to_set);
+        for (int i = 0; i < student_count(); i++)
+        {
+            if (i == id) continue;
+            if (_all_students[i]->is_identical(*(_all_students[id])))
+            {
+                student_found = true;
+                break;
+            }
+        }
+        postfix_iter++;
+    } while (student_found);
 }
 void Journal::set_student_contract(int id, int contract)
 {
-    if (!_check_rights({ State::Fullaccess })) return; 
+    if (!_check_rights({ State::Fullaccess })) return;
+    int contract_backup = student(id)->get_contract();
     _all_students[id]->set_contract(contract);
+    bool found = false;
+    for (int i = 0; i < student_count(); i++)
+    {
+        if (i == id) continue;
+        if (_all_students[i]->is_identical(*(_all_students[id])))
+        {
+            found = true;
+            break;
+        }
+    }
+    if (found) _all_students[id]->set_contract(contract_backup);
 }
 void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
 {

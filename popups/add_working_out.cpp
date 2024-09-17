@@ -204,10 +204,12 @@ bool Popup_Add_Working_Out::show_frame()
                 const Lesson_Info* current = current_journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
                 std::string description = current->get_description(possible_lessons[select_day][i].internal_lesson_id);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
                 if (ImGui::Checkbox(description.c_str(), &checkbox_value))
                 {
                     select_lesson = possible_lessons[select_day][i];
                 }
+                ImGui::PopStyleColor();
                 select_lesson_shown |= checkbox_value;
             }
             if (!select_lesson_shown)
