@@ -154,6 +154,15 @@ Workout_Handler* Journal::workout_handler()
 {
     return _workout_handler;
 }
+std::vector<const Student*> Journal::students()
+{
+    std::vector<const Student*> output;
+    for (int i = 0; i < _all_students.size(); i++)
+    {
+        output.push_back(student(i));
+    }
+    return output;
+}
 const Student *Journal::student(int id)
 { 
     return _all_students[id]; 

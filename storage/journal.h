@@ -122,7 +122,8 @@ public:
     std::string Age_group(int number);
 
     Workout_Handler *workout_handler();
-    const Student* student(int id);
+    std::vector<const Student*> students();
+    const Student *student(int id);
     const int student_count();
     const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
     const int lesson_info_count(int wday);

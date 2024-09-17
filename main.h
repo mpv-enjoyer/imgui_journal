@@ -24,6 +24,8 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <set>
+#include <numeric>
 
 #include <boost/archive/tmpdir.hpp>
 
@@ -82,6 +84,40 @@ const int LESSON_TYPE_COUNT = 5;
 const int AGE_GROUP_COUNT = 8;
 
 const int STUDY_YEAR_BEGIN_MONTH = 8;
+
+template <typename T>
+std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
+
+  // initialize original index locations
+  std::vector<std::size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values 
+  stable_sort(idx.begin(), idx.end(),
+       [&v](std::size_t i1, std::size_t i2) {return v[i1] < v[i2];});
+
+  return idx;
+}
+
+template <typename T>
+std::vector<std::size_t> sort_indexes_by_ptr(const std::vector<T*> &v) {
+
+  // initialize original index locations
+  std::vector<std::size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values 
+  stable_sort(idx.begin(), idx.end(),
+       [&v](std::size_t i1, std::size_t i2) {return *(v[i1]) < *(v[i2]);});
+
+  return idx;
+}
 
 //TODO: remove
 const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};

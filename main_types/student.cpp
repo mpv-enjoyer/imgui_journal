@@ -54,5 +54,5 @@ bool Student::is_identical(const Student& rhs) const
 
 bool Student::operator==(const Student& rhs) const { return this == &rhs; }
 bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
-bool Student::operator< (const Student& rhs) const { return contract < rhs.get_contract() || (contract == rhs.get_contract() && name < rhs.get_name()); }
-bool Student::operator> (const Student& rhs) const { return contract > rhs.get_contract() || (contract == rhs.get_contract() && name > rhs.get_name()); }
+bool Student::operator< (const Student& rhs) const { return std::tie(contract, name) < std::tie(rhs.contract, rhs.name); }
+bool Student::operator> (const Student& rhs) const { return rhs < *this; }

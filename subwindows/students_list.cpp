@@ -10,18 +10,20 @@ Subwindow_Students_List::Subwindow_Students_List(Graphical* _graphical)
 
 void Subwindow_Students_List::update_lessons_per_student()
 {
+    auto indexes = sort_indexes_by_ptr(journal->students());
     lessons_per_student.clear();
-    lessons_per_student = std::vector<std::vector<Lesson_Info_Position>>(journal->student_count());
-    for (int student_id = 0; student_id < journal->student_count(); student_id++)
+    lessons_per_student = std::vector<std::pair<std::vector<Lesson_Info_Position>, int>>(journal->student_count());
+    IM_ASSERT(indexes.size() == lessons_per_student.size());
+    for (int index = 0; index < journal->student_count(); index++)
     {
-        update_lessons_per_student(student_id);
-        auto& student = PTRREF(journal->student(student_id));
+        update_lessons_per_student(indexes[index], index);
     }
 }
 
-void Subwindow_Students_List::update_lessons_per_student(int student_id)
+void Subwindow_Students_List::update_lessons_per_student(int student_id, int index)
 {
-    lessons_per_student[student_id].clear();
+    lessons_per_student[index].first.clear();
+    lessons_per_student[index].second = student_id;
     auto& student = PTRREF(journal->student(student_id));
     for (int wday = 0; wday < 7; wday++)
     {
@@ -30,8 +32,19 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id)
             int internal_student_id = journal->lesson_info(wday, merged_lesson_id)->get_group().find_student(student);
             if (internal_student_id == -1) continue;
             // Do not discard deleted students because we need to be able to restore them
-            lessons_per_student[student_id].push_back({wday, merged_lesson_id, internal_student_id});
+            lessons_per_student[index].first.push_back({wday, merged_lesson_id, internal_student_id});
         }
+    }
+}
+
+void Subwindow_Students_List::append_students_to_begin()
+{
+    if (lessons_per_student.size() == journal->student_count()) return;
+    const int index = 0;
+    for (int i = lessons_per_student.size(); i < journal->student_count(); i++)
+    {
+        lessons_per_student.insert(lessons_per_student.begin(),std::pair<std::vector<Lesson_Info_Position>, int>());
+        update_lessons_per_student(i, 0);
     }
 }
 
@@ -66,7 +79,7 @@ bool Subwindow_Students_List::show_frame()
     ImGui::Text("Список всех учеников");
 
     if (lessons_per_student.size() != journal->student_count())
-        update_lessons_per_student();
+        append_students_to_begin();
 
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
@@ -80,8 +93,10 @@ bool Subwindow_Students_List::show_frame()
         int contract_input_buffer;
         int lesson_name_input_buffer;
         bool is_removed_input_buffer;
-        for (int student_id = 0; student_id < journal->student_count(); student_id++)
+
+        for (int index = 0; index < journal->student_count(); index++)
         {
+            const int student_id = lessons_per_student[index].second;
             const Student* current_student = journal->student(student_id);
             if (!edit_mode && current_student->is_removed()) continue;
             if (current_student->is_removed()) ImGui::BeginDisabled();
@@ -106,14 +121,14 @@ bool Subwindow_Students_List::show_frame()
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
 
-            for (int i = 0; i < lessons_per_student[student_id].size(); i++)
+            for (int i = 0; i < lessons_per_student[index].first.size(); i++)
             {
-                const Lesson_Info_Position current_info = lessons_per_student[student_id][i];
-                const int current_wday = lessons_per_student[student_id][i].wday;
-                const int current_merged_lesson_id = lessons_per_student[student_id][i].merged_lesson;
+                const Lesson_Info_Position current_info = lessons_per_student[index].first[i];
+                const int current_wday = current_info.wday;
+                const int current_merged_lesson_id = current_info.merged_lesson;
                 const auto& current_lesson_info = journal->lesson_info(current_wday, current_merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
-                const int internal_student_id = lessons_per_student[student_id][i].internal_student_id;
+                const int internal_student_id = current_info.internal_student_id;
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 ImGui::BeginGroup();
                 
@@ -160,7 +175,7 @@ bool Subwindow_Students_List::show_frame()
                 //TODO CRITICAL: deletion here?
                 ImGui::EndGroup();
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
-                if (i != lessons_per_student[student_id].size() - 1)
+                if (i != lessons_per_student[index].first.size() - 1)
                     ImGui::Separator();
             }
             if (current_student->is_removed()) ImGui::EndDisabled();
