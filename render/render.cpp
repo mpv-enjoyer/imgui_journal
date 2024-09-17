@@ -70,7 +70,7 @@ Render::Render(Journal* _journal, Graphical *_graphical)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    window = glfwCreateWindow(1280, 720, "Журнал версии 0.1.0", nullptr, nullptr);
+    window = glfwCreateWindow(1280, 720, "Журнал версии 1.0.0", nullptr, nullptr);
     glfwSetWindowSizeLimits(window, 200, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
     if (window == nullptr)
         throw std::invalid_argument("GLFW: cannot create window");

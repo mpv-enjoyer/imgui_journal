@@ -5,3 +5,5 @@
 month.save
 boost-1.85.0
 *.data
+imgui/examples
+imgui/docs

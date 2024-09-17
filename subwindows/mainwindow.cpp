@@ -28,7 +28,7 @@ void Mainwindow::show_frame()
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS);
+    ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
@@ -76,7 +76,7 @@ void Mainwindow::show_frame()
         ImGui::EndMainMenuBar();
     }
     bool edit_mode_buffer = graphical->edit_mode;
-    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_None | ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_AlwaysUseWindowPadding);
     if (journal->get_state() == Journal::State::Empty)
     {
         ImGui::Text("У текущего месяца нет журнала.\n");
@@ -418,7 +418,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 };
                 bool dummy = true;
                 if (internal_lesson == 0) ImGui::SameLine();
-                else ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+                else ImGui::SameLine(0, SUBCOLUMN_WIDTH_PXLS / 2);
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
@@ -444,7 +444,7 @@ void Mainwindow::table_student_count_row(int merged_lesson_id, std::vector<std::
         const Calendar_Day* day = graphical->visible_days[day_id].day;
         for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
         {
-            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+            if (internal_lesson != 0) ImGui::SameLine(0, SUBCOLUMN_WIDTH_PXLS / 2);
             int counter = 0;
             Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
             for (int internal_student_id = 0; internal_student_id < student_count; internal_student_id++)
@@ -470,7 +470,7 @@ void Mainwindow::table_teacher_names_row(int merged_lesson_id)
         const Calendar_Day* day = graphical->visible_days[day_id].day;
         for (int internal_lesson = 0; internal_lesson < journal->lesson_info(graphical->wday, merged_lesson_id)->get_lessons_size(); internal_lesson++)
         {
-            if (internal_lesson != 0) ImGui::SameLine(SUBCOLUMN_WIDTH_PXLS);
+            if (internal_lesson != 0) ImGui::SameLine();
             Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
             std::string label = generate_label("##teacher_name", {merged_lesson_id, day_id, internal_lesson});
             std::string teacher_name_buf = day->get_teacher_name(lesson);
