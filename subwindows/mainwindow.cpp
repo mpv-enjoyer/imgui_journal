@@ -28,7 +28,7 @@ void Mainwindow::show_frame()
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
@@ -474,7 +474,7 @@ void Mainwindow::table_teacher_names_row(int merged_lesson_id)
             Lesson lesson = { .merged_lesson_id = merged_lesson_id, .internal_lesson_id = internal_lesson };
             std::string label = generate_label("##teacher_name", {merged_lesson_id, day_id, internal_lesson});
             std::string teacher_name_buf = day->get_teacher_name(lesson);
-            ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS - 2);
+            ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS - 4);
             if (ImGui::InputText(label.c_str(), &teacher_name_buf)) journal->set_teacher_name(mday, lesson, teacher_name_buf);
         }
     }
