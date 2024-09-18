@@ -14,6 +14,7 @@ class Popup_Confirm_Delete_Lesson;
 class Subwindow_Students_List;
 class Subwindow_Lessons_List;
 class Subwindow_Prices_List;
+class Subwindow_Help;
 
 class Mainwindow;
 
@@ -36,6 +37,7 @@ public:
     Subwindow_Students_List* subwindow_students_list = nullptr;
     Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
     Subwindow_Prices_List* subwindow_prices_list = nullptr;
+    Subwindow_Help* subwindow_help = nullptr;
 
     Mainwindow* mainwindow = nullptr;
 

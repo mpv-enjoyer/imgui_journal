@@ -51,7 +51,10 @@ void Mainwindow::show_frame()
                 if (result) _state = Last_Save_State::succeded_manual;
                 else _state = Last_Save_State::failed_manual;
             }
-            if (!(graphical->subwindow_prices_list || graphical->subwindow_students_list || graphical->subwindow_lessons_list) && ImGui::Button("Изменить цены"))
+            if (!(graphical->subwindow_prices_list
+                || graphical->subwindow_students_list
+                || graphical->subwindow_lessons_list
+                || graphical->subwindow_help) && ImGui::Button("Изменить цены"))
             {
                 graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical);
             };
@@ -71,6 +74,14 @@ void Mainwindow::show_frame()
                 break;
             }
             ImGui::PopStyleColor();
+            ImGui::EndMenu();
+        }
+        if (!(graphical->subwindow_help) && ImGui::BeginMenu("Помощь"))
+        {
+            if (ImGui::Button("Справка"))
+            {
+                graphical->subwindow_help = new Subwindow_Help(graphical);
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
