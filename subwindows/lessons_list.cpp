@@ -35,8 +35,8 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
     }
 
-    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::Text("Список всех групп");
+    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
         ImGui::TableSetupColumn("Номер группы");

@@ -39,7 +39,7 @@ void Mainwindow::show_frame()
     {
         graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
     }
-    if (ImGui::BeginMainMenuBar())
+    if (!(graphical->subwindow_help) && ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("Файл"))
         {
@@ -80,6 +80,9 @@ void Mainwindow::show_frame()
         {
             if (ImGui::Button("Справка"))
             {
+                graphical->subwindow_prices_list = nullptr;
+                graphical->subwindow_students_list = nullptr;
+                graphical->subwindow_lessons_list = nullptr;
                 graphical->subwindow_help = new Subwindow_Help(graphical);
             }
             ImGui::EndMenu();
