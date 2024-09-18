@@ -132,6 +132,9 @@ bool Subwindow_Students_List::show_frame()
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 ImGui::BeginGroup();
                 
+                std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
+                ImGui::Text(text.c_str());
+
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
                 std::string first_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
@@ -169,10 +172,6 @@ bool Subwindow_Students_List::show_frame()
                 }
 
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
-                std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
-                ImGui::Text(text.c_str());
-
-                //TODO CRITICAL: deletion here?
                 ImGui::EndGroup();
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
                 if (i != lessons_per_student[index].first.size() - 1)
