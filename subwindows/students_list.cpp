@@ -84,8 +84,8 @@ bool Subwindow_Students_List::show_frame()
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
     {
-        ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("Номер договора");
+        ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("Группы");
         ImGui::TableSetupColumn("Действия");
         ImGui::TableHeadersRow();
@@ -107,17 +107,17 @@ bool Subwindow_Students_List::show_frame()
             is_removed_input_buffer = current_student->is_removed();
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-            ImGui::SetNextItemWidth(-1);
-            if (ImGui::InputText("##ФИ", &name_input_buffer))
-            {
-                journal->set_student_name(student_id, name_input_buffer);
-            };
-            ImGui::TableNextColumn(); 
             if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
                 journal->set_student_contract(student_id, contract_input_buffer);
             }
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth(-1);
+            if (ImGui::InputText("##ФИ", &name_input_buffer))
+            {
+                journal->set_student_name(student_id, name_input_buffer);
+            };
             ImGui::PopStyleColor();
             ImGui::TableNextColumn();
 

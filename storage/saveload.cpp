@@ -55,10 +55,11 @@ void Journal::save_backup()
 {
     std::string backups_root = "backup";
     std::string current_folder_name = backups_root + "/" + std::to_string(current_time.tm_mday) + "." + std::to_string(current_time.tm_mon + 1) + "." + std::to_string(current_year() + 1900) + "backup";
-    if (std::filesystem::exists(current_folder_name)) return;
-    std::filesystem::create_directory(current_folder_name);
-    std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year));
-    std::filesystem::copy_file(generate_file_name(_current_month, _current_year), current_folder_name + "/" + generate_file_name(_current_month, _current_year));
+    if (!std::filesystem::exists(current_folder_name)) std::filesystem::create_directory(current_folder_name);
+    std::string workout_path = current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year);
+    std::string journal_path = current_folder_name + "/" + generate_file_name(_current_month, _current_year);
+    if (!std::filesystem::exists(workout_path)) std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), workout_path);
+    if (!std::filesystem::exists(journal_path)) std::filesystem::copy_file(generate_file_name(_current_month, _current_year), journal_path);
 }
 
 bool Journal::save()

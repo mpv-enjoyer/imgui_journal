@@ -79,8 +79,8 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
         {
             if (group_number < 0) group_number = 0;
         };
+        j_age_group_combo("Возраст", &age_group, false);
         ImGui::InputText("Описание (необязательно)", &group_comment);
-        j_age_group_combo("Возраст (необязательно)", &age_group, false);
         ImGui::PopStyleColor();
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 

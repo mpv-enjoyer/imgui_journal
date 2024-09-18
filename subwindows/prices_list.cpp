@@ -88,6 +88,9 @@ bool Subwindow_Prices_List::show_frame()
         }
     }
 
+    ImGui::SameLine();
+    ImGui::Text("Изменения вступят в силу в следующем месяце.");
+
     ImGui::End();
     return false;
 }

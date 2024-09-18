@@ -414,7 +414,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 if (create_fake_radio)
                 {
                     std::string fake_radio_name = generate_label("##fake_radio", {day_id, 0, internal_lesson, -1});
-                    ImGui::InvisibleButton(fake_radio_name.c_str(), ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight()));
+                    ImGui::InvisibleButton(fake_radio_name.c_str(), ImVec2(2 * SUBCOLUMN_WIDTH_PXLS / 3, ImGui::GetFrameHeight()));
                 };
                 bool dummy = true;
                 if (internal_lesson == 0) ImGui::SameLine();
