@@ -23,6 +23,7 @@ RENDR_DIR = ../render
 STORG_DIR = ../storage
 SBWIN_DIR = ../subwindows
 GRAPH_DIR = ../graphical
+PLARM_DIR = ../platforms
 
 SOURCES = ../main.cpp
 
@@ -65,6 +66,7 @@ ifeq ($(UNAME_S), Linux) #LINUX
 	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization
 	CXXFLAGS += `pkg-config --cflags glfw3` -O0
 	CFLAGS = $(CXXFLAGS)
+	SOURCES += $(PLARM_DIR)/platforms_linux.cpp
 endif
 
 ifeq ($(UNAME_S), Darwin) #APPLE
@@ -85,6 +87,7 @@ ifeq ($(OS), Windows_NT)
 	CXXFLAGS += -mwindows
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
+	SOURCES += $(PLARM_DIR)/platforms_windows.cpp
 endif
 
 ##---------------------------------------------------------------------
@@ -98,6 +101,9 @@ endif
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/backends/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(PLARM_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(HELPR_DIR)/%.cpp

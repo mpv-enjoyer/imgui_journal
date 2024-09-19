@@ -221,6 +221,13 @@ void Journal::generate_empty()
 
 void Journal::generate()
 {
+    if (this->journal_main == this)
+    {
+        if (std::filesystem::exists(generate_file_name(_current_month, _current_year)))
+        {
+            IM_ASSERT(false && "Tried to generate an existing main save file");
+        }
+    }
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
