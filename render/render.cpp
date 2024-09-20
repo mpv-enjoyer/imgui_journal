@@ -1,4 +1,5 @@
 #include "render.h"
+#include "../platforms/platforms.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -69,14 +70,16 @@ Render::Render(Journal* _journal, Graphical *_graphical)
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
-
-    glfwWindowHint(GLFW_POSITION_X, 0);
-    glfwWindowHint(GLFW_POSITION_Y, 0);
-    window = glfwCreateWindow(700, 500 , "Журнал версии 1.0.0", nullptr, nullptr);
+    glfwWindowHint(GLFW_POSITION_X, 10);
+    glfwWindowHint(GLFW_POSITION_Y, 50);
+    window = glfwCreateWindow(700, 500 , WINDOW_NAME, nullptr, nullptr);
     glfwSetWindowSizeLimits(window, 700, 500, GLFW_DONT_CARE, GLFW_DONT_CARE);
     if (window == nullptr)
         throw std::invalid_argument("GLFW: cannot create window");
     glfwMakeContextCurrent(window);
+	
+	//set_window_titlebar_icon(window);
+	
     glfwSwapInterval(1); // Enable vsync
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
