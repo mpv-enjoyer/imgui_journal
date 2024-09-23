@@ -45,7 +45,7 @@ LINUX_GL_LIBS = -lGL -licui18n -licuuc
 BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
-CXXFLAGS += -g -Wall -Wformat -lstdc++fs
+CXXFLAGS += -Wall -Wformat -lstdc++fs
 # would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
 LIBS =
 
@@ -60,14 +60,6 @@ LIBS =
 ##---------------------------------------------------------------------
 ## BUILD FLAGS PER PLATFORM
 ##---------------------------------------------------------------------
-
-ifeq ($(UNAME_S), Linux) #LINUX
-	ECHO_MESSAGE = "Linux"
-	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization
-	CXXFLAGS += `pkg-config --cflags glfw3` -O0
-	CFLAGS = $(CXXFLAGS)
-	SOURCES += $(PLARM_DIR)/platforms_linux.cpp
-endif
 
 ifeq ($(UNAME_S), Darwin) #APPLE
 	ECHO_MESSAGE = "Mac OS X"
@@ -85,9 +77,35 @@ ifeq ($(OS), Windows_NT)
 	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32 -lboost_serialization-mt
 	
 	CXXFLAGS += -mwindows
+	CXXFLAGS += icon.res
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
 	SOURCES += $(PLARM_DIR)/platforms_windows.cpp
+endif
+
+ifeq ($(WIN32), True)
+	ECHO_MESSAGE = "MinGW"
+	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32 -lboost_serialization-mt
+	
+# Compile for 32bit begin
+	CXX = i686-w64-mingw32-g++
+	CXXFLAGS += -m32 -O3
+	CXXFLAGS += -I./mingw32_glfw/include -I./mingw32_boost/include/
+	LIBS += -L./mingw32_glfw/lib/ -L./mingw32_boost/lib/
+# Compile for 32bit end
+
+	CXXFLAGS += -mwindows
+	#CXXFLAGS += `pkg-config --cflags glfw3`
+	CFLAGS = $(CXXFLAGS)
+	SOURCES += $(PLARM_DIR)/platforms_windows.cpp
+else
+	ifeq ($(UNAME_S), Linux) #LINUX
+		ECHO_MESSAGE = "Linux"
+		LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization
+		CXXFLAGS += `pkg-config --cflags glfw3` -O0 -g
+		CFLAGS = $(CXXFLAGS)
+		SOURCES += $(PLARM_DIR)/platforms_linux.cpp
+	endif
 endif
 
 ##---------------------------------------------------------------------
@@ -134,7 +152,7 @@ all: $(EXE)
 	@echo Build complete for $(ECHO_MESSAGE)
 
 $(EXE): $(OBJS)
-	$(CXX) icon.res -o $@ $^ $(CXXFLAGS) $(LIBS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
 
 clean:
 	rm -f $(EXE) $(filter-out imgui.o imgui_demo.o imgui_draw.o imgui_tables.o imgui_widgets.o imgui_impl_glfw.o imgui_impl_opengl3.o imgui_stdlib.o,$(OBJS))
