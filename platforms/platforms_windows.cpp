@@ -1,9 +1,10 @@
 #include "platforms.h"
 #include "windows.h"
 #include <iostream>
+#include "imgui.h"
 
 // Windows: check active
-bool is_application_already_running()
+bool impl::is_application_already_running()
 {
 	HWND find = FindWindowW(NULL, LWINDOW_NAME);
 	if (find)
@@ -32,6 +33,15 @@ bool is_application_already_running()
     //    return true;
     //}    
     //return false;
+}
+
+bool impl::load_font(ImGuiIO* io)
+{
+    if (!io->Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
+    {
+		return false;
+    }
+	return true;
 }
 
 //void set_window_titlebar_icon(GLFWwindow* window)

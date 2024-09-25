@@ -38,6 +38,7 @@ SOURCES += $(wildcard $(GRAPH_DIR)/*.cpp)
 
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp 
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_sdlrenderer2.cpp
 SOURCES += $(IMGUI_DIR)/misc/cpp/imgui_stdlib.cpp
 OBJS = $(addsuffix .o, $(basename $(SOURCES)))
 UNAME_S := $(shell uname -s)
@@ -90,21 +91,21 @@ ifeq ($(WIN32), True)
 # Compile for 32bit begin
 	CXX = i686-w64-mingw32-g++
 	CXXFLAGS += -m32 -O3
-	CXXFLAGS += -I./mingw32_glfw/include -I./mingw32_boost/include/
-	LIBS += -L./mingw32_glfw/lib/ -L./mingw32_boost/lib/
+	CXXFLAGS += -I./mingw32_glfw/include -I./mingw32_boost/include/ -I./mingw32_sdl2/include/ -I./mingw32_sdl2/include/SDL2
+	LIBS += -L./mingw32_glfw/lib/ -L./mingw32_boost/lib/ -L./mingw32_sdl2/lib/ -lSDL2 -lSDL2main -lboost_serialization-mt
 # Compile for 32bit end
 
 	CXXFLAGS += -mwindows
 	#CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
-	SOURCES += $(PLARM_DIR)/platforms_windows.cpp
+	SOURCES += $(PLARM_DIR)/platforms_windows.cpp $(PLARM_DIR)/platforms_glfw.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
 else
 	ifeq ($(UNAME_S), Linux) #LINUX
 		ECHO_MESSAGE = "Linux"
-		LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization
-		CXXFLAGS += `pkg-config --cflags glfw3` -O0 -g
+		LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization `sdl2-config --libs`
+		CXXFLAGS += `pkg-config --cflags glfw3` -O0 -g `sdl2-config --cflags`
 		CFLAGS = $(CXXFLAGS)
-		SOURCES += $(PLARM_DIR)/platforms_linux.cpp
+		SOURCES += $(PLARM_DIR)/platforms_linux.cpp $(PLARM_DIR)/platforms_glfw.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
 	endif
 endif
 

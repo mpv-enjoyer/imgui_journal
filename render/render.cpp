@@ -1,11 +1,6 @@
 #include "render.h"
 #include "../platforms/platforms.h"
 
-static void glfw_error_callback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
-
 void Render::change_current_month(int month, int year)
 {
     bool is_current_month_main = journal_main == journal;
@@ -46,60 +41,11 @@ void Render::change_current_month(int month, int year)
 Render::Render(Journal* _journal, Graphical *_graphical)
  : journal(_journal), graphical(_graphical), mainwindow(graphical)
 {
-    glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
-        throw std::invalid_argument("GLFW: cannot init");
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-    // GL ES 2.0 + GLSL 100
-    const char* glsl_version = "#version 100";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
-    // GL 3.2 + GLSL 150
-    const char* glsl_version = "#version 150";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
-    glfwWindowHint(GLFW_POSITION_X, 10);
-    glfwWindowHint(GLFW_POSITION_Y, 50);
-    window = glfwCreateWindow(700, 500 , WINDOW_NAME, nullptr, nullptr);
-    glfwSetWindowSizeLimits(window, 700, 500, GLFW_DONT_CARE, GLFW_DONT_CARE);
-    if (window == nullptr)
-        throw std::invalid_argument("GLFW: cannot create window");
-    glfwMakeContextCurrent(window);
-	
-	//set_window_titlebar_icon(window);
-	
-    glfwSwapInterval(1); // Enable vsync
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    bool renderer_found = impl::begin_init_renderer();
+    IM_ASSERT(renderer_found && "No renderer found");
     io = &ImGui::GetIO();
-    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    ImGui::StyleColorsLight();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-    #ifdef _WIN32
-    if(!io->Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
-    {
-        throw std::invalid_argument("TTF: cannot find segoeni.ttf");
-    }
-    #else
-    if(!io->Fonts->AddFontFromFileTTF("segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
-    {
-        throw std::invalid_argument("TTF: cannot find segoeni.ttf");
-    }
-    #endif //not supporting apple platform
+    bool font_loaded = impl::load_font(io);
+    IM_ASSERT(font_loaded && "Font cannot load");
 
     graphical_main = graphical;
     journal_main = journal;
@@ -109,17 +55,17 @@ Render::Render(Journal* _journal, Graphical *_graphical)
 
 void Render::main_loop()
 {
-    while (!glfwWindowShouldClose(window))
+    while (!impl::should_close())
     {
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) set_poll_time(1);
+        if (impl::is_mouse_button_pressed()) set_poll_time(1);
         if (poll_until >= ImGui::GetTime())
         {
-            glfwWaitEventsTimeout(0.025f);
+            impl::wait_events_timeout(0.025f);
         }
         else
         {
-            glfwWaitEvents();
-            set_poll_time(0.05f); // Update one or two more frames
+            impl::wait_events();
+            set_poll_time(0.5f); // Update one or two more frames
         }
         if (io->AnyKeyPressed)
         {
@@ -139,11 +85,7 @@ void Render::set_poll_time(float active_s)
 
 void Render::show_frame()
 {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
+    impl::begin_frame();
     graphical->mainwindow->show_frame();
     Mainwindow::Callback callback = graphical->mainwindow->get_callback();
     if (callback == Mainwindow::Callback::month_left)
@@ -166,24 +108,10 @@ void Render::show_frame()
     show_subwindows();
     show_popups();
 
-    // Rendering
-    ImGui::Render();
-    int display_w, display_h;
-    glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
-    glClear(GL_COLOR_BUFFER_BIT);
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    glfwSwapBuffers(window);
+    impl::render_frame();
 }
 
 void Render::prepare_shutdown()
 {
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    impl::cleanup();
 }
-

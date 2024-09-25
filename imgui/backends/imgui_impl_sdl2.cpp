@@ -345,6 +345,10 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
         }
         case SDL_TEXTINPUT:
         {
+            // HACK BY MPV-ENJOYER
+            io.AnyKeyPressed = true;
+            // HACK BY MPV-ENJOYER
+
             io.AddInputCharactersUTF8(event->text.text);
             return true;
         }
@@ -413,6 +417,10 @@ static bool ImGui_ImplSDL2_Init(SDL_Window* window, SDL_Renderer* renderer)
     io.GetClipboardTextFn = ImGui_ImplSDL2_GetClipboardText;
     io.ClipboardUserData = nullptr;
     io.SetPlatformImeDataFn = ImGui_ImplSDL2_SetPlatformImeData;
+
+    // HACK BY MPV-ENJOYER
+    io.AnyKeyPressed = false;
+    // HACK BY MPV-ENJOYER
 
     // Load mouse cursors
     bd->MouseCursors[ImGuiMouseCursor_Arrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
@@ -657,6 +665,10 @@ void ImGui_ImplSDL2_NewFrame()
         bd->PendingMouseLeaveFrame = 0;
         io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
     }
+
+    // HACK BY MPV-ENJOYER
+    io.AnyKeyPressed = false;
+    // HACK BY MPV-ENJOYER
 
     ImGui_ImplSDL2_UpdateMouseData();
     ImGui_ImplSDL2_UpdateMouseCursor();

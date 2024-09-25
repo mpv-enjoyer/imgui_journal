@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "../helpers/helpers.h"
+#include "../platforms/platforms.h"
 
 Mainwindow::Callback Mainwindow::get_callback()
 {
@@ -76,7 +77,7 @@ void Mainwindow::show_frame()
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
-        if (!(graphical->subwindow_help) && ImGui::BeginMenu("Помощь"))
+        if (!(graphical->subwindow_help) && !impl::is_modern_platform_failed() && ImGui::BeginMenu("Помощь"))
         {
             if (ImGui::Button("Справка"))
             {
@@ -183,8 +184,8 @@ void Mainwindow::table(int merged_lesson_id)
         table_student_count_row(merged_lesson_id, attended_counter_increase);
         table_teacher_names_row(merged_lesson_id);
         ImGui::EndTable();
-        ImGui::EndGroup();
     }
+    ImGui::EndGroup();
     if (disabled) ImGui::EndDisabled();
 }
 

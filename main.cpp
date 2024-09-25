@@ -3,7 +3,7 @@
 
 int main(int, char**)
 {
-    if (is_application_already_running()) return 1;
+    if (impl::is_application_already_running()) return 1;
     //{ Test_Journal t; }
     Journal journal;
     if (!journal.load()) journal.generate();
