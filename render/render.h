@@ -10,7 +10,6 @@ class Render
     Graphical* graphical_main;
     Journal* journal;
     Graphical* graphical;
-    GLFWwindow* window;
     ImGuiIO* io;
     Mainwindow mainwindow;
     double poll_until = 3;

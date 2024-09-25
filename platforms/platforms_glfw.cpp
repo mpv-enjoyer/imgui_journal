@@ -15,7 +15,11 @@ static void glfw_error_callback(int error, const char* description)
 bool impl::begin_init_renderer()
 {
     glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit()) return false;
+    if (!glfwInit())
+    {
+        impl::modern_platform_failed();
+        return impl_legacy::begin_init_renderer();
+    }
         //throw std::invalid_argument("GLFW: cannot init");
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
