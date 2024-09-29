@@ -52,7 +52,9 @@ bool Subwindow_Students_List::show_frame()
 {
     bool edit_mode = graphical->edit_mode;
     bool is_current = journal->get_state() == Journal::State::Fullaccess;
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
+    
+    if (std::string(text_filter.InputBuf).size() > 0) ImGui::PushStyleColor(ImGuiCol_ChildBg, background_filtered);
+    else ImGui::PushStyleColor(ImGuiCol_ChildBg, background);
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
@@ -63,20 +65,35 @@ bool Subwindow_Students_List::show_frame()
         ImGui::PopStyleColor(); //BG
         return true;
     }
-    ImGui::SameLine();
+    
     if (is_current)
     {
+        ImGui::SameLine();
         if (ImGui::Button("Добавить ученика##в общий список"))
         {
             graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
         } 
     }
-    else
+
+    ImGui::SameLine();
+    text_filter.Draw("Поиск", 140);
+    if (std::string(text_filter.InputBuf).size() > 0)
+    {
+        ImGui::SameLine();
+        if (j_button_colored("Очистить поиск", 0.7, 0.3, 0.3))
+        {
+            text_filter.Clear();
+        }
+    }
+
+    ImGui::Text("Список всех учеников");
+
+    if (!is_current)
     {
         ImVec4 red = ImVec4(0.9f, 0.2f, 0.2f, 1.0f);
+        ImGui::SameLine();
         ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
     }
-    ImGui::Text("Список всех учеников");
 
     if (lessons_per_student.size() != journal->student_count())
         append_students_to_begin();
@@ -98,6 +115,8 @@ bool Subwindow_Students_List::show_frame()
         {
             const int student_id = lessons_per_student[index].second;
             const Student* current_student = journal->student(student_id);
+            const std::string search_description = std::to_string(current_student->get_contract()) + " " + current_student->get_name();
+            if (!text_filter.PassFilter(search_description.c_str())) continue;
             if (!edit_mode && current_student->is_removed()) continue;
             if (current_student->is_removed()) ImGui::BeginDisabled();
             if (!is_current) ImGui::BeginDisabled();

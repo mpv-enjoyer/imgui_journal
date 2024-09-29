@@ -14,6 +14,10 @@ static void glfw_error_callback(int error, const char* description)
 
 bool impl::begin_init_renderer()
 {
+    if (impl::is_modern_platform_failed()) // Through argv**
+    {
+        return impl_legacy::begin_init_renderer();
+    }
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
     {
