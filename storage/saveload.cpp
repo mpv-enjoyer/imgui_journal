@@ -200,7 +200,7 @@ void Journal::generate(int base_month, int base_year)
         int discount_status = _discount_status(current_student.get_contract());
         _day(workout->should_attend.tm_mday)->set_discount_status(workout->should_lesson, internal_student_id, discount_status);
     }
-
+    load_prices();
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
@@ -239,6 +239,7 @@ void Journal::generate()
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
+    load_prices();
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 

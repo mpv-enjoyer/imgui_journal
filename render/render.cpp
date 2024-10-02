@@ -60,16 +60,16 @@ void Render::main_loop()
         if (impl::is_mouse_button_pressed()) set_poll_time(1);
         if (poll_until >= ImGui::GetTime())
         {
-            impl::wait_events_timeout(0.025f);
+            impl::wait_events_timeout(0.05f);
         }
         else
         {
             impl::wait_events();
-            set_poll_time(0.5f); // Update one or two more frames
+            set_poll_time(0.6f);
         }
         if (io->AnyKeyPressed)
         {
-            set_poll_time(0.2f);
+            set_poll_time(0.6f);
         }
         show_frame();
     }
