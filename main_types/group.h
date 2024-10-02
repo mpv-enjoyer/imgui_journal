@@ -6,14 +6,6 @@
 #define ATTEND_SECOND ((AttendData)2)
 #define ATTEND_SIZE ((AttendData)3)
 
-template<class Archive>
-void serialize(Archive & ar, Students_List & g, const unsigned int version)
-{
-    ar & g.attend_data;
-    ar & g.student;
-    ar & g.is_deleted;
-}
-
 NO_IMPLICIT_CONVERSION_T_CHECKED(short, AttendData, value < ATTEND_SIZE);
 class StudentAttendData : public Removable
 {

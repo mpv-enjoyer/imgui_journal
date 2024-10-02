@@ -118,41 +118,42 @@ public:
     NO_IMPLICIT_CONVERSION_T(std::string, TeacherName);
 private:
     NON_COPYABLE_NOR_MOVABLE(Calendar_Day);
-    Calendar_Day() { };
+    Calendar_Day() : _attendance(_lessons_day) { };
     struct InternalAttendance
     {
+        const Group* group;
         std::vector<StudentAttendance> student_attendance;
-        TeacherName teacher_name;
-              StudentAttendance& operator[](std::size_t idx)       { return student_attendance[idx]; }
-        const StudentAttendance& operator[](std::size_t idx) const { return student_attendance[idx]; }
-        std::size_t size() const { return student_attendance.size(); }
+        TeacherName teacher_name = TeacherName("");
+        InternalAttendance(const Group* _group) : group(_group) { sync(); };
+        void sync()
+        {
+            for (std::size_t i = student_attendance.size(); i < group->size(); i++)
+            {
+                student_attendance.emplace_back();
+            }
+        };
     };
-    struct MergedAttendance
+    class Attendance
     {
-        std::vector<InternalAttendance> internal_attendance;
-              InternalAttendance& operator[](std::size_t idx)       { return internal_attendance[idx]; }
-        const InternalAttendance& operator[](std::size_t idx) const { return internal_attendance[idx]; }
-        std::size_t size() const { return internal_attendance.size(); }
-    };
-    struct Attendance
-    {
-        std::vector<MergedAttendance> merged_attendance;
-              MergedAttendance& operator[](std::size_t idx)       { return merged_attendance[idx]; }
-        const MergedAttendance& operator[](std::size_t idx) const { return merged_attendance[idx]; }
-        std::size_t size() const { return merged_attendance.size(); }
+        const Lessons_Day* _lessons_day;
+        std::vector<std::vector<InternalAttendance>> _data; // [merged_lesson_id][internal_lesson_id]
+    public:
         Attendance(const Lessons_Day* lessons_day);
         void sync();
-    }
-    Lessons_Day* const lessons_day = nullptr;
-    Attendance attendance;
-    void sync();
+        InternalAttendance get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
+        StudentAttendance get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
+        void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
+        void set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance attendance);
+    };
+    Lessons_Day* const _lessons_day = nullptr;
+    Attendance _attendance;
 public:
     Calendar_Day(Lessons_Day* lessons_day);
-    MergedLessonID find_merged_lesson(const Lesson_Info& lesson_info) const;
+    const Lessons_Day* lessons_day() const;
     bool set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance student_attendance);
-    StudentAttendance get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id);
-    TeacherName get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
     void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
+    StudentAttendance get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
+    TeacherName get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
     /* Now syncing functions */
     void student_added();
     void lesson_info_added();

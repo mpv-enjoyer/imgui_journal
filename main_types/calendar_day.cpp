@@ -1,54 +1,72 @@
 #include "calendar_day.h"
 
-Calendar_Day::Calendar_Day(Lessons_Day *lessons_day) : lessons_day(lessons_day), attendance(lessons_day) { }
+Calendar_Day::Calendar_Day(Lessons_Day *lessons_day) : _lessons_day(lessons_day), _attendance(lessons_day) { }
 
-MergedLessonID Calendar_Day::find_merged_lesson(const Lesson_Info& lesson_info) const
+const Lessons_Day *Calendar_Day::lessons_day() const
 {
-    const auto lesson_infos = lessons_day->lesson_infos();
-    for (MergedLessonID i = 0; i.value < lesson_infos.size(); i.value++)
-    {
-        if (lesson_infos[i] == &lesson_info) return i;
-    }
-    return -1;
+    return _lessons_day;
 }
 
 bool Calendar_Day::set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance student_attendance)
 {
-    attendance.get(merged_lesson_id, internal_lesson_id, student_id);
-    attendance.set(student_attendance, merged_lesson_id, internal_lesson_id, student_id);
+    _attendance.set_status(merged_lesson_id, internal_lesson_id, student_id, student_attendance);
     return true;
 }
 
-StudentAttendance Calendar_Day::get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id)
+StudentAttendance Calendar_Day::get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const
 {
-    return attendance.get(merged_lesson_id, internal_lesson_id, student_id);
+    return _attendance.get(merged_lesson_id, internal_lesson_id, student_id);
 }
 
-TeacherName Calendar_Day::get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const
+Calendar_Day::TeacherName Calendar_Day::get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const
 {
-    return attendance.get(merged_lesson_id, internal_lesson_id);
+    return _attendance.get(merged_lesson_id, internal_lesson_id).teacher_name;
 }
 
 void Calendar_Day::set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name)
 {
-    attendance.set(merged_lesson_id, internal_lesson_id, teacher_name);
+    _attendance.set_teacher_name(merged_lesson_id, internal_lesson_id, teacher_name);
 }
 
 void Calendar_Day::student_added()
 {
-    sync();
+    _attendance.sync();
 }
 
 void Calendar_Day::lesson_info_added()
 {
+    _attendance.sync();
+}
+
+Calendar_Day::Attendance::Attendance(const Lessons_Day *lessons_day) : _lessons_day(lessons_day)
+{
     sync();
 }
 
-void Calendar_Day::sync()
+void Calendar_Day::Attendance::sync()
 {
-    attendance.sync();
+    for (MergedLessonID merged_lesson_id = _data.size(); merged_lesson_id < _lessons_day->size(); merged_lesson_id.value++)
+    {
+        _data.emplace_back(_lessons_day->get(merged_lesson_id)->size());
+    }
 }
 
-Calendar_Day::Attendance::Attendance(const Lessons_Day *lessons_day)
+Calendar_Day::InternalAttendance Calendar_Day::Attendance::get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const
 {
+    return _data[merged_lesson_id][internal_lesson_id];
+}
+
+StudentAttendance Calendar_Day::Attendance::get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const
+{
+    return _data[merged_lesson_id][internal_lesson_id].student_attendance[student_id];
+}
+
+void Calendar_Day::Attendance::set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name)
+{
+    _data[merged_lesson_id][internal_lesson_id].teacher_name = teacher_name;
+}
+
+void Calendar_Day::Attendance::set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance attendance)
+{
+    _data[merged_lesson_id][internal_lesson_id].student_attendance[student_id] = attendance;
 }

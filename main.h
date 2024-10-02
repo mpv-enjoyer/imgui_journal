@@ -185,8 +185,6 @@ public:
     ID size() const { return _data.size(); }
 };
 
-
-
 template <class SyncT, class StoreT, class ValueT = StoreT, class SyncIdT = std::size_t, class... IDs>
 class Syncable
 {
