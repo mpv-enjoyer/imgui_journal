@@ -534,8 +534,10 @@ const std::string Journal::merged_lesson_name(int wday, int merged_lesson_id, in
 }
 void Journal::remove_student(int id)
 {
-    if (!_check_rights({ State::Fullaccess })) return; 
+    if (!_check_rights({ State::Fullaccess })) return;
     _all_students[id]->remove();
+    std::string new_name = student(id)->get_name() + " [-]";
+    set_student_name(id, new_name);
 }
 void Journal::restore_student(int id)
 {

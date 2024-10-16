@@ -86,8 +86,6 @@ class Journal
     bool _match_lesson_types(int l, int r);
     bool _search_last_generated_month(int *month, int *year);
 
-    Journal* generation_base = nullptr;
-
     int _current_year;
     int _current_month;
     int _current_month_days_num;
@@ -100,6 +98,9 @@ class Journal
     Workout_Handler* _workout_handler;
     
     int _journal_main_bottom_year;
+
+    const static Journal current_journal;
+
 public:
     Journal();
     Journal(int month, int year, Journal *journal_main);

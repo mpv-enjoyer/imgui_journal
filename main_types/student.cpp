@@ -30,7 +30,6 @@ bool Student::is_removed() const
 
 bool Student::remove()
 {
-    name += " [-]";
     removed = true;
     return true;
 }
@@ -48,7 +47,7 @@ Student::Student()
 
 bool Student::is_identical(const Student& rhs) const
 {
-    if (removed) return false;
+    if (removed != rhs.removed) return false;
     if (name == rhs.name && contract == rhs.contract) return true;
     return false;
 }
