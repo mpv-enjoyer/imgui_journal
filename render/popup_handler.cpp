@@ -26,5 +26,6 @@ bool Render::show_popups()
     DEFAULT_POPUP_HANDLER(graphical->popup_confirm_delete_workout, );
     DEFAULT_POPUP_HANDLER(graphical->popup_confirm_delete_student, );
     DEFAULT_POPUP_HANDLER(graphical->popup_confirm_delete_lesson, );
+    DEFAULT_POPUP_HANDLER(graphical->popup_move_student_to_group, );
     return false;
 }

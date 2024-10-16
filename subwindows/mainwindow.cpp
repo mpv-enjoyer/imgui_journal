@@ -196,9 +196,9 @@ bool Mainwindow::table_row(int merged_lesson_id, int internal_student_id, int co
     const Student& student = group.get_student(internal_student_id);
     const bool disabled = student.is_removed() || group.is_deleted(student);
     const int contract = student.get_contract();
-    if (disabled && !graphical->edit_mode) return false;
+    if (disabled && !graphical->edit_mode && !group.is_moved_away(student)) return false;
     ImGui::TableNextRow();
-    if (disabled) 
+    if (disabled)
     {
         ImGui::BeginDisabled();
         ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"-");

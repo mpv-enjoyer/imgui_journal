@@ -41,8 +41,8 @@ bool Popup_Edit_Lesson::show_frame()
         if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine();
         print_error();
+        ImGui::EndPopup();
     }
-    ImGui::EndPopup();
     return false;
 }
 

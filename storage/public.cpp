@@ -297,11 +297,18 @@ void Journal::set_group_age_group(int wday, int merged_lesson_id, int age_group)
 }
 void Journal::remove_student_from_group(int wday, int merged_lesson_id, int student_id)
 {
+    if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->_group().delete_student(PTRREF(_all_students[student_id]));
 }
 void Journal::restore_student_to_group(int wday, int merged_lesson_id, int student_id)
 {
+    if (!_check_rights({ State::Fullaccess })) return;
     _all_lessons[wday][merged_lesson_id]->_group().restore_student(PTRREF(_all_students[student_id]));
+}
+void Journal::move_student_to_group(int wday, int merged_lesson_id, int student_id, int another_wday, int another_merged_lesson_id)
+{
+    _all_lessons[wday][merged_lesson_id]->_group().delete_student(PTRREF(_all_students[student_id]), true);
+    add_student_to_group(student_id, another_wday, another_merged_lesson_id);
 }
 bool Journal::does_group_exist(int wday, int number)
 {

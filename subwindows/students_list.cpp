@@ -75,6 +75,7 @@ bool Subwindow_Students_List::show_frame()
         } 
     }
 
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
     ImGui::SameLine();
     text_filter.Draw("Поиск", 140);
     if (std::string(text_filter.InputBuf).size() > 0)
@@ -85,6 +86,7 @@ bool Subwindow_Students_List::show_frame()
             text_filter.Clear();
         }
     }
+    ImGui::PopStyleColor();
 
     ImGui::Text("Список всех учеников");
 
@@ -95,16 +97,22 @@ bool Subwindow_Students_List::show_frame()
         ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
     }
 
+    if (should_update_students)
+    {
+        update_lessons_per_student();
+        should_update_students = false;
+    }
+
     if (lessons_per_student.size() != journal->student_count())
         append_students_to_begin();
 
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
+    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
     {
         ImGui::TableSetupColumn("Номер договора");
         ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("Группы");
-        ImGui::TableSetupColumn("Действия");
+        ImGui::TableSetupColumn("Действия", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
         int contract_input_buffer;
@@ -150,9 +158,16 @@ bool Subwindow_Students_List::show_frame()
                 const int internal_student_id = current_info.internal_student_id;
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 ImGui::BeginGroup();
-                
+
                 std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
                 ImGui::Text(text.c_str());
+
+                ImGui::SameLine();
+                std::string button_label = generate_label("Переместить##move", {student_id, i});
+                if (ImGui::Button(button_label.c_str()))
+                {
+                    graphical->popup_move_student_to_group = new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students);
+                }
 
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);

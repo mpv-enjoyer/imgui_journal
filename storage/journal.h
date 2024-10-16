@@ -157,6 +157,7 @@ public:
     void set_group_age_group(int wday, int merged_lesson_id, int age_group);
     void remove_student_from_group(int wday, int merged_lesson_id, int student_id);
     void restore_student_to_group(int wday, int merged_lesson_id, int student_id);
+    void move_student_to_group(int wday, int merged_lesson_id, int student_id, int another_wday, int another_merged_lesson_id);
     bool does_group_exist(int wday, int number);
     void set_student_contract(int id, int contract);
     void set_group_number(int wday, int merged_lesson_id, int number);

@@ -36,7 +36,7 @@ bool Group::set_age_group(int new_age_group)
 bool Group::check_with_attend_data(int known_student_id, int internal_lesson) const
 {
     Attend_Data attend_data = students[known_student_id].attend_data;
-    if (students[known_student_id].is_deleted) return false;
+    if (students[known_student_id].status != StudentGroupStatus::Present) return false;
     if (attend_data == ATTEND_FIRST && internal_lesson == 1) return false;
     if (attend_data == ATTEND_SECOND && internal_lesson == 0) return false;
     return true; 
@@ -54,7 +54,7 @@ bool Group::check_no_attend_data(const Student& student) const
         }
     }
     if (found == -1) return false;
-    if (students[found].is_deleted) return false;
+    if (students[found].status != StudentGroupStatus::Present) return false;
     return true;
 }
 
@@ -81,11 +81,11 @@ int Group::add_student(Student& new_student) //returns his internal id
             new_student_sort_by_name_id = i; break;
         }
     }
-    students.insert(students.begin()+new_student_sort_by_name_id, {&new_student, false});
+    students.insert(students.begin()+new_student_sort_by_name_id, {&new_student, StudentGroupStatus::Present});
     return new_student_sort_by_name_id;
 };
 
-bool Group::delete_student(Student& to_remove_student)
+bool Group::delete_student(const Student& to_remove_student, bool moved_to_another_group)
 {
     bool is_found_sort_id = false;
     for (int i = 0; i < students.size(); i++)
@@ -94,8 +94,14 @@ bool Group::delete_student(Student& to_remove_student)
         {
             if (to_remove_student==PTRREF(students[i].student))
             {
-                if (students[i].is_deleted) break;
-                students[i].is_deleted = true;
+                if (moved_to_another_group)
+                {
+                    students[i].status = StudentGroupStatus::Moved;
+                }
+                else
+                {
+                    students[i].status = StudentGroupStatus::Deleted;
+                }
                 is_found_sort_id = true;
                 break;
             }
@@ -124,11 +130,18 @@ bool Group::is_deleted(const Student& student) const
     {
         if (student==PTRREF(students[i].student)) 
         {
-            if (students[i].is_deleted) return true;
-            return false;
+            if (students[i].status == StudentGroupStatus::Present) return false;
+            return true;
         }
     }
     return false;
+}
+
+bool Group::is_moved_away(const Student &student) const
+{
+    int student_id = find_student(student);
+    if (student_id == -1) return false;
+    return students[student_id].status == StudentGroupStatus::Moved;
 }
 
 bool Group::restore_student(Student& student)
@@ -137,7 +150,7 @@ bool Group::restore_student(Student& student)
     {
         if (student==PTRREF(students[i].student)) 
         {
-            students[i].is_deleted = false;
+            students[i].status = StudentGroupStatus::Present;
             return true;
         }
     }

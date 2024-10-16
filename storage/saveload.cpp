@@ -200,6 +200,18 @@ void Journal::generate(int base_month, int base_year)
         int discount_status = _discount_status(current_student.get_contract());
         _day(workout->should_attend.tm_mday)->set_discount_status(workout->should_lesson, internal_student_id, discount_status);
     }
+
+    for (int group_id = 0; group_id < _all_groups.size(); group_id++) // TODO CRITICAL: test this with other months.
+    {
+        Group* group = _all_groups[group_id];
+        for (int student_id = 0; student_id < group->get_size(); student_id++)
+        {
+            const Student& student = group->get_student(student_id);
+            if (group->is_moved_away(student)) group->delete_student(student);
+            if (group->is_moved_away(student)) IM_ASSERT(false && "Student wasn't deleted after being 'moved away'");
+        }
+    }
+
     load_prices();
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
