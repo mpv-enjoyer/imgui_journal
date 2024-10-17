@@ -9,3 +9,4 @@ imgui/examples
 imgui/docs
 /build/mingw32*
 /build/Release
+/build/*.exe

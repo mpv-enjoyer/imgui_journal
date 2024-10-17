@@ -29,7 +29,7 @@ bool impl_legacy::begin_init_renderer()
 
     // Create window with SDL_Renderer graphics context
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    window = SDL_CreateWindow(WINDOW_NAME, 10, 10, 700, 500, window_flags);
+    window = SDL_CreateWindow(WINDOW_NAME, 10, 50, 700, 500, window_flags);
     SDL_SetWindowMinimumSize(window, 700, 500);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
