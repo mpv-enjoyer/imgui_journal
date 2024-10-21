@@ -37,7 +37,7 @@ bool Subwindow_Lessons_List::show_frame()
 
     ImGui::Text("Список всех групп");
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
+    if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg))
     {
         ImGui::TableSetupColumn("Номер группы");
         ImGui::TableSetupColumn("День недели");

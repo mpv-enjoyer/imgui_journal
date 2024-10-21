@@ -77,14 +77,21 @@ void Mainwindow::show_frame()
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
-        if (!(graphical->subwindow_help) && !impl::is_modern_platform_failed() && ImGui::BeginMenu("Помощь"))
+        if (!(graphical->subwindow_help) && ImGui::BeginMenu("Помощь"))
         {
-            if (ImGui::Button("Справка"))
+            if (!impl::is_modern_platform_failed())
             {
-                graphical->subwindow_prices_list = nullptr;
-                graphical->subwindow_students_list = nullptr;
-                graphical->subwindow_lessons_list = nullptr;
-                graphical->subwindow_help = new Subwindow_Help(graphical);
+                if (ImGui::Button("Справка"))
+                {
+                    graphical->subwindow_prices_list = nullptr;
+                    graphical->subwindow_students_list = nullptr;
+                    graphical->subwindow_lessons_list = nullptr;
+                    graphical->subwindow_help = new Subwindow_Help(graphical);
+                }
+            }
+            else
+            {
+                ImGui::TextDisabled("BUILD " __DATE__ " " __TIME__);
             }
             ImGui::EndMenu();
         }

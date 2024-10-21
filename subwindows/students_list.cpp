@@ -106,13 +106,17 @@ bool Subwindow_Students_List::show_frame()
     if (lessons_per_student.size() != journal->student_count())
         append_students_to_begin();
 
+    static bool sizing = false;
+    ImGui::Checkbox("DBG SIZING", &sizing);
+    #error Not ready for release
+
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_SizingStretchProp))
+    if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn("Номер договора");
+        ImGui::TableSetupColumn("Номер д-ра", sizing ? ImGuiTableColumnFlags_WidthFixed : 0);
         ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("Группы");
-        ImGui::TableSetupColumn("Действия", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Действия", sizing ? ImGuiTableColumnFlags_WidthFixed : 0);
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
         int contract_input_buffer;
@@ -134,14 +138,14 @@ bool Subwindow_Students_List::show_frame()
             is_removed_input_buffer = current_student->is_removed();
             ImGui::TableNextColumn(); 
             ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
-            if (ImGui::InputInt("##Д-Р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
+            if (ImGui::InputInt("##д-р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;
                 journal->set_student_contract(student_id, contract_input_buffer);
             }
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-1);
-            if (ImGui::InputText("##ФИ", &name_input_buffer))
+            if (ImGui::InputText("##фи", &name_input_buffer))
             {
                 journal->set_student_name(student_id, name_input_buffer);
             };
@@ -161,13 +165,6 @@ bool Subwindow_Students_List::show_frame()
 
                 std::string text = journal->Wday_name_short(current_info.wday) + ", " + current_group.get_description();
                 ImGui::Text(text.c_str());
-
-                ImGui::SameLine();
-                std::string button_label = generate_label("Переместить##move", {student_id, i});
-                if (ImGui::Button(button_label.c_str()))
-                {
-                    graphical->popup_move_student_to_group = new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students);
-                }
 
                 std::string label = generate_label("##attend", {student_id, i});
                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
@@ -206,6 +203,14 @@ bool Subwindow_Students_List::show_frame()
                 }
 
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
+
+                ImGui::SameLine();
+                std::string button_label = generate_label("Переместить##move", {student_id, i});
+                if (ImGui::Button(button_label.c_str()))
+                {
+                    graphical->popup_move_student_to_group = new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students);
+                }
+                
                 ImGui::EndGroup();
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
                 if (i != lessons_per_student[index].first.size() - 1)
