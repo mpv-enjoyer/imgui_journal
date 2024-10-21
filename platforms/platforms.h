@@ -1,8 +1,11 @@
 #pragma once
+
+#include <imgui.h>
+
 #define WINDOW_NAME 		   "Журнал посещения"
 #define LWINDOW_NAME (LPCWSTR)L"Журнал посещения"
-
-#include "imgui.h"
+#define WINDOW_MIN_WIDTH 800
+#define WINDOW_MIN_HEIGHT 500
 
 namespace impl_legacy
 {

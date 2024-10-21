@@ -48,14 +48,14 @@ bool impl::begin_init_renderer()
 #endif
     glfwWindowHint(GLFW_POSITION_X, 10);
     glfwWindowHint(GLFW_POSITION_Y, 50);
-    window = glfwCreateWindow(700, 500, WINDOW_NAME, nullptr, nullptr);
+    window = glfwCreateWindow(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, WINDOW_NAME, nullptr, nullptr);
     if (window == nullptr)
     {
         impl::modern_platform_failed();
         return impl_legacy::begin_init_renderer();
     }
         //throw std::invalid_argument("GLFW: cannot create window");
-    glfwSetWindowSizeLimits(window, 700, 500, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowSizeLimits(window, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(window);
 	//set_window_titlebar_icon(window);
     glfwSwapInterval(1); // Enable vsync

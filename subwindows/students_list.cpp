@@ -106,17 +106,13 @@ bool Subwindow_Students_List::show_frame()
     if (lessons_per_student.size() != journal->student_count())
         append_students_to_begin();
 
-    static bool sizing = false;
-    ImGui::Checkbox("DBG SIZING", &sizing);
-    #error Not ready for release
-
     ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     if (ImGui::BeginTable("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg))
     {
-        ImGui::TableSetupColumn("Номер д-ра", sizing ? ImGuiTableColumnFlags_WidthFixed : 0);
+        ImGui::TableSetupColumn("Номер д-ра", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Фамилия и имя");
         ImGui::TableSetupColumn("Группы");
-        ImGui::TableSetupColumn("Действия", sizing ? ImGuiTableColumnFlags_WidthFixed : 0);
+        ImGui::TableSetupColumn("Действия", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
         int contract_input_buffer;
