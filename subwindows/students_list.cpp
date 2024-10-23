@@ -77,7 +77,7 @@ bool Subwindow_Students_List::show_frame()
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
     ImGui::SameLine();
-    text_filter.Draw("Поиск", 140);
+    text_filter.Draw("Поиск с учётом регистра", 140);
     if (std::string(text_filter.InputBuf).size() > 0)
     {
         ImGui::SameLine();

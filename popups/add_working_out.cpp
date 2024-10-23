@@ -295,7 +295,7 @@ Popup_Add_Working_Out::Picker::Picker(std::vector<std::string> descriptions, std
 int Popup_Add_Working_Out::Picker::show()
 {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-    filter.Draw("Поиск по ученикам");
+    filter.Draw("Поиск с учётом регистра");
     ImGui::PopStyleColor(1);
     ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
     for (int i = 0; i < _descriptions.size(); i++)

@@ -235,6 +235,11 @@ bool j_attendance_combo(const char* label, int* status, std::string tooltip)
 bool j_attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name)
 {
     std::string lesson_concat = to_string({ first_lesson_name, second_lesson_name}, "+").c_str();
+    if (first_lesson_name == second_lesson_name)
+    {
+        first_lesson_name += " 1";
+        second_lesson_name += " 2";
+    }
     const char* items[] = {lesson_concat.c_str(), first_lesson_name.c_str(), second_lesson_name.c_str()};
     const char* combo_preview_value = items[*attend_data];  // Pass in the preview value visible before opening the combo (it could be anything)
     //ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);

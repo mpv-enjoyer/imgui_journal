@@ -24,7 +24,7 @@ bool Popup_Add_Student_To_Group::show_frame()
     {
         if (possible_student_ids.size() == 0) POPUP_CANCEL;
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        text_filter.Draw("Поиск по ученикам");
+        text_filter.Draw("Поиск с учётом регистра");
         ImGui::PopStyleColor(1);
         bool select_visible = false;
         ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
