@@ -501,6 +501,8 @@ bool Journal::_match_lesson_types(int l, int r)
     if (l == NAME_SPECIALCOURSE && r == NAME_DESIGN) return true;
     if (l == NAME_DESIGN && r == NAME_DRAWING) return true;
     if (l == NAME_DRAWING && r == NAME_DESIGN) return true;
+    if (l == NAME_DRAWING && r == NAME_SPECIALCOURSE) return true;
+    if (l == NAME_SPECIALCOURSE && r == NAME_DRAWING) return true;
     return false;
 }
 
