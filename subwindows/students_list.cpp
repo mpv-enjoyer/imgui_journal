@@ -156,6 +156,7 @@ bool Subwindow_Students_List::show_frame()
                 const auto& current_lesson_info = journal->lesson_info(current_wday, current_merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
                 const int internal_student_id = current_info.internal_student_id;
+                if (current_lesson_info->is_discontinued()) continue;
                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
                 ImGui::BeginGroup();
 

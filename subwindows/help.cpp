@@ -119,6 +119,24 @@ bool Subwindow_Help::show_frame()
         draw_image(edit_attend_data);
         draw_note("Ученик может посещать ИЗО + ИЗО, Лепка + Лепка + Дизайн и любые другие комбинации");
     }
+    if (ImGui::CollapsingHeader("Изменения от 26 окт."))
+    {
+        draw_text("1. Добавлен поиск по всем ученикам. ");
+        draw_image(student_search_1);
+        draw_image(student_search_2);
+        draw_text("2. Добавлена возможность перемещать учеников в другую группу одной кнопкой.");
+        draw_text("   Если ученик был перемещен таким способом, то он останется видимым (как удалённый) в исходной группе");
+        draw_image(move_to_group_1);
+        draw_image(move_to_group_2);
+        draw_image(move_to_group_3);
+        draw_image(move_to_group_4);
+        draw_text("3. Разрешена отработка между ИЗО и Спецкурсом");
+        draw_text("");
+        draw_text("Исправления: ");
+        draw_text("1. Теперь невозможно открыть второе окно программы");
+        draw_text("2. Исправлена загрузка цен на новый месяц");
+        draw_text("3. Теперь в списке групп, в которых находится ученик, нет удалённых групп");
+    }
     draw_text("");
     draw_text("BUILD " + std::string(__DATE__) + " " + std::string(__TIME__));
     ImGui::EndChild();

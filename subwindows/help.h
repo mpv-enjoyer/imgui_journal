@@ -25,6 +25,12 @@ class Subwindow_Help : public Subwindow
     Image students_list = Image("students_list.png");
     Image groups_list = Image("groups_list.png");
     Image edit_attend_data = Image("edit_attend_data.png");
+    Image student_search_1 = Image("student_search_1.png");
+    Image student_search_2 = Image("student_search_2.png");
+    Image move_to_group_1 = Image("move_to_group_1.png");
+    Image move_to_group_2 = Image("move_to_group_2.png");
+    Image move_to_group_3 = Image("move_to_group_3.png");
+    Image move_to_group_4 = Image("move_to_group_4.png");
 public:
     Subwindow_Help(Graphical *_graphical);
     bool draw_image(Image image);

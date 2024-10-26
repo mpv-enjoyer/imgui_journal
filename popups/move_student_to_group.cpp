@@ -20,6 +20,7 @@ bool Popup_Move_Student_To_Group::show_frame()
                 int wday = CONVERT_TO_EN_CALENDAR(_wday);
                 for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(wday); merged_lesson_id++)
                 {
+                    if (journal->lesson_info(wday, merged_lesson_id)->is_discontinued()) continue;
                     if (journal->lesson_info(wday, merged_lesson_id) == current_lesson_info) continue;
                     if (journal->lesson_info(wday, merged_lesson_id)->get_group().find_student(PTRREF(journal->student(student_id))) != -1) continue;
                     std::string label = journal->Wday_name_short(wday) + ", " + journal->lesson_info(wday, merged_lesson_id)->get_description();
