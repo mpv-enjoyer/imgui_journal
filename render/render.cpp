@@ -39,8 +39,10 @@ void Render::change_current_month(int month, int year)
 }
 
 Render::Render(Journal* _journal, Graphical *_graphical)
- : journal(_journal), graphical(_graphical), mainwindow(graphical)
+ : journal(_journal), graphical(_graphical), mainwindow(_graphical, &popup_handler)
 {
+    journal = _journal;
+    graphical = _graphical;
     bool renderer_found = impl::begin_init_renderer();
     IM_ASSERT(renderer_found && "No renderer found");
     io = &ImGui::GetIO();
@@ -81,6 +83,11 @@ void Render::set_poll_time(float active_s)
 {
     if (ImGui::GetTime() + active_s < poll_until) return;
     poll_until = ImGui::GetTime() + active_s;
+}
+
+void Render::show_popups()
+{
+    popup_handler.render_popup(this);
 }
 
 void Render::show_frame()

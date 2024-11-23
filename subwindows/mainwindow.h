@@ -33,8 +33,8 @@ public:
     };
     Callback get_callback();
 
-    Mainwindow(Graphical* graphical);
-    void show_frame();
+    Mainwindow(Graphical* graphical, Popup_Handler* popup_handler);
+    bool show_frame();
 private:
     Callback _callback = none;
 };

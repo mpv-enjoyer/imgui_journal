@@ -1,10 +1,7 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
-{ 
-    graphical = _graphical;
-    journal = &(graphical->journal);
-};
+Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* graphical, Popup_Handler* popup_handler)
+: Subwindow(graphical, popup_handler) { }
 
 bool Subwindow_Lessons_List::show_frame()
 {
@@ -26,7 +23,7 @@ bool Subwindow_Lessons_List::show_frame()
     {
         if (ImGui::Button("Добавить группу"))
         {
-            graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
+            popup_handler->open_popup(new Popup_Add_Merged_Lesson_To_Journal(graphical));
         }
     }
     else
@@ -56,7 +53,7 @@ bool Subwindow_Lessons_List::show_frame()
                 bool is_removed_input_buffer = current_lesson_info->is_discontinued();
                 if (is_removed_input_buffer && !edit_mode) continue;
                 if (is_removed_input_buffer) ImGui::BeginDisabled();
-                ImGui::TableNextRow(); 
+                ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                     ImGui::Text("%i", current_group.get_number());
                 ImGui::TableSetColumnIndex(1);
@@ -90,17 +87,17 @@ bool Subwindow_Lessons_List::show_frame()
                     {
                         if (j_button_dangerous(delete_label.c_str()))
                         {
-                            graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
+                            popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                         }
                     }
                 }
                 else if (j_button_dangerous(delete_label.c_str()))
                 {
-                    graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
+                    popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                 }
                 if (!is_removed_input_buffer && ImGui::Button(edit_label.c_str()))
                 {
-                    graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday);
+                    popup_handler->open_popup(new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday));
                 }
 
                 if (!is_current) ImGui::EndDisabled();

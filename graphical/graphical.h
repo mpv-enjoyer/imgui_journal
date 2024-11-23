@@ -1,17 +1,6 @@
 #pragma once
 #include "../storage/journal.h"
 
-class Popup_Add_Merged_Lesson_To_Journal;
-class Popup_Add_Student_To_Base;
-class Popup_Add_Student_To_Group;
-class Popup_Add_Working_Out;
-class Popup_Select_Day_Of_The_Week;
-class Popup_Edit_Lesson;
-class Popup_Confirm_Delete_Workout;
-class Popup_Confirm_Delete_Student;
-class Popup_Confirm_Delete_Lesson;
-class Popup_Move_Student_To_Group;
-
 class Subwindow_Students_List;
 class Subwindow_Lessons_List;
 class Subwindow_Prices_List;
@@ -24,18 +13,7 @@ class Graphical
     bool _edit_mode;
     int _wday;
     std::vector<Day_With_Info> _visible_days;
-
 public:
-    Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
-    Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
-    Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
-    Popup_Add_Working_Out* popup_add_working_out = nullptr;
-    Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
-    Popup_Confirm_Delete_Workout* popup_confirm_delete_workout = nullptr;
-    Popup_Confirm_Delete_Student* popup_confirm_delete_student = nullptr;
-    Popup_Confirm_Delete_Lesson* popup_confirm_delete_lesson = nullptr;
-    Popup_Move_Student_To_Group* popup_move_student_to_group = nullptr;
-
     Subwindow_Students_List* subwindow_students_list = nullptr;
     Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
     Subwindow_Prices_List* subwindow_prices_list = nullptr;

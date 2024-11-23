@@ -12,10 +12,11 @@ class Render
     Graphical* graphical;
     ImGuiIO* io;
     Mainwindow mainwindow;
+    Popup_Handler popup_handler;
     double poll_until = 3;
     void set_poll_time(float ms);
     bool show_subwindows();
-    bool show_popups();
+    void show_popups();
     void show_frame();
     void prepare_shutdown();
     void change_current_month(int month, int year);

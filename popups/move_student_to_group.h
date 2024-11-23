@@ -15,9 +15,9 @@ class Popup_Move_Student_To_Group : public Popup
     int select_merged_lesson_id = -1;
 public:
     Popup_Move_Student_To_Group(Graphical* graphical, const Lesson_Info* current, int current_lesson_info_wday, int current_lesson_info_id, int student_id, bool* callback);
-    bool show_frame();
-    void accept_changes();
-    bool is_ok_possible()
+    bool show_frame() override;
+    void accept_changes() override;
+    bool is_ok_possible() override
     {
         if (select_wday == -1)
         {

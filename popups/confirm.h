@@ -1,3 +1,5 @@
+#if 0 // Maybe in the future
+
 #pragma once
 #include "popups.h"
 #include "../helpers/helpers.h"
@@ -13,3 +15,5 @@ public:
     bool show_frame();
     void activate();
 };
+
+#endif

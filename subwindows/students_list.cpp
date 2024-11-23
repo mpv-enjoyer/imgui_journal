@@ -1,10 +1,9 @@
 #include "students_list.h"
 #include "../render/render.h"
 
-Subwindow_Students_List::Subwindow_Students_List(Graphical* _graphical)
+Subwindow_Students_List::Subwindow_Students_List(Graphical* graphical, Popup_Handler* popup_handler)
+: Subwindow(graphical, popup_handler)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     update_lessons_per_student();
 }
 
@@ -71,7 +70,7 @@ bool Subwindow_Students_List::show_frame()
         ImGui::SameLine();
         if (ImGui::Button("Добавить ученика##в общий список"))
         {
-            graphical->popup_add_student_to_base = new Popup_Add_Student_To_Base(graphical);
+            popup_handler->open_popup(new Popup_Add_Student_To_Base(graphical));
         } 
     }
 
@@ -205,7 +204,7 @@ bool Subwindow_Students_List::show_frame()
                 std::string button_label = generate_label("Переместить##move", {student_id, i});
                 if (ImGui::Button(button_label.c_str()))
                 {
-                    graphical->popup_move_student_to_group = new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students);
+                    popup_handler->open_popup(new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students));
                 }
                 
                 ImGui::EndGroup();
@@ -219,7 +218,7 @@ bool Subwindow_Students_List::show_frame()
             {
                 if (j_button_dangerous("Удалить ученика"))
                 {
-                    graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
+                    popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
                 }
             }
             else
@@ -230,7 +229,7 @@ bool Subwindow_Students_List::show_frame()
                 }
                 else if (!is_removed_input_buffer && j_button_dangerous("Удалить ученика"))
                 {
-                    graphical->popup_confirm_delete_student = new Popup_Confirm_Delete_Student(graphical, student_id);
+                    popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
                 }
             }
             if (!is_current) ImGui::EndDisabled();

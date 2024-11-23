@@ -32,7 +32,7 @@ class Subwindow_Help : public Subwindow
     Image move_to_group_3 = Image("move_to_group_3.png");
     Image move_to_group_4 = Image("move_to_group_4.png");
 public:
-    Subwindow_Help(Graphical *_graphical);
+    Subwindow_Help(Graphical *graphical, Popup_Handler* popup_handler);
     bool draw_image(Image image);
     void draw_note(std::string text);
     bool show_frame();

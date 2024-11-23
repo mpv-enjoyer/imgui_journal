@@ -16,7 +16,7 @@ class Subwindow_Students_List : public Subwindow
     ImGuiTextFilter text_filter;
     bool should_update_students = false;
 public:
-    Subwindow_Students_List(Graphical* graphical);
+    Subwindow_Students_List(Graphical *graphical, Popup_Handler *popup_handler);
     void update_lessons_per_student();
     void update_lessons_per_student(int student_id, int index);
     void append_students_to_begin();

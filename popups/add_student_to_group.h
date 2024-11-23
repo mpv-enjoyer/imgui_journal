@@ -20,8 +20,8 @@ public:
     Popup_Add_Student_To_Group(Graphical* graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
     const Group* get_current_group() { IM_ASSERT(check_ok()); return &current_group; };
-    bool show_frame();
-    bool is_ok_possible(bool select_visible)
+    bool show_frame() override;
+    bool is_ok_possible() override
     {
         bool found_selected = false;
         for (int i = 0; i < possible_student_descriptions.size(); i++)
@@ -35,5 +35,5 @@ public:
         if (!found_selected) error("Выберите ученика");
         return found_selected;
     }
-    void accept_changes();
+    void accept_changes() override;
 };

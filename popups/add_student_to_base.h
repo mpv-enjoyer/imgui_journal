@@ -12,8 +12,8 @@ private:
     int contract = 0;
 public:
     Popup_Add_Student_To_Base(Graphical* graphical);
-    bool show_frame();
-    bool is_ok_possible() 
+    bool show_frame() override;
+    bool is_ok_possible() override
     {
         Student student;
         student.set_contract(contract);
@@ -28,5 +28,5 @@ public:
         }
         return true;
     }
-    void accept_changes();
+    void accept_changes() override;
 };

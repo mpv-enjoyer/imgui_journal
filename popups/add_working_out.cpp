@@ -153,7 +153,7 @@ bool Popup_Add_Working_Out::show_frame()
             ImGui::BeginDisabled();
         }
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
-        bool is_calendar_filled = false;
+        is_calendar_filled = false;
         if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame))
         {
             ImGui::TableNextRow();
@@ -216,7 +216,7 @@ bool Popup_Add_Working_Out::show_frame()
                 select_lesson = {-1, -1};
         }
         ImGui::EndGroup();
-        if (ImGui::Button("OK") && is_ok_possible(is_calendar_filled)) POPUP_OK;
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
@@ -225,7 +225,7 @@ bool Popup_Add_Working_Out::show_frame()
     return false;
 }
 
-bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled) 
+bool Popup_Add_Working_Out::is_ok_possible() 
 {
     if (select_student == -1) { error("Выберите ученика"); return false; }
     if (!is_calendar_filled) { error("Для выбранного ученика нет доступных отработок"); return false; }

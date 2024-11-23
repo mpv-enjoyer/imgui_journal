@@ -11,3 +11,4 @@ imgui/docs
 /build/Release
 /build/*.exe
 *.zip
+*.ttf

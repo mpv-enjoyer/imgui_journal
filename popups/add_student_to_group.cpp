@@ -26,7 +26,6 @@ bool Popup_Add_Student_To_Group::show_frame()
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         text_filter.Draw("Поиск с учётом регистра");
         ImGui::PopStyleColor(1);
-        bool select_visible = false;
         ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
@@ -38,7 +37,6 @@ bool Popup_Add_Student_To_Group::show_frame()
             {
                 std::string next_button_name = generate_label("Выбран.##", { i });
                 if (j_button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
-                select_visible = true;
             }
             else
             {
@@ -50,7 +48,7 @@ bool Popup_Add_Student_To_Group::show_frame()
         }
         ImGui::EndChild();
         ImGui::SetItemDefaultFocus();
-        if (ImGui::Button("OK") && is_ok_possible(select_visible)) POPUP_OK;
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();

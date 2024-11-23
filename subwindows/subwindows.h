@@ -6,9 +6,10 @@ class Subwindow
 protected:
     Graphical* graphical = nullptr;
     Journal* journal = nullptr;
+    Popup_Handler* popup_handler;
     bool edit_mode = false;
 public:
-    Subwindow() { };
+    Subwindow(Graphical* graphical, Popup_Handler* popup_handler);
     void update_graphical(Graphical* graphical);
 };
 

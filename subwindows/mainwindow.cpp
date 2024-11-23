@@ -9,13 +9,10 @@ Mainwindow::Callback Mainwindow::get_callback()
     return output;
 }
 
-Mainwindow::Mainwindow(Graphical *_graphical)
-{
-    graphical = _graphical;
-    journal = &(graphical->journal);
-}
+Mainwindow::Mainwindow(Graphical *_graphical, Popup_Handler* popup_handler)
+: Subwindow(graphical, popup_handler) { }
 
-void Mainwindow::show_frame()
+bool Mainwindow::show_frame()
 {
     if (this->save_counter != (int)ImGui::GetTime() / save_every_n_seconds)
     {
@@ -33,12 +30,12 @@ void Mainwindow::show_frame()
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
     if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
-        graphical->subwindow_students_list = new Subwindow_Students_List(graphical);
+        graphical->subwindow_students_list = new Subwindow_Students_List(graphical, popup_handler);
     }
     ImGui::SameLine();
     if (graphical->button_colored("Группы", 0.85f, 0.85f, 0.60f))
     {
-        graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical);
+        graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical, popup_handler);
     }
     if (!(graphical->subwindow_help) && ImGui::BeginMainMenuBar())
     {
@@ -57,7 +54,7 @@ void Mainwindow::show_frame()
                 || graphical->subwindow_lessons_list
                 || graphical->subwindow_help) && ImGui::Button("Изменить цены"))
             {
-                graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical);
+                graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical, popup_handler);
             };
             if (ImGui::Checkbox("Показать удаленные", &edit_mode_buffer))
             {
@@ -86,7 +83,7 @@ void Mainwindow::show_frame()
                     graphical->subwindow_prices_list = nullptr;
                     graphical->subwindow_students_list = nullptr;
                     graphical->subwindow_lessons_list = nullptr;
-                    graphical->subwindow_help = new Subwindow_Help(graphical);
+                    graphical->subwindow_help = new Subwindow_Help(graphical, popup_handler);
                 }
             }
             else
@@ -133,6 +130,7 @@ void Mainwindow::show_frame()
     }
 
     ImGui::End();
+    return true;
 }
 
 void Mainwindow::table(int merged_lesson_id)
@@ -355,7 +353,7 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
     std::string add_student_button_name = generate_label("Добавить ученика##", {merged_lesson_id});
     if (ImGui::Button(add_student_button_name.c_str()))
     {
-        graphical->popup_add_student_to_group = new Popup_Add_Student_To_Group(graphical, merged_lesson, merged_lesson_id, graphical->wday);
+        popup_handler->open_popup(new Popup_Add_Student_To_Group(graphical, merged_lesson, merged_lesson_id, graphical->wday));
     }
     if (journal->get_state() != Journal::State::Fullaccess) ImGui::EndDisabled();
 }
@@ -392,7 +390,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 std::tm current_lesson_time = { 0, 0, 0,
                         graphical->visible_days[day_id].number - MDAY_DIFF, journal->current_month(), journal->current_year() };
                 journal->save(); // Cross month actions may break without saving here.
-                graphical->popup_add_working_out = new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson);
+                popup_handler->open_popup(new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson));
             }
             if (disabled) ImGui::EndDisabled();
         }
@@ -444,7 +442,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    graphical->popup_confirm_delete_workout = new Popup_Confirm_Delete_Workout(graphical, current_workout_info, current_workout_info->should_student_id);
+                    popup_handler->open_popup(new Popup_Confirm_Delete_Workout(graphical, current_workout_info, current_workout_info->should_student_id));
                 }
                 // TODO: Show correct should_time.
                 std::string tooltip = "Отработка за " + std::to_string(current_workout_info->should_attend.tm_mday + MDAY_DIFF) + " " +

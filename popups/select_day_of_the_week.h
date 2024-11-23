@@ -12,9 +12,9 @@ private:
     int year = 0;
 public:
     Popup_Select_Day_Of_The_Week(Graphical* graphical);
-    bool show_frame();
-    void accept_changes();
-    bool is_ok_possible() { return true; }
+    bool show_frame() override;
+    void accept_changes() override;
+    bool is_ok_possible() override { return true; }
     int get_day_of_the_week() { IM_ASSERT(check_ok()); return day_of_the_week; }
     int get_month() { IM_ASSERT(check_ok()); return month; }
     int get_year() { IM_ASSERT(check_ok()); return year - 1900; }

@@ -16,9 +16,9 @@ class Popup_Edit_Lesson : public Popup
     int merged_lesson_id;
 public:
     Popup_Edit_Lesson(Graphical* graphical, int wday, int merged_lesson_id);
-    bool show_frame();
-    void accept_changes();
-    bool is_ok_possible()
+    bool show_frame() override;
+    void accept_changes() override;
+    bool is_ok_possible() override
     {
         if (second_lesson_exists)
         {

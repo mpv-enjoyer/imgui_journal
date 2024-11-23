@@ -16,7 +16,7 @@ private:
     int existing_lesson_info_id = -1;
 public:
     Popup_Add_Merged_Lesson_To_Journal(Graphical* graphical, int existing_lesson_info_id = -1, int wday = -1);
-    bool show_frame();
-    bool is_ok_possible();
-    void accept_changes();
+    bool show_frame() override;
+    bool is_ok_possible() override;
+    void accept_changes() override;
 };
