@@ -26,6 +26,7 @@ public:
                 return false;
             }
         }
+        if (name.size() == 0) return false; 
         return true;
     }
     void accept_changes() override;

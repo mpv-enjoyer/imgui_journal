@@ -359,8 +359,8 @@ void Journal::set_teacher_name(int mday, Lesson lesson, std::string name)
 }
 void Journal::add_student_to_base(std::string name, int contract)
 {
-    if (!_check_rights({ State::Fullaccess })) return; 
-    IM_ASSERT(contract >= 0 && name.size() > 0);
+    if (!_check_rights({ State::Fullaccess })) return;
+    IM_ASSERT(contract >= 0);
     Student* current = new Student();
     current->set_contract(contract);
     current->set_name(name);

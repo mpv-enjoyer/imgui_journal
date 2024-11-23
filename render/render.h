@@ -11,8 +11,8 @@ class Render
     Journal* journal;
     Graphical* graphical;
     ImGuiIO* io;
-    Mainwindow mainwindow;
     Popup_Handler popup_handler;
+    Mainwindow mainwindow;
     double poll_until = 3;
     void set_poll_time(float ms);
     bool show_subwindows();

@@ -10,7 +10,7 @@ Mainwindow::Callback Mainwindow::get_callback()
 }
 
 Mainwindow::Mainwindow(Graphical *_graphical, Popup_Handler* popup_handler)
-: Subwindow(graphical, popup_handler) { }
+: Subwindow(_graphical, popup_handler) { }
 
 bool Mainwindow::show_frame()
 {

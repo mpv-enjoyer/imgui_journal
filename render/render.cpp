@@ -39,10 +39,8 @@ void Render::change_current_month(int month, int year)
 }
 
 Render::Render(Journal* _journal, Graphical *_graphical)
- : journal(_journal), graphical(_graphical), mainwindow(_graphical, &popup_handler)
+ : journal(_journal), graphical(_graphical), mainwindow(graphical, &popup_handler)
 {
-    journal = _journal;
-    graphical = _graphical;
     bool renderer_found = impl::begin_init_renderer();
     IM_ASSERT(renderer_found && "No renderer found");
     io = &ImGui::GetIO();
