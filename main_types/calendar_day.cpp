@@ -103,15 +103,15 @@ int Calendar_Day::find_student(Student& student, int known_merged_lesson_id) con
 
 std::string Calendar_Day::get_teacher_name(Lesson lesson) const
 {
-    IM_ASSERT(lesson.internal_lesson_id < 2);
-    IM_ASSERT(lesson.merged_lesson_id < lessons->size());
+    ASSERT(lesson.internal_lesson_id < 2);
+    ASSERT(lesson.merged_lesson_id < lessons->size());
     return teacher_names[lesson.merged_lesson_id][lesson.internal_lesson_id];
 }
 
 void Calendar_Day::set_teacher_name(Lesson lesson, std::string name)
 {
-    IM_ASSERT(lesson.internal_lesson_id < 2);
-    IM_ASSERT(lesson.merged_lesson_id < lessons->size());
+    ASSERT(lesson.internal_lesson_id < 2);
+    ASSERT(lesson.merged_lesson_id < lessons->size());
     teacher_names[lesson.merged_lesson_id][lesson.internal_lesson_id] = name;
 }
 

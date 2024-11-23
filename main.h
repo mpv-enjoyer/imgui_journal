@@ -8,10 +8,6 @@
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h>
-#include <string>
-#include <limits>
-#include <vector>
-#include <array>
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -19,6 +15,14 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 #include "imgui/misc/cpp/imgui_stdlib.h"
+
+#include <cassert>
+#define ASSERT(expr) assert(expr)
+
+#include <string>
+#include <limits>
+#include <vector>
+#include <array>
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
 
 #include <fstream>

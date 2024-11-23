@@ -1,6 +1,5 @@
 #pragma once
 #include "main_types.h"
-#include <boost/container_hash/hash.hpp>
 
 class Student
 {
