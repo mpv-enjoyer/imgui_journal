@@ -79,7 +79,7 @@ bool Subwindow_Students_List::show_frame()
     if (std::string(text_filter.InputBuf).size() > 0)
     {
         ImGui::SameLine();
-        if (j_button_colored("Очистить поиск", 0.7, 0.3, 0.3))
+        if (Graphical::button_colored("Очистить поиск", 0.7, 0.3, 0.3))
         {
             text_filter.Clear();
         }
@@ -166,7 +166,7 @@ bool Subwindow_Students_List::show_frame()
                 if (current_lesson_info->get_lessons_size() == 2)
                 {
                     std::string second_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
-                    if (j_attend_data(label.c_str(), &cached_data, first_name, second_name))
+                    if (Graphical::attend_data(label.c_str(), &cached_data, first_name, second_name))
                     {
                         journal->set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
                     }
@@ -182,7 +182,7 @@ bool Subwindow_Students_List::show_frame()
                 if (!current_group.is_deleted(PTRREF(journal->student(student_id))))
                 {
                     std::string label_delete = generate_label("Удалить из группы##", {student_id, i});
-                    if (j_button_dangerous(label_delete.c_str()))
+                    if (Graphical::button_dangerous(label_delete.c_str()))
                     {
                         journal->remove_student_from_group(current_wday, current_merged_lesson_id, student_id);
                     }
@@ -190,7 +190,7 @@ bool Subwindow_Students_List::show_frame()
                 else
                 {
                     std::string label_restore = generate_label("Восстановить в группе##", {student_id, i});
-                    if (j_button_colored(label_restore.c_str(), 0.1, 0.9, 0.1))
+                    if (Graphical::button_colored(label_restore.c_str(), 0.1, 0.9, 0.1))
                     {
                         journal->restore_student_to_group(current_wday, current_merged_lesson_id, student_id);
                     }
@@ -214,18 +214,18 @@ bool Subwindow_Students_List::show_frame()
             ImGui::TableNextColumn();
             if (!edit_mode)
             {
-                if (j_button_dangerous("Удалить ученика"))
+                if (Graphical::button_dangerous("Удалить ученика"))
                 {
                     popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
                 }
             }
             else
             {
-                if (is_removed_input_buffer && j_button_colored("Восстановить ученика", 0.1, 0.9, 0.1))
+                if (is_removed_input_buffer && Graphical::button_colored("Восстановить ученика", 0.1, 0.9, 0.1))
                 {
                     journal->restore_student(student_id);
                 }
-                else if (!is_removed_input_buffer && j_button_dangerous("Удалить ученика"))
+                else if (!is_removed_input_buffer && Graphical::button_dangerous("Удалить ученика"))
                 {
                     popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
                 }

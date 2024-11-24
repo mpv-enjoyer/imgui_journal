@@ -67,18 +67,18 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
             }
             else if (i == 1) break; 
             ImGui::PushID(i);
-            j_input_time("##LessonBegin", lesson_pairs[i].time_begin);
+            Graphical::input_time("##LessonBegin", lesson_pairs[i].time_begin);
             ImGui::SameLine();
             ImGui::Text(" _ ");
             ImGui::SameLine();
-            j_input_time("##LessonEnd", lesson_pairs[i].time_end);
+            Graphical::input_time("##LessonEnd", lesson_pairs[i].time_end);
             ImGui::PopID();
         }
         if (ImGui::InputInt("Номер", &group_number))
         {
             if (group_number < 0) group_number = 0;
         };
-        j_age_group_combo("Возраст", &age_group, false);
+        Graphical::age_group_combo("Возраст", &age_group, false);
         ImGui::InputText("Описание (необязательно)", &group_comment);
         ImGui::PopStyleColor();
 

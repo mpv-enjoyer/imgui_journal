@@ -75,7 +75,7 @@ bool Subwindow_Prices_List::show_frame()
         }
     }
 
-    if (j_button_colored("Сохранить", 0.1f, 0.9f, 0.1f))
+    if (Graphical::button_colored("Сохранить", 0.1f, 0.9f, 0.1f))
     {
         Journal::set_default_prices(prices, price_ill, price_skipped);
         if (Journal::get_default_prices(prices, price_ill, price_skipped))

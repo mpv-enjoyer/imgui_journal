@@ -22,15 +22,15 @@ bool Popup_Edit_Lesson::show_frame()
     {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
         ImGui::Text(("1." + Lesson_Names[first_lesson_pair.lesson_name_id]).c_str());
-        j_input_time("##edit_lesson_first_begin", first_lesson_pair.time_begin); ImGui::SameLine();
+        Graphical::input_time("##edit_lesson_first_begin", first_lesson_pair.time_begin); ImGui::SameLine();
         ImGui::Text(" - "); ImGui::SameLine();
-        j_input_time("##edit_lesson_first_end", first_lesson_pair.time_end);
+        Graphical::input_time("##edit_lesson_first_end", first_lesson_pair.time_end);
         if (second_lesson_exists)
         {
             ImGui::Text(("2." + Lesson_Names[second_lesson_pair.lesson_name_id]).c_str());
-            j_input_time("##edit_lesson_second_begin", second_lesson_pair.time_begin); ImGui::SameLine();
+            Graphical::input_time("##edit_lesson_second_begin", second_lesson_pair.time_begin); ImGui::SameLine();
             ImGui::Text(" - "); ImGui::SameLine();
-            j_input_time("##edit_lesson_second_end", second_lesson_pair.time_end);
+            Graphical::input_time("##edit_lesson_second_end", second_lesson_pair.time_end);
         }
         ImGui::InputText("Описание", &group_description);
         if (ImGui::InputInt("Номер", &group_number) && group_number < 0) group_number = 0;

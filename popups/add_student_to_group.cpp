@@ -34,7 +34,7 @@ bool Popup_Add_Student_To_Group::show_frame()
             if (selected_students[i])
             {
                 std::string next_button_name = generate_label("Выбран.##", { i });
-                if (j_button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
+                if (Graphical::button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
             }
             else
             {

@@ -81,17 +81,17 @@ bool Subwindow_Lessons_List::show_frame()
                 {
                     if (is_removed_input_buffer)
                     {
-                        if (j_button_colored(restore_label.c_str(), 0.1, 0.9, 0.1)) journal->restore_lesson(wday, merged_lesson_id);
+                        if (Graphical::button_colored(restore_label.c_str(), 0.1, 0.9, 0.1)) journal->restore_lesson(wday, merged_lesson_id);
                     }
                     else
                     {
-                        if (j_button_dangerous(delete_label.c_str()))
+                        if (Graphical::button_dangerous(delete_label.c_str()))
                         {
                             popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                         }
                     }
                 }
-                else if (j_button_dangerous(delete_label.c_str()))
+                else if (Graphical::button_dangerous(delete_label.c_str()))
                 {
                     popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                 }

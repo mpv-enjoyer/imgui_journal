@@ -173,7 +173,7 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     is_calendar_filled = true;
                     bool current_selected = select_day == i;
-                    if (j_button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
+                    if (Graphical::button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
                     {
                         if (current_selected) select_day = -1;
                         else select_day = i;
@@ -304,7 +304,7 @@ int Popup_Add_Working_Out::Picker::show()
         if (current == i)
         {
             std::string student_button_name = generate_label("Выбран.##", { i });
-            j_button_selectable(student_button_name.c_str(), true);
+            Graphical::button_selectable(student_button_name.c_str(), true);
         }
         else
         {

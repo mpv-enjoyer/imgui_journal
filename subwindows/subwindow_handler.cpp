@@ -8,7 +8,7 @@ bool Subwindow_Handler::is_subwindow_opened()
 void Subwindow_Handler::open_subwindow(Subwindow *subwindow)
 {
     if (subwindow == nullptr) return;
-    if (is_subwindow_opened() && !subwindow->allow_ontop()) return;
+    if (is_subwindow_opened() && !current.back()->allow_ontop()) return;
     current.push_back(subwindow);
 }
 

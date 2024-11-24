@@ -4,6 +4,7 @@
 class Mainwindow;
 
 /*
+    JournalHolder (previously Graphical) is:
     1) (V) Journal storage.
     2) (X) Subwindow handler
     3) Some info about user inputs: wday and edit_mode
@@ -13,10 +14,12 @@ class Mainwindow;
 namespace Graphical
 {
     bool attend_data(std::string label, Attend_Data *attend_data, std::string first_lesson_name, std::string second_lesson_name);
-    bool button_selectable(const char *label, bool selected, bool small);
+    bool button_selectable(const char *label, bool selected, bool small = false);
     bool button_dangerous(const char *label);
     bool input_time(std::string label, JTime &time);
     bool button_colored(const char *label, float r, float g, float b);
+    bool age_group_combo(const char *label, int *age_group, bool shrink = true);
+    bool attendance_combo(const char* label, int* status, std::string tooltip = "");
 };
 
 class JournalHolder

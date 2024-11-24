@@ -24,7 +24,7 @@ bool Popup_Move_Student_To_Group::show_frame()
                     std::string label = journal->Wday_name_short(wday) + ", " + journal->lesson_info(wday, merged_lesson_id)->get_description();
                     bool selected = wday == select_wday && merged_lesson_id == select_merged_lesson_id;
                     std::string button_label = generate_label(std::string(selected ? "Выбран" : "Выбрать") + "##", {_wday, merged_lesson_id});
-                    if (j_button_selectable(button_label.c_str(), selected))
+                    if (Graphical::button_selectable(button_label.c_str(), selected))
                     {
                         select_wday = wday;
                         select_merged_lesson_id = merged_lesson_id;
