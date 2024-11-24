@@ -1,9 +1,8 @@
 #include "confirm_delete_lesson.h"
 
-Popup_Confirm_Delete_Lesson::Popup_Confirm_Delete_Lesson(Graphical *_graphical, int wday, int merged_lesson_id)
+Popup_Confirm_Delete_Lesson::Popup_Confirm_Delete_Lesson(JournalHolder *graphical, int wday, int merged_lesson_id)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     _wday = wday;
     _merged_lesson_id = merged_lesson_id;
 }

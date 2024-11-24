@@ -1,6 +1,6 @@
 #include "prices_list.h"
 
-Subwindow_Prices_List::Subwindow_Prices_List(Graphical *graphical, Popup_Handler* popup_handler)
+Subwindow_Prices_List::Subwindow_Prices_List(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler)
 {
     if (!Journal::get_default_prices(prices, price_ill, price_skipped))

@@ -47,8 +47,7 @@ BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
 CXXFLAGS += -Wall -Wformat -lstdc++fs
-# would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
-LIBS =
+LIBS = # would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
 
 ##---------------------------------------------------------------------
 ## OPENGL ES

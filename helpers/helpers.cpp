@@ -184,7 +184,7 @@ bool j_age_group_combo(const char* label, int* age_group, bool shrink)
 bool j_attendance_combo(const char* label, int* status, std::string tooltip)
 {
     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
-    int dummy = 0;
+    //int dummy = 0;
     const char* items[] = { " ", "V", "Б", "O", "ОТР" };
     //if (*status == STATUS_WORKED_OUT)
     //{

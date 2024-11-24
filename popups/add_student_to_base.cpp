@@ -1,10 +1,7 @@
 #include "add_student_to_base.h"
 
-Popup_Add_Student_To_Base::Popup_Add_Student_To_Base(Graphical *_graphical)
-{
-    graphical = _graphical;
-    journal = &(graphical->journal);
-}
+Popup_Add_Student_To_Base::Popup_Add_Student_To_Base(JournalHolder *graphical)
+: Popup(graphical) { }
 
 bool Popup_Add_Student_To_Base::show_frame()
 {

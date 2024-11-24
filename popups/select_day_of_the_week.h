@@ -11,7 +11,7 @@ private:
     int month = 0;
     int year = 0;
 public:
-    Popup_Select_Day_Of_The_Week(Graphical* graphical);
+    Popup_Select_Day_Of_The_Week(JournalHolder* graphical);
     bool show_frame() override;
     void accept_changes() override;
     bool is_ok_possible() override { return true; }

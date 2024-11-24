@@ -1,10 +1,8 @@
 #include "confirm_delete_workout.h"
 
-Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical, const Workout_Info_ *workout_info, int student_id)
-: _workout_info(workout_info)
+Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(JournalHolder *graphical, const Workout_Info_ *workout_info, int student_id)
+: Popup(graphical), _workout_info(workout_info)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     Lesson_Pair should_pair;
     Group should_group;
     if (workout_info->real_attend.tm_mon != workout_info->should_attend.tm_mon)

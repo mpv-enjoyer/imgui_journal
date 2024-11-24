@@ -14,7 +14,7 @@ int main(int argc, char** argv)
         }
     }
     Journal journal;
-    Graphical graphical(journal);
+    JournalHolder graphical(journal);
     Render render(&journal, &graphical);
     render.main_loop();
     journal.save();

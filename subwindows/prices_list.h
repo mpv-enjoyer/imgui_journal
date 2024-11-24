@@ -9,6 +9,6 @@ class Subwindow_Prices_List : public Subwindow
     bool price_loaded_from_journal = false;
     bool unsaved_changes = false;
 public:
-    Subwindow_Prices_List(Graphical *graphical, Popup_Handler *popup_handler);
-    bool show_frame();
+    Subwindow_Prices_List(JournalHolder *graphical, Popup_Handler *popup_handler);
+    bool show_frame() override;
 };

@@ -30,16 +30,15 @@ void Render::change_current_month(int month, int year)
     else
     {
         journal = new Journal(month, year, journal_main);
-        graphical = new Graphical(PTRREF(journal));
+        graphical = new JournalHolder(PTRREF(journal));
     }
 
     graphical->select_wday(backup_wday);
-    graphical->mainwindow = &mainwindow;
-    graphical->mainwindow->update_graphical(graphical);
+    mainwindow.update_graphical(graphical);
 }
 
-Render::Render(Journal* _journal, Graphical *_graphical)
- : journal(_journal), graphical(_graphical), mainwindow(graphical, &popup_handler)
+Render::Render(Journal* _journal, JournalHolder *_graphical)
+ : journal(_journal), graphical(_graphical), mainwindow(graphical, &popup_handler, &subwindow_handler)
 {
     bool renderer_found = impl::begin_init_renderer();
     IM_ASSERT(renderer_found && "No renderer found");
@@ -49,8 +48,6 @@ Render::Render(Journal* _journal, Graphical *_graphical)
 
     graphical_main = graphical;
     journal_main = journal;
-
-    graphical->mainwindow = &mainwindow;
 }
 
 void Render::main_loop()
@@ -83,6 +80,11 @@ void Render::set_poll_time(float active_s)
     poll_until = ImGui::GetTime() + active_s;
 }
 
+void Render::show_subwindows()
+{
+    subwindow_handler.render_subwindow(this);
+}
+
 void Render::show_popups()
 {
     popup_handler.render_popup(this);
@@ -91,8 +93,8 @@ void Render::show_popups()
 void Render::show_frame()
 {
     impl::begin_frame();
-    graphical->mainwindow->show_frame();
-    Mainwindow::Callback callback = graphical->mainwindow->get_callback();
+    mainwindow.show_frame();
+    Mainwindow::Callback callback = mainwindow.get_callback();
     if (callback == Mainwindow::Callback::month_left)
     {
         int month = journal->current_month();

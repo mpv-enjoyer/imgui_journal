@@ -15,7 +15,7 @@ class Popup_Confirm_Delete_Workout : public Popup
     std::string _should_group_description;
     const Workout_Info_* _workout_info;
 public:
-    Popup_Confirm_Delete_Workout(Graphical* _graphical, const Workout_Info_* workout_info, int student_id);
+    Popup_Confirm_Delete_Workout(JournalHolder* _graphical, const Workout_Info_* workout_info, int student_id);
     bool show_frame() override;
     bool is_ok_possible() override { return true; }
     void accept_changes() override;

@@ -17,7 +17,7 @@ private:
     std::vector<int> possible_student_ids;
     std::vector<bool> selected_students;
 public:
-    Popup_Add_Student_To_Group(Graphical* graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday);
+    Popup_Add_Student_To_Group(JournalHolder* graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday);
     int get_merged_lesson_known_id() { IM_ASSERT(check_ok()); return merged_lesson_known_id; };
     const Group* get_current_group() { IM_ASSERT(check_ok()); return &current_group; };
     bool show_frame() override;

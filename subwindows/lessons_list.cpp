@@ -1,6 +1,6 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* graphical, Popup_Handler* popup_handler)
+Subwindow_Lessons_List::Subwindow_Lessons_List(JournalHolder* graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
 
 bool Subwindow_Lessons_List::show_frame()

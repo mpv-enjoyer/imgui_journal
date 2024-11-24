@@ -36,7 +36,6 @@ std::vector<Lesson_Pair> Lesson_Info::get_lesson_pairs() const
 //Changed behaviour: no more sort check
 bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
 {
-    int new_lesson_pair_id = get_lessons_size();
     if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;
     lesson_pairs.push_back(new_lesson_pair);
     return true;

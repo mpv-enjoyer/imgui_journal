@@ -13,10 +13,9 @@ int get_combo_lesson_name_id(std::vector<Lesson_Pair> pairs)
     IM_ASSERT(false && "invalid pairs");
 }
 
-Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical* _graphical, int existing_lesson_info_id, int wday)
+Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(JournalHolder* graphical, int existing_lesson_info_id, int wday)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     if (existing_lesson_info_id != -1)
     {
         this->existing_lesson_info_id = existing_lesson_info_id;
@@ -30,7 +29,7 @@ Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical
     }
     else
     {
-        day_of_the_week = _graphical->wday;
+        day_of_the_week = graphical->wday;
         lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
     }
     

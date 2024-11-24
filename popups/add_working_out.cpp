@@ -1,9 +1,8 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
+Popup_Add_Working_Out::Popup_Add_Working_Out(JournalHolder* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     main_journal = journal->journal_main ? journal->journal_main : journal;
     current_journal = journal;
     caller_lesson_info = current_lesson_info;
@@ -54,9 +53,9 @@ void Popup_Add_Working_Out::update_possible_lessons()
 {
     possible_lessons.clear();
     possible_lessons = std::vector<std::vector<Lesson>>(current_journal->day_count());
+    // TODO: this should not be a warning:
     std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
-    //if (select_student == -1) return;
     Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
     for (int i = 0; i < current_journal->day_count(); i++)
@@ -165,7 +164,7 @@ bool Popup_Add_Working_Out::show_frame()
                 ImGui::TableNextColumn();
             }
             ImGui::TableSetColumnIndex(first_mwday_ru);
-            std::tm select_date = { 0, 0, 0, 
+            [[maybe_unused]] std::tm select_date = { 0, 0, 0, 
                     0, select_month, select_year};
             
             for (int i = 0; i < possible_lessons.size(); i++)

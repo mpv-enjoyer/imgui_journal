@@ -1,6 +1,6 @@
 #include "help.h"
 
-Subwindow_Help::Subwindow_Help(Graphical *_graphical, Popup_Handler* popup_handler)
+Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
 
 bool Subwindow_Help::draw_image(Image image)

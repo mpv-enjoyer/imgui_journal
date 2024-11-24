@@ -2,11 +2,9 @@
 
 #define Journal graphical.journal
 
-Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Graphical* _graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday) 
-: current_group(current_lesson.get_group()), merged_lesson_known_id(merged_lesson_known_id), current_lesson(current_lesson)
+Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(JournalHolder* graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday) 
+: Popup(graphical), merged_lesson_known_id(merged_lesson_known_id), current_group(current_lesson.get_group()), current_lesson(current_lesson)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     current_wday = wday;
     for (int i = 0; i < journal->student_count(); i++)
     {

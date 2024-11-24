@@ -1,6 +1,8 @@
 #pragma once
 #include "subwindows.h"
 
+class Subwindow_Handler;
+
 class Mainwindow : public Subwindow
 {
     void table(int merged_lesson_id);
@@ -22,7 +24,7 @@ class Mainwindow : public Subwindow
     Last_Save_State _state = Last_Save_State::none;
     int save_counter = 0;
     const int save_every_n_seconds = 300;
-
+    Subwindow_Handler* subwindow_handler;
 public:
     enum Callback
     {
@@ -32,9 +34,8 @@ public:
         month_right
     };
     Callback get_callback();
-
-    Mainwindow(Graphical* graphical, Popup_Handler* popup_handler);
-    bool show_frame();
+    Mainwindow(JournalHolder* graphical, Popup_Handler* popup_handler, Subwindow_Handler* subwindow_handler);
+    bool show_frame() override;
 private:
     Callback _callback = none;
 };

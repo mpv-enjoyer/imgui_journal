@@ -1,9 +1,8 @@
 #include "edit_lesson.h"
 
-Popup_Edit_Lesson::Popup_Edit_Lesson(Graphical* _graphical, int wday, int merged_lesson_id)
+Popup_Edit_Lesson::Popup_Edit_Lesson(JournalHolder* graphical, int wday, int merged_lesson_id)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     lesson_info = journal->lesson_info(wday, merged_lesson_id);
     this->wday = wday;
     this->merged_lesson_id = merged_lesson_id;

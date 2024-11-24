@@ -9,8 +9,8 @@ Mainwindow::Callback Mainwindow::get_callback()
     return output;
 }
 
-Mainwindow::Mainwindow(Graphical *_graphical, Popup_Handler* popup_handler)
-: Subwindow(_graphical, popup_handler) { }
+Mainwindow::Mainwindow(JournalHolder *graphical, Popup_Handler *popup_handler, Subwindow_Handler *subwindow_handler)
+: Subwindow(graphical, popup_handler), subwindow_handler(subwindow_handler) { }
 
 bool Mainwindow::show_frame()
 {
@@ -28,16 +28,16 @@ bool Mainwindow::show_frame()
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin("Журнал версии 1.0.0", nullptr, WINDOW_FLAGS);
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-    if (graphical->button_colored("Ученики", 0.60f, 0.85f, 0.85f))
+    if (Graphical::button_colored("Ученики", 0.60f, 0.85f, 0.85f))
     {
-        graphical->subwindow_students_list = new Subwindow_Students_List(graphical, popup_handler);
+        subwindow_handler->open_subwindow(new Subwindow_Students_List(graphical, popup_handler));
     }
     ImGui::SameLine();
-    if (graphical->button_colored("Группы", 0.85f, 0.85f, 0.60f))
+    if (Graphical::button_colored("Группы", 0.85f, 0.85f, 0.60f))
     {
-        graphical->subwindow_lessons_list = new Subwindow_Lessons_List(graphical, popup_handler);
+        subwindow_handler->open_subwindow(new Subwindow_Lessons_List(graphical, popup_handler));
     }
-    if (!(graphical->subwindow_help) && ImGui::BeginMainMenuBar())
+    if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("Файл"))
         {
@@ -49,12 +49,9 @@ bool Mainwindow::show_frame()
                 if (result) _state = Last_Save_State::succeded_manual;
                 else _state = Last_Save_State::failed_manual;
             }
-            if (!(graphical->subwindow_prices_list
-                || graphical->subwindow_students_list
-                || graphical->subwindow_lessons_list
-                || graphical->subwindow_help) && ImGui::Button("Изменить цены"))
+            if (!subwindow_handler->is_subwindow_opened() && ImGui::Button("Изменить цены"))
             {
-                graphical->subwindow_prices_list = new Subwindow_Prices_List(graphical, popup_handler);
+                subwindow_handler->open_subwindow(new Subwindow_Prices_List(graphical, popup_handler));
             };
             if (ImGui::Checkbox("Показать удаленные", &edit_mode_buffer))
             {
@@ -74,16 +71,13 @@ bool Mainwindow::show_frame()
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
-        if (!(graphical->subwindow_help) && ImGui::BeginMenu("Помощь"))
+        if (ImGui::BeginMenu("Помощь"))
         {
             if (!impl::is_modern_platform_failed())
             {
                 if (ImGui::Button("Справка"))
                 {
-                    graphical->subwindow_prices_list = nullptr;
-                    graphical->subwindow_students_list = nullptr;
-                    graphical->subwindow_lessons_list = nullptr;
-                    graphical->subwindow_help = new Subwindow_Help(graphical, popup_handler);
+                    subwindow_handler->open_subwindow(new Subwindow_Help(graphical, popup_handler));
                 }
             }
             else
@@ -94,7 +88,6 @@ bool Mainwindow::show_frame()
         }
         ImGui::EndMainMenuBar();
     }
-    bool edit_mode_buffer = graphical->edit_mode;
     ImGui::BeginChild("Child", ImVec2(0, TABLE_BOTTOM_OFFSET_PXLS * 2), true, ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_AlwaysUseWindowPadding);
     if (journal->get_state() == Journal::State::Empty)
     {
@@ -305,7 +298,6 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
 bool Mainwindow::attendance_combo(const char *label, int *status, std::string tooltip)
 {
     ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
-    int dummy = 0;
     const char* items[] = { " ", "V", "Б", "O", "ОТР" };
     if (*status == STATUS_NOT_AWAITED)
     {
@@ -346,7 +338,6 @@ bool Mainwindow::attendance_combo(const char *label, int *status, std::string to
 void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
-    const Group& group = merged_lesson.get_group();
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1);
     if (journal->get_state() != Journal::State::Fullaccess) ImGui::BeginDisabled();
@@ -361,7 +352,6 @@ void Mainwindow::table_add_student_row(int merged_lesson_id, int counter)
 void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::vector<std::vector<int>>* attended_counter_increase)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
-    const Group& group = merged_lesson.get_group();
     bool write_increases = false;
     if (attended_counter_increase != nullptr)
     {
@@ -380,7 +370,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
             Lesson lesson;
             lesson.merged_lesson_id = merged_lesson_id;
             lesson.internal_lesson_id = internal_lesson;
-            Day_With_Info visible_day = graphical->visible_days[day_id];
+            [[maybe_unused]] Day_With_Info visible_day = graphical->visible_days[day_id];
             bool disabled = graphical->visible_days[day_id].is_future;
             if (disabled) ImGui::BeginDisabled();
             if (internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
@@ -414,7 +404,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
             bool first_present = false;
             for (int internal_lesson = 0; internal_lesson < merged_lesson.get_lessons_size(); internal_lesson++)
             {
-                Lesson lesson;
+                [[maybe_unused]] Lesson lesson;
                 lesson.merged_lesson_id = merged_lesson_id;
                 lesson.internal_lesson_id = internal_lesson;
                 lesson.internal_lesson_id = internal_lesson;
@@ -480,7 +470,7 @@ void Mainwindow::table_student_count_row(int merged_lesson_id, std::vector<std::
 
 void Mainwindow::table_teacher_names_row(int merged_lesson_id)
 {
-    const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
+    [[maybe_unused]] const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Преподаватель: ");
     for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)

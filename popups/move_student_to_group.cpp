@@ -1,10 +1,8 @@
 #include "move_student_to_group.h"
 
-Popup_Move_Student_To_Group::Popup_Move_Student_To_Group(Graphical *_graphical, const Lesson_Info *current, int current_lesson_info_wday, int current_lesson_info_id, int student_id, bool* callback)
-: current_lesson_info_wday(current_lesson_info_wday), current_lesson_info_id(current_lesson_info_id), student_id(student_id), callback(callback)
+Popup_Move_Student_To_Group::Popup_Move_Student_To_Group(JournalHolder *graphical, const Lesson_Info *current, int current_lesson_info_wday, int current_lesson_info_id, int student_id, bool* callback)
+: Popup(graphical), current_lesson_info_wday(current_lesson_info_wday), current_lesson_info_id(current_lesson_info_id), student_id(student_id), callback(callback)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     current_lesson_info = current;
 }
 

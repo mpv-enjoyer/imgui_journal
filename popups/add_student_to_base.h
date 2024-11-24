@@ -11,7 +11,7 @@ private:
     bool is_date_visible = false;
     int contract = 0;
 public:
-    Popup_Add_Student_To_Base(Graphical* graphical);
+    Popup_Add_Student_To_Base(JournalHolder* graphical);
     bool show_frame() override;
     bool is_ok_possible() override
     {
@@ -26,7 +26,11 @@ public:
                 return false;
             }
         }
-        if (name.size() == 0) return false; 
+        if (name.size() == 0)
+        {
+            error("введите имя ученика");
+            return false;
+        }
         return true;
     }
     void accept_changes() override;

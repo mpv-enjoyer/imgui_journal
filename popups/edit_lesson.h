@@ -15,7 +15,7 @@ class Popup_Edit_Lesson : public Popup
     int wday;
     int merged_lesson_id;
 public:
-    Popup_Edit_Lesson(Graphical* graphical, int wday, int merged_lesson_id);
+    Popup_Edit_Lesson(JournalHolder* graphical, int wday, int merged_lesson_id);
     bool show_frame() override;
     void accept_changes() override;
     bool is_ok_possible() override

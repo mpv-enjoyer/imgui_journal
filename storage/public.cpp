@@ -396,7 +396,6 @@ void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_i
     Lesson_Info* merged_lesson = _all_lessons[wday][merged_lesson_id];
     Group& group = merged_lesson->_group();
     int new_student_id = group.add_student(PTRREF(student));
-    int first_wday = get_first_wday(_current_month, _current_year, wday);
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (int current_day_cell = 0; current_day_cell < affected_days.size(); current_day_cell++)
     {
@@ -438,8 +437,6 @@ void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Less
 {
     if (!_check_rights({ State::Fullaccess })) return; 
     Lesson_Info& lesson_info = PTRREF(_all_lessons[wday][merged_lesson_id]);
-    Group& group = lesson_info._group();
-
     Lesson_Info lesson_info_checked = lesson_info;
 
     while (lesson_info_checked.get_lessons_size() != 0)
@@ -540,6 +537,7 @@ const std::string Journal::merged_lesson_name(int wday, int merged_lesson_id, in
         return Lesson_name(first_lesson_type);
     if (first_lesson_type != second_lesson_type)
         return Lesson_name(first_lesson_type) + "+" + Lesson_name(second_lesson_type);
+    throw std::invalid_argument("Cannot construct merged_lesson_name from types");
 }
 void Journal::remove_student(int id)
 {
@@ -578,9 +576,9 @@ void Journal::set_lesson_status(int mday, Lesson lesson, int internal_student_id
     {
         if (workout_existed)
         {
-            Workout_Info distant_workout_info = status.workout_info;
-            int day_index = status.workout_info.date.tm_mday - 1;
-            int internal_lesson_id = status.workout_info.internal_lesson;
+            [[maybe_unused]] Workout_Info distant_workout_info = status.workout_info;
+            [[maybe_unused]] int day_index = status.workout_info.date.tm_mday - 1;
+            [[maybe_unused]] int internal_lesson_id = status.workout_info.internal_lesson;
 
             const Workout_Info_* workout = _workout_handler->get_info(current_month(), mday, lesson, student_id);
             IM_ASSERT(workout != nullptr);

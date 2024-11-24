@@ -1,7 +1,7 @@
 #include "students_list.h"
 #include "../render/render.h"
 
-Subwindow_Students_List::Subwindow_Students_List(Graphical* graphical, Popup_Handler* popup_handler)
+Subwindow_Students_List::Subwindow_Students_List(JournalHolder* graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler)
 {
     update_lessons_per_student();
@@ -39,7 +39,6 @@ void Subwindow_Students_List::update_lessons_per_student(int student_id, int ind
 void Subwindow_Students_List::append_students_to_begin()
 {
     if (lessons_per_student.size() == journal->student_count()) return;
-    const int index = 0;
     for (int i = lessons_per_student.size(); i < journal->student_count(); i++)
     {
         lessons_per_student.insert(lessons_per_student.begin(),std::pair<std::vector<Lesson_Info_Position>, int>());
@@ -115,7 +114,6 @@ bool Subwindow_Students_List::show_frame()
         ImGui::TableHeadersRow();
         std::string name_input_buffer;
         int contract_input_buffer;
-        int lesson_name_input_buffer;
         bool is_removed_input_buffer;
 
         for (int index = 0; index < journal->student_count(); index++)

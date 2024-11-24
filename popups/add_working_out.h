@@ -40,7 +40,7 @@ private:
     Picker picker;
     bool is_calendar_filled = false;
 public:
-    Popup_Add_Working_Out(Graphical* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
+    Popup_Add_Working_Out(JournalHolder* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
     void update_possible_lessons();
     void update_journal(int month, int year);
     bool show_frame() override;
