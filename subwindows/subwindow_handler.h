@@ -5,7 +5,7 @@ class Render;
 
 class Subwindow_Handler
 {
-    std::vector<Subwindow*> current;
+    Subwindow* current{};
 public:
     Subwindow_Handler() { };
     bool is_subwindow_opened();
