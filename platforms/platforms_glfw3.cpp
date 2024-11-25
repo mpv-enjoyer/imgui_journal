@@ -1,30 +1,19 @@
-#include "platforms.h"
-#include "GLFW/glfw3.h"
 #include <stdio.h>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
-static GLFWwindow* window = nullptr;
+#include "platforms_glfw3.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-bool impl::begin_init_renderer()
+GLFW3_Renderer::GLFW3_Renderer()
 {
-    if (impl::is_modern_platform_failed()) // Through argv**
-    {
-        return impl_legacy::begin_init_renderer();
-    }
     glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
-    {
-        impl::modern_platform_failed();
-        return impl_legacy::begin_init_renderer();
-    }
-        //throw std::invalid_argument("GLFW: cannot init");
+    if (!glfwInit()) return;
+
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
     const char* glsl_version = "#version 100";
@@ -49,12 +38,8 @@ bool impl::begin_init_renderer()
     glfwWindowHint(GLFW_POSITION_X, 10);
     glfwWindowHint(GLFW_POSITION_Y, 50);
     window = glfwCreateWindow(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, WINDOW_NAME, nullptr, nullptr);
-    if (window == nullptr)
-    {
-        impl::modern_platform_failed();
-        return impl_legacy::begin_init_renderer();
-    }
-        //throw std::invalid_argument("GLFW: cannot create window");
+    if (window == nullptr) return;
+
     glfwSetWindowSizeLimits(window, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(window);
 	//set_window_titlebar_icon(window);
@@ -67,21 +52,25 @@ bool impl::begin_init_renderer()
     ImGui::StyleColorsLight();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-    return true;
+
+    init = true;
 }
 
-void impl::begin_frame()
+bool GLFW3_Renderer::is_initialized()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::begin_frame();
+    return init;
+}
+
+void GLFW3_Renderer::begin_frame()
+{
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void impl::render_frame()
+void GLFW3_Renderer::render_frame()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::render_frame();
     // Rendering
     ImGui::Render();
     int display_w, display_h;
@@ -92,15 +81,13 @@ void impl::render_frame()
     glfwSwapBuffers(window);
 }
 
-bool impl::should_close()
+bool GLFW3_Renderer::should_close()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::should_close();
     return glfwWindowShouldClose(window);
 }
 
-void impl::cleanup()
+void GLFW3_Renderer::cleanup()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::cleanup();
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -110,20 +97,27 @@ void impl::cleanup()
     glfwTerminate();
 }
 
-bool impl::is_mouse_button_pressed()
+bool GLFW3_Renderer::is_mouse_button_pressed()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::is_mouse_button_pressed();
     return glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
-void impl::wait_events_timeout(double time)
+void GLFW3_Renderer::wait_events_timeout(double time)
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::wait_events_timeout(time);
     glfwWaitEventsTimeout(time);
 }
 
-void impl::wait_events()
+void GLFW3_Renderer::wait_events()
 {
-    if (impl::is_modern_platform_failed()) return impl_legacy::wait_events();
     glfwWaitEvents();
+}
+
+bool GLFW3_Renderer::is_modern()
+{
+    return true;
+}
+
+const char *GLFW3_Renderer::name()
+{
+    return "GLFW3/OPENGL3 Renderer";
 }
