@@ -4,7 +4,7 @@
 #include "imgui_impl_opengl3.h"
 #include "platforms_glfw3.h"
 
-static void glfw_error_callback(int error, const char* description)
+void GLFW3_Renderer::glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
@@ -112,7 +112,7 @@ void GLFW3_Renderer::wait_events()
     glfwWaitEvents();
 }
 
-bool GLFW3_Renderer::is_modern()
+bool GLFW3_Renderer::supports_images()
 {
     return true;
 }

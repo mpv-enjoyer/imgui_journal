@@ -53,8 +53,7 @@ void Popup_Add_Working_Out::update_possible_lessons()
 {
     possible_lessons.clear();
     possible_lessons = std::vector<std::vector<Lesson>>(current_journal->day_count());
-    // TODO: this should not be a warning:
-    std::tm input_date = { 0, 0, 0, 
+    [[maybe_unused]] std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
     Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;

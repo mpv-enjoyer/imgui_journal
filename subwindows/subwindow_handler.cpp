@@ -12,7 +12,7 @@ void Subwindow_Handler::open_subwindow(Subwindow *subwindow)
     {
         if (!current->allow_ontop()) return;
         delete current;
-    } 
+    }
     current = subwindow;
 }
 

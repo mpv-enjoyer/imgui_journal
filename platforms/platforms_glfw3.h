@@ -17,6 +17,6 @@ public:
     bool is_mouse_button_pressed() override;
     void wait_events_timeout(double time) override;
     void wait_events() override;
-    bool is_modern() override;
+    bool supports_images() override;
     const char* name() override;
 };

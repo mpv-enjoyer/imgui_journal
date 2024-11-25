@@ -73,7 +73,7 @@ bool Mainwindow::show_frame()
         }
         if (ImGui::BeginMenu("Помощь"))
         {
-            if (!impl::is_modern_platform_failed())
+            if (Impl::renderer()->supports_images())
             {
                 if (ImGui::Button("Справка"))
                 {

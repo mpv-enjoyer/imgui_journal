@@ -3,13 +3,13 @@
 
 int main(int argc, char** argv)
 {
-    if (impl::is_application_already_running()) return 1;
+    if (Impl::platform()->is_application_already_running()) return 1;
     for (int i = 1; i < argc; i++)
     {
         std::string arg = argv[i];
         if (arg == "--enable-legacy-render-driver")
         {
-            impl::modern_platform_failed();
+            Impl::prefer_renderer(Impl::Renderers::SDL2);
             break;
         }
     }

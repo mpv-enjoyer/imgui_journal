@@ -1,8 +1,12 @@
 #pragma once
 #include "platforms.h"
+#include <SDL2/SDL.h>
 
 class SDL2_Renderer : public Impl::Renderer
 {
+    SDL_Window* window = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    bool done = false;
     bool init = false;
 public:
     SDL2_Renderer();
@@ -14,6 +18,6 @@ public:
     bool is_mouse_button_pressed() override;
     void wait_events_timeout(double time) override;
     void wait_events() override;
-    bool is_modern() override;
+    bool supports_images() override;
     const char* name() override;
 };

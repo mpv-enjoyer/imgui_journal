@@ -1,25 +1,18 @@
-#include "platforms.h"
-
+#include "platforms_sdl2.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 #include <stdio.h>
-#include <SDL2/SDL.h>
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
 
-static SDL_Window* window = nullptr;
-static SDL_Renderer* renderer = nullptr;
-static bool done = false;
-
-bool impl_legacy::begin_init_renderer()
+SDL2_Renderer::SDL2_Renderer()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
-        return false;
     }
 
     // From 2.0.18: Enable native IME.
@@ -35,7 +28,6 @@ bool impl_legacy::begin_init_renderer()
     if (renderer == nullptr)
     {
         SDL_Log("Error creating SDL_Renderer!");
-        return false;
     }
 
     // Setup Dear ImGui context
@@ -53,10 +45,15 @@ bool impl_legacy::begin_init_renderer()
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
 
-    return true;
+    init = true;
 }
 
-void impl_legacy::begin_frame()
+bool SDL2_Renderer::is_initialized()
+{
+    return init;
+}
+
+void SDL2_Renderer::begin_frame()
 {
     // Start the Dear ImGui frame
     ImGui_ImplSDLRenderer2_NewFrame();
@@ -64,7 +61,7 @@ void impl_legacy::begin_frame()
     ImGui::NewFrame();
 }
 
-void impl_legacy::render_frame()
+void SDL2_Renderer::render_frame()
 {
     ImGuiIO& io = ImGui::GetIO();
     // Rendering
@@ -76,12 +73,12 @@ void impl_legacy::render_frame()
     SDL_RenderPresent(renderer);
 }
 
-bool impl_legacy::should_close()
+bool SDL2_Renderer::should_close()
 {
     return done;
 }
 
-void impl_legacy::cleanup()
+void SDL2_Renderer::cleanup()
 {
     // Cleanup
     ImGui_ImplSDLRenderer2_Shutdown();
@@ -93,12 +90,12 @@ void impl_legacy::cleanup()
     SDL_Quit();
 }
 
-bool impl_legacy::is_mouse_button_pressed()
+bool SDL2_Renderer::is_mouse_button_pressed()
 {
     return SDL_GetMouseState(NULL, NULL) & SDL_MOUSEBUTTONUP;
 }
 
-void impl_legacy::wait_events_timeout(double time)
+void SDL2_Renderer::wait_events_timeout(double time)
 {
     SDL_Event event;
     SDL_WaitEventTimeout(&event, time * 1000);
@@ -117,7 +114,7 @@ void impl_legacy::wait_events_timeout(double time)
     }
 }
 
-void impl_legacy::wait_events()
+void SDL2_Renderer::wait_events()
 {
     SDL_Event event;
     SDL_WaitEvent(&event);
@@ -134,4 +131,14 @@ void impl_legacy::wait_events()
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
             done = true;
     }
+}
+
+bool SDL2_Renderer::supports_images()
+{
+    return false;
+}
+
+const char *SDL2_Renderer::name()
+{
+    return "SDL2/SDL2_Renderer";
 }

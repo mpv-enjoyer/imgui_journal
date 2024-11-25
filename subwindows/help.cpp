@@ -1,4 +1,5 @@
 #include "help.h"
+#include "../platforms/platforms.h"
 
 Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
@@ -136,6 +137,8 @@ bool Subwindow_Help::show_frame()
     }
     draw_text("");
     draw_text("BUILD " + std::string(__DATE__) + " " + std::string(__TIME__));
+    draw_text("Renderer " + std::string(Impl::renderer()->name()));
+    draw_text("OS " + std::string(Impl::platform()->name()));
     ImGui::EndChild();
     ImGui::PopStyleColor();
     ImGui::End();

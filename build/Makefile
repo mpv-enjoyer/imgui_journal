@@ -46,7 +46,7 @@ LINUX_GL_LIBS = -lGL -licui18n -licuuc
 BOOST_LIBS = -lboost_serialization
 
 CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/misc/cpp
-CXXFLAGS += -Wall -Wformat -lstdc++fs
+CXXFLAGS += -Wall -Wformat -Wuninitialized -lstdc++fs
 LIBS = # would like to use -D_GLIBCXX_DEBUG but it breaks boost:: serialization
 
 ##---------------------------------------------------------------------
@@ -97,14 +97,14 @@ ifeq ($(WIN32), True)
 	CXXFLAGS += -mwindows
 	#CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)
-	SOURCES += $(PLARM_DIR)/platforms_windows.cpp $(PLARM_DIR)/platforms_glfw.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
+	SOURCES += $(PLARM_DIR)/platforms_windows.cpp $(PLARM_DIR)/platforms_glfw3.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
 else
 	ifeq ($(UNAME_S), Linux) #LINUX
 		ECHO_MESSAGE = "Linux"
 		LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3` -I../boost-1.85.0/ -L../boost-1.85.0/stage/lib/ -lboost_serialization `sdl2-config --libs`
 		CXXFLAGS += `pkg-config --cflags glfw3` -O0 -g `sdl2-config --cflags`
 		CFLAGS = $(CXXFLAGS)
-		SOURCES += $(PLARM_DIR)/platforms_linux.cpp $(PLARM_DIR)/platforms_glfw.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
+		SOURCES += $(PLARM_DIR)/platforms_linux.cpp $(PLARM_DIR)/platforms_glfw3.cpp $(PLARM_DIR)/platforms_sdl2.cpp $(PLARM_DIR)/platforms.cpp
 	endif
 endif
 

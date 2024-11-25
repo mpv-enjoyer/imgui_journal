@@ -40,11 +40,9 @@ void Render::change_current_month(int month, int year)
 Render::Render(Journal* _journal, JournalHolder *_graphical)
  : journal(_journal), graphical(_graphical), mainwindow(graphical, &popup_handler, &subwindow_handler)
 {
-    bool renderer_found = impl::begin_init_renderer();
-    IM_ASSERT(renderer_found && "No renderer found");
-    io = &ImGui::GetIO();
-    bool font_loaded = impl::load_font(io);
-    IM_ASSERT(font_loaded && "Font cannot load");
+    IM_ASSERT(Impl::renderer()->is_initialized());
+    io = &(ImGui::GetIO());
+    IM_ASSERT(Impl::platform()->load_font(io));
 
     graphical_main = graphical;
     journal_main = journal;
@@ -52,16 +50,16 @@ Render::Render(Journal* _journal, JournalHolder *_graphical)
 
 void Render::main_loop()
 {
-    while (!impl::should_close())
+    while (!Impl::renderer()->should_close())
     {
-        if (impl::is_mouse_button_pressed()) set_poll_time(1);
+        if (Impl::renderer()->is_mouse_button_pressed()) set_poll_time(1);
         if (poll_until >= ImGui::GetTime())
         {
-            impl::wait_events_timeout(0.05f);
+            Impl::renderer()->wait_events_timeout(0.05f);
         }
         else
         {
-            impl::wait_events();
+            Impl::renderer()->wait_events();
             set_poll_time(0.6f);
         }
         if (io->AnyKeyPressed)
@@ -92,7 +90,7 @@ void Render::show_popups()
 
 void Render::show_frame()
 {
-    impl::begin_frame();
+    Impl::renderer()->begin_frame();
     mainwindow.show_frame();
     Mainwindow::Callback callback = mainwindow.get_callback();
     if (callback == Mainwindow::Callback::month_left)
@@ -115,10 +113,10 @@ void Render::show_frame()
     show_subwindows();
     show_popups();
 
-    impl::render_frame();
+    Impl::renderer()->render_frame();
 }
 
 void Render::prepare_shutdown()
 {
-    impl::cleanup();
+    Impl::renderer()->cleanup();
 }

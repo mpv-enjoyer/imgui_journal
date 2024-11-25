@@ -10,7 +10,7 @@ class Render
     JournalHolder* graphical_main;
     Journal* journal;
     JournalHolder* graphical;
-    ImGuiIO* io;
+    ImGuiIO* io = nullptr;
     Popup_Handler popup_handler;
     Subwindow_Handler subwindow_handler;
     Mainwindow mainwindow;

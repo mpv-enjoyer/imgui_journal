@@ -4,7 +4,7 @@
 #include "imgui.h"
 
 // Windows: check active
-bool impl::is_application_already_running()
+bool Impl::CompiledPlatform::is_application_already_running()
 {
 	HWND find = FindWindowW(NULL, LWINDOW_NAME);
 	if (find)
@@ -35,13 +35,18 @@ bool impl::is_application_already_running()
     //return false;
 }
 
-bool impl::load_font(ImGuiIO* io)
+bool Impl::CompiledPlatform::load_font(ImGuiIO* io)
 {
     if (!io->Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
     {
 		return false;
     }
 	return true;
+}
+
+const char* Impl::CompiledPlatform::name()
+{
+	return "Windows";
 }
 
 //void set_window_titlebar_icon(GLFWwindow* window)
