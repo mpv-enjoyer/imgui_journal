@@ -1,8 +1,11 @@
 #include "helpers.h"
 
+static std::string TEMP_STR_FOR_INT;
+
 const char* c_str_int(int num)
 {
-    return std::to_string(num).c_str(); 
+    TEMP_STR_FOR_INT = std::to_string(num);
+    return TEMP_STR_FOR_INT.c_str();
 }
 
 std::string to_string(JTime value)

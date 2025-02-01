@@ -172,7 +172,7 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     is_calendar_filled = true;
                     bool current_selected = select_day == i;
-                    if (Graphical::button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
+                    if (Graphical::button_selectable(c_str_int(i + 1), current_selected, true))
                     {
                         if (current_selected) select_day = -1;
                         else select_day = i;
@@ -182,7 +182,8 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     if (select_day == i) select_day = -1;
                     ImGui::BeginDisabled();
-                    ImGui::SmallButton(c_str_int(i + 1));
+                    ImGui::SmallButton("??");
+                    //c_str_int caused a bug but now that's an intended behaviour :)
                     ImGui::EndDisabled();
                 }
                 ImGui::TableNextColumn();
