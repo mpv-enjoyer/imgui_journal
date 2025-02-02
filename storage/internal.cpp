@@ -26,7 +26,8 @@ Calendar_Day* Journal::_day(int mday)
     return _all_days[mday];
 }
 
-int Journal::_discount_status(int student_contract)
+int Journal::_discount_student_counter(int student_contract)
+// from 0
 {
     int student_counter = -1;
     for (const auto& student : _all_students)
@@ -35,13 +36,13 @@ int Journal::_discount_status(int student_contract)
         if (student_contract == student->get_contract()) student_counter++;
     }
     if (student_counter == -1) student_counter = 0; // Called by the deleted student?
-    if (student_counter > 0)
-    {
-        int discounts_size = _lesson_prices[0].size();
-        if (student_counter >= discounts_size) student_counter = discounts_size - 1;
-        return student_counter;
-    }
+    int discounts_size = _lesson_prices[0].size();
+    if (student_counter >= discounts_size) student_counter = discounts_size - 1;
+    return student_counter;
+}
 
+int Journal::_discount_lesson_contract_counter(int student_contract)
+{
     int lessons_contract_counter = -1;
     for (const auto& lessons : _all_lessons)
     {
@@ -66,12 +67,22 @@ int Journal::_discount_status(int student_contract)
         }
     }
     if (lessons_contract_counter == -1) lessons_contract_counter = 0; // Called by the student with no lessons?
-    int output = lessons_contract_counter /= 2;
+    lessons_contract_counter /= 2; // We want to have a number of full lessons
     int discounts_size = _lesson_prices[0].size();
-    if (output >= discounts_size) output = discounts_size - 1;
-    const int max_discount_for_single = 1;
-    if (output > max_discount_for_single) output = max_discount_for_single;
-    return output;
+    if (lessons_contract_counter >= discounts_size) lessons_contract_counter = discounts_size - 1;
+    return lessons_contract_counter;
+}
+
+int Journal::_discount_status(int student_contract)
+{
+    int student_counter = _discount_student_counter(student_contract);
+    int lesson_contract_counter = _discount_lesson_contract_counter(student_contract);
+    if (student_counter > 0)
+    {
+        return std::max(student_counter, lesson_contract_counter);
+    }
+    static const int max_discount_for_single = 1;
+    return std::min(lesson_contract_counter, max_discount_for_single);
 }
 
 int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
