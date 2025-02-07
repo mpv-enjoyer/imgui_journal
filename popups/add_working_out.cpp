@@ -35,7 +35,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(JournalHolder* graphical, const std
         possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
-    picker = Picker(possible_student_descriptions, possible_student_ids);
+    picker = Graphical::StudentPicker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
     first_mwday = get_first_mwday(journal->current_month(), journal->current_year());
     count_mday = get_number_of_days(journal->current_month(), journal->current_year() + 1900);

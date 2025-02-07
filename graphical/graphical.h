@@ -20,9 +20,35 @@ namespace Graphical
     bool button_colored(const char *label, float r, float g, float b);
     bool age_group_combo(const char *label, int *age_group, bool shrink = true);
     bool attendance_combo(const char* label, int* status, std::string tooltip = "");
+    // RAII versions of ImGui functions:
+    struct Group
+    {
+        [[nodiscard]] Group() { ImGui::BeginGroup(); }
+        ~Group() { ImGui::EndGroup(); }
+    };
+    struct Child
+    {
+        const bool valid;
+        [[nodiscard]] Child(const char* str_id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags window_flags = 0)
+        : valid(ImGui::BeginChild(str_id, size, border, window_flags)) { }
+        ~Child() { ImGui::EndChild(); } // "Always call a matching EndChild() for each BeginChild() call" from docs
+    };
+    class StudentPicker
+    {
+        ImGuiTextFilter filter;
+        int current = -1;
+        std::vector<std::string> _descriptions;
+        bool use_id_list = false;
+        std::vector<int> _id_list;
+    public:
+        [[nodiscard]] StudentPicker() {};
+        [[nodiscard]] StudentPicker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
+        [[nodiscard]] int show();
+        [[nodiscard]] bool is_valid();
+    };
 };
 
-class JournalHolder
+class JournalHolder /* move this class to journal_holder.h? */
 {
     bool _edit_mode;
     int _wday;

@@ -37,7 +37,7 @@ private:
         Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
         int show();
     };
-    Picker picker;
+    Graphical::StudentPicker picker;
     bool is_calendar_filled = false;
 public:
     Popup_Add_Working_Out(JournalHolder* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);

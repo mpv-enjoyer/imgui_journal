@@ -179,3 +179,50 @@ bool Graphical::attendance_combo(const char *label, int *status, std::string too
     if (*status == STATUS_WORKED_OUT) ImGui::SetItemTooltip(tooltip.c_str());
     return false;
 }
+
+Graphical::StudentPicker::StudentPicker(std::vector<std::string> descriptions, std::vector<int> id_list) 
+: _descriptions(descriptions), _id_list(id_list), use_id_list(id_list.size() != 0)
+{
+    if (id_list.size() != descriptions.size())
+        throw std::invalid_argument("id list size != descriptions size");
+}
+
+int Graphical::StudentPicker::show()
+{
+    Group group;
+    //ImGui::BeginGroup();
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+    filter.Draw("Поиск с учётом регистра");
+    ImGui::PopStyleColor(1);
+    Child child("Child window", ImVec2(500, 300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
+    //ImGui::BeginChild("Child window", ImVec2(500, 300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
+    for (int i = 0; i < _descriptions.size(); i++)
+    {
+        if (!filter.PassFilter(_descriptions[i].c_str())) continue;
+        
+        if (current == i)
+        {
+            std::string student_button_name = generate_label("Выбран.##", { i });
+            Graphical::button_selectable(student_button_name.c_str(), true);
+        }
+        else
+        {
+            std::string student_button_name = generate_label("Выбрать##", { i });
+            if (ImGui::Button(student_button_name.c_str())) 
+            {
+                current = i;
+            }
+        }
+        ImGui::SameLine();
+        ImGui::Text(_descriptions[i].c_str());
+    }
+    //ImGui::EndChild();
+    //ImGui::EndGroup();
+    if (use_id_list && is_valid()) return _id_list[current];
+    else return current;
+}
+
+bool Graphical::StudentPicker::is_valid()
+{
+    return current != -1;
+}
