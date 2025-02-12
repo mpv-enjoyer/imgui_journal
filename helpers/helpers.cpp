@@ -222,3 +222,9 @@ std::tm Time_Archiver::to_tm()
     tm.tm_yday = year;
     return tm;
 }
+
+//int Mday::get_index_in_month()
+//{
+//    //int get_mday_index_for_wday(int mday, int wday, int month, int year)
+//    return get_from_0() / Wday::COUNT;
+//}
