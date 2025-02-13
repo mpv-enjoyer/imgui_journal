@@ -98,12 +98,12 @@ void next_month_for(int& month, int& year);
 void previous_month_for(int& month, int& year);
 void HelpMarker(const char *desc);
 
-int loop_plus(int value, int base)
+inline int loop_plus(int value, int base)
 {
     IM_ASSERT(value < base && value >= 0);
     return ((value + 1) % base);
 }
-int loop_minus(int value, int base)
+inline int loop_minus(int value, int base)
 {
     IM_ASSERT(value < base && value >= 0);
     return ((value + (base - 1)) % base);
@@ -114,6 +114,11 @@ struct
     const time_t timestamp = std::time(NULL);
     const std::tm time = *std::localtime(&timestamp);
 } Now;
+
+class Year;
+class Month;
+class Wday;
+class Mday;
 
 class Year
 {
@@ -132,7 +137,6 @@ public:
     void previous() { m_value_from_1900--; }
 };
 
-class Mday;
 class Month
 {
 public:
@@ -194,11 +198,7 @@ public:
         else
             return 30;
     }
-    int calculate_wday_count(Wday wday)
-    {
-        //int get_wday_count_in_month(int wday, int month, int year)
-        return (get_day_count() - Mday::make_from_first_wday(wday, *this).get_from_1()) / Wday::COUNT + 1;
-    }
+    int calculate_wday_count(Wday wday);
 };
 
 class Mday
@@ -215,26 +215,12 @@ public:
     static Mday make_from_1(int value, Month month = Month::make_current()) { return Mday(value - 1, month); }
     static Mday make_current() { return Mday(Now.time.tm_mday - 1, Month::make_current()); }
     static Mday make_first(Month month = Month::make_current()) { return Mday(0, month); }
-    static Mday make_from_first_wday(Wday wday, Month month = Month::make_current())
-    {
-        // int get_first_wday(int month, int year, int wday)
-        std::tm time_in = { 0, 0, 0, // second, minute, hour
-            1, month.get_from_0(), month.get_year().get_from_1900() }; // 1-based day, 0-based month, year since 1900
-
-        std::time_t time_temp = std::mktime(&time_in);
-
-        //Note: Return value of localtime is not threadsafe, because it might be
-        // (and will be) reused in subsequent calls to std::localtime!
-        const std::tm time_out = *std::localtime(&time_temp);
-        int first_mday_wday = time_out.tm_wday;
-        int diff = ( ( wday.get_EN() - first_mday_wday ) + 7 ) % 7;
-        return Mday(diff, month); // TODO: TEST THIS
-    }
+    static Mday make_from_first_wday(Wday wday, Month month = Month::make_current());
     int get_from_0() { return m_value_from_0; }
     int get_from_1() { return m_value_from_0 + 1; }
     Month get_month() { return m_month; }
     Year get_year() { return m_month.get_year(); }
-    int get_index_in_month() { return get_from_0() / Wday::COUNT; }
+    int get_index_in_month();
     bool next()
     {
         int day_count = get_month().get_day_count();

@@ -38,8 +38,8 @@ namespace Graphical
         ImGuiTextFilter filter;
         int current = -1;
         std::vector<std::string> _descriptions;
-        bool use_id_list = false;
         std::vector<int> _id_list;
+        bool use_id_list = false;
     public:
         [[nodiscard]] StudentPicker() {};
         [[nodiscard]] StudentPicker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
