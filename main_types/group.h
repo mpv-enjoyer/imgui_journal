@@ -49,20 +49,38 @@ class Group
 private:
     int number;
     int age_group;
-    std::vector<Students_List> students;
+    std::vector<Students_List> students; // Use boost::multi_index ?
     std::string comment;
+    class Iterator
+    {
+        Group& m_group;
+        std::size_t m_id = 0;
+        bool sorted = false;
+    public:
+        Iterator(Group& group, std::size_t id) : m_group(group), m_id(id) { }
+        bool is_valid() const { return m_id < m_group.get_size(); }
+        const Student& get() const { IM_ASSERT(is_valid()); return m_group.get_student(m_id); }
+        std::size_t get_id() const { return m_id; }
+        bool next() { m_id++; return is_valid(); }
+    };
+    bool check_with_attend_data(int known_student_id, int internal_lesson) const;
+    int find_student(const Student& student) const = delete; // why would you call that
+    bool check_no_attend_data(const Student &student) const = delete; // loops over the group
+    Attend_Data get_attend_data(int known_student_id) const;
+    bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
+    const Student& get_student(int student) const;
+    const Student& get_student_sorted(int student) const;
 public:
     Group();
     int get_size() const;
     int get_number() const; bool set_number(int new_number);
-    int find_student(const Student& student) const;
     int get_age_group() const;
-    bool set_age_group(int new_day);
-    bool check_with_attend_data(int known_student_id, int internal_lesson) const;
-    bool check_no_attend_data(const Student &student) const;
-    Attend_Data get_attend_data(int known_student_id) const;
-    bool set_attend_data(int known_student_id, Attend_Data new_attend_data);
-    const Student& get_student(int student) const; int add_student(Student& new_student);
+    bool set_age_group(int new_age_group);
+    bool check_with_attend_data(const Iterator& iterator, int internal_lesson) const;
+    bool check_no_attend_data(const Iterator& iterator) const;
+    Attend_Data get_attend_data(const Iterator& iterator) const;
+    bool set_attend_data(const Iterator& iterator, Attend_Data new_attend_data);
+    int add_student(Student& new_student);
     bool delete_student(const Student &to_remove_student, bool moved_to_another_group = false);
     std::string get_comment() const; bool set_comment(std::string new_comment);
     std::string get_description() const;

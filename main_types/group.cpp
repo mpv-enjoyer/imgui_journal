@@ -42,6 +42,11 @@ bool Group::check_with_attend_data(int known_student_id, int internal_lesson) co
     return true; 
 }
 
+bool Group::check_with_attend_data(const Iterator& iterator, int internal_lesson) const
+{
+    return check_with_attend_data(iterator.get_id(), internal_lesson);
+}
+
 bool Group::check_no_attend_data(const Student& student) const
 {
     int found = -1;
@@ -56,6 +61,21 @@ bool Group::check_no_attend_data(const Student& student) const
     if (found == -1) return false;
     if (students[found].status != StudentGroupStatus::Present) return false;
     return true;
+}
+
+bool Group::check_no_attend_data(const Iterator& iterator) const
+{
+    return students[iterator.get_id()].status == StudentGroupStatus::Present;
+}
+
+Attend_Data Group::get_attend_data(const Iterator& iterator) const
+{
+    return get_attend_data(iterator.get_id());
+}
+
+bool Group::set_attend_data(const Iterator& iterator, Attend_Data new_attend_data)
+{
+    return set_attend_data(iterator.get_id(), new_attend_data);
 }
 
 int Group::find_student(const Student& student) const
