@@ -1,5 +1,11 @@
 #include "student.h"
 
+Student::Student(std::size_t id)
+: ID(id)
+{
+    contract = -1;
+}
+
 int Student::get_contract() const
 {
     return contract;
@@ -28,6 +34,11 @@ bool Student::is_removed() const
     return removed;
 }
 
+std::size_t Student::get_id() const
+{
+    return ID;
+}
+
 bool Student::remove()
 {
     removed = true;
@@ -38,11 +49,6 @@ bool Student::restore()
 {
     removed = false;
     return true;
-}
-
-Student::Student()
-{
-    contract = -1;
 }
 
 bool Student::is_identical(const Student& rhs) const

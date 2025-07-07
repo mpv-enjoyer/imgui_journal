@@ -77,7 +77,10 @@ typedef multi_index_container<
     ordered_non_unique<member<employee,std::string,&employee::name>>,
     
     // hashed sort by hash<id>
-    hashed_non_unique<member<employee,int,&employee::id>>
+    hashed_unique<member<employee,int,&employee::id>>,
+
+    // hashed sort by hash<name>
+    hashed_non_unique<member<employee,std::string,&employee::name>>
   > 
 > employee_set;
 
@@ -102,7 +105,7 @@ void print_out(const employee_set& es)
   }
   
   id_index_hashed.find(2)->Print();
-
+  es.get<3>().find("Third")->Print();
   //std::cout << "get from find: \n";
   //es.get<2>().find(2)->Print();
 }
