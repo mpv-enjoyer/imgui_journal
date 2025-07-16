@@ -1,3 +1,4 @@
+// g++ main_multiindex_list.cpp -lboost_serialization && ./a.out
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/identity.hpp>
@@ -69,7 +70,6 @@ struct EmpHash2 {
 typedef multi_index_container<
   employee,
   indexed_by<
-    
     // sort by employee::operator<
     ordered_unique<identity<employee>>,
     
@@ -86,6 +86,12 @@ typedef multi_index_container<
 
 void print_out(const employee_set& es)
 {
+  std::cout << "get original iterator:\n";
+  //auto es_iter = es.begin();
+  for (auto iter : es) {
+    iter.Print();
+  }
+
   std::cout << "get a view to index #0 (id)\n";
   const auto& id_index=es.get<0>();
   for (auto name : id_index) {
@@ -113,11 +119,11 @@ void print_out(const employee_set& es)
 int main() {
     employee_set es;
 
-    es.insert(employee(1, "First"));
     es.insert(employee(2, "Second"));
-    es.insert(employee(3, "Third"));
+    es.insert(employee(1, "First"));
     es.insert(employee(4, "Fourth"));
     es.insert(employee(5, "Fifth"));
+    es.insert(employee(3, "Third"));
     es.insert(employee(6, "Sixth"));
     print_out(es);
 

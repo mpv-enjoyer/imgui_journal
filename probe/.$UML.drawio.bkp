@@ -236,7 +236,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="PZ8La7UAcuuamrX2ZKqa-18" value="Contract" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1010" y="170" width="160" height="86" as="geometry" />
+          <mxGeometry x="991" y="160" width="160" height="86" as="geometry" />
         </mxCell>
         <mxCell id="PZ8La7UAcuuamrX2ZKqa-19" value="- contract: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="PZ8La7UAcuuamrX2ZKqa-18">
           <mxGeometry y="26" width="160" height="26" as="geometry" />
@@ -269,7 +269,7 @@
             <mxPoint x="30" y="-11" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="PZ8La7UAcuuamrX2ZKqa-31" value="" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="PZ8La7UAcuuamrX2ZKqa-18" target="x8bqdVbavQI_tcdcep1f-43">
+        <mxCell id="PZ8La7UAcuuamrX2ZKqa-31" value="" style="endArrow=diamondThin;endFill=0;endSize=24;html=1;rounded=0;" edge="1" parent="1" source="PZ8La7UAcuuamrX2ZKqa-18">
           <mxGeometry width="160" relative="1" as="geometry">
             <mxPoint x="490" y="400" as="sourcePoint" />
             <mxPoint x="1156" y="325" as="targetPoint" />
