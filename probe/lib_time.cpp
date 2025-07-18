@@ -20,7 +20,7 @@ Mday Mday::make_from_first_wday(Wday wday, Month month)
     return Mday(diff, month); // TODO: TEST THIS
 }
 
-int Mday::get_index_in_month()
+int Mday::get_index_in_month() const
 {
     return get_from_0() / Wday::COUNT;
 }

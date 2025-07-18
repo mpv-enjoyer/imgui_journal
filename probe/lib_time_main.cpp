@@ -39,4 +39,27 @@ int main()
     }
     while (mday3.next_week());
     std::cout << "\n";
+
+    WdayIterator iter = WdayIterator::make_from_RU();
+    do
+    {
+        std::cout << "Wday " << iter.get().name() << " has " << Month::make_current().calculate_wday_count(iter.get()) << " mdays\n";
+    }
+    while (iter.next());
+    std::cout << mday3.get_month().calculate_wday_count(Wday::make_current()) << "\n";
+
+    auto month = Month::make_begin_study_year(Year::make_from_0(2024));
+    std::cout << "All mdays for current wday:\n";
+    do
+    {
+        std::cout << " " << month.name() << " ";
+        auto mday = Mday::make_from_first_wday(Wday::make_current(), month);
+        do
+        {
+            std::cout << mday.get_from_1() << " ";
+        }
+        while (mday.next_week());
+        std::cout << "\n";
+    }
+    while (month.next());
 }
