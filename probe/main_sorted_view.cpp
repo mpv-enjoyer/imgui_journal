@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream>
+#include <functional>
 
 class Student
 {
@@ -94,20 +95,20 @@ bool Student::operator> (const Student& rhs) const { return rhs < *this; }
 /* ---------------------- */
 
 /* REMAKE Aggregate without version and in-place sorting */
+template <typename T>
 class Vector
 {
-    using T = Student;
     using Tptr = std::unique_ptr<T>;
     using DataTypeBase = std::vector<std::unique_ptr<T>>;
     DataTypeBase m_data;
-    template <typename DataType, typename ValueType>
+    template <typename ValueType>
     class Iterator
     {
-        DataType& m_data;
+        DataTypeBase& m_data;
         std::size_t m_max_index;
         std::size_t m_index = 0;
     public:
-        Iterator(DataType& data)
+        Iterator(DataTypeBase& data)
         : m_data(data), m_max_index(data.size())
         { }
         bool is_done()
@@ -130,16 +131,15 @@ class Vector
             m_max_index = m_data.size();
         }
     };
-    template <typename DataType, typename ValueType>
+    template <typename ValueType>
     class IteratorSorted
     {
-        DataType& m_data;
+        DataTypeBase& m_data;
         std::size_t m_index = 0;
         std::vector<std::size_t> m_indices;
-
+        std::function<bool(const T&, const T&)> m_compare = [](const T& lhs, const T& rhs){ return lhs < rhs; };
         // https://stackoverflow.com/a/10581051
-        template <typename TT>
-        static std::vector<std::size_t> get_ordered(std::vector<TT> const& values) {
+        std::vector<std::size_t> get_ordered(std::vector<std::unique_ptr<T>> const& values) {
             std::vector<std::size_t> indices(values.size());
             std::iota(std::begin(indices), std::end(indices), static_cast<std::size_t>(0));
 
@@ -150,7 +150,7 @@ class Vector
                     // TT is a unique_ptr. We want to compare values that it holds.
                     const auto& lhs = *(values[l]);
                     const auto& rhs = *(values[r]);
-                    return lhs < rhs;
+                    return m_compare(lhs, rhs);
                 }
             );
             //std::cout << "[DEBUG] indices: ";
@@ -166,10 +166,10 @@ class Vector
             return m_indices.size();
         }
     public:
-        IteratorSorted(DataType& data)
-        : m_data(data)
+        IteratorSorted(DataTypeBase& data, std::function<bool(const T&, const T&)> compare)
+        : m_data(data), m_compare(compare)
         {
-            to_begin();
+            to_begin_update();
         }
         bool is_done()
         {
@@ -189,25 +189,29 @@ class Vector
         void to_begin()
         {
             m_index = 0;
+        }
+        void to_begin_update()
+        {
+            to_begin();
             m_indices = get_ordered(m_data);
         }
     };
 public:
-    Iterator<DataTypeBase, Tptr> begin()
+    Iterator<Tptr> begin()
     {
-        return Iterator<DataTypeBase, Tptr>(m_data);
+        return Iterator<Tptr>(m_data);
     }
-    Iterator<DataTypeBase, const Tptr> begin_const()
+    Iterator<const Tptr> begin_const()
     {
-        return Iterator<DataTypeBase, const Tptr>(m_data);
+        return Iterator<const Tptr>(m_data);
     }
-    IteratorSorted<DataTypeBase, Tptr> sorted_begin()
+    IteratorSorted<Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
-        return IteratorSorted<DataTypeBase, Tptr>(m_data);
+        return IteratorSorted<Tptr>(m_data, compare);
     }
-    IteratorSorted<DataTypeBase, const Tptr> sorted_begin_const()
+    IteratorSorted<const Tptr> sorted_begin_const(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
-        return IteratorSorted<DataTypeBase, const Tptr>(m_data);
+        return IteratorSorted<const Tptr>(m_data, compare);
     }
     void push_back(T* value)
     {
@@ -218,7 +222,7 @@ public:
 
 int main()
 {
-    Vector values;
+    Vector<Student> values;
     values.push_back(new Student(4));
     values.push_back(new Student(2));
     auto iter1 = values.begin();
@@ -249,7 +253,7 @@ int main()
         std::cout << val->get_name() << "\n";
     } while (iter_sorted.next());
 
-    iter_sorted.to_begin();
+    iter_sorted.to_begin_update();
 
     values.begin().get()->set_name("xxxx");
     g = new Student(1);
@@ -261,10 +265,18 @@ int main()
         std::cout << val->get_name() << "\n";
     } while (iter_sorted.next());
 
-    iter_sorted.to_begin();
+    iter_sorted.to_begin_update();
     do
     {
         auto& val = iter_sorted.get();
         std::cout << val->get_name() << "\n";
     } while (iter_sorted.next());
+
+    std::cout << "\n\nBackwards iteration:\n";
+    auto iter = values.sorted_begin_const([](const auto& l, const auto& r){ return l > r; });
+    do
+    {
+        auto& val = iter.get();
+        std::cout << val->get_name() << "\n";
+    } while (iter.next());
 }
