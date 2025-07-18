@@ -174,7 +174,8 @@ private:
         "Пт", 
         "Сб"};
     int m_value_EN;
-    Wday(int value_EN) : m_value_EN(value_EN)
+    const bool m_ru;
+    Wday(int value_EN, bool ru = false) : m_value_EN(value_EN), m_ru(ru)
     {
         IM_ASSERT(value_EN < COUNT && value_EN >= 0);
     }
@@ -183,6 +184,8 @@ public:
     int get_RU() const { int temp_value_EN = m_value_EN; Loop::minus(temp_value_EN, COUNT); return temp_value_EN; }
     static Wday make_from_EN(int value) { return Wday(value); }
     static Wday make_from_RU(int value) { Loop::plus(value, COUNT); return Wday(value); }
+    static Wday make_begin_EN() { return make_from_EN(0); }
+    static Wday make_begin_RU() { return make_from_RU(0); }
     static Wday make_current() { return Wday(Now.time.tm_wday); }
     static Wday make_from_mday(Mday mday)
     {
@@ -198,30 +201,17 @@ public:
     {
         return make_from_mday(Mday::make_from_0(0, month));
     }
-    bool next() { return !Loop::plus(m_value_EN, COUNT); }
-    bool previous() { return !Loop::minus(m_value_EN, COUNT); }
-    std::string name() { return NAMES[m_value_EN]; }
-    std::string name_short() { return NAMES_SHORT[m_value_EN]; }
-};
-class WdayIterator
-{
-    bool m_en;
-    Wday m_wday;
-    bool m_valid = true;
-    WdayIterator(bool en, Wday wday) : m_en(en), m_wday(wday) { }
-public:
     bool next()
     {
-        IM_ASSERT(m_valid);
-        m_wday.next();
-        if (m_en ? m_wday.get_EN() == 0 : m_wday.get_RU() == 0) m_valid = false;
-        return m_valid;
+        Loop::plus(m_value_EN, COUNT);
+        return m_ru ? get_RU() != 0 : get_EN() != 0;
     }
-    Wday get()
-    { 
-        IM_ASSERT(m_valid);
-        return m_wday;
+    bool previous()
+    {
+        bool value_return = m_ru ? get_RU() != 0 : get_EN() != 0;
+        Loop::minus(m_value_EN, COUNT);
+        return value_return;
     }
-    static WdayIterator make_from_RU() { return WdayIterator(false, Wday::make_from_RU(0)); }
-    static WdayIterator make_from_EN() { return WdayIterator(true, Wday::make_from_EN(0)); }
+    std::string name() { return NAMES[m_value_EN]; }
+    std::string name_short() { return NAMES_SHORT[m_value_EN]; }
 };

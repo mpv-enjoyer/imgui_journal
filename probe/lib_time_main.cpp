@@ -40,10 +40,10 @@ int main()
     while (mday3.next_week());
     std::cout << "\n";
 
-    WdayIterator iter = WdayIterator::make_from_RU();
+    auto iter = Wday::make_begin_RU();
     do
     {
-        std::cout << "Wday " << iter.get().name() << " has " << Month::make_current().calculate_wday_count(iter.get()) << " mdays\n";
+        std::cout << "Wday " << iter.name() << " has " << Month::make_current().calculate_wday_count(iter) << " mdays\n";
     }
     while (iter.next());
     std::cout << mday3.get_month().calculate_wday_count(Wday::make_current()) << "\n";
