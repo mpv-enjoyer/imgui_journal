@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <cassert>
 
 class Student
 {
@@ -221,9 +222,80 @@ inline bool Aggregate::is_done(IteratorSortedData data) const
     return data.pos == m_sorted.end();
 }
 
+#include <memory>
+
+/* REMAKE Aggregate without version and in-place sorting */
+class Vector
+{
+    using T = Student;
+    using DataTypeBase = std::vector<std::unique_ptr<T>>;
+    DataTypeBase m_data;
+    template <typename DataType>
+    class Iterator
+    {
+        DataType& m_data;
+        std::size_t m_max_index;
+        std::size_t m_index = 0;
+    public:
+        Iterator(DataType& data)
+        : m_data(data), m_max_index(data.size())
+        { }
+        bool is_done()
+        {
+            return m_index == m_max_index;
+        }
+        bool next()
+        {
+            assert(!is_done());
+            ++m_index;
+            return !is_done();
+        }
+        typename DataType::value_type& get()
+        {
+            assert(!is_done());
+            return m_data.at(m_index);
+        }
+        void update()
+        {
+            m_max_index = m_data.size();
+        }
+    };
+public:
+    Iterator<DataTypeBase> begin()
+    {
+        return Iterator<DataTypeBase>(m_data);
+    }
+    Iterator<const DataTypeBase> begin_const()
+    {
+        return Iterator<const DataTypeBase>(m_data);
+    }
+    void push_back(T* value)
+    {
+        m_data.push_back(std::unique_ptr<T>(value));
+    }
+};
+
+#include <iostream>
+
 int main()
 {
-    Aggregate a;
-    a.push_back(Student(1));
-    a.push_back(Student(2));
+    Vector values;
+    values.push_back(new Student(4));
+    values.push_back(new Student(2));
+    auto iter1 = values.begin();
+    do
+    {
+        iter1.get()->set_name("new name");
+        std::cout << "iter1 iterated\n";
+    }
+    while (iter1.next());
+    Student* g = new Student(1);
+    g->set_name("something_new");
+    values.push_back(g);
+    for (auto iter2 = values.begin_const(); !iter2.is_done(); iter2.next())
+    {
+        std::cout << iter2.get()->get_name() << "\n";
+    }
+
+    //std::vector<int> values;
 }
