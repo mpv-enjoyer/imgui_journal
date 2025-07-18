@@ -229,7 +229,7 @@ std::tm Time_Archiver::to_tm()
 //    return get_from_0() / Wday::COUNT;
 //}
 
-int Month::calculate_wday_count(Wday wday)
+int Month::calculate_wday_count(Wday wday) const
 {
     //int get_wday_count_in_month(int wday, int month, int year)
     return (get_day_count() - Mday::make_from_first_wday(wday, *this).get_from_1()) / Wday::COUNT + 1;

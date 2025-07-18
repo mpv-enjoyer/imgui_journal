@@ -115,10 +115,27 @@ struct
     const std::tm time = *std::localtime(&timestamp);
 } Now;
 
-class Year;
-class Month;
-class Wday;
-class Mday;
+// Return value is one if Loop was performed
+struct Loop
+{
+    static bool plus(int& value, int base)
+    {
+        IM_ASSERT(value < base && value >= 0);
+        value = ((value + 1) % base);
+        return value == 0;
+    }
+    static bool minus(int& value, int base)
+    {
+        IM_ASSERT(value < base && value >= 0);
+        value = ((value + (base - 1)) % base);
+        return value == (base - 1); 
+    }
+};
+
+//class Year;
+//class Month;
+//class Wday;
+//class Mday;
 
 class Year
 {
@@ -131,8 +148,8 @@ public:
     static Year make_from_0(int value) { return Year(value - 1900); }
     static Year make_from_1900(int value) { return Year(value); }
     static Year make_current() { return Year(Now.time.tm_year); }
-    int get_from_0() { return m_value_from_1900 + 1900; }
-    int get_from_1900() { return m_value_from_1900; }
+    int get_from_0() const { return m_value_from_1900 + 1900; }
+    int get_from_1900() const { return m_value_from_1900; }
     void next() { m_value_from_1900++; }
     void previous() { m_value_from_1900--; }
 };
@@ -157,6 +174,7 @@ private:
         "Декабрь"};
     int m_value_from_0;
     Year m_year;
+protected:
     Month(int value_from_0, Year year) : m_value_from_0(value_from_0), m_year(year)
     {
         IM_ASSERT(value_from_0 >= 0 && value_from_0 < COUNT);
@@ -165,21 +183,19 @@ public:
     static Month make_from_0(int value, Year year = Year::make_current()) { return Month(value, year); }
     static Month make_from_1(int value, Year year = Year::make_current()) { return Month(value - 1, year); }
     static Month make_current() { return Month(Now.time.tm_mon, Year::make_current()); }
-    int get_from_0() { return m_value_from_0; }
-    int get_from_1() { return m_value_from_0 + 1; }
-    std::string name() { return NAMES[m_value_from_0]; }
-    Year get_year() { return m_year; }
+    int get_from_0() const { return m_value_from_0; }
+    int get_from_1() const { return m_value_from_0 + 1; }
+    std::string name() const { return NAMES[m_value_from_0]; }
+    Year get_year() const { return m_year; }
     void next()
     {
-        loop_plus(m_value_from_0, COUNT);
-        if (m_value_from_0 == 0) m_year.next();
+        if (Loop::plus(m_value_from_0, COUNT)) m_year.next();
     }
     void previous()
     {
-        if (m_value_from_0 == 0) m_year.previous();
-        loop_minus(m_value_from_0, COUNT);
+        if (Loop::minus(m_value_from_0, COUNT)) m_year.previous();
     }
-    int get_day_count()
+    int get_day_count() const
     {
         //int get_number_of_days(int month, int year_starting_from_zero)
         int month = get_from_1();
@@ -198,7 +214,31 @@ public:
         else
             return 30;
     }
-    int calculate_wday_count(Wday wday);
+    int calculate_wday_count(Wday wday) const;
+};
+class StudyMonthIterator
+{
+    static const int BEGIN_STUDY_MONTH_FROM_1 = 9;
+    Month m_month;
+    StudyMonthIterator(Year year)
+    : m_month(Month::make_from_1(BEGIN_STUDY_MONTH_FROM_1, year))
+    { }
+public:
+    static StudyMonthIterator make_from_bottom_year(Year year) { return StudyMonthIterator(year); }
+    bool next()
+    {
+        m_month.next();
+        return m_month.get_from_1() != BEGIN_STUDY_MONTH_FROM_1;
+    }
+    bool previous()
+    {
+        m_month.previous();
+        return m_month.get_from_1() != BEGIN_STUDY_MONTH_FROM_1 - 1;
+    }
+    Month get()
+    {
+        return m_month;
+    }
 };
 
 class Mday
@@ -216,10 +256,10 @@ public:
     static Mday make_current() { return Mday(Now.time.tm_mday - 1, Month::make_current()); }
     static Mday make_first(Month month = Month::make_current()) { return Mday(0, month); }
     static Mday make_from_first_wday(Wday wday, Month month = Month::make_current());
-    int get_from_0() { return m_value_from_0; }
-    int get_from_1() { return m_value_from_0 + 1; }
-    Month get_month() { return m_month; }
-    Year get_year() { return m_month.get_year(); }
+    int get_from_0() const { return m_value_from_0; }
+    int get_from_1() const { return m_value_from_0 + 1; }
+    Month get_month() const { return m_month; }
+    Year get_year() const { return m_month.get_year(); }
     int get_index_in_month();
     bool next()
     {
@@ -264,10 +304,10 @@ private:
         IM_ASSERT(value_EN < COUNT && value_EN >= 0);
     }
 public:
-    int get_EN() { return m_value_EN; }
-    int get_RU() { return loop_minus(m_value_EN, COUNT); }
+    int get_EN() const { return m_value_EN; }
+    int get_RU() const { int temp_value_EN = m_value_EN; Loop::minus(temp_value_EN, COUNT); return temp_value_EN; }
     static Wday make_from_EN(int value) { return Wday(value); }
-    static Wday make_from_RU(int value) { return Wday(loop_plus(value, COUNT)); }
+    static Wday make_from_RU(int value) { Loop::plus(value, COUNT); return Wday(value); }
     static Wday make_current() { return Wday(Now.time.tm_wday); }
     static Wday make_from_mday(Mday mday)
     {
@@ -286,8 +326,8 @@ public:
         //return get_wday(0, month, year);
         return make_from_mday(Mday::make_from_0(0, month));
     }
-    void next() { loop_plus(m_value_EN, COUNT); }
-    void previous() { loop_minus(m_value_EN, COUNT); }
+    bool next() { return !Loop::plus(m_value_EN, COUNT); }
+    bool previous() { return !Loop::minus(m_value_EN, COUNT); }
     std::string name() { return NAMES[m_value_EN]; }
     std::string name_short() { return NAMES_SHORT[m_value_EN]; }
 };
