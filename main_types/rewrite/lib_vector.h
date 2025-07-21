@@ -109,21 +109,25 @@ class Vector
         }
     };
 public:
-    Iterator<Tptr> begin()
+    Iterator<Tptr> begin_mut()
     {
         return Iterator<Tptr>(m_data);
     }
-    Iterator<const Tptr> begin_const()
+    Iterator<const Tptr> begin()
     {
         return Iterator<const Tptr>(m_data);
     }
-    IteratorSorted<Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    IteratorSorted<Tptr> sorted_begin_mut(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
         return IteratorSorted<Tptr>(m_data, compare);
     }
-    IteratorSorted<const Tptr> sorted_begin_const(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    IteratorSorted<const Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
         return IteratorSorted<const Tptr>(m_data, compare);
+    }
+    DataTypeBase& data_mut()
+    {
+        return m_data;
     }
     const DataTypeBase& data()
     {
