@@ -1,5 +1,6 @@
 #include <cassert>
 #define IM_ASSERT assert
+#define DEBUG_ASSERT assert
 #include <array>
 #include <string>
 #include <ctime>
@@ -70,6 +71,7 @@ public:
     static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
+    std::size_t calculate_study_year_index() { return (m_value_from_0 + COUNT - BEGIN_STUDY_MONTH_FROM_0) % COUNT; }
     std::string name() const
     {
         switch (m_value_from_0)

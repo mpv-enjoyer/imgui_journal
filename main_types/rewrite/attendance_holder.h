@@ -1,7 +1,7 @@
 #pragma once
 #include <cinttypes>
 
-enum class Status
+enum class Attendance_Status
 {
     //INVALID     = -2, // Crash if encounter those
     NOT_AWAITED = -1,
@@ -12,18 +12,18 @@ enum class Status
     WORKED_OUT  = 4
 };
 
-class Attendance_Status
+class Attendance_Holder
 {
-    Status m_status = Status::NO_DATA;
+    Attendance_Status m_status = Attendance_Status::NO_DATA;
     int m_discount_id = 0;
 public:
-    Attendance_Status() { };
-    void set(Status status, int discount_id)
+    Attendance_Holder() { };
+    void set(Attendance_Status status, int discount_id)
     {
         m_status = status;
         m_discount_id = discount_id;
     }
-    Status get_status() const
+    Attendance_Status get_status() const
     {
         return m_status;
     }

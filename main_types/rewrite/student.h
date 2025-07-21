@@ -11,12 +11,12 @@
 class Student
 {
     std::string m_name;
-    Removal_Info removal_info;
+    Removal_Info m_removal_info;
     const std::unique_ptr<Contract>* m_contract;
 public:
     Student(std::string name, const std::unique_ptr<Contract>& contract)
     : m_name(name), m_contract(&contract) { }
-    Removal_Info& removal_info() { return removal_info; }
+    Removal_Info& removal_info() { return m_removal_info; }
     const std::unique_ptr<Contract>& get_contract() { return *m_contract; }
     void set_contract(std::unique_ptr<Contract>& contract) { m_contract = &contract; }
     //struct LessonID
