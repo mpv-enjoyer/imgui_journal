@@ -56,19 +56,7 @@ public:
     static constexpr int BEGIN_STUDY_MONTH_FROM_0 = 8;
     static constexpr int END_STUDY_MONTH_FROM_0 = BEGIN_STUDY_MONTH_FROM_0 - 1;
 private:
-    const std::array<std::string, COUNT> NAMES = 
-        {"Январь", 
-        "Февраль", 
-        "Март", 
-        "Апрель", 
-        "Май", 
-        "Июнь", 
-        "Июль", 
-        "Август", 
-        "Сентябрь", 
-        "Октябрь", 
-        "Ноябрь", 
-        "Декабрь"};
+
     int m_value_from_0;
     Year m_year;
     Month(int value_from_0, Year year) : m_value_from_0(value_from_0), m_year(year)
@@ -82,7 +70,25 @@ public:
     static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
-    std::string name() const { return NAMES[m_value_from_0]; }
+    std::string name() const
+    {
+        switch (m_value_from_0)
+        {
+            case 0: return "Январь";
+            case 1: return "Февраль";
+            case 2: return "Март";
+            case 3: return "Апрель";
+            case 4: return "Май";
+            case 5: return "Июнь";
+            case 6: return "Июль";
+            case 7: return "Август";
+            case 8: return "Сентябрь";
+            case 9: return "Октябрь";
+            case 10: return "Ноябрь";
+            case 11: return "Декабрь";
+            default: IM_ASSERT(false);
+        }
+    }
     Year get_year() const { return m_year; }
     bool next()
     {
@@ -157,22 +163,6 @@ class Wday
 public:
     static constexpr int COUNT = 7;
 private:
-    const std::array<std::string, COUNT> NAMES = 
-        {"Воскресенье", 
-        "Понедельник", 
-        "Вторник", 
-        "Среда", 
-        "Четверг", 
-        "Пятница", 
-        "Суббота"};
-    const std::array<std::string, COUNT> NAMES_SHORT = 
-        {"Вс", 
-        "Пн", 
-        "Вт", 
-        "Ср", 
-        "Чт", 
-        "Пт", 
-        "Сб"};
     int m_value_EN;
     const bool m_ru;
     Wday(int value_EN, bool ru = false) : m_value_EN(value_EN), m_ru(ru)
@@ -212,6 +202,32 @@ public:
         Loop::minus(m_value_EN, COUNT);
         return value_return;
     }
-    std::string name() { return NAMES[m_value_EN]; }
-    std::string name_short() { return NAMES_SHORT[m_value_EN]; }
+    std::string name()
+    {
+        switch (m_value_EN)
+        {
+        case 0: return "Воскресенье";
+        case 1: return "Понедельник";
+        case 2: return "Вторник";
+        case 3: return "Среда";
+        case 4: return "Четверг";
+        case 5: return "Пятница";
+        case 6: return "Суббота";
+        default: IM_ASSERT(false);
+        }
+    }
+    std::string name_short()
+    {
+        switch (m_value_EN)
+        {
+        case 0: return "Вс";
+        case 1: return "Пн";
+        case 2: return "Вт";
+        case 3: return "Ср";
+        case 4: return "Чт";
+        case 5: return "Пт";
+        case 6: return "Сб";
+        default: IM_ASSERT(false);
+        }
+    }
 };

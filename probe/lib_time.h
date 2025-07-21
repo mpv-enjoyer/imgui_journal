@@ -56,19 +56,19 @@ public:
     static constexpr int BEGIN_STUDY_MONTH_FROM_0 = 8;
     static constexpr int END_STUDY_MONTH_FROM_0 = BEGIN_STUDY_MONTH_FROM_0 - 1;
 private:
-    const std::array<std::string, COUNT> NAMES = 
-        {"Январь", 
-        "Февраль", 
-        "Март", 
-        "Апрель", 
-        "Май", 
-        "Июнь", 
-        "Июль", 
-        "Август", 
-        "Сентябрь", 
-        "Октябрь", 
-        "Ноябрь", 
-        "Декабрь"};
+    //const std::array<std::string, COUNT> NAMES = 
+    //    {"Январь", 
+    //    "Февраль", 
+    //    "Март", 
+    //    "Апрель", 
+    //    "Май", 
+    //    "Июнь", 
+    //    "Июль", 
+    //    "Август", 
+    //    "Сентябрь", 
+    //    "Октябрь", 
+    //    "Ноябрь", 
+    //    "Декабрь"};
     int m_value_from_0;
     Year m_year;
     Month(int value_from_0, Year year) : m_value_from_0(value_from_0), m_year(year)
@@ -82,7 +82,32 @@ public:
     static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
-    std::string name() const { return NAMES[m_value_from_0]; }
+    std::string name() const
+    {
+        switch (m_value_from_0)
+        {
+        case 0: return "Январь";
+        
+        default:
+            break;
+        }
+        static const std::array<std::string, COUNT> NAMES = 
+        {
+            "Январь", 
+            "Февраль", 
+            "Март", 
+            "Апрель", 
+            "Май", 
+            "Июнь", 
+            "Июль", 
+            "Август", 
+            "Сентябрь", 
+            "Октябрь", 
+            "Ноябрь", 
+            "Декабрь"
+        };
+        return NAMES[m_value_from_0];
+    }
     Year get_year() const { return m_year; }
     bool next()
     {
