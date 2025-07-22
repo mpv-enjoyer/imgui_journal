@@ -149,11 +149,11 @@ public:
         m_data.push_back(std::unique_ptr<T>(value));
         return m_data.back();
     }
-    DataTypeBase& get_mut(const Position& position)
+    Tptr& get_mut(const Position& position)
     {
         return m_data[position.get()];
     }
-    const DataTypeBase& get(const Position& position) const
+    const Tptr& get(const Position& position) const
     {
         return m_data[position.get()];
     }

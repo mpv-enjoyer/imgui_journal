@@ -5,19 +5,15 @@
 
 class Attendance_Student
 {
+    const Vector<Student>::Position m_student_pos;
     bool m_wants_lesson = true;
     Removal_Info m_removal_info;
     std::vector<Attendance_Month> m_months;
-    Vector<Student>::Position m_student;
     const Wday DEBUG_WDAY;
     const Year DEBUG_YEAR;
-    Attendance_Holder& calculate_holder() const
-    {
-        
-    }
 public:
-    Attendance_Student(Year bottom_year, Wday wday, Vector<Student>::Position student)
-    : DEBUG_WDAY(wday), DEBUG_YEAR(bottom_year), m_student(student)
+    Attendance_Student(Year bottom_year, Wday wday, Vector<Student>::Position student_pos)
+    : m_student_pos(student_pos), DEBUG_WDAY(wday), DEBUG_YEAR(bottom_year) 
     {
         m_months.reserve(Month::COUNT);
         auto month = Month::make_begin_study_year(bottom_year);
@@ -64,5 +60,9 @@ public:
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
         return m_months[month_index].attendance_holder_unchecked_mut(mday_index);
+    }
+    Vector<Student>::Position get_student_pos() const
+    {
+        return m_student_pos;
     }
 };

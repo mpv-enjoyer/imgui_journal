@@ -32,11 +32,11 @@ public:
     }
     JTime get_time_begin() const { return m_begin; }
     JTime get_time_end() const { return m_end; }
-    void set_teacher(Vector<Teacher>::Position teacher_pos)
+    void set_teacher_pos(Vector<Teacher>::Position teacher_pos)
     {
         m_teacher_pos = teacher_pos;
     }
-    void reset_teacher()
+    void reset_teacher_pos()
     {
         m_teacher_pos.reset();
     }
@@ -47,5 +47,29 @@ public:
     Lesson_Name get_lesson_name() const
     {
         return m_lesson_name;
+    }
+    void add_student(Attendance_Student* attendance_student)
+    {
+        m_attendance_students.push_back(attendance_student);
+        // ALL checks must be in Controller so omit even that one
+        //for (const auto& attendance_students : m_attendance_students.data())
+        //{
+        //    if (student_pos.get() == attendance_students->get_student_pos().get())
+        //    {
+        //        return;
+        //    }
+        //}
+    }
+    std::unique_ptr<Attendance_Student>& attendance_student_mut(Vector<Attendance_Student>::Position pos)
+    {
+        return m_attendance_students.get_mut(pos);
+    }
+    const std::unique_ptr<Attendance_Student>& attendance_student(Vector<Attendance_Student>::Position pos) const
+    {
+        return m_attendance_students.get(pos);
+    }
+    const Vector<Attendance_Student>& get() const
+    {
+        return m_attendance_students;
     }
 };
