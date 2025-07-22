@@ -27,7 +27,7 @@ public:
     {
         return m_status;
     }
-    int discount_id() const
+    int get_discount_id() const
     {
         return m_discount_id;
     }

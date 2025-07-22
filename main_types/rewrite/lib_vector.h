@@ -1,15 +1,22 @@
 #include <vector>
-#include <string>
 #include <cassert>
 #include <memory>
 #include <algorithm>
 #include <numeric>
-#include <iostream>
 #include <functional>
 
 template <typename T>
 class Vector
 {
+public:
+    class Position
+    {
+        std::size_t m_index;
+    public:
+        std::size_t get() const { return m_index; }
+        Position(std::size_t index) : m_index(index) { }
+    };
+private:
     using Tptr = std::unique_ptr<T>;
     using DataTypeBase = std::vector<Tptr>;
     DataTypeBase m_data;
@@ -23,7 +30,7 @@ class Vector
         Iterator(DataTypeBase& data)
         : m_data(data), m_max_index(data.size())
         { }
-        bool is_done()
+        bool is_done() const
         {
             return m_index == m_max_index;
         }
@@ -33,10 +40,15 @@ class Vector
             ++m_index;
             return !is_done();
         }
-        ValueType& get()
+        ValueType& get() const
         {
             assert(!is_done());
             return m_data.at(m_index);
+        }
+        Position get_position() const
+        {
+            assert(!is_done());
+            return m_index;
         }
         void update()
         {
@@ -65,15 +77,9 @@ class Vector
                     return m_compare(lhs, rhs);
                 }
             );
-            //std::cout << "[DEBUG] indices: ";
-            //for (std::size_t i = 0; i < indices.size(); i++)
-            //{
-            //    std::cout << " " << indices[i];
-            //}
-            //std::cout << "\n";
             return indices;
         }
-        std::size_t size()
+        std::size_t size() const
         {
             return m_indices.size();
         }
@@ -83,7 +89,7 @@ class Vector
         {
             to_begin_update();
         }
-        bool is_done()
+        bool is_done() const
         {
             return m_index == size();
         }
@@ -93,10 +99,15 @@ class Vector
             ++m_index;
             return !is_done();
         }
-        ValueType& get()
+        ValueType& get() const
         {
             assert(!is_done());
             return m_data.at(m_indices[m_index]);
+        }
+        Position get_position() const
+        {
+            assert(!is_done());
+            return m_indices[m_index];
         }
         void to_begin()
         {
@@ -113,7 +124,7 @@ public:
     {
         return Iterator<Tptr>(m_data);
     }
-    Iterator<const Tptr> begin()
+    Iterator<const Tptr> begin() const
     {
         return Iterator<const Tptr>(m_data);
     }
@@ -121,7 +132,7 @@ public:
     {
         return IteratorSorted<Tptr>(m_data, compare);
     }
-    IteratorSorted<const Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    IteratorSorted<const Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
     {
         return IteratorSorted<const Tptr>(m_data, compare);
     }
@@ -129,7 +140,7 @@ public:
     {
         return m_data;
     }
-    const DataTypeBase& data()
+    const DataTypeBase& data() const
     {
         return m_data;
     }
@@ -137,5 +148,13 @@ public:
     {
         m_data.push_back(std::unique_ptr<T>(value));
         return m_data.back();
+    }
+    DataTypeBase& get_mut(const Position& position)
+    {
+        return m_data[position.get()];
+    }
+    const DataTypeBase& get(const Position& position) const
+    {
+        return m_data[position.get()];
     }
 };

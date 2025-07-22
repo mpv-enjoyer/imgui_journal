@@ -8,5 +8,5 @@ public:
     Removal_Info() { };
     void remove() { m_removed = true; }
     void restore() { m_removed = false; }
-    bool is_removed() { return m_removed; }
+    bool is_removed() const { return m_removed; }
 };

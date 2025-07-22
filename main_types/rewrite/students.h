@@ -22,6 +22,28 @@ public:
         auto& contract = m_contracts.push_back(new Contract(contract_id));
         m_students.push_back(new Student(name, contract));
     }
-    Vector<Contract>& contracts() { return m_contracts; }
-    Vector<Student>& students() { return m_students; }
+    const Vector<Contract>& contracts() const
+    {
+        return m_contracts;
+    }
+    const Vector<Student>& students() const
+    {
+        return m_students;
+    }
+    const std::unique_ptr<Contract>& contract(Vector<Contract>::Position position) const
+    {
+        return m_contracts.data().at(position.get());
+    }
+    std::unique_ptr<Contract>& contract_mut(Vector<Contract>::Position position)
+    {
+        return m_contracts.data_mut().at(position.get());
+    }
+    const std::unique_ptr<Student>& student(Vector<Student>::Position position) const
+    {
+        return m_students.data().at(position.get());
+    }
+    std::unique_ptr<Student>& student_mut(Vector<Student>::Position position)
+    {
+        return m_students.data_mut().at(position.get());
+    }
 };
