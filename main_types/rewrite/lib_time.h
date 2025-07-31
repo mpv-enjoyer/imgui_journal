@@ -71,8 +71,11 @@ public:
     static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
-    std::size_t calculate_study_year_index() { return (m_value_from_0 + COUNT - BEGIN_STUDY_MONTH_FROM_0) % COUNT; }
-    std::string name() const
+    std::size_t calculate_study_year_index() const
+    {
+        return (m_value_from_0 + COUNT - BEGIN_STUDY_MONTH_FROM_0) % COUNT;
+    }
+    std::string get_name() const
     {
         switch (m_value_from_0)
         {
@@ -204,7 +207,7 @@ public:
         Loop::minus(m_value_EN, COUNT);
         return value_return;
     }
-    std::string name()
+    std::string get_name()
     {
         switch (m_value_EN)
         {
@@ -218,7 +221,7 @@ public:
         default: IM_ASSERT(false);
         }
     }
-    std::string name_short()
+    std::string get_name_short()
     {
         switch (m_value_EN)
         {
@@ -232,4 +235,23 @@ public:
         default: IM_ASSERT(false);
         }
     }
+};
+
+class JTime //used separately with ctime.
+{
+    int m_hours; //0-23
+    int m_minutes; //0-59
+    int bounded(int value, int max)
+    {
+        if (value >= max) return max - 1;
+        if (value < 0) return 0;
+        return value;
+    }
+public:
+    JTime(int hours, int minutes)
+    : m_hours(bounded(hours, 24)),
+      m_minutes(bounded(minutes, 60))
+    { }
+    int get_minutes() const { return m_minutes; }
+    int get_hours() const { return m_hours; }
 };

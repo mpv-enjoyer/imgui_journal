@@ -6,3 +6,9 @@ TODO:
   - student_internal_id(Student* get(), internal id and corresponding Journal must be private)
   - lesson_info_internal_id(instead use Lesson_Info_Iter with Lesson_Info* get() and corresponding Lesson_Day maybe? idk)
   - more?
+
+- bool is_property()
+- Value get_object()
+- Value& ref_object()
+- const Value& cref_object()
+- void set_object(Value)

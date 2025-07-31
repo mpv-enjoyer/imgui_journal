@@ -22,7 +22,7 @@ public:
             m_months.push_back(Attendance_Month(month, wday));
         } while (month.next());
     }
-    Removal_Info& removal_info()
+    Removal_Info& ref_removal_info()
     {
         return m_removal_info;
     }
@@ -42,7 +42,7 @@ public:
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
 
-        Attendance_Holder value = m_months[month_index].attendance_holder_unchecked(mday_index);
+        Attendance_Holder value = m_months[month_index].cref_attendance_holder_unchecked(mday_index);
         if (value.get_status() == Attendance_Status::NO_DATA)
         {
             if (!m_wants_lesson || m_removal_info.is_removed())
@@ -52,14 +52,14 @@ public:
         }
         return value;
     }
-    Attendance_Holder& holder_mut(Mday mday) // Mday must have the same Wday and Year as was passed eariler
+    Attendance_Holder& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
     {
         auto wday = Wday::make_from_mday(mday);
         DEBUG_ASSERT(wday.get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
-        return m_months[month_index].attendance_holder_unchecked_mut(mday_index);
+        return m_months[month_index].ref_attendance_holder_unchecked(mday_index);
     }
     Vector<Student>::Position get_student_pos() const
     {

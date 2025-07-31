@@ -10,11 +10,11 @@ public:
     Attendance_Month(Month month, Wday wday)
     : m_mday_statuses(month.calculate_wday_count(wday))
     { }
-    Attendance_Holder& attendance_holder_unchecked_mut(std::size_t index)
+    Attendance_Holder& ref_attendance_holder_unchecked(std::size_t index)
     {
         return m_mday_statuses.at(index);
     }
-    const Attendance_Holder& attendance_holder_unchecked(std::size_t index) const
+    const Attendance_Holder& cref_attendance_holder_unchecked(std::size_t index) const
     {
         return m_mday_statuses.at(index);
     }

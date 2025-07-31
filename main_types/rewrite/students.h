@@ -11,7 +11,7 @@ public:
     Students() { }
     void add(std::string name, int contract_id)
     {
-        for (auto& contract : m_contracts.data())
+        for (auto& contract : m_contracts.cref_data())
         {
             if (contract->get_id() == contract_id)
             {
@@ -32,18 +32,18 @@ public:
     }
     const std::unique_ptr<Contract>& contract(Vector<Contract>::Position position) const
     {
-        return m_contracts.data().at(position.get());
+        return m_contracts.cref(position);
     }
     std::unique_ptr<Contract>& contract_mut(Vector<Contract>::Position position)
     {
-        return m_contracts.data_mut().at(position.get());
+        return m_contracts.ref(position);
     }
     const std::unique_ptr<Student>& student(Vector<Student>::Position position) const
     {
-        return m_students.data().at(position.get());
+        return m_students.cref(position);
     }
     std::unique_ptr<Student>& student_mut(Vector<Student>::Position position)
     {
-        return m_students.data_mut().at(position.get());
+        return m_students.ref(position);
     }
 };

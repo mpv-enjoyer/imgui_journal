@@ -14,7 +14,8 @@ public:
         std::size_t m_index;
     public:
         std::size_t get() const { return m_index; }
-        Position(std::size_t index) : m_index(index) { }
+        explicit Position(std::size_t index) : m_index(index) { }
+        Position(const Position& position) : m_index(position.m_index) { }
     };
 private:
     using Tptr = std::unique_ptr<T>;
@@ -29,6 +30,9 @@ private:
     public:
         Iterator(DataTypeBase& data)
         : m_data(data), m_max_index(data.size())
+        { }
+        Iterator(const Iterator<ValueType>& iterator)
+        : m_data(iterator.data), m_max_index(iterator.data.size()), m_index(iterator.m_index)
         { }
         bool is_done() const
         {
@@ -89,6 +93,11 @@ private:
         {
             to_begin_update();
         }
+        IteratorSorted(IteratorSorted<ValueType> it)
+        : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
+        {
+            to_begin_update();
+        }
         bool is_done() const
         {
             return m_index == size();
@@ -120,27 +129,32 @@ private:
         }
     };
 public:
-    Iterator<Tptr> begin_mut()
+    Vector() = default;
+    ~Vector() = default;
+    Vector(const Vector<T>&) = delete;
+    Vector(Vector<T>&&) = delete;
+    void operator=(Vector<T> const &t) = delete;
+    Iterator<Tptr> begin()
     {
         return Iterator<Tptr>(m_data);
     }
-    Iterator<const Tptr> begin() const
+    Iterator<const Tptr> cbegin() const
     {
         return Iterator<const Tptr>(m_data);
     }
-    IteratorSorted<Tptr> sorted_begin_mut(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    IteratorSorted<Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
         return IteratorSorted<Tptr>(m_data, compare);
     }
-    IteratorSorted<const Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
+    IteratorSorted<const Tptr> csorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
     {
         return IteratorSorted<const Tptr>(m_data, compare);
     }
-    DataTypeBase& data_mut()
+    DataTypeBase& ref_data()
     {
         return m_data;
     }
-    const DataTypeBase& data() const
+    const DataTypeBase& cref_data() const
     {
         return m_data;
     }
@@ -149,11 +163,11 @@ public:
         m_data.push_back(std::unique_ptr<T>(value));
         return m_data.back();
     }
-    Tptr& get_mut(const Position& position)
+    Tptr& ref(const Position& position)
     {
         return m_data[position.get()];
     }
-    const Tptr& get(const Position& position) const
+    const Tptr& cref(const Position& position) const
     {
         return m_data[position.get()];
     }

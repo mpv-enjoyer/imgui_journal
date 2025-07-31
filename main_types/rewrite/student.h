@@ -16,8 +16,8 @@ class Student
 public:
     Student(std::string name, const std::unique_ptr<Contract>& contract)
     : m_name(name), m_contract(&contract) { }
-    Removal_Info& removal_info() { return m_removal_info; }
-    const std::unique_ptr<Contract>& get_contract() { return *m_contract; }
+    Removal_Info& ref_removal_info() { return m_removal_info; }
+    const std::unique_ptr<Contract>& cref_contract() { return *m_contract; }
     void set_contract(std::unique_ptr<Contract>& contract) { m_contract = &contract; }
     //struct LessonID
     //{

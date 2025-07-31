@@ -1,13 +1,12 @@
 #pragma once
 #include "attendance_student.h"
-#include "jtime.h"
 #include "teachers.h"
 #include <optional>
 
 class Attendance_Internal_Lesson
 {
 public:
-    enum class Lesson_Name
+    enum class Type
     {
         DRAWING = 0,        // ИЗО
         SCULPTING = 1,      // Лепка
@@ -16,14 +15,14 @@ public:
         SPECIALCOURSE = 4,  // Спецкурс
     };
 private:
-    const Lesson_Name m_lesson_name;
+    const Type m_lesson_type;
     JTime m_begin;
     JTime m_end;
     std::optional<Vector<Teacher>::Position> m_teacher_pos;
     Vector<Attendance_Student> m_attendance_students;
 public:
-    Attendance_Internal_Lesson(Lesson_Name lesson_name, JTime begin, JTime end)
-    : m_begin(begin), m_end(end), m_lesson_name(lesson_name)
+    Attendance_Internal_Lesson(Type lesson_type, JTime begin, JTime end)
+    : m_begin(begin), m_end(end), m_lesson_type(lesson_type)
     { }
     void set_time(JTime begin, JTime end)
     {
@@ -44,9 +43,9 @@ public:
     {
         return m_teacher_pos;
     }
-    Lesson_Name get_lesson_name() const
+    Type get_lesson_name() const
     {
-        return m_lesson_name;
+        return m_lesson_type;
     }
     void add_student(Attendance_Student* attendance_student)
     {
@@ -60,15 +59,15 @@ public:
         //    }
         //}
     }
-    std::unique_ptr<Attendance_Student>& attendance_student_mut(Vector<Attendance_Student>::Position pos)
+    std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
     {
-        return m_attendance_students.get_mut(pos);
+        return m_attendance_students.ref(pos);
     }
-    const std::unique_ptr<Attendance_Student>& attendance_student(Vector<Attendance_Student>::Position pos) const
+    const std::unique_ptr<Attendance_Student>& cref_attendance_student(Vector<Attendance_Student>::Position pos) const
     {
-        return m_attendance_students.get(pos);
+        return m_attendance_students.cref(pos);
     }
-    const Vector<Attendance_Student>& get() const
+    const Vector<Attendance_Student>& cref_data() const
     {
         return m_attendance_students;
     }
