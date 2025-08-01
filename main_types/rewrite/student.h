@@ -6,7 +6,7 @@
 #include "lib_vector.h"
 #include "contract.h"
 #include "removal_info.h"
-//using size_t = unsigned long long; //idk
+#include "automut.h"
 
 class Student
 {
@@ -16,14 +16,8 @@ class Student
 public:
     Student(std::string name, const std::unique_ptr<Contract>& contract)
     : m_name(name), m_contract(&contract) { }
-    Removal_Info& ref_removal_info() { return m_removal_info; }
-    const std::unique_ptr<Contract>& cref_contract() { return *m_contract; }
+    const Removal_Info& cref_removal_info() const { return m_removal_info; }
+    AUTOMUT0(ref_removal_info)
+    const std::unique_ptr<Contract>& cref_contract() const { return *m_contract; }
     void set_contract(std::unique_ptr<Contract>& contract) { m_contract = &contract; }
-    //struct LessonID
-    //{
-    //    Wday wday;
-    //    std::size_t merged_lesson_info_id;
-    //    std::size_t internal_lesson_info_id;
-    //};
-    //std::vector<LessonID> m_lessons;
 };

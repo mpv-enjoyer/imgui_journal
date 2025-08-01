@@ -22,28 +22,12 @@ public:
         auto& contract = m_contracts.push_back(new Contract(contract_id));
         m_students.push_back(new Student(name, contract));
     }
-    const Vector<Contract>& contracts() const
+    const Vector<Contract>& cref_contracts() const
     {
         return m_contracts;
     }
-    const Vector<Student>& students() const
+    const Vector<Student>& cref_students() const
     {
         return m_students;
-    }
-    const std::unique_ptr<Contract>& contract(Vector<Contract>::Position position) const
-    {
-        return m_contracts.cref(position);
-    }
-    std::unique_ptr<Contract>& contract_mut(Vector<Contract>::Position position)
-    {
-        return m_contracts.ref(position);
-    }
-    const std::unique_ptr<Student>& student(Vector<Student>::Position position) const
-    {
-        return m_students.cref(position);
-    }
-    std::unique_ptr<Student>& student_mut(Vector<Student>::Position position)
-    {
-        return m_students.ref(position);
     }
 };

@@ -13,12 +13,13 @@ public:
             m_internal_lessons.push_back(internal_lesson);
         }
     }
-    Removal_Info& ref_removal_info()
+    const Removal_Info& cref_removal_info() const
     {
         return m_removal_info;
     }
-    const Removal_Info& сref_removal_info() const
+    AUTOMUT0(ref_removal_info)
+    const Vector<Attendance_Internal_Lesson>& cref_internal_lessons() const
     {
-        return m_removal_info;
+        return m_internal_lessons;
     }
 };

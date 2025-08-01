@@ -59,16 +59,18 @@ public:
         //    }
         //}
     }
-    std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
-    {
-        return m_attendance_students.ref(pos);
-    }
+    //std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
+    //{
+    //    return m_attendance_students.ref(pos);
+    //}
     const std::unique_ptr<Attendance_Student>& cref_attendance_student(Vector<Attendance_Student>::Position pos) const
     {
         return m_attendance_students.cref(pos);
     }
+    AUTOMUT1(ref_attendance_student, Vector<Attendance_Student>::Position)
     const Vector<Attendance_Student>& cref_data() const
     {
         return m_attendance_students;
     }
+    AUTOMUT0(ref_data)
 };

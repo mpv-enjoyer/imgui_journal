@@ -129,7 +129,10 @@ private:
         }
     };
 public:
-    Vector() = default;
+    explicit Vector() = default;
+    explicit Vector(std::size_t size)
+    : m_data(size)
+    { }
     ~Vector() = default;
     Vector(const Vector<T>&) = delete;
     Vector(Vector<T>&&) = delete;
