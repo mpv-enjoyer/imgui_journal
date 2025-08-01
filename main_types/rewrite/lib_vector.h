@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <cassert>
 #include <memory>
@@ -32,7 +33,7 @@ private:
         : m_data(data), m_max_index(data.size())
         { }
         Iterator(const Iterator<ValueType>& iterator)
-        : m_data(iterator.data), m_max_index(iterator.data.size()), m_index(iterator.m_index)
+        : m_data(iterator.m_data), m_max_index(iterator.m_max_index), m_index(iterator.m_index)
         { }
         bool is_done() const
         {
@@ -93,7 +94,7 @@ private:
         {
             to_begin_update();
         }
-        IteratorSorted(IteratorSorted<ValueType> it)
+        IteratorSorted(const IteratorSorted<ValueType>& it)
         : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
         {
             to_begin_update();

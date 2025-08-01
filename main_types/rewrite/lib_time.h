@@ -4,6 +4,7 @@
 #include <array>
 #include <string>
 #include <ctime>
+#include "autoop.h"
 
 struct
 {
@@ -48,6 +49,7 @@ public:
     int get_from_1900() const { return m_value_from_1900; }
     void next() { m_value_from_1900++; }
     void previous() { m_value_from_1900--; }
+    AUTOOP1(Year, m_value_from_1900);
 };
 
 class Month
@@ -57,7 +59,6 @@ public:
     static constexpr int BEGIN_STUDY_MONTH_FROM_0 = 8;
     static constexpr int END_STUDY_MONTH_FROM_0 = BEGIN_STUDY_MONTH_FROM_0 - 1;
 private:
-
     int m_value_from_0;
     Year m_year;
     Month(int value_from_0, Year year) : m_value_from_0(value_from_0), m_year(year)
@@ -125,6 +126,7 @@ public:
             return 30;
     }
     int calculate_wday_count(Wday wday) const;
+    AUTOOP2(Month, m_year, m_value_from_0);
 };
 
 class Mday
@@ -141,7 +143,7 @@ public:
     static Mday make_from_1(int value, Month month = Month::make_current()) { return Mday(value - 1, month); }
     static Mday make_current() { return Mday(Now.time.tm_mday - 1, Month::make_current()); }
     static Mday make_first(Month month = Month::make_current()) { return Mday(0, month); }
-    static Mday make_from_first_wday(Wday wday, Month month = Month::make_current());
+    static Mday make_from_first_wday(Wday wday, Month month);
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
     Month get_month() const { return m_month; }
@@ -161,6 +163,7 @@ public:
         m_value_from_0 += 7;
         return true;
     }
+    AUTOOP2(Mday, m_month, m_value_from_0);
 };
 
 class Wday
@@ -235,6 +238,7 @@ public:
         default: IM_ASSERT(false);
         }
     }
+    AUTOOP1(Wday, m_value_EN);
 };
 
 class JTime //used separately with ctime.
@@ -254,4 +258,5 @@ public:
     { }
     int get_minutes() const { return m_minutes; }
     int get_hours() const { return m_hours; }
+    AUTOOP2(JTime, m_hours, m_minutes);
 };
