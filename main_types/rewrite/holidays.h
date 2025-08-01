@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <set>
 #include <memory>
 #include <optional>
 #include "lib_time.h"
@@ -7,22 +7,19 @@
 
 class Holidays
 {
-    std::vector<Holiday> m_holidays;
+    std::set<Holiday> m_holidays;
 public:
     Holidays() { }
     std::optional<Holiday> get_holiday(Mday mday) const
     {
-        for (const auto& holiday : m_holidays)
+        if (auto found = m_holidays.find(Holiday(mday)); found != m_holidays.end())
         {
-            if (holiday.get_mday() == mday) return holiday;
+            return *found;
         }
         return {};
     }
     void add_holiday(Mday mday)
     {
-        if (!get_holiday(mday))
-        {
-            m_holidays.push_back(Holiday(mday));
-        }
+        m_holidays.insert(Holiday(mday));
     }
 };

@@ -64,13 +64,13 @@ public:
         name = newName;
     }
 
-    bool operator< (const decltype(*this)& other) { return std::tie(name, value) <  std::tie(other.name, other.value); }
-    bool operator==(const LoggedClass& other) { return std::tie(name, value) == std::tie(other.name, other.value); }
+    AUTOOPS2(LoggedClass, name, value)
 };
 
 int main()
 {
     LoggedClass l1("1231", 2);
     LoggedClass l2("1231", 3);
-    std::cout << (l1 < l2) << "\n";
+    LoggedClass l3("\0", 7);
+    std::cout << (l1 < l2) << ( l1 < l3 ) << "\n";
 }

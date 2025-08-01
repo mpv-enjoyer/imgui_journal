@@ -4,7 +4,7 @@
 #include <array>
 #include <string>
 #include <ctime>
-#include "autoop.h"
+#include "autoops.h"
 
 struct
 {
@@ -49,7 +49,7 @@ public:
     int get_from_1900() const { return m_value_from_1900; }
     void next() { m_value_from_1900++; }
     void previous() { m_value_from_1900--; }
-    AUTOOP1(Year, m_value_from_1900);
+    AUTOOPS1(Year, m_value_from_1900);
 };
 
 class Month
@@ -126,7 +126,7 @@ public:
             return 30;
     }
     int calculate_wday_count(Wday wday) const;
-    AUTOOP2(Month, m_year, m_value_from_0);
+    AUTOOPS2(Month, m_year, m_value_from_0);
 };
 
 class Mday
@@ -163,7 +163,7 @@ public:
         m_value_from_0 += 7;
         return true;
     }
-    AUTOOP2(Mday, m_month, m_value_from_0);
+    AUTOOPS2(Mday, m_month, m_value_from_0);
 };
 
 class Wday
@@ -238,7 +238,7 @@ public:
         default: IM_ASSERT(false);
         }
     }
-    AUTOOP1(Wday, m_value_EN);
+    AUTOOPS1(Wday, m_value_EN);
 };
 
 class JTime //used separately with ctime.
@@ -258,5 +258,5 @@ public:
     { }
     int get_minutes() const { return m_minutes; }
     int get_hours() const { return m_hours; }
-    AUTOOP2(JTime, m_hours, m_minutes);
+    AUTOOPS2(JTime, m_hours, m_minutes);
 };
