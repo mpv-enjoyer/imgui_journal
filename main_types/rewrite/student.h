@@ -17,7 +17,7 @@ public:
     Student(std::string name, const std::unique_ptr<Contract>& contract)
     : m_name(name), m_contract(&contract) { }
     const Removal_Info& cref_removal_info() const { return m_removal_info; }
-    AUTOMUT0(ref_removal_info)
+    Removal_Info& ref_removal_info() { return m_removal_info; }
     const std::unique_ptr<Contract>& cref_contract() const { return *m_contract; }
     void set_contract(std::unique_ptr<Contract>& contract) { m_contract = &contract; }
 };

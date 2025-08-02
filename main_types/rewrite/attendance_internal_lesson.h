@@ -67,10 +67,16 @@ public:
     {
         return m_attendance_students.cref(pos);
     }
-    AUTOMUT1(ref_attendance_student, Vector<Attendance_Student>::Position)
+    std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
+    {
+        return m_attendance_students.ref(pos);
+    }
     const Vector<Attendance_Student>& cref_data() const
     {
         return m_attendance_students;
     }
-    AUTOMUT0(ref_data)
+    Vector<Attendance_Student>& ref_data()
+    {
+        return m_attendance_students;
+    }
 };

@@ -73,4 +73,14 @@ int main()
     LoggedClass l2("1231", 3);
     LoggedClass l3("\0", 7);
     std::cout << (l1 < l2) << ( l1 < l3 ) << "\n";
+
+    std::vector<int> hsdahsd({1, 2, 3, 4});
+
+    Attendance_Wdays w;
+    auto& ref = w.ref_attendance_wday(Wday::make_begin_EN());
+    auto& merged = ref->ref_merged_lessons();
+    
+    auto internal_new = new Attendance_Internal_Lesson(Attendance_Internal_Lesson::Type::DRAWING, JTime(10, 40), JTime(11, 20));
+    auto merged_new = new Attendance_Merged_Lesson({internal_new});
+    merged.push_back(merged_new);
 }

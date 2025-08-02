@@ -27,7 +27,10 @@ public:
     {
         return m_removal_info;
     }
-    AUTOMUT0(ref_removal_info)
+    Removal_Info& ref_removal_info()
+    {
+        return m_removal_info;
+    }
     bool get_wants_lesson() const
     {
         return m_wants_lesson;
@@ -38,14 +41,20 @@ public:
     }
     const std::unique_ptr<Attendance_Holder>& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {
-        auto wday = Wday::make_from_mday(mday);
-        DEBUG_ASSERT(wday.get_EN() == DEBUG_WDAY.get_EN());
+        DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
         return m_holders[month_index][mday_index];
     }
-    AUTOMUT1(ref_holder, Mday);
+    std::unique_ptr<Attendance_Holder>& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
+    {
+        DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
+        DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
+        auto month_index = mday.get_month().calculate_study_year_index();
+        auto mday_index = mday.get_index_in_month();
+        return m_holders[month_index][mday_index];
+    }
     Attendance_Holder get_holder_unchecked(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {
         return *cref_holder(mday);

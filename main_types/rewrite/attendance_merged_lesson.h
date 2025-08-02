@@ -17,7 +17,10 @@ public:
     {
         return m_removal_info;
     }
-    AUTOMUT0(ref_removal_info)
+    Removal_Info& ref_removal_info()
+    {
+        return m_removal_info;
+    }
     const Vector<Attendance_Internal_Lesson>& cref_internal_lessons() const
     {
         return m_internal_lessons;

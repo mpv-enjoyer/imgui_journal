@@ -11,5 +11,8 @@ public:
     {
         return m_merged_lessons;
     }
-    AUTOMUT0(ref_merged_lessons)
+    Vector<Attendance_Merged_Lesson>& ref_merged_lessons()
+    {
+        return m_merged_lessons;
+    }
 };

@@ -9,5 +9,5 @@ class Teachers // Useless?
 public:
     Teachers() { }
     const Vector<Teacher>& cref_data() const { return m_teachers; }
-    AUTOMUT0(ref_data)
+    Vector<Teacher>& ref_data() { return m_teachers; }
 };

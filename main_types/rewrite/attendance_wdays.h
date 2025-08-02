@@ -6,11 +6,18 @@ class Attendance_Wdays
     Vector<Attendance_Wday> m_wdays;
 public:
     Attendance_Wdays()
-    : m_wdays(Wday::COUNT)
-    { }
+    {
+        for (std::size_t i = 0; i < Wday::COUNT; i++)
+        {
+            m_wdays.push_back(new Attendance_Wday());
+        }
+    }
     const std::unique_ptr<Attendance_Wday>& cref_attendance_wday(Wday wday) const
     {
         return m_wdays.cref_data().at(wday.get_EN());
     }
-    AUTOMUT1(ref_attendance_wday, Wday)
+    std::unique_ptr<Attendance_Wday>& ref_attendance_wday(Wday wday)
+    {
+        return m_wdays.ref_data().at(wday.get_EN());
+    }
 };
