@@ -192,6 +192,8 @@ public:
         std::size_t get() const { return m_index; }
         explicit Position(std::size_t index) : m_index(index) { }
         Position(const Position& position) : m_index(position.m_index) { }
+        bool operator==(const Position& other) const { return m_index == other.m_index; }
+        bool operator!=(const Position& other) const { return !(*this == other); }
     };
 private:
     using Tptr = std::unique_ptr<T>;
@@ -336,8 +338,6 @@ public:
     {
         return m_data;
     }
-    template <typename RestrictInitializerInPushBack>
-    void push_back(std::initializer_list<RestrictInitializerInPushBack>) = delete;
     std::unique_ptr<T>& push_back(T* value)
     {
         m_data.push_back(std::unique_ptr<T>(value));

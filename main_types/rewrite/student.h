@@ -20,4 +20,6 @@ public:
     Removal_Info& ref_removal_info() { return m_removal_info; }
     const std::unique_ptr<Contract>& cref_contract() const { return *m_contract; }
     void set_contract(std::unique_ptr<Contract>& contract) { m_contract = &contract; }
+    std::string get_name() const { return m_name; }
+    void set_name(std::string name) { m_name = name; }
 };
