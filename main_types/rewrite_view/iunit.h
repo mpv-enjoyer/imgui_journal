@@ -5,6 +5,7 @@
 class IUnit
 {
 public:
+    virtual void update() = 0;
     virtual void render() = 0;
     virtual void disable() = 0;
     virtual void enable() = 0;

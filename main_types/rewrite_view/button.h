@@ -13,6 +13,7 @@ public:
     Button(std::string id, std::function<void()> callback = []() -> void {}, std::optional<ImVec4> bg_color = std::nullopt, std::optional<ImVec4> hovered_color = std::nullopt, std::optional<ImVec4> active_color = std::nullopt)
     : AUnit(id), m_callback(callback), m_bg_color(bg_color), m_hovered_color(hovered_color), m_active_color(active_color)
     { }
+    void update() { };
 protected:
     void render_logic() override
     {
