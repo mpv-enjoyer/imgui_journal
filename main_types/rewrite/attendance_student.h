@@ -9,7 +9,7 @@ class Attendance_Student
     const Vector<Student>::Position m_student_pos;
     bool m_wants_lesson = true;
     Removal_Info m_removal_info;
-    std::vector<std::vector<std::unique_ptr<Attendance_Holder>>> m_holders; // [month][mday]
+    std::vector<std::vector<Ptr<Attendance_Holder>>> m_holders; // [month][mday]
     const Wday DEBUG_WDAY;
     const Year DEBUG_YEAR;
 public:
@@ -39,7 +39,7 @@ public:
     {
         m_wants_lesson = value;
     }
-    const std::unique_ptr<Attendance_Holder>& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
+    const Ptr<Attendance_Holder>& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {
         DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
@@ -47,7 +47,7 @@ public:
         auto mday_index = mday.get_index_in_month();
         return m_holders[month_index][mday_index];
     }
-    std::unique_ptr<Attendance_Holder>& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
+    Ptr<Attendance_Holder>& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
     {
         DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());

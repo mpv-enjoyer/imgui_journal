@@ -63,11 +63,11 @@ public:
     //{
     //    return m_attendance_students.ref(pos);
     //}
-    const std::unique_ptr<Attendance_Student>& cref_attendance_student(Vector<Attendance_Student>::Position pos) const
+    const Ptr<Attendance_Student>& cref_attendance_student(Vector<Attendance_Student>::Position pos) const
     {
         return m_attendance_students.cref(pos);
     }
-    std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
+    Ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
     {
         return m_attendance_students.ref(pos);
     }

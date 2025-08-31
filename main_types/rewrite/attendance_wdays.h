@@ -12,11 +12,11 @@ public:
             m_wdays.push_back(new Attendance_Wday());
         }
     }
-    const std::unique_ptr<Attendance_Wday>& cref_attendance_wday(Wday wday) const
+    const Ptr<Attendance_Wday>& cref_attendance_wday(Wday wday) const
     {
         return m_wdays.cref_data().at(wday.get_EN());
     }
-    std::unique_ptr<Attendance_Wday>& ref_attendance_wday(Wday wday)
+    Ptr<Attendance_Wday>& ref_attendance_wday(Wday wday)
     {
         return m_wdays.ref_data().at(wday.get_EN());
     }

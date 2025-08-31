@@ -1,3 +1,4 @@
+#pragma once
 #include <cassert>
 #define IM_ASSERT assert
 #define DEBUG_ASSERT assert

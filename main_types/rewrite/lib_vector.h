@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 #include <cassert>
-#include <memory>
+#include "ptr.h"
 #include <algorithm>
 #include <numeric>
 #include <functional>
 
 //template <typename T>
-//class Vector_ : private std::vector<std::unique_ptr<T>>
+//class Vector_ : private std::vector<Ptr<T>>
 //{
 //public:
 //    class Position
@@ -19,7 +19,7 @@
 //        Position(const Position& position) : m_index(position.m_index) { }
 //    };
 //private:
-//    using Tptr = std::unique_ptr<T>;
+//    using Tptr = Ptr<T>;
 //    using Base = std::vector<Tptr>;
 //    template <typename BaseType, typename ValueType>
 //    class Iterator
@@ -67,7 +67,7 @@
 //        std::vector<std::size_t> m_indices;
 //        std::function<bool(const T&, const T&)> m_compare = [](const T& lhs, const T& rhs){ return lhs < rhs; };
 //        // https://stackoverflow.com/a/10581051
-//        std::vector<std::size_t> get_ordered(std::vector<std::unique_ptr<T>> const& values) {
+//        std::vector<std::size_t> get_ordered(std::vector<Ptr<T>> const& values) {
 //            std::vector<std::size_t> indices(values.size());
 //            std::iota(std::begin(indices), std::end(indices), static_cast<std::size_t>(0));
 //
@@ -166,7 +166,7 @@
 //    {
 //        return *this;
 //    }
-//    std::unique_ptr<T>& push_back(T* value)
+//    Ptr<T>& push_back(T* value)
 //    {
 //        emplace_back(value);
 //        return back();
@@ -196,10 +196,10 @@ public:
         bool operator!=(const Position& other) const { return !(*this == other); }
     };
 private:
-    using Tptr = std::unique_ptr<T>;
+    using Tptr = Ptr<T>;
     using DataTypeBase = std::vector<Tptr>;
     DataTypeBase m_data;
-    template <typename ValueType>
+    template <typename ValueType, typename DataTypeBase>
     class Iterator
     {
         DataTypeBase& m_data;
@@ -209,7 +209,7 @@ private:
         Iterator(DataTypeBase& data)
         : m_data(data), m_max_index(data.size())
         { }
-        Iterator(const Iterator<ValueType>& iterator)
+        Iterator(const Iterator<ValueType, DataTypeBase>& iterator)
         : m_data(iterator.m_data), m_max_index(iterator.m_max_index), m_index(iterator.m_index)
         { }
         bool is_done() const
@@ -237,7 +237,7 @@ private:
             m_max_index = m_data.size();
         }
     };
-    template <typename ValueType>
+    template <typename ValueType, typename DataTypeBase>
     class IteratorSorted
     {
         DataTypeBase& m_data;
@@ -245,7 +245,7 @@ private:
         std::vector<std::size_t> m_indices;
         std::function<bool(const T&, const T&)> m_compare = [](const T& lhs, const T& rhs){ return lhs < rhs; };
         // https://stackoverflow.com/a/10581051
-        std::vector<std::size_t> get_ordered(std::vector<std::unique_ptr<T>> const& values) {
+        std::vector<std::size_t> get_ordered(std::vector<Ptr<T>> const& values) {
             std::vector<std::size_t> indices(values.size());
             std::iota(std::begin(indices), std::end(indices), static_cast<std::size_t>(0));
 
@@ -271,7 +271,7 @@ private:
         {
             to_begin_update();
         }
-        IteratorSorted(const IteratorSorted<ValueType>& it)
+        IteratorSorted(const IteratorSorted<ValueType, DataTypeBase>& it)
         : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
         {
             to_begin_update();
@@ -314,21 +314,21 @@ public:
     Vector(const Vector<T>&) = delete;
     Vector(Vector<T>&&) = delete;
     void operator=(Vector<T> const &t) = delete;
-    Iterator<Tptr> begin()
+    Iterator<Tptr, DataTypeBase> begin()
     {
-        return Iterator<Tptr>(m_data);
+        return Iterator<Tptr, DataTypeBase>(m_data);
     }
-    Iterator<const Tptr> cbegin() const
+    Iterator<const Tptr, const DataTypeBase> cbegin() const
     {
-        return Iterator<const Tptr>(m_data);
+        return Iterator<const Tptr, const DataTypeBase>(m_data);
     }
-    IteratorSorted<Tptr> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    IteratorSorted<Tptr, DataTypeBase> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
     {
-        return IteratorSorted<Tptr>(m_data, compare);
+        return IteratorSorted<Tptr, DataTypeBase>(m_data, compare);
     }
-    IteratorSorted<const Tptr> csorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
+    IteratorSorted<const Tptr, const DataTypeBase> csorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
     {
-        return IteratorSorted<const Tptr>(m_data, compare);
+        return IteratorSorted<const Tptr, const DataTypeBase>(m_data, compare);
     }
     DataTypeBase& ref_data()
     {
@@ -338,9 +338,9 @@ public:
     {
         return m_data;
     }
-    std::unique_ptr<T>& push_back(T* value)
+    Ptr<T>& push_back(T* value)
     {
-        m_data.push_back(std::unique_ptr<T>(value));
+        m_data.push_back(Ptr<T>(value));
         return m_data.back();
     }
     Tptr& ref(const Position& position)

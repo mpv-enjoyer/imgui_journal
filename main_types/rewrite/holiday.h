@@ -22,4 +22,5 @@ public:
     {
         return m_mday;
     }
+    AUTOOPS1(Holiday, m_mday);
 };

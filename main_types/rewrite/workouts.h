@@ -3,7 +3,7 @@
 
 class Workouts
 {
-    std::vector<std::unique_ptr<Workout>> m_workouts;
+    std::vector<Ptr<Workout>> m_workouts;
 public:
     Workouts() { }
     void add(Workout* workout)

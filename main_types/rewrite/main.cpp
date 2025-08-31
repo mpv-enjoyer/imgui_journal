@@ -67,20 +67,34 @@ public:
     AUTOOPS2(LoggedClass, name, value)
 };
 
+#include "model.h"
+
+void look_into_model(const Model& model)
+{
+    std::cout << model->students()->cref_contracts().cbegin().get()->get_id();
+    //model->students()->add("fhfds", 1);
+}
+
 int main()
 {
-    LoggedClass l1("1231", 2);
-    LoggedClass l2("1231", 3);
-    LoggedClass l3("\0", 7);
-    std::cout << (l1 < l2) << ( l1 < l3 ) << "\n";
+    Model model;
+    model->
+        attendance_wdays()->
+        ref_attendance_wday(Wday::make_begin_EN())->
+        ref_merged_lessons().
+        push_back(new Attendance_Merged_Lesson({new Attendance_Internal_Lesson(Attendance_Internal_Lesson::Type::SPECIALCOURSE, JTime(10, 40), JTime(11, 20))}));
+    model->students()->add("Student Name", 741234);
 
-    std::vector<int> hsdahsd({1, 2, 3, 4});
+    look_into_model(model);
 
-    Attendance_Wdays w;
-    auto& ref = w.ref_attendance_wday(Wday::make_begin_EN());
-    auto& merged = ref->ref_merged_lessons();
+    auto p = Ptr<int>::make();
+
+    //Attendance_Wdays w;
+    //auto& ref = w.ref_attendance_wday(Wday::make_begin_EN());
+    //auto& merged = ref->ref_merged_lessons();
+    //
+    //auto internal_new = new Attendance_Internal_Lesson(Attendance_Internal_Lesson::Type::DRAWING, JTime(10, 40), JTime(11, 20));
+    //auto merged_new = new Attendance_Merged_Lesson({internal_new});
+    //merged.push_back(merged_new);
     
-    auto internal_new = new Attendance_Internal_Lesson(Attendance_Internal_Lesson::Type::DRAWING, JTime(10, 40), JTime(11, 20));
-    auto merged_new = new Attendance_Merged_Lesson({internal_new});
-    merged.push_back(merged_new);
 }

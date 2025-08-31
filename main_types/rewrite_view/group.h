@@ -5,7 +5,7 @@
 
 class Group : public AUnit
 {
-    std::vector<std::unique_ptr<IUnit>> m_units;
+    std::vector<Ptr<IUnit>> m_units;
     bool m_engine_group;
 public:
     Group(std::vector<IUnit*> units, bool engine_group = true)
