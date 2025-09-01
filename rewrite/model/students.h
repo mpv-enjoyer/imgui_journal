@@ -13,8 +13,7 @@ public:
     {
         for (auto it = m_contracts.cbegin(); it; it.next())
         {
-            auto& contract = it.get();
-            if (contract->get_id() == contract_id)
+            if (it->get_id() == contract_id)
             {
                 m_students.push_back(new Student(name, it.get_position()));
                 return;

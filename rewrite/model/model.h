@@ -21,5 +21,3 @@ public:
         m_journal_year.reset(new Journal_Year(year));
     }
 };
-
-#undef NON_COPYABLE_NOR_MOVABLE

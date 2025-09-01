@@ -155,7 +155,9 @@ public:
     explicit Vector_Sortable(std::size_t size) : m_data(size, new T()) { }
     explicit Vector_Sortable(std::initializer_list<T> initializer) : m_data(initializer) { }
     ~Vector_Sortable() = default;
-    // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it.get() }
+
+    // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it->something(); }
+    // DO NOT MAKE A do-while LOOP, IT WILL CRASH ON 0 ELEMENTS.
     Iterator<Tptr, DataTypeBase> begin()
     {
         return Iterator<Tptr, DataTypeBase>(m_data);
