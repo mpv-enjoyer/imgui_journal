@@ -1,10 +1,6 @@
 #pragma once
 #include "journal_year.h"
-
-#define NON_COPYABLE_NOR_MOVABLE(T) \
-    T(T const &) = delete; \
-    void operator=(T const &t) = delete; \
-    T(T &&) = delete;
+#include "common/modifiers.h"
 
 class Model
 {

@@ -18,8 +18,8 @@ private:
     const Type m_lesson_type;
     JTime m_begin;
     JTime m_end;
-    std::optional<Vector<Teacher>::Position> m_teacher_pos;
-    Vector<Attendance_Student> m_attendance_students;
+    std::optional<Vector_Sortable<Teacher>::Position> m_teacher_pos;
+    Vector_Sortable<Attendance_Student> m_attendance_students;
 public:
     Attendance_Internal_Lesson(Type lesson_type, JTime begin, JTime end)
     : m_begin(begin), m_end(end), m_lesson_type(lesson_type)
@@ -31,7 +31,7 @@ public:
     }
     JTime get_time_begin() const { return m_begin; }
     JTime get_time_end() const { return m_end; }
-    void set_teacher_pos(Vector<Teacher>::Position teacher_pos)
+    void set_teacher_pos(Vector_Sortable<Teacher>::Position teacher_pos)
     {
         m_teacher_pos = teacher_pos;
     }
@@ -39,7 +39,7 @@ public:
     {
         m_teacher_pos.reset();
     }
-    std::optional<Vector<Teacher>::Position> get_teacher_pos() const
+    std::optional<Vector_Sortable<Teacher>::Position> get_teacher_pos() const
     {
         return m_teacher_pos;
     }
@@ -59,23 +59,23 @@ public:
         //    }
         //}
     }
-    //std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
+    //std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector_Sortable<Attendance_Student>::Position pos)
     //{
     //    return m_attendance_students.ref(pos);
     //}
-    const Ptr<Attendance_Student>& cref_attendance_student(Vector<Attendance_Student>::Position pos) const
+    const Ptr<Attendance_Student>& cref_attendance_student(Vector_Sortable<Attendance_Student>::Position pos) const
     {
         return m_attendance_students.cref(pos);
     }
-    Ptr<Attendance_Student>& ref_attendance_student(Vector<Attendance_Student>::Position pos)
+    Ptr<Attendance_Student>& ref_attendance_student(Vector_Sortable<Attendance_Student>::Position pos)
     {
         return m_attendance_students.ref(pos);
     }
-    const Vector<Attendance_Student>& cref_data() const
+    const Vector_Sortable<Attendance_Student>& cref_data() const
     {
         return m_attendance_students;
     }
-    Vector<Attendance_Student>& ref_data()
+    Vector_Sortable<Attendance_Student>& ref_data()
     {
         return m_attendance_students;
     }

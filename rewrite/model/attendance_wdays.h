@@ -3,7 +3,7 @@
 
 class Attendance_Wdays
 {
-    Vector<Attendance_Wday> m_wdays;
+    Vector_Sortable<Attendance_Wday> m_wdays;
 public:
     Attendance_Wdays()
     {

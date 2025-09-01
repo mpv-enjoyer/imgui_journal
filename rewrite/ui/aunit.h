@@ -24,7 +24,7 @@ public:
         update();
     }
     virtual void update() { }
-    void render() override
+    void render() override final
     {
         if (!m_enabled) ImGui::BeginDisabled();
         render_logic();

@@ -26,7 +26,7 @@ public:
         }
         return output;
     }
-    bool is_should(Workout::Position workout_pos, Vector<Student>::Position student_pos) const
+    bool is_should(Workout::Position workout_pos, Vector_Sortable<Student>::Position student_pos) const
     {
         std::vector<Workout> output;
         for (const auto& workout : m_workouts)
@@ -38,7 +38,7 @@ public:
         }
         return false;
     }
-    bool is_real(Workout::Position workout_pos, Vector<Student>::Position student_pos) const
+    bool is_real(Workout::Position workout_pos, Vector_Sortable<Student>::Position student_pos) const
     {
         std::vector<Workout> output;
         for (const auto& workout : m_workouts)

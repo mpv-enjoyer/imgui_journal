@@ -2,18 +2,17 @@
 #include "attendance_holder.h"
 #include "removal_info.h"
 #include "student.h"
-#include "automut.h"
 
 class Attendance_Student
 {
-    const Vector<Student>::Position m_student_pos;
+    const Vector_Sortable<Student>::Position m_student_pos;
     bool m_wants_lesson = true;
     Removal_Info m_removal_info;
     std::vector<std::vector<Ptr<Attendance_Holder>>> m_holders; // [month][mday]
     const Wday DEBUG_WDAY;
     const Year DEBUG_YEAR;
 public:
-    Attendance_Student(Year bottom_year, Wday wday, Vector<Student>::Position student_pos)
+    Attendance_Student(Year bottom_year, Wday wday, Vector_Sortable<Student>::Position student_pos)
     : m_student_pos(student_pos), DEBUG_WDAY(wday), DEBUG_YEAR(bottom_year) 
     {
         m_holders.reserve(Month::COUNT);
@@ -71,7 +70,7 @@ public:
         }
         return value;
     }
-    Vector<Student>::Position get_student_pos() const
+    Vector_Sortable<Student>::Position get_student_pos() const
     {
         return m_student_pos;
     }

@@ -4,6 +4,7 @@
 // https://stackoverflow.com/a/46400534
 template <typename T>
 struct Ptr : std::unique_ptr<T> {
+    using base_t = T;
     using std::unique_ptr<T>::unique_ptr;
     using std::unique_ptr<T>::operator =;
 

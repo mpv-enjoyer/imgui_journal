@@ -8,6 +8,7 @@ ReturnValue& doAutomut(const ThisType* this_, const ReturnValue& (ThisType::*fun
     return const_cast<ReturnValue&>((this_->*func)(std::forward<Args>(args)...));
 }
 
+/// Not using this because this might violate const-correctness if used wrong. 
 //#define AUTOMUT0(METHOD)                        auto& METHOD() { return doAutomut(this, &std::remove_reference_t<decltype(*this)>::c##METHOD); }
 //#define AUTOMUT1(METHOD, ARG1T)                 auto& METHOD(ARG1T&& arg1) { return doAutomut(this, &std::remove_reference_t<decltype(*this)>::c##METHOD, std::forward<ARG1T>(arg1)); }
 //#define AUTOMUT2(METHOD, ARG1T, ARG2T)          auto& METHOD(ARG1T&& arg1, ARG2T&& arg2) { return doAutomut(this, &std::remove_reference_t<decltype(*this)>::c##METHOD, std::forward<ARG1T>(arg1), std::forward<ARG2T>(arg2)); }

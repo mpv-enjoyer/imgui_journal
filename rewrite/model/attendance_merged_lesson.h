@@ -4,7 +4,7 @@
 class Attendance_Merged_Lesson
 {
     Removal_Info m_removal_info;
-    Vector<Attendance_Internal_Lesson> m_internal_lessons;
+    Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
 public:
     Attendance_Merged_Lesson(std::vector<Attendance_Internal_Lesson*> internal_lessons)
     {
@@ -21,21 +21,20 @@ public:
     {
         return m_removal_info;
     }
-    const Vector<Attendance_Internal_Lesson>& cref_internal_lessons() const
+    const Vector_Sortable<Attendance_Internal_Lesson>& cref_internal_lessons() const
     {
         return m_internal_lessons;
     }
-    Vector<Attendance_Internal_Lesson>& ref_internal_lessons()
+    Vector_Sortable<Attendance_Internal_Lesson>& ref_internal_lessons()
     {
         return m_internal_lessons;
     }
     void add_student(Attendance_Student* attendance_student)
     {
-        auto iter = m_internal_lessons.begin();
-        do
+        for (auto iter = m_internal_lessons.begin(); iter; iter.next())
         {
-            iter.get()->add_student(attendance_student);
-        } while (iter.next());
+            iter->add_student(attendance_student);
+        }
         // ALL checks must be in Controller so omit even that one
         //for (const auto& attendance_students : m_attendance_students.data())
         //{

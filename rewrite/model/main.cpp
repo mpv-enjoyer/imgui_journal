@@ -71,7 +71,11 @@ public:
 
 void look_into_model(const Model& model)
 {
-    std::cout << model->students()->cref_contracts().cbegin().get()->get_id();
+    auto pos = model->students()->cref_students().csorted_begin([](const Student & lhs, const Student & rhs) -> bool
+    {
+        return lhs.get_name() < rhs.get_name();
+    }).get()->contract_pos();
+    std::cout << model->students()->cref_contracts().cref(pos)->get_id();
     //model->students()->add("fhfds", 1);
 }
 
@@ -83,7 +87,9 @@ int main()
         ref_attendance_wday(Wday::make_begin_EN())->
         ref_merged_lessons().
         push_back(new Attendance_Merged_Lesson({new Attendance_Internal_Lesson(Attendance_Internal_Lesson::Type::SPECIALCOURSE, JTime(10, 40), JTime(11, 20))}));
-    model->students()->add("Student Name", 741234);
+    model->students()->add("1111", 1);
+    model->students()->add("2222", 2);
+    //model->students()->cref_students().csorted_begin([](const Student & lhs, const Student & rhs) -> bool { return lhs.get_name() < rhs.get_name(); });
 
     look_into_model(model);
 

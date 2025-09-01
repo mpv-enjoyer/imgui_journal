@@ -5,7 +5,7 @@
 // Example usage:
 // int value = 1;
 // Command c([](int* value) { ImGui::BeginChild("", *value); }, &value, [](int* value) { ImGui::EndChild(); });
-// Only use if nothing else fits
+// Only use if nothing else fits (might be entirely useless)
 template <typename T>
 class Command : public AUnit
 {
