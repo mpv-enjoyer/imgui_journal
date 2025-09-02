@@ -1,11 +1,7 @@
 #pragma once
-#include "aunit.h"
+#include "ui/ui.h"
 #include "model/model.h"
-
-class Controller
-{
-
-};
+#include "controller/controller.h"
 
 class Popup
 {
