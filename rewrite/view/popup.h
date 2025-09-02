@@ -46,7 +46,7 @@ public:
         {
             return false;
         }
-        bool popup_active = false;
+        bool popup_active = true;
         if (!render_logic()) popup_active = false;
         if (should_exit_using_esc()) popup_active = false;
         if (ImGui::Button("OK"))
@@ -66,6 +66,7 @@ public:
         if (ImGui::Button("Отмена")) popup_active = false;
         ImGui::SameLine();
         print_error();
+        if (!popup_active) ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
         return popup_active;
     }
