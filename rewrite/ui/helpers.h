@@ -39,5 +39,3 @@ struct Scope_Color
     ~Scope_Color() { ImGui::PopStyleColor(); }
     operator bool() { return true; }
 };
-
-#undef NON_COPYABLE_NOR_MOVABLE

@@ -10,5 +10,5 @@ public:
     virtual void disable() = 0;
     virtual void enable() = 0;
     virtual bool is_enabled() = 0;
-    virtual void set_id(std::string id) = 0;
+    //virtual void set_id(std::string id) = 0;
 };
