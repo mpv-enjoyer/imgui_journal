@@ -29,6 +29,7 @@ namespace UI
             // and I don't want this.
             ImGui::PopStyleColor();
         }
+        // (c) Always call a matching EndChild() for each BeginChild() call, regardless of its return value.
         ~Scope_Child() { ImGui::EndChild(); }
         operator bool() { return success; }
     };
