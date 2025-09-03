@@ -1,0 +1,4 @@
+class UnkType
+{
+    int value;
+};
