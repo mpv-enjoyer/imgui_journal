@@ -1,5 +1,5 @@
 #pragma once
-#include "model/model.h"
+#include "model/imodel.h"
 #include "controller/controller.h"
 #include "ui/ui.h"
 
@@ -8,8 +8,8 @@ class Subwindow
     const std::string m_id;
 protected:
     static constexpr ImGuiWindowFlags DEFAULT_WINDOW_FLAGS = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove;
-    const Model& m_model;
-    Controller& m_controller; 
+    const IModel& m_model;
+    Controller& m_controller;
     virtual bool render_logic() = 0;
     virtual ImGuiWindowFlags get_window_flags() { return DEFAULT_WINDOW_FLAGS; }
 public:

@@ -6,7 +6,7 @@ public:
 
 #include <iostream>
 
-IS* get_IS_impl()
+IS& get_IS_impl()
 {
     class IS_impl : public IS
     {
@@ -15,11 +15,11 @@ IS* get_IS_impl()
             std::cout << "Hello from IS_impl\n";
         }
     };
-    return new IS_impl();
+    return *(new IS_impl());
 }
 
 int main()
 {
-    auto* i = get_IS_impl();
-    i->print();
+    auto& i = get_IS_impl();
+    i.print();
 }

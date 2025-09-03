@@ -1,6 +1,6 @@
 #pragma once
 #include "ui/ui.h"
-#include "model/model.h"
+#include "model/imodel.h"
 #include "controller/controller.h"
 
 class Popup
@@ -26,12 +26,12 @@ class Popup
         ImGui::TextColored({0.9f, 0.1f, 0.1f, 1.0f}, m_last_error.c_str());
     }
 protected:
-    const Model& m_model;
+    const IModel& m_model;
     virtual bool render_logic() = 0;
     virtual void accept_changes(Controller& controller) = 0;
     virtual std::optional<std::string> get_error(const Controller& controller) = 0;
 public:
-    Popup(std::string id, Controller& controller, const Model& model)
+    Popup(std::string id, Controller& controller, const IModel& model)
     : m_id(id), m_controller(controller), m_model(model)
     {
 

@@ -24,5 +24,5 @@ int main()
 {
     CreatedByUnkType a(nullptr);
     S s;
-    S::CreatedByInternalType s(S::InternalType);
+    S::CreatedByInternalType s(S::InternalType());
 }
