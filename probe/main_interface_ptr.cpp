@@ -31,6 +31,8 @@ struct Ptr : std::unique_ptr<T> {
     template <typename... Args>
     static Ptr<T> make(Args&&... args)
     { return Ptr<T>(new T(std::forward<Args>(args)...)); }
+
+    Ptr() = delete;
 };
 
 struct IS
@@ -53,7 +55,16 @@ void print_whatever_IS(Ptr<IS> is_ptr)
     is_ptr->print();
 }
 
+struct Ptr_Holder
+{
+    Ptr<int> ptr;
+    Ptr_Holder(Ptr<int> ptr_) : ptr(ptr_) { }
+};
+
 int main()
 {
     print_whatever_IS(Ptr<S>::make());
+    Ptr<int> f = Ptr<int>::make();
+    //Ptr<S> s;
+    Ptr_Holder ptr_holder = Ptr_Holder(Ptr<int>::make());
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "model/imodel.h"
-#include "controller/controller.h"
+#include "controller/icontroller.h"
 #include "ui/ui.h"
 
 class Subwindow
@@ -9,10 +9,13 @@ class Subwindow
 protected:
     static constexpr ImGuiWindowFlags DEFAULT_WINDOW_FLAGS = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove;
     const IModel& m_model;
-    Controller& m_controller;
+    IController& m_controller;
     virtual bool render_logic() = 0;
     virtual ImGuiWindowFlags get_window_flags() { return DEFAULT_WINDOW_FLAGS; }
 public:
+    Subwindow(const IModel& model, IController& controller)
+    : m_model(model), m_controller(controller)
+    { }
     virtual bool allow_ontop() { return true; }
     bool render()
     {

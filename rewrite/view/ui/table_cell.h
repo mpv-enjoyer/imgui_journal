@@ -5,20 +5,25 @@
 
 namespace UI
 {
+    class Table;
+
     class Table_Cell
     {
-        Group m_group;
+        // using shared_ptr instead of Ptr<> because I want Table_Cell
+        // to be copyable for Table_Row and Table initialization.
+        std::shared_ptr<IUnit> m_unit;
+        Table& m_table;
     public:
-        Table_Cell(std::vector<IUnit*> units)
-        : m_group(units, false)
+        Table_Cell(std::shared_ptr<IUnit> unit, Table& table)
+        : m_unit(unit), m_table(table)
         { }
         void render()
         {
-            m_group.render();
+            m_unit->render();
         }
-        void update()
+        Table& get_table()
         {
-            m_group.update();
+            return m_table;
         }
     };
 }

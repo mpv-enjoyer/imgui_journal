@@ -32,4 +32,6 @@ struct Ptr : std::unique_ptr<T> {
     template <typename... Args>
     static Ptr<T> make(Args&&... args)
     { return Ptr<T>(new T(std::forward<Args>(args)...)); }
+
+    Ptr() = delete;
 };
