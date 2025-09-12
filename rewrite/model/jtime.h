@@ -73,6 +73,12 @@ public:
     static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
+    Year get_bottom_year()
+    {
+        Year copy = m_year;
+        if (m_value_from_0 < BEGIN_STUDY_MONTH_FROM_0) copy.previous();
+        return copy;
+    }
     std::size_t calculate_study_year_index() const
     {
         return (m_value_from_0 + COUNT - BEGIN_STUDY_MONTH_FROM_0) % COUNT;

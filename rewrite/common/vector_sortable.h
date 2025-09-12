@@ -73,13 +73,13 @@ private:
         }
         operator bool() { return !is_done(); }
     };
-    template <typename ValueType, typename DataTypeBase>
+    template <typename ValueType, typename DataTypeBase, typename UserDataType>
     class Iterator_Sorted
     {
         DataTypeBase& m_data;
         std::size_t m_index = 0;
         std::vector<std::size_t> m_indices;
-        std::function<bool(const T&, const T&)> m_compare = [](const T& lhs, const T& rhs){ return lhs < rhs; };
+        std::function<bool(const T&, const T&, UserDataType)> m_compare;
         // https://stackoverflow.com/a/10581051
         std::vector<std::size_t> get_ordered(std::vector<Ptr<T>> const& values) {
             std::vector<std::size_t> indices(values.size());
@@ -101,12 +101,12 @@ private:
             return m_indices.size();
         }
     public:
-        Iterator_Sorted(DataTypeBase& data, std::function<bool(const T&, const T&)> compare)
+        Iterator_Sorted(DataTypeBase& data, std::function<bool(const T&, const T&, UserDataType)> compare)
         : m_data(data), m_compare(compare)
         {
             to_begin_update();
         }
-        Iterator_Sorted(const Iterator_Sorted<ValueType, DataTypeBase>& it)
+        Iterator_Sorted(const Iterator_Sorted<ValueType, DataTypeBase, UserDataType>& it)
         : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
         {
             to_begin_update();
@@ -150,6 +150,12 @@ private:
         }
         operator bool() { return !is_done(); }
     };
+    template <typename UserDataType>
+    bool compare_default(const T& lhs, const T& rhs, const UserDataType)
+    {
+        return lhs < rhs; // helper
+    }
+
 public:
     explicit Vector_Sortable() : m_data() { }
     explicit Vector_Sortable(std::size_t size) : m_data(size, new T()) { }
@@ -166,14 +172,21 @@ public:
     {
         return Iterator<const Tptr, const DataTypeBase>(m_data);
     }
-    Iterator_Sorted<Tptr, DataTypeBase> sorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; })
+    
+    // Well... I need to initialize it somehow:
+    template <typename UserDataType = void*>
+    Iterator_Sorted<Tptr, DataTypeBase, const UserDataType>
+        sorted_begin(std::function<bool(const T&, const T&, const UserDataType)> compare = compare_default<UserDataType>)
     {
-        return Iterator_Sorted<Tptr, DataTypeBase>(m_data, compare);
+        return Iterator_Sorted<Tptr, DataTypeBase, const UserDataType>(m_data, compare);
     }
-    Iterator_Sorted<const Tptr, const DataTypeBase> csorted_begin(std::function<bool(const T&, const T&)> compare = [](const T& lhs, const T& rhs){ return lhs < rhs; }) const
+    template <typename UserDataType = void*>
+    Iterator_Sorted<const Tptr, const DataTypeBase, const UserDataType>
+        csorted_begin(std::function<bool(const T&, const T&, const UserDataType)> compare = compare_default<UserDataType>) const
     {
-        return Iterator_Sorted<const Tptr, const DataTypeBase>(m_data, compare);
+        return Iterator_Sorted<const Tptr, const DataTypeBase, const UserDataType>(m_data, compare);
     }
+
     DataTypeBase& ref_data()
     {
         return m_data;
@@ -182,17 +195,23 @@ public:
     {
         return m_data;
     }
-    Position push_back(T* value)
+    Position push_back(Ptr<T> value)
     {
-        m_data.push_back(Ptr<T>(value));
+        m_data.push_back(value);
         return Position(m_data.size() - 1);
     }
     Tptr& ref(const Position& position)
     {
+        IM_ASSERT(is_pos_valid(position));
         return m_data[position.get()];
     }
     const Tptr& cref(const Position& position) const
     {
+        IM_ASSERT(is_pos_valid(position));
         return m_data[position.get()];
+    }
+    bool is_pos_valid(const Position& position) const
+    {
+        return position.get() < m_data.size();
     }
 };

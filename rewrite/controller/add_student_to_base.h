@@ -15,7 +15,7 @@ public:
         if (m_name.size() == 0) return "Не задан ФИ";
         return {};
     }
-    void call(IModel& model)
+    void call(IModel& model) override
     {
         model->students()->add(m_name, m_contract);
     }

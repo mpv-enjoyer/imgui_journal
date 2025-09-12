@@ -9,11 +9,11 @@ namespace View
         Shared& m_shared;
         bool render_logic() override
         {
-            
+            UNFINISHED
         }
     public:
         Mainwindow(IController& controller, Shared& shared)
         : Subwindow(controller), m_shared(shared)
         { }
-    }
+    };
 }

@@ -15,12 +15,12 @@ public:
         {
             if (it->get_id() == contract_id)
             {
-                m_students.push_back(new Student(name, it.get_position()));
+                m_students.push_back(Ptr<Student>::make(name, it.get_position()));
                 return;
             }
         }
-        auto position = m_contracts.push_back(new Contract(contract_id));
-        m_students.push_back(new Student(name, position));
+        auto position = m_contracts.push_back(Ptr<Contract>::make(contract_id));
+        m_students.push_back(Ptr<Student>::make(name, position));
     }
     const Vector_Sortable<Contract>& cref_contracts() const
     {

@@ -10,6 +10,7 @@ namespace View
         bool edit_mode = false;
         Month month = Month::make_current();
         Wday wday = Wday::make_current();
+        Shared() { }
         // We want to start the program with current month, wday opened.
         // There *should* be some Model Year covering this month.
     };
