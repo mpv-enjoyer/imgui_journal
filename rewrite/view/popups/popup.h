@@ -33,10 +33,10 @@ namespace View
         virtual void accept_changes(IController& controller) = 0;
         virtual std::optional<std::string> get_error(const IController& controller) = 0;
     public:
-        Popup(std::string id, IController& controller, const IModel& model)
-        : m_id(id), m_controller(controller), m_model(model)
+        Popup(std::string id, IController& controller)
+        : m_id(id), m_controller(controller), m_model(controller.model())
         {
-        
+
         }
         bool render()
         {
@@ -72,5 +72,5 @@ namespace View
             ImGui::EndPopup();
             return popup_active;
         }
-};
+    };
 }

@@ -8,7 +8,7 @@ class Model_Impl : public IModel
     static Model_Impl* m_instance_ptr;
     Model_Impl()
     {
-        /* Implement load current month by default using Loader */
+        /* TODO CRITICAL: Implement load current month by default using Loader */
     }
 public:
     static Model_Impl& get()
@@ -27,6 +27,10 @@ public:
     }
     void set_year(Year year) override
     {
-        /* Actually implement year change with saving using Loader */
+        /* TODO CRITICAL: Actually implement year change with saving using Loader */
+    }
+    void save() override
+    {
+        /* TODO CRITICAL: Save using Loader */
     }
 };

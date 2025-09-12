@@ -3,8 +3,6 @@
 #include <string>
 #include "model/imodel.h"
 
-class IController;
-
 class ICommand
 {
 public:
