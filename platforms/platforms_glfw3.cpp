@@ -46,14 +46,9 @@ GLFW3_Renderer::GLFW3_Renderer()
     glfwSwapInterval(1); // Enable vsync
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    auto io = &ImGui::GetIO();
-    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    ImGui::StyleColorsLight();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
-    init = true;
+    init = setup_end();
 }
 
 bool GLFW3_Renderer::is_initialized()

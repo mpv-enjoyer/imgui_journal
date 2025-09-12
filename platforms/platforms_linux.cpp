@@ -6,13 +6,9 @@ bool Impl::CompiledPlatform::is_application_already_running()
     return false;
 }
 
-bool Impl::CompiledPlatform::load_font(ImGuiIO* io)
+const char *Impl::CompiledPlatform::font_path()
 {
-    if (!io->Fonts->AddFontFromFileTTF("segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
-    {
-        return false;
-    }
-    return true;
+    return "./segoeui.ttf";
 }
 
 const char* Impl::CompiledPlatform::name()

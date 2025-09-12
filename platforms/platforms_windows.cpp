@@ -22,26 +22,11 @@ bool Impl::CompiledPlatform::is_application_already_running()
 		std::cout << GetLastError();
 	}
 	return false;
-    //CreateMutexA(0, FALSE, "Local\\AttendanceJournal101"); // try to create a named mutex
-    //if(GetLastError() == ERROR_ALREADY_EXISTS) // did the mutex already exist?
-    //{
-    //    int msgboxID = MessageBoxW(
-    //    NULL,
-    //    L"Перейдите в уже открытое окно журнала посещаемости.",
-    //    L"Журнал уже открыт",
-    //    MB_ICONWARNING);
-    //    return true;
-    //}    
-    //return false;
 }
 
-bool Impl::CompiledPlatform::load_font(ImGuiIO* io)
+const char *Impl::CompiledPlatform::font_path()
 {
-    if (!io->Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f, nullptr, io->Fonts->GetGlyphRangesCyrillic()))
-    {
-		return false;
-    }
-	return true;
+    return "c:\\Windows\\Fonts\\segoeui.ttf";
 }
 
 const char* Impl::CompiledPlatform::name()

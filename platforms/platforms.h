@@ -8,11 +8,22 @@
 #define WINDOW_MIN_HEIGHT 500
 
 #include <array>
+#include <string>
 
 class Impl {
 public:
     class Renderer
     {
+    protected:
+        bool setup_end()
+        {
+            auto io = ImGui::GetIO();
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+            //io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+            ImGui::StyleColorsLight();
+            const char* font_path = Impl::platform()->font_path();
+            return io.Fonts->AddFontFromFileTTF(font_path, 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
+        }
     public:
         virtual bool is_initialized() = 0;
         virtual void begin_frame() = 0;
@@ -24,13 +35,13 @@ public:
         virtual void wait_events() = 0;
         virtual bool supports_images() = 0;
         virtual const char* name() = 0;
-        // void set_window_titlebar_icon(GLFWwindow* window);
+        // TODO MAYBE: void set_window_titlebar_icon(GLFWwindow* window);
     };
     class Platform
     {
     public:
         virtual bool is_application_already_running() = 0;
-        virtual bool load_font(ImGuiIO* io) = 0;
+        virtual const char* font_path() = 0; 
         virtual const char* name() = 0;
     };
     enum class Renderers
@@ -42,10 +53,11 @@ private:
     class CompiledPlatform : public Platform
     {
     public:
-        CompiledPlatform() { };
+        CompiledPlatform() { }
         bool is_application_already_running() override;
-        bool load_font(ImGuiIO* io) override;
+        const char* font_path() override;
         const char* name() override;
+
     };
     std::array<Renderers, 2> _attempt_order = { Renderers::GLFW3, Renderers::SDL2 };
     Renderer* _renderer = nullptr;

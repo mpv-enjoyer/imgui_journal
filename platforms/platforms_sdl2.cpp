@@ -28,24 +28,17 @@ SDL2_Renderer::SDL2_Renderer()
     if (renderer == nullptr)
     {
         SDL_Log("Error creating SDL_Renderer!");
+        return;
     }
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    //ImGui::StyleColorsDark();
-    ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
-
-    init = true;
+    init = setup_end();
 }
 
 bool SDL2_Renderer::is_initialized()
