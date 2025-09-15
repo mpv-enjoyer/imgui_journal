@@ -22,5 +22,9 @@ namespace UI
             if (value_buffer > m_max) value_buffer = m_max;
             if (m_callback(value_buffer)) m_value = value_buffer;
         }
+        int get_value() const
+        {
+            return m_value;
+        }
     };
 }

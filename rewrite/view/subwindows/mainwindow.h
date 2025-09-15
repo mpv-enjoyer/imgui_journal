@@ -7,10 +7,11 @@ namespace View
 {
     class Mainwindow : public Subwindow
     {
+        UI::Input_Int input_int = UI::Input_Int("Student contract here", 0);
         Shared& m_shared;
         UI::Button_Dangerous button = UI::Button_Dangerous("Add student", [&]()
         {
-            m_controller.add(Ptr<Add_Student_To_Base>::make("Student Name", 42));
+            m_controller.add(Ptr<Add_Student_To_Base>::make("Student Name", input_int.get_value()));
         });
         UI::Button_Dangerous button2 = UI::Button_Dangerous("Add Group", [&]()
         {
@@ -25,6 +26,7 @@ namespace View
         });
         bool render_logic() override
         {
+            input_int.render();
             ImGui::Text("%s", m_shared.edit_mode ? "edit mode" : "not edit mode");
             button.render();
             for (auto it = m_model->students()->cref_students().cbegin(); it; it.next())
