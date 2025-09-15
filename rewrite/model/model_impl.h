@@ -6,7 +6,9 @@ class Model_Impl : public IModel
 {
     NON_COPYABLE_NOR_MOVABLE(Model_Impl);
     static Model_Impl* m_instance_ptr;
+    Ptr<Journal_Year> m_journal_year;
     Model_Impl()
+    : m_journal_year(Ptr<Journal_Year>::make(Year::make_current()))
     {
         /* TODO CRITICAL: Implement load current month by default using Loader */
     }
@@ -16,7 +18,6 @@ public:
         if (!m_instance_ptr) m_instance_ptr = new Model_Impl();
         return *m_instance_ptr;
     }
-    Model_Impl(const Model_Impl& obj) = delete;
     Journal_Year* const operator->() override
     {
         return get().operator->();

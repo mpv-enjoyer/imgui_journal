@@ -63,16 +63,24 @@ namespace View
         }
         void main_loop()
         {
-            while (!Impl::renderer()->should_close())
+            bool done = false;
+            while (!Impl::renderer()->should_close() && !done)
             {
                 m_timers.prepare_next_frame(m_controller, ImGui::GetTime());
                 Impl::renderer()->begin_frame();
-                m_mainwindow.render();
+                if (!m_subwindow_handler.is_subwindow_opened())
+                {
+                    if (m_mainwindow.render()) done = true;
+                }
                 m_subwindow_handler.render_subwindow();
                 m_popup_handler.render_subwindow();
                 Impl::renderer()->end_frame();
                 m_controller->flush();
             }
+        }
+        ~View()
+        {
+            Impl::renderer()->cleanup();
         }
     };
 }

@@ -22,7 +22,7 @@ private:
     Vector_Sortable<Attendance_Student> m_attendance_students;
 public:
     Attendance_Internal_Lesson(Type lesson_type, JTime begin, JTime end)
-    : m_begin(begin), m_end(end), m_lesson_type(lesson_type)
+    : m_lesson_type(lesson_type), m_begin(begin), m_end(end) 
     { }
     void set_time(JTime begin, JTime end)
     {

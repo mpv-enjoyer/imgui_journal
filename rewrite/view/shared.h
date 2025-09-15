@@ -12,6 +12,6 @@ namespace View
         Wday wday = Wday::make_current();
         Shared() { }
         // We want to start the program with current month, wday opened.
-        // There *should* be some Model Year covering this month.
+        // There *should* be Model Year covering this month.
     };
 }

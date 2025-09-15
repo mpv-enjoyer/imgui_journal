@@ -49,18 +49,31 @@ private:
             ++m_index;
             return !is_done();
         }
-        ValueType& get() const
+        const ValueType& get() const
         {
             assert(!is_done());
-            return m_data.at(m_index);
+            return *(m_data.at(m_index));
         }
-        typename ValueType::base_t& operator*() const
+        ValueType& get()
         {
-            return *get();
+            assert(!is_done());
+            return *(m_data.at(m_index));
         }
-        typename ValueType::base_t* operator->() const
+        ValueType& operator*()
         {
-            return get().operator->();
+            return get();
+        }
+        const ValueType& operator*() const
+        {
+            return get();
+        }
+        ValueType* operator->()
+        {
+            return &get();
+        }
+        const ValueType* operator->() const
+        {
+            return &get();
         }
         Position get_position() const
         {
@@ -121,18 +134,31 @@ private:
             ++m_index;
             return !is_done();
         }
-        ValueType& get() const
+        const ValueType& get() const
         {
             assert(!is_done());
-            return m_data.at(m_indices[m_index]);
+            return *(m_data.at(m_indices[m_index]));
         }
-        typename ValueType::base_t& operator*() const
+        ValueType& get()
         {
-            return *get();
+            assert(!is_done());
+            return *(m_data.at(m_indices[m_index]));
         }
-        typename ValueType::base_t* operator->() const
+        const ValueType& operator*() const
         {
-            return get().operator->();
+            return get();
+        }
+        ValueType& operator*()
+        {
+            return get();
+        }
+        const ValueType* operator->() const
+        {
+            return &get();
+        }
+        ValueType* operator->()
+        {
+            return &get();
         }
         Position get_position() const
         {
@@ -164,27 +190,27 @@ public:
 
     // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it->something(); }
     // DO NOT MAKE A do-while LOOP, IT WILL CRASH ON 0 ELEMENTS.
-    Iterator<Tptr, DataTypeBase> begin()
+    Iterator<T, DataTypeBase> begin()
     {
-        return Iterator<Tptr, DataTypeBase>(m_data);
+        return Iterator<T, DataTypeBase>(m_data);
     }
-    Iterator<const Tptr, const DataTypeBase> cbegin() const
+    Iterator<const T, const DataTypeBase> cbegin() const
     {
-        return Iterator<const Tptr, const DataTypeBase>(m_data);
+        return Iterator<const T, const DataTypeBase>(m_data);
     }
     
     // Well... I need to initialize it somehow:
     template <typename UserDataType = void*>
-    Iterator_Sorted<Tptr, DataTypeBase, const UserDataType>
+    Iterator_Sorted<T, DataTypeBase, const UserDataType>
         sorted_begin(std::function<bool(const T&, const T&, const UserDataType)> compare = compare_default<UserDataType>)
     {
-        return Iterator_Sorted<Tptr, DataTypeBase, const UserDataType>(m_data, compare);
+        return Iterator_Sorted<T, DataTypeBase, const UserDataType>(m_data, compare);
     }
     template <typename UserDataType = void*>
-    Iterator_Sorted<const Tptr, const DataTypeBase, const UserDataType>
+    Iterator_Sorted<const T, const DataTypeBase, const UserDataType>
         csorted_begin(std::function<bool(const T&, const T&, const UserDataType)> compare = compare_default<UserDataType>) const
     {
-        return Iterator_Sorted<const Tptr, const DataTypeBase, const UserDataType>(m_data, compare);
+        return Iterator_Sorted<const T, const DataTypeBase, const UserDataType>(m_data, compare);
     }
 
     DataTypeBase& ref_data()
@@ -197,21 +223,24 @@ public:
     }
     Position push_back(Ptr<T> value)
     {
-        m_data.push_back(value);
+        m_data.push_back(std::move(value));
         return Position(m_data.size() - 1);
     }
-    Tptr& ref(const Position& position)
+    T& ref(const Position& position)
     {
         IM_ASSERT(is_pos_valid(position));
-        return m_data[position.get()];
+        return *m_data[position.get()];
     }
-    const Tptr& cref(const Position& position) const
+    const T& cref(const Position& position) const
     {
         IM_ASSERT(is_pos_valid(position));
-        return m_data[position.get()];
+        return *m_data[position.get()];
     }
     bool is_pos_valid(const Position& position) const
     {
         return position.get() < m_data.size();
     }
 };
+
+template <typename T>
+using Position = typename Vector_Sortable<T>::Position;

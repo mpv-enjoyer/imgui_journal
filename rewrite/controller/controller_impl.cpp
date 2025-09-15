@@ -1,4 +1,4 @@
-#include "model_impl.h"
+#include "model/model_impl.h"
 #include "controller_impl.h"
 
 const IModel &Controller_Impl::model() const
