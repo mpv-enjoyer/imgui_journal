@@ -3,10 +3,26 @@
 
 class Attendance_Merged_Lesson
 {
+public:
+    static constexpr int AGE_GROUP_COUNT = 8;
+    std::array<std::string, AGE_GROUP_COUNT> AGE_GROUPS = 
+        {"возраст не указан"
+        "4 года, дошкольная группа", 
+        "5 лет, дошкольная группа", 
+        "6 лет, дошкольная группа", 
+        "7 лет, школьная группа", 
+        "8 лет, школьная группа", 
+        "9 лет, школьная группа", 
+        "10-11 лет, школьная группа", 
+        "12-13 лет, школьная группа"};
+private:
+    int m_number;
+    int m_age_group;
     Removal_Info m_removal_info;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
 public:
-    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons)
+    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group)
+    : m_number(number), m_age_group(age_group)
     {
         IM_ASSERT(internal_lessons.size() != 0);
         for (auto& internal_lesson : internal_lessons)
@@ -46,5 +62,21 @@ public:
     Vector_Sortable<Attendance_Student>& ref_students()
     {
         return m_internal_lessons.begin()->ref_data();
+    }
+    int get_age_group() const
+    {
+        return m_age_group;
+    }
+    void set_age_group(int age_group)
+    {
+        m_age_group = age_group;
+    }
+    int get_number() const
+    {
+        return m_number;
+    }
+    void set_number(int number)
+    {
+        m_number = number;
     }
 };

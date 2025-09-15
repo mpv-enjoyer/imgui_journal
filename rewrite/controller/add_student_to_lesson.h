@@ -4,10 +4,10 @@
 class Add_Student_To_Group : public ICommand
 {
     const Wday m_wday;
-    const Vector_Sortable<Attendance_Merged_Lesson>::Position m_merged_lesson_pos;
-    const Vector_Sortable<Student>::Position m_student_pos;
+    const Position<Attendance_Merged_Lesson> m_merged_lesson_pos;
+    const Position<Student> m_student_pos;
 public:
-    Add_Student_To_Group(Wday wday, Vector_Sortable<Attendance_Merged_Lesson>::Position merged_lesson_pos, Vector_Sortable<Student>::Position student_pos)
+    Add_Student_To_Group(Wday wday, Position<Attendance_Merged_Lesson> merged_lesson_pos, Position<Student> student_pos)
     : m_wday(wday), m_merged_lesson_pos(merged_lesson_pos), m_student_pos(student_pos)
     { }
     std::optional<std::string> get_error(const IModel& model) override
@@ -17,9 +17,9 @@ public:
         const auto& merged = model->attendance_wdays()->cref_wday(m_wday).cref_merged_lessons();
         if (!merged.is_pos_valid(m_merged_lesson_pos)) return "m_merged_lesson_pos invalid";
         const auto& internal_students_data = merged.cref(m_merged_lesson_pos).cref_students().cref_data();
-        bool exists = std::any_of(internal_students_data.begin(), internal_students_data.end(), [=](const Attendance_Student& student)
+        bool exists = std::any_of(internal_students_data.begin(), internal_students_data.end(), [=](const Ptr<Attendance_Student>& student)
             {
-                return student.get_student_pos() == m_student_pos;
+                return student->get_student_pos() == m_student_pos;
             });
         if (exists) return "m_student_pos already present in merged lesson";
         return {};
