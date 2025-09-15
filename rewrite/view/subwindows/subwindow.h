@@ -15,8 +15,8 @@ namespace View
         virtual bool render_logic() = 0;
         virtual ImGuiWindowFlags get_window_flags() { return DEFAULT_WINDOW_FLAGS; }
     public:
-        Subwindow(IController& controller)
-        : m_controller(controller), m_model(m_controller.model())
+        Subwindow(std::string id, IController& controller)
+        : m_id(id), m_controller(controller), m_model(m_controller.model())
         { }
         virtual bool allow_ontop() { return true; }
         bool render()

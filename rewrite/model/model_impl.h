@@ -20,11 +20,11 @@ public:
     }
     Journal_Year* const operator->() override
     {
-        return get().operator->();
+        return m_journal_year.get();
     }
     const Journal_Year* const operator->() const override
     {
-        return get().operator->();
+        return m_journal_year.get();
     }
     void set_year(Year year) override
     {

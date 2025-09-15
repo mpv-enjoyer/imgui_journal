@@ -16,11 +16,11 @@ namespace View
         {
             ImGui::Text("%s", m_shared.edit_mode ? "edit mode" : "not edit mode");
             button.render();
-            return !(ImGui::Button("Exit lol"));
+            return ImGui::Button("Exit lol");
         }
     public:
         Mainwindow(IController& controller, Shared& shared)
-        : Subwindow(controller), m_shared(shared)
+        : Subwindow("mainwindow", controller), m_shared(shared)
         { }
     };
 }
