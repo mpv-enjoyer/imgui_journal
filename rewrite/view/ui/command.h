@@ -15,7 +15,7 @@ namespace UI
         std::function<void(T*)> m_command;
     public:
         [[nodiscard]] Command(std::function<void(T*)> command, T* user_data)
-        : AUnit(""), m_command(command), m_user_data(user_data),
+        : AUnit(""), m_command(command), m_user_data(user_data)
         { }
         void render_logic() override
         {

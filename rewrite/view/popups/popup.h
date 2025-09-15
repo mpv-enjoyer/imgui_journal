@@ -1,5 +1,5 @@
 #pragma once
-#include "ui/ui.h"
+#include "../ui/ui.h"
 #include "model/imodel.h"
 #include "controller/icontroller.h"
 

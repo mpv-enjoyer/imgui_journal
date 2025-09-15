@@ -7,9 +7,9 @@ namespace UI
     class Input_Int : public AUnit
     {
         int m_value;
+        std::function<bool(int)> m_callback;
         int m_min;
         int m_max;
-        std::function<bool(int)> m_callback;
     public:
         Input_Int(std::string id, int value = 0, std::function<bool(int)> callback = [](int) -> bool { return true; }, int min = 0, int max = __INT_MAX__)
         : AUnit(id), m_value(value), m_callback(callback), m_min(min), m_max(max)

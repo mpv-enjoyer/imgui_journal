@@ -12,12 +12,12 @@ public:
             m_wdays.push_back(Ptr<Attendance_Wday>::make());
         }
     }
-    const Ptr<Attendance_Wday>& cref_wday(Wday wday) const
+    const Attendance_Wday& cref_wday(Wday wday) const
     {
-        return m_wdays.cref_data().at(wday.get_EN());
+        return *(m_wdays.cref_data().at(wday.get_EN()));
     }
-    Ptr<Attendance_Wday>& ref_wday(Wday wday)
+    Attendance_Wday& ref_wday(Wday wday)
     {
-        return m_wdays.ref_data().at(wday.get_EN());
+        return *(m_wdays.ref_data().at(wday.get_EN()));
     }
 };

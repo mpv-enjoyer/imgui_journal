@@ -1,10 +1,9 @@
 #pragma once
 #include <cassert>
-#define IM_ASSERT assert
-#define DEBUG_ASSERT assert
 #include <array>
 #include <string>
 #include <ctime>
+#include "common/assert.h"
 #include "common/autoops.h"
 
 struct

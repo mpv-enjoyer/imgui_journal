@@ -1,4 +1,5 @@
 #pragma once
+#include "common/assert.h"
 #include "../../imgui/imgui.h"
 #include <string>
 

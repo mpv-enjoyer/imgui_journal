@@ -63,11 +63,11 @@ public:
     //{
     //    return m_attendance_students.ref(pos);
     //}
-    const Ptr<Attendance_Student>& cref_student(Vector_Sortable<Attendance_Student>::Position pos) const
+    const Attendance_Student& cref_student(Vector_Sortable<Attendance_Student>::Position pos) const
     {
         return m_attendance_students.cref(pos);
     }
-    Ptr<Attendance_Student>& ref_student(Vector_Sortable<Attendance_Student>::Position pos)
+    Attendance_Student& ref_student(Vector_Sortable<Attendance_Student>::Position pos)
     {
         return m_attendance_students.ref(pos);
     }

@@ -19,7 +19,11 @@ public:
         auto month = Month::make_begin_study_year(bottom_year);
         do
         {
-            m_holders.emplace_back(month.calculate_wday_count(wday));
+            m_holders.push_back({});
+            for (int i = 0; i < month.calculate_wday_count(wday); i++)
+            {
+                m_holders.back().push_back(Ptr<Attendance_Holder>::make());
+            }
         } while (month.next());
     }
     const Removal_Info& cref_removal_info() const
@@ -38,25 +42,25 @@ public:
     {
         m_wants_lesson = value;
     }
-    const Ptr<Attendance_Holder>& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
+    const Attendance_Holder& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {
         DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
-        return m_holders[month_index][mday_index];
+        return *(m_holders[month_index][mday_index]);
     }
-    Ptr<Attendance_Holder>& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
+    Attendance_Holder& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
     {
         DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
         DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
         auto month_index = mday.get_month().calculate_study_year_index();
         auto mday_index = mday.get_index_in_month();
-        return m_holders[month_index][mday_index];
+        return *(m_holders[month_index][mday_index]);
     }
     Attendance_Holder get_holder_unchecked(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {
-        return *cref_holder(mday);
+        return cref_holder(mday);
     }
     Attendance_Holder get_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
     {

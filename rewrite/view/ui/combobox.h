@@ -23,7 +23,7 @@ namespace UI
             {
                 m_choices.append(choice + std::string('\0'));
             }
-            m_choices.append('\0');
+            m_choices.append("\0");
         }
         void render_logic() override
         {

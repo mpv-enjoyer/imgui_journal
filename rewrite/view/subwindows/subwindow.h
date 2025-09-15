@@ -1,7 +1,7 @@
 #pragma once
 #include "model/imodel.h"
 #include "controller/icontroller.h"
-#include "ui/ui.h"
+#include "view/ui/ui.h"
 
 namespace View
 {
