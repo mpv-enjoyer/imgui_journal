@@ -21,5 +21,9 @@ namespace UI
             if (m_text_buffer.size() > m_max_length) m_text_buffer = m_text_buffer.substr(0, m_max_length);
             if (m_callback(m_text_buffer)) m_text = m_text_buffer;
         }
+        std::string get_value() const
+        {
+            return m_text;
+        }
     };
 }

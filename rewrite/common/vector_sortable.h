@@ -189,7 +189,7 @@ public:
     ~Vector_Sortable() = default;
 
     // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it->something(); }
-    // DO NOT MAKE A do-while LOOP, IT WILL CRASH ON 0 ELEMENTS.
+    // do-while LOOP WILL CRASH ON 0 ELEMENTS.
     Iterator<T, DataTypeBase> begin()
     {
         return Iterator<T, DataTypeBase>(m_data);
@@ -239,6 +239,10 @@ public:
     bool is_pos_valid(const Position& position) const
     {
         return position.get() < m_data.size();
+    }
+    std::size_t size() const
+    {
+        return m_data.size();
     }
 };
 

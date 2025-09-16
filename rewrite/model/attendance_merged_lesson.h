@@ -19,10 +19,11 @@ private:
     int m_number;
     int m_age_group;
     Removal_Info m_removal_info;
+    std::string m_comment;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
 public:
-    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group)
-    : m_number(number), m_age_group(age_group)
+    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
+    : m_number(number), m_age_group(age_group), m_comment(comment)
     {
         IM_ASSERT(internal_lessons.size() != 0);
         for (auto& internal_lesson : internal_lessons)
@@ -78,5 +79,13 @@ public:
     void set_number(int number)
     {
         m_number = number;
+    }
+    std::string get_comment() const
+    {
+        return m_comment;
+    }
+    void set_comment(std::string comment)
+    {
+        m_comment = comment;
     }
 };

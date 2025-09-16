@@ -15,9 +15,7 @@ namespace UI
     public:
         Table(std::string id, std::vector<Table_Column_Config> headers, ImGuiTableFlags flags = 0, ImVec2 outer_size = ImVec2((0.0F), (0.0F)), float inner_width = (0.0F))
         : AUnit(id), m_column_count(headers.size()), m_headers(headers), m_flags(flags), m_outer_size(outer_size), m_inner_width(inner_width)
-        {
-            update();
-        }
+        { }
         void update() override = 0;
     protected:
         void render_logic() override

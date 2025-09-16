@@ -30,8 +30,7 @@ namespace View
     protected:
         const IModel& m_model;
         virtual bool render_logic() = 0;
-        virtual void accept_changes(IController& controller) = 0;
-        virtual std::optional<std::string> get_error(const IController& controller) = 0;
+        virtual Ptr<ICommand> get_action() = 0; 
     public:
         Popup(std::string id, IController& controller)
         : m_id(id), m_controller(controller), m_model(controller.model())
@@ -53,14 +52,13 @@ namespace View
             if (should_exit_using_esc()) popup_active = false;
             if (ImGui::Button("OK"))
             {
-                auto error = get_error(m_controller);
+                auto error = m_controller.add(get_action());
                 if (error)
                 {
                     m_last_error = *error;
                 }
                 else
                 {
-                    accept_changes(m_controller);
                     popup_active = false;
                 }
             }
@@ -70,7 +68,7 @@ namespace View
             print_error();
             if (!popup_active) ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
-            return popup_active;
+            return !popup_active;
         }
     };
 }

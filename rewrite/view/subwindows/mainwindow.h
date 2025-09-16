@@ -15,14 +15,14 @@ namespace View
         });
         UI::Button_Dangerous button2 = UI::Button_Dangerous("Add Group", [&]()
         {
-            std::vector<Add_Merged_Lesson::Request> requests = {
+            std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
                 {
                     .type = Attendance_Internal_Lesson::Type::DESIGN,
                     .begin = JTime(10, 40),
                     .end = JTime(11, 50)
                 }
             };
-            m_controller.add(Ptr<Add_Merged_Lesson>::make(Wday::make_current(), 0, "comment", 4, requests));
+            m_controller.add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Wday::make_current(), 0, "comment", 4, requests));
         });
         bool render_logic() override
         {

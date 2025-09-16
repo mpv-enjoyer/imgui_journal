@@ -22,9 +22,7 @@ namespace UI
     public:
         AUnit(std::string id, bool enabled = true, float width = 0)
         : m_id(id), m_enabled(enabled), m_width(width)
-        {
-            update();
-        }
+        { }
         void render() override final
         {
             if (!m_enabled) ImGui::BeginDisabled();
