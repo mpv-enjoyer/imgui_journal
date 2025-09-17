@@ -36,6 +36,9 @@ private:
         Iterator(DataTypeBase& data)
         : m_data(data), m_max_index(data.size())
         { }
+        Iterator(DataTypeBase& data, std::size_t index)
+        : m_data(data), m_max_index(data.size()), m_index(index)
+        { }
         Iterator(const Iterator<ValueType, DataTypeBase>& iterator)
         : m_data(iterator.m_data), m_max_index(iterator.m_max_index), m_index(iterator.m_index)
         { }
@@ -48,6 +51,11 @@ private:
             assert(!is_done());
             ++m_index;
             return !is_done();
+        }
+        Iterator& operator++()
+        {
+            next();
+            return *this;
         }
         const ValueType& get() const
         {
@@ -85,6 +93,8 @@ private:
             m_max_index = m_data.size();
         }
         operator bool() { return !is_done(); }
+        bool operator== (Iterator& other) const { return other.m_index == m_index; }
+        bool operator!= (Iterator& other) const { return !(*this == other); }
     };
     template <typename ValueType, typename DataTypeBase, typename UserDataType>
     class Iterator_Sorted
@@ -119,6 +129,12 @@ private:
         {
             to_begin_update();
         }
+        Iterator_Sorted(DataTypeBase& data, std::function<bool(const T&, const T&, UserDataType)> compare, std::size_t index)
+        : m_data(data), m_compare(compare)
+        {
+            to_begin_update();
+            m_index = index;
+        }
         Iterator_Sorted(const Iterator_Sorted<ValueType, DataTypeBase, UserDataType>& it)
         : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
         {
@@ -133,6 +149,11 @@ private:
             assert(!is_done());
             ++m_index;
             return !is_done();
+        }
+        Iterator_Sorted& operator++()
+        {
+            next();
+            return *this;
         }
         const ValueType& get() const
         {
@@ -175,6 +196,8 @@ private:
             m_indices = get_ordered(m_data);
         }
         operator bool() { return !is_done(); }
+        bool operator== (Iterator_Sorted& other) const { return other.m_index == m_index; }
+        bool operator!= (Iterator_Sorted& other) const { return !(*this == other); }
     };
     template <typename UserDataType>
     bool compare_default(const T& lhs, const T& rhs, const UserDataType)
@@ -194,11 +217,28 @@ public:
     {
         return Iterator<T, DataTypeBase>(m_data);
     }
-    Iterator<const T, const DataTypeBase> cbegin() const
+    Iterator<const T, const DataTypeBase> begin() const
     {
         return Iterator<const T, const DataTypeBase>(m_data);
     }
-    
+    Iterator<const T, const DataTypeBase> cbegin() const
+    {
+        return begin();
+    }
+
+    Iterator<T, DataTypeBase> end()
+    {
+        return Iterator<T, DataTypeBase>(m_data, m_data.size());
+    }
+    Iterator<const T, const DataTypeBase> end() const
+    {
+        return Iterator<const T, const DataTypeBase>(m_data, m_data.size());
+    }
+    Iterator<const T, const DataTypeBase> cend() const
+    {
+        return end();
+    }
+
     // Well... I need to initialize it somehow:
     template <typename UserDataType = void*>
     Iterator_Sorted<T, DataTypeBase, const UserDataType>

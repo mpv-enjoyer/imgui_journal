@@ -1,13 +1,17 @@
 #pragma once
 #include "icommand.h"
 
-class Add_Student_To_Base : public ICommand
+class Add_Or_Edit_Student_In_Base : public ICommand
 {
+    std::optional<Position<Student>> m_student_pos;
     std::string m_name;
     int m_contract;
 public:
-    Add_Student_To_Base(std::string name, int contract)
+    Add_Or_Edit_Student_In_Base(std::string name, int contract)
     : m_name(name), m_contract(contract)
+    { }
+    Add_Or_Edit_Student_In_Base(Position<Student> student_pos, std::string name, int contract)
+    : m_student_pos(student_pos), m_name(name), m_contract(contract)
     { }
     std::optional<std::string> get_error(const IModel& model) override
     {
@@ -17,6 +21,10 @@ public:
     }
     void call(IModel& model) override
     {
+        if (m_student_pos)
+        {
+            
+        }
         model->students()->add(m_name, m_contract);
     }
 };
