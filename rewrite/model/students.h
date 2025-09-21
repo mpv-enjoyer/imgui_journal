@@ -9,10 +9,10 @@ class Students
     Vector_Sortable<Student> m_students;
     Position<Contract> insert_contract_if_not_exists(int contract_id)
     {
-        std::any_of(m_contracts.cbegin(), m_contracts.cend(), [&](Contract& contract)
+        for (auto it = m_contracts.begin(); it; ++it)
         {
-            return contract.get_id() == contract_id;
-        });
+            if (it->get_id() == contract_id) return it.get_position();
+        }
         return m_contracts.push_back(Ptr<Contract>::make(contract_id));
     }
 public:

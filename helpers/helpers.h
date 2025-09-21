@@ -328,8 +328,8 @@ public:
     }
     bool next() { return !Loop::plus(m_value_EN, COUNT); }
     bool previous() { return !Loop::minus(m_value_EN, COUNT); }
-    std::string name() { return NAMES[m_value_EN]; }
-    std::string name_short() { return NAMES_SHORT[m_value_EN]; }
+    std::string get_name() const { return NAMES[m_value_EN]; }
+    std::string get_name_short() const { return NAMES_SHORT[m_value_EN]; }
 };
 class WdayIterator
 {

@@ -16,10 +16,10 @@ public:
         if (!students.is_pos_valid(m_student_pos)) return "m_student_pos invalid";
         const auto& merged = model->attendance_wdays()->cref_wday(m_wday).cref_merged_lessons();
         if (!merged.is_pos_valid(m_merged_lesson_pos)) return "m_merged_lesson_pos invalid";
-        const auto& internal_students_data = merged.cref(m_merged_lesson_pos).cref_students().cref_data();
-        bool exists = std::any_of(internal_students_data.begin(), internal_students_data.end(), [=](const Ptr<Attendance_Student>& student)
+        const auto& internal_students = merged.cref(m_merged_lesson_pos).cref_students();
+        bool exists = std::any_of(internal_students.begin(), internal_students.end(), [=](const Attendance_Student& student)
             {
-                return student->get_student_pos() == m_student_pos;
+                return student.get_student_pos() == m_student_pos;
             });
         if (exists) return "m_student_pos already present in merged lesson";
         return {};

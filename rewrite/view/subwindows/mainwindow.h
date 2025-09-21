@@ -11,7 +11,7 @@ namespace View
         Shared& m_shared;
         UI::Button_Dangerous button = UI::Button_Dangerous("Add student", [&]()
         {
-            m_controller.add(Ptr<Add_Student_To_Base>::make("Student Name", input_int.get_value()));
+            m_controller.add(Ptr<Add_Or_Edit_Student_In_Base>::make("Student Name", input_int.get_value()));
         });
         UI::Button_Dangerous button2 = UI::Button_Dangerous("Add Group", [&]()
         {
@@ -31,7 +31,7 @@ namespace View
             button.render();
             for (auto it = m_model->students()->cref_students().cbegin(); it; it.next())
             {
-                auto contract = m_model->students()->cref_contracts().cref(it->contract_pos());
+                auto contract = m_model->students()->cref_contracts().cref(it->get_contract_pos());
                 ImGui::Text("student %s contract %i", it->get_name().c_str(), contract.get_id());
             }
             button2.render();

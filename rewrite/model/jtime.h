@@ -216,7 +216,7 @@ public:
         Loop::minus(m_value_EN, COUNT);
         return value_return;
     }
-    std::string get_name()
+    std::string get_name() const
     {
         switch (m_value_EN)
         {
@@ -230,7 +230,7 @@ public:
         default: IM_ASSERT(false);
         }
     }
-    std::string get_name_short()
+    std::string get_name_short() const
     {
         switch (m_value_EN)
         {

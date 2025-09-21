@@ -23,8 +23,11 @@ public:
     {
         if (m_student_pos)
         {
-            
+            model->students()->edit(*m_student_pos, m_name, m_contract);
         }
-        model->students()->add(m_name, m_contract);
+        else
+        {
+            model->students()->add(m_name, m_contract);
+        }
     }
 };
