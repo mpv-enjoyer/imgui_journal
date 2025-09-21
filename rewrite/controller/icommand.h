@@ -6,6 +6,9 @@
 class ICommand
 {
 public:
-    virtual std::optional<std::string> get_error(const IModel&) = 0;
+    // get_error should not be expensive. That is because
+    // it will be called 2-3 times before the call actually happens.
+    using Error = std::optional<std::string>;
+    virtual Error get_error(const IModel&) = 0;
     virtual void call(IModel&) = 0;
 };

@@ -3,13 +3,13 @@
 
 enum class Attendance_Status
 {
-    //INVALID     = -2, // Crash if encounter those
-    NOT_AWAITED = -1,
+    //INVALID     = -2, Crash if encounter those
+    NOT_AWAITED = -1, // Don't use. Use Holidays, Attendance_Student::m_wants_lesson, ...?
     NO_DATA     = 0,
     ON_LESSON   = 1,
     WAS_ILL     = 2,
     SKIPPED     = 3,
-    WORKED_OUT  = 4
+    //WORKED_OUT  = 4 Store workouts in Workouts class instead.
 };
 
 class Attendance_Holder

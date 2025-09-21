@@ -30,7 +30,7 @@ public:
             // Not filling in type because you should not be able to edit it.
         }
     }
-    std::optional<std::string> get_error(const IModel& model) override
+    Error get_error(const IModel& model) override
     {
         if (m_lessons.size() == 0 || m_lessons.size() > 2)
         {

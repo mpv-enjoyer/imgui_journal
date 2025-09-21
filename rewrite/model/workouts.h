@@ -6,15 +6,15 @@ class Workouts
     std::vector<Ptr<Workout>> m_workouts;
 public:
     Workouts() { }
-    void add(Workout* workout)
+    void add(Ptr<Workout> workout)
     {
         for (const auto& current_workout : m_workouts)
         {
             if (*workout == *current_workout) return;
         }
-        m_workouts.emplace_back(workout);        
+        m_workouts.push_back(std::move(workout));        
     }
-    std::vector<Workout> get_by_real(Workout::Position pos) const
+    std::vector<Workout> get_by_real(Lesson_ID pos) const
     {
         std::vector<Workout> output;
         for (const auto& workout : m_workouts)
@@ -26,7 +26,7 @@ public:
         }
         return output;
     }
-    bool is_should(Workout::Position workout_pos, Vector_Sortable<Student>::Position student_pos) const
+    bool is_should(Lesson_ID workout_pos, Vector_Sortable<Student>::Position student_pos) const
     {
         std::vector<Workout> output;
         for (const auto& workout : m_workouts)
@@ -38,7 +38,7 @@ public:
         }
         return false;
     }
-    bool is_real(Workout::Position workout_pos, Vector_Sortable<Student>::Position student_pos) const
+    bool is_real(Lesson_ID workout_pos, Vector_Sortable<Student>::Position student_pos) const
     {
         std::vector<Workout> output;
         for (const auto& workout : m_workouts)

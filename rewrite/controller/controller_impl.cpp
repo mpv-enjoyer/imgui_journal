@@ -6,13 +6,10 @@ const IModel &Controller_Impl::model() const
     return Model_Impl::get();
 }
 
-std::optional<std::string> Controller_Impl::add(Ptr<ICommand> command)
+void Controller_Impl::add(Ptr<ICommand> command)
 {
-    auto error = command->get_error(model());
-    if (error) return error;
     // Beware! It's my first time using std move:
     m_pending_commands.push(std::move(command));
-    return {};
 }
 
 std::optional<std::string> Controller_Impl::get_error(Ptr<ICommand> command) const
@@ -24,7 +21,8 @@ void Controller_Impl::flush()
 {
     while (!m_pending_commands.empty())
     {
-        m_pending_commands.front()->call(Model_Impl::get());
+        auto error = m_pending_commands.front()->get_error(model());
+        if (!error) m_pending_commands.front()->call(Model_Impl::get());
         m_pending_commands.pop();
     }
 }

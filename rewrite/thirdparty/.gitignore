@@ -1,3 +1,5 @@
 imgui.a
 *.o
 *.old
+nob
+nob.old

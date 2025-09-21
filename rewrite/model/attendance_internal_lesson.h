@@ -50,19 +50,7 @@ public:
     void add_student(Year bottom_year, Wday wday, Vector_Sortable<Student>::Position student_pos)
     {
         m_attendance_students.push_back(Ptr<Attendance_Student>::make(bottom_year, wday, student_pos));
-        // ALL checks must be in Controller so omit even that one
-        //for (const auto& attendance_students : m_attendance_students.data())
-        //{
-        //    if (student_pos.get() == attendance_students->get_student_pos().get())
-        //    {
-        //        return;
-        //    }
-        //}
     }
-    //std::unique_ptr<Attendance_Student>& ref_attendance_student(Vector_Sortable<Attendance_Student>::Position pos)
-    //{
-    //    return m_attendance_students.ref(pos);
-    //}
     const Attendance_Student& cref_student(Vector_Sortable<Attendance_Student>::Position pos) const
     {
         return m_attendance_students.cref(pos);
