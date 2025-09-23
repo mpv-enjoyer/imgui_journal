@@ -1,18 +1,19 @@
 #pragma once
 #include "attendance_merged_lesson.h"
 #include "student.h"
+#include "ids.h"
 
 class Workout
 {
 public:
-    Workout(Lesson_ID real_pos, Lesson_ID should_pos, Vector_Sortable<Student>::Position student_pos)
+    Workout(Workout_Lesson_ID real_pos, Workout_Lesson_ID should_pos, Vector_Sortable<Student>::Position student_pos)
     : m_real_pos(real_pos), m_should_pos(should_pos), m_student_pos(student_pos)
     { }
-    Lesson_ID get_real_pos() const
+    Workout_Lesson_ID get_real_pos() const
     {
         return m_real_pos;
     }
-    Lesson_ID get_should_pos() const
+    Workout_Lesson_ID get_should_pos() const
     {
         return m_should_pos;
     }
@@ -26,7 +27,7 @@ public:
             == std::tie(other.m_real_pos, other.m_should_pos, other.m_student_pos);
     }
 private:
-    Lesson_ID m_real_pos;
-    Lesson_ID m_should_pos;
+    Workout_Lesson_ID m_real_pos;
+    Workout_Lesson_ID m_should_pos;
     Vector_Sortable<Student>::Position m_student_pos;
 };

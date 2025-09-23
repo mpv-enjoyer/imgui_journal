@@ -137,7 +137,6 @@ public:
 
 class Mday
 {
-    static constexpr int MAX_COUNT = 31;
     int m_value_from_0;
     Month m_month;
     Mday(int value_from_0, Month month) : m_value_from_0(value_from_0), m_month(month)
@@ -247,7 +246,39 @@ public:
     AUTOOPS1(Wday, m_value_EN);
 };
 
-class JTime //used separately with ctime.
+// Attendance day. Represents one mday in an array of
+// days with the same wday starting at the study year.
+class Aday
+{
+    Mday m_mday;
+    std::size_t m_index = 0;
+    std::size_t m_max_index_for_month;
+    Aday(Mday mday) : m_mday(mday)
+    {
+        auto wday = Wday::make_from_mday(mday);
+        for (auto month = Month::make_begin_study_year(mday.get_year()); month != mday.get_month(); month.next())
+        {
+            m_index += month.calculate_wday_count(wday);
+        }
+        m_max_index_for_month = m_index + mday.get_month().calculate_wday_count(wday);
+        m_index += mday.get_index_in_month();
+    }
+public:
+    static Aday make_from_first_wday(Wday wday, Month month)
+    {
+        return Aday(Mday::make_from_first_wday(wday, month));
+    }
+    Mday mday() const { return m_mday; }
+    std::size_t index() const { return m_index; }
+    bool next()
+    {
+        if (m_index == m_max_index_for_month) return false;
+        m_index++;
+        return true;
+    }
+};
+
+class JTime
 {
     int m_hours; //0-23
     int m_minutes; //0-59

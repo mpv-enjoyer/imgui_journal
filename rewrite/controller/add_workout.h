@@ -3,10 +3,10 @@
 
 class Add_Workout : public ICommand
 {
-    Lesson_ID m_real_pos;
-    Lesson_ID m_should_pos;
+    Workout_Lesson_ID m_real_pos;
+    Workout_Lesson_ID m_should_pos;
     Position<Student> m_student_pos;
-    static Error get_lesson_id_error(const IModel& model, Lesson_ID lesson_id, Position<Student> student_pos, bool should_be_here)
+    static Error get_lesson_id_error(const IModel& model, Workout_Lesson_ID lesson_id, Position<Student> student_pos, bool should_be_here)
     {
         auto wday = Wday::make_from_mday(lesson_id.mday);
         auto& merged_lessons = model->attendance_wdays()->cref_wday(wday).cref_merged_lessons();
@@ -33,7 +33,7 @@ class Add_Workout : public ICommand
         return {};
     }
 
-    static Error get_not_awaited_error(const IModel& model, Lesson_ID should_pos, Position<Student> student_pos)
+    static Error get_not_awaited_error(const IModel& model, Workout_Lesson_ID should_pos, Position<Student> student_pos)
     {
         auto& merged = model
             ->attendance_wdays()
@@ -69,7 +69,7 @@ class Add_Workout : public ICommand
     // if (requested_status.status == STATUS_INVALID) { error("SYSTEM_STATUS_INVALID"); return false; }
     // return true;
 public:
-    Add_Workout(Lesson_ID real_pos, Lesson_ID should_pos, Position<Student> student_pos)
+    Add_Workout(Workout_Lesson_ID real_pos, Workout_Lesson_ID should_pos, Position<Student> student_pos)
     : m_real_pos(real_pos), m_should_pos(should_pos), m_student_pos(student_pos)
     { }
     Error get_error(const IModel& model) override
@@ -118,7 +118,7 @@ public:
 
     void call(IModel& model) override
     {
-        Lesson_ID real_pos
+        Workout_Lesson_ID real_pos
         {
             .mday = ,
             .merged_lesson_pos = ,

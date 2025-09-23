@@ -89,19 +89,3 @@ public:
         m_comment = comment;
     }
 };
-
-struct Lesson_ID
-{
-    Mday mday;
-    Vector_Sortable<Attendance_Merged_Lesson>::Position merged_lesson_pos;
-    Vector_Sortable<Attendance_Internal_Lesson>::Position internal_lesson_pos;
-    bool operator==(const Lesson_ID& other) const
-    {
-        return std::tie(this->mday, this->merged_lesson_pos, this->internal_lesson_pos)
-            == std::tie(other.mday, other.merged_lesson_pos, other.internal_lesson_pos);
-    }
-    bool operator!=(const Lesson_ID& other) const
-    {
-        return !(*this == other);
-    }
-};
