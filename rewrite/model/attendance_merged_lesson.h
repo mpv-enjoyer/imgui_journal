@@ -47,23 +47,34 @@ public:
     {
         return m_internal_lessons;
     }
-    void add_student(Year bottom_year, Wday wday, Vector_Sortable<Student>::Position student_pos)
+    void add_student(std::size_t holders_count, Position<Student> student_pos)
     {
         for (auto iter = m_internal_lessons.begin(); iter; iter.next())
         {
-            iter->add_student(bottom_year, wday, student_pos);
+            iter->add_student(holders_count, student_pos);
         }
-        // Kind of weird that we pass bottom_year here but that's
-        // the cost of not having const Model& anywhere I guess?
     }
-    const Vector_Sortable<Attendance_Student>& cref_students() const
+
+    // Cache this maybe?
+    std::vector<Position<Student>> get_student_positions() const
     {
-        return m_internal_lessons.cbegin()->cref_data();
+        std::vector<Position<Student>> positions;
+        for (auto& attendance_student : m_internal_lessons.cbegin()->cref_data())
+        {
+            positions.push_back(attendance_student.get_student_pos());
+        }
+        return positions;
     }
-    Vector_Sortable<Attendance_Student>& ref_students()
-    {
-        return m_internal_lessons.begin()->ref_data();
-    }
+    
+    // bad idea. students contain unique info.
+    //const Vector_Sortable<Attendance_Student>& cref_students() const
+    //{
+    //    return m_internal_lessons.cbegin()->cref_data();
+    //}
+    //Vector_Sortable<Attendance_Student>& ref_students()
+    //{
+    //    return m_internal_lessons.begin()->ref_data();
+    //}
     int get_age_group() const
     {
         return m_age_group;

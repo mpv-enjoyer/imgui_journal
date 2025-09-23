@@ -47,9 +47,9 @@ public:
     {
         return m_lesson_type;
     }
-    void add_student(Year bottom_year, Wday wday, Vector_Sortable<Student>::Position student_pos)
+    void add_student(std::size_t holders_count, Position<Student> student_pos)
     {
-        m_attendance_students.push_back(Ptr<Attendance_Student>::make(bottom_year, wday, student_pos));
+        m_attendance_students.push_back(Ptr<Attendance_Student>::make(holders_count, student_pos));
     }
     const Attendance_Student& cref_student(Vector_Sortable<Attendance_Student>::Position pos) const
     {

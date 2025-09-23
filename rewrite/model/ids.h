@@ -46,18 +46,15 @@ public:
 class Attendance_ID
 {
     Internal_Student_ID m_internal_student_id;
-    Mday m_mday;
+    Aday m_aday;
 public:
-    Attendance_ID(Internal_Student_ID internal_student_id, Mday mday)
-    : m_internal_student_id(internal_student_id), m_mday(mday)
-    {
-        IM_ASSERT(Wday::make_from_mday(mday) == m_internal_student_id.wday());
-    }
-    Wday wday() const { return Wday::make_from_mday(m_mday); }
+    Attendance_ID(Internal_Student_ID internal_student_id, Aday aday)
+    : m_internal_student_id(internal_student_id), m_aday(aday) { }
+    Wday wday() const { return m_internal_student_id.wday(); }
     Position<Attendance_Merged_Lesson> merged_lesson_pos() const { return m_internal_student_id.merged_lesson_pos(); }
     Position<Attendance_Internal_Lesson> internal_lesson_pos() const { return m_internal_student_id.internal_lesson_pos(); }
     Position<Attendance_Student> attendance_student_pos() const { return m_internal_student_id.pos(); }
-    Mday mday() const { return m_mday; }
+    Aday aday() const { return m_aday; }
     Internal_Student_ID internal_student_id() const { return m_internal_student_id; }
 };
 
@@ -65,7 +62,7 @@ class Workout_Lesson_ID
 {
     Attendance_ID m_should_id;
     Internal_Lesson_ID m_real_internal_lesson_id;
-    
+    Aday m_real_aday;
     //Mday mday;
     //Position<Attendance_Merged_Lesson> merged_lesson_pos;
     //Position<Attendance_Internal_Lesson> internal_lesson_pos;

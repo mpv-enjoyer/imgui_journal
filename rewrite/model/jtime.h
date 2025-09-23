@@ -69,7 +69,8 @@ public:
     static Month make_from_0(int value, Year year = Year::make_current()) { return Month(value, year); }
     static Month make_from_1(int value, Year year = Year::make_current()) { return Month(value - 1, year); }
     static Month make_current() { return Month(Now.time.tm_mon, Year::make_current()); }
-    static Month make_begin_study_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
+    static Month make_begin_study_year(Month month) { return make_begin_study_year_from_bottom_year(month.get_bottom_year()); }
+    static Month make_begin_study_year_from_bottom_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
     Year get_bottom_year()
@@ -243,6 +244,16 @@ public:
         default: IM_ASSERT(false);
         }
     }
+    std::size_t calculate_count_for_bottom_year(Year bottom_year) const
+    {
+        std::size_t count = 0;
+        auto month = Month::make_begin_study_year_from_bottom_year(bottom_year);
+        do
+        {
+            count += month.calculate_wday_count(*this);
+        } while (month.next());
+        return count;
+    }
     AUTOOPS1(Wday, m_value_EN);
 };
 
@@ -256,7 +267,7 @@ class Aday
     Aday(Mday mday) : m_mday(mday)
     {
         auto wday = Wday::make_from_mday(mday);
-        for (auto month = Month::make_begin_study_year(mday.get_year()); month != mday.get_month(); month.next())
+        for (auto month = Month::make_begin_study_year(mday.get_month()); month != mday.get_month(); month.next())
         {
             m_index += month.calculate_wday_count(wday);
         }

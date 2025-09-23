@@ -8,23 +8,15 @@ class Attendance_Student
     const Vector_Sortable<Student>::Position m_student_pos;
     bool m_wants_lesson = true;
     Removal_Info m_removal_info;
-    std::vector<std::vector<Ptr<Attendance_Holder>>> m_holders; // [month][mday]
-    const Wday DEBUG_WDAY;
-    const Year DEBUG_YEAR;
+    std::vector<Ptr<Attendance_Holder>> m_holders;
 public:
-    Attendance_Student(Year bottom_year, Wday wday, Vector_Sortable<Student>::Position student_pos)
-    : m_student_pos(student_pos), DEBUG_WDAY(wday), DEBUG_YEAR(bottom_year) 
+    Attendance_Student(std::size_t holders_count, Vector_Sortable<Student>::Position student_pos)
+    : m_student_pos(student_pos)
     {
-        m_holders.reserve(Month::COUNT);
-        auto month = Month::make_begin_study_year(bottom_year);
-        do
+        for (std::size_t i = 0; i < holders_count; i++)
         {
-            m_holders.push_back({});
-            for (int i = 0; i < month.calculate_wday_count(wday); i++)
-            {
-                m_holders.back().push_back(Ptr<Attendance_Holder>::make());
-            }
-        } while (month.next());
+            m_holders.push_back(Ptr<Attendance_Holder>::make());
+        }
     }
     const Removal_Info& cref_removal_info() const
     {
@@ -42,37 +34,29 @@ public:
     {
         m_wants_lesson = value;
     }
-    const Attendance_Holder& cref_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
+    const Attendance_Holder& cref_holder(Aday aday) const
     {
-        DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
-        DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
-        auto month_index = mday.get_month().calculate_study_year_index();
-        auto mday_index = mday.get_index_in_month();
-        return *(m_holders[month_index][mday_index]);
+        return *(m_holders[aday.index()]);
     }
-    Attendance_Holder& ref_holder(Mday mday) // Mday must have the same Wday and Year as was passed eariler
+    Attendance_Holder& ref_holder(Aday aday)
     {
-        DEBUG_ASSERT(Wday::make_from_mday(mday).get_EN() == DEBUG_WDAY.get_EN());
-        DEBUG_ASSERT(mday.get_year().get_from_0() == DEBUG_YEAR.get_from_0());
-        auto month_index = mday.get_month().calculate_study_year_index();
-        auto mday_index = mday.get_index_in_month();
-        return *(m_holders[month_index][mday_index]);
+        return *(m_holders[aday.index()]);
     }
-    Attendance_Holder get_holder_unchecked(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
+    Attendance_Holder get_holder(Aday aday) const
     {
-        return cref_holder(mday);
+        return cref_holder(aday);
     }
-    Attendance_Holder get_holder(Mday mday) const // Mday must have the same Wday and Year as was passed eariler
+    Attendance_Holder get_holder_checked(Aday aday) const
     {
-        auto value = get_holder_unchecked(mday);
-        if (value.get_status() == Attendance_Status::NO_DATA)
+        auto holder = get_holder(aday);
+        if (holder.get_status() == Attendance_Status::NO_DATA)
         {
             if (!m_wants_lesson || m_removal_info.is_removed())
             {
-                value.set(Attendance_Status::NOT_AWAITED, value.get_discount_id());
+                holder.set(Attendance_Status::NOT_AWAITED, holder.get_discount_id());
             }
         }
-        return value;
+        return holder;
     }
     Vector_Sortable<Student>::Position get_student_pos() const
     {
