@@ -6,8 +6,8 @@
 class Attendance_Student
 {
     const Vector_Sortable<Student>::Position m_student_pos;
-    bool m_wants_lesson = true;
-    Removal_Info m_removal_info;
+    bool m_wants_lesson = true; // or removed from a group if both are set. for now.
+//    Removal_Info m_removal_info; Removed from a group entirely?... Why not set m_wants_lesson to false for both then?
     std::vector<Ptr<Attendance_Holder>> m_holders;
 public:
     Attendance_Student(std::size_t holders_count, Vector_Sortable<Student>::Position student_pos)
@@ -18,14 +18,14 @@ public:
             m_holders.push_back(Ptr<Attendance_Holder>::make());
         }
     }
-    const Removal_Info& cref_removal_info() const
-    {
-        return m_removal_info;
-    }
-    Removal_Info& ref_removal_info()
-    {
-        return m_removal_info;
-    }
+    // const Removal_Info& cref_removal_info() const
+    // {
+    //     return m_removal_info;
+    // }
+    // Removal_Info& ref_removal_info()
+    // {
+    //     return m_removal_info;
+    // }
     bool get_wants_lesson() const
     {
         return m_wants_lesson;
@@ -51,7 +51,7 @@ public:
         auto holder = get_holder(aday);
         if (holder.get_status() == Attendance_Status::NO_DATA)
         {
-            if (!m_wants_lesson || m_removal_info.is_removed())
+            if (!m_wants_lesson)
             {
                 holder.set(Attendance_Status::NOT_AWAITED, holder.get_discount_id());
             }

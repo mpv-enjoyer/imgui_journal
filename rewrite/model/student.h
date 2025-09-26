@@ -3,7 +3,7 @@
 #include <vector>
 #include "jtime.h"
 #include "common/vector_sortable.h"
-#include "common/autoops.h"
+#include "common/modifiers.h"
 #include "contract.h"
 #include "removal_info.h"
 

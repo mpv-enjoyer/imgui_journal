@@ -1,53 +1,57 @@
 #pragma once
 #include "workout.h"
 
+// TODO: an ability to workout with unset real lesson
 class Workouts
 {
-    std::vector<Ptr<Workout>> m_workouts;
+    NON_COPYABLE_NOR_MOVABLE(Workouts);
+    std::vector<Workout_Lesson_ID> m_workouts;
 public:
     Workouts() { }
-    void add(Ptr<Workout> workout)
+    void add(Workout_Lesson_ID workout)
     {
-        for (const auto& current_workout : m_workouts)
+        if (std::find(m_workouts.begin(), m_workouts.end(), workout) == m_workouts.end())
         {
-            if (*workout == *current_workout) return;
+            m_workouts.push_back(workout);
         }
-        m_workouts.push_back(std::move(workout));        
     }
-    std::vector<Workout> get_by_real(Workout_Lesson_ID pos) const
+    void remove(Workout_Lesson_ID workout)
     {
-        std::vector<Workout> output;
-        for (const auto& workout : m_workouts)
+        auto it = std::find(m_workouts.begin(), m_workouts.end(), workout);
+        if (it != m_workouts.end())
         {
-            if (workout->get_real_pos() == pos)
+            m_workouts.erase(it);
+        }
+    }
+    std::vector<Workout_Lesson_ID> get_by_real(Internal_Lesson_ID internal_lesson_id, Aday aday) const
+    {
+        std::vector<Workout_Lesson_ID> output;
+        for (auto workout : m_workouts)
+        {
+            if (workout.real_aday() == aday && workout.real_internal_lesson_id() == internal_lesson_id)
             {
-                output.push_back(*workout);
+                output.push_back(workout);
             }
         }
         return output;
     }
-    bool is_should(Workout_Lesson_ID workout_pos, Vector_Sortable<Student>::Position student_pos) const
+    std::optional<Workout_Lesson_ID> is_should(Attendance_ID attendance_id) const
     {
-        std::vector<Workout> output;
-        for (const auto& workout : m_workouts)
+        for (auto workout : m_workouts)
         {
-            if (workout->get_should_pos() == workout_pos && workout->get_student_pos() == student_pos)
-            {
-                return true;
-            }
+            if (workout.should_id() == attendance_id) return workout;
         }
-        return false;
+        return {};
     }
-    bool is_real(Workout_Lesson_ID workout_pos, Vector_Sortable<Student>::Position student_pos) const
+    std::optional<Workout_Lesson_ID> is_real(Internal_Lesson_ID internal_lesson_id, Aday aday, Internal_Student_ID should_student_id) const
     {
-        std::vector<Workout> output;
         for (const auto& workout : m_workouts)
         {
-            if (workout->get_real_pos() == workout_pos && workout->get_student_pos() == student_pos)
-            {
-                return true;
-            }
+            if (workout.real_aday() != aday) continue;
+            if (workout.real_internal_lesson_id() != internal_lesson_id) continue;
+            if (workout.should_id().internal_student_id() != should_student_id) continue;
+            return workout;
         }
-        return false;
+        return {};
     }
 };

@@ -4,7 +4,7 @@
 #include <string>
 #include <ctime>
 #include "common/assert.h"
-#include "common/autoops.h"
+#include "common/modifiers.h"
 
 struct
 {
@@ -259,7 +259,7 @@ public:
 
 // Attendance day. Represents one mday in an array of
 // days with the same wday starting at the study year.
-class Aday
+class Aday // STILL UNTESTED
 {
     Mday m_mday;
     std::size_t m_index = 0;
@@ -287,6 +287,7 @@ public:
         m_index++;
         return true;
     }
+    AUTOEQ1(Aday, m_mday);
 };
 
 class JTime

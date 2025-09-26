@@ -3,17 +3,19 @@
 #include "teachers.h"
 #include <optional>
 
+enum class Lesson_Type
+{
+    DRAWING = 0,        // ИЗО
+    SCULPTING = 1,      // Лепка
+    DESIGN = 2,         // Дизайн
+    TECHDRAWING = 3,    // Черчение
+    SPECIALCOURSE = 4,  // Спецкурс
+};
+
 class Attendance_Internal_Lesson
 {
 public:
-    enum class Type
-    {
-        DRAWING = 0,        // ИЗО
-        SCULPTING = 1,      // Лепка
-        DESIGN = 2,         // Дизайн
-        TECHDRAWING = 3,    // Черчение
-        SPECIALCOURSE = 4,  // Спецкурс
-    };
+    using Type = Lesson_Type;
 private:
     const Type m_lesson_type;
     JTime m_begin;
