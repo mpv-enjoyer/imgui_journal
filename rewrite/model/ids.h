@@ -1,7 +1,7 @@
 #pragma once
 #include "common/ptr.h"
 #include "holidays.h"
-#include "attendance_wdays.h"
+#include "attendance_merged_lesson.h"
 #include "teachers.h"
 #include "students.h"
 

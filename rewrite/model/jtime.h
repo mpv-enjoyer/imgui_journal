@@ -178,7 +178,7 @@ public:
     static constexpr int COUNT = 7;
 private:
     int m_value_EN;
-    const bool m_ru;
+    bool m_ru; // Is iterating from Russian offset? CONST.
     Wday(int value_EN, bool ru = false) : m_value_EN(value_EN), m_ru(ru)
     {
         IM_ASSERT(value_EN < COUNT && value_EN >= 0);
