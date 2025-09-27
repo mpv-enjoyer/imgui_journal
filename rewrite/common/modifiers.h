@@ -33,3 +33,5 @@
 #define AUTOEQ3(T, V1, V2, V3)\
     bool operator==(const T& other) const { return std::tie(V1, V2, V3) == std::tie(other.V1, other.V2, other.V3); }\
     AUTOEQ0(T)
+
+#define TODO_CRITICAL(WHAT) static_assert(false);

@@ -28,6 +28,10 @@ public:
         student.set_contract_pos(insert_contract_if_not_exists(contract_id));
         student.set_name(name);
     }
+    Removal_Info& ref_removal_info(Position<Student> student_pos)
+    {
+        return m_students.ref(student_pos).ref_removal_info();
+    }
     const Vector_Sortable<Contract>& cref_contracts() const
     {
         return m_contracts;

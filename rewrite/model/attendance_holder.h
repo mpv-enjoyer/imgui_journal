@@ -27,6 +27,7 @@ public:
     {
         return m_status;
     }
+    // Can go out of bounds. Check 
     int get_discount_id() const
     {
         return m_discount_id;
