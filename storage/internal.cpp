@@ -48,6 +48,7 @@ int Journal::_discount_lesson_contract_counter(int student_contract)
     {
         for (const auto& lesson : lessons)
         {
+            if (lesson->is_discontinued()) continue;
             const Group& group = lesson->get_group();
             for (int student_id = 0; student_id < group.get_size(); student_id++)
             {
