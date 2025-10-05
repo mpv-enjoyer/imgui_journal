@@ -5,7 +5,7 @@ namespace Helpers
 {
     int get_default_discount_id(const Journal_Year& journal_year, Position<Student> student_pos)
     {
-        auto discount_student_counter = [&](Position<Contract> contract) -> int
+        auto discount_student_counter = [&journal_year](Position<Contract> contract) -> int
         {
             int student_counter = -1;
             for (const auto& student : journal_year.students()->cref_students())
@@ -16,7 +16,7 @@ namespace Helpers
             if (student_counter == -1) student_counter = 0; // Called by the deleted student?
             return student_counter;
         };
-        auto discount_lesson_contract_counter = [&](Position<Contract> contract) -> int
+        auto discount_lesson_contract_counter = [&journal_year](Position<Contract> contract) -> int
         {
             auto& students = journal_year.students()->cref_students();
             int lessons_contract_counter = -1;

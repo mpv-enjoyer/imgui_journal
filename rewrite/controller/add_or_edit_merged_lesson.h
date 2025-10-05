@@ -39,7 +39,7 @@ public:
         auto& merged_lessons = model->attendance_wdays()->cref_wday(m_wday).cref_merged_lessons();
         if (m_position)
         {
-            if (merged_lessons.cref(*m_position).cref_internal_lessons().size() != m_lessons.size())
+            if (merged_lessons[*m_position].cref_internal_lessons().size() != m_lessons.size())
             {
                 return "internal lesson count cannot be changed";
             }
