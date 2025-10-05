@@ -1,5 +1,6 @@
 #include "model/model_impl.h"
 #include "controller_impl.h"
+#include <iostream>
 
 const IModel &Controller_Impl::model() const
 {
@@ -8,7 +9,6 @@ const IModel &Controller_Impl::model() const
 
 void Controller_Impl::add(Ptr<ICommand> command)
 {
-    // Beware! It's my first time using std move:
     m_pending_commands.push(std::move(command));
 }
 
@@ -23,6 +23,7 @@ void Controller_Impl::flush()
     {
         auto error = m_pending_commands.front()->get_error(model());
         if (!error) m_pending_commands.front()->call(Model_Impl::get());
+        else std::cerr << "[ERROR] " << *error << "\n";
         m_pending_commands.pop();
     }
 }
