@@ -31,8 +31,8 @@ namespace View
             button.render();
             for (auto it = m_model->students()->cref_students().cbegin(); it; it.next())
             {
-                auto contract = m_model->students()->cref_contracts().cref(it->get_contract_pos());
-                ImGui::Text("student %s contract %i", it->get_name().c_str(), contract.get_id());
+                int contract_number = m_model->students()->get_contract_number(it.get_position());
+                ImGui::Text("student %s contract %i", it->get_name().c_str(), contract_number);
             }
             button2.render();
             return ImGui::Button("Exit lol");

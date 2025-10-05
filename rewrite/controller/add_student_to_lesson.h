@@ -11,12 +11,12 @@ public:
     { }
     std::optional<std::string> get_error(const IModel& model) override
     {
-        if (model->students()->cref_students().cref(m_student_pos).cref_removal_info().is_removed())
+        if (model->students()->cref_students().cref(m_student_pos).is_removed())
         {
             return "cannot add removed student";
         }
         auto& merged_lesson = model->attendance_wdays()->cref_merged_lesson(m_merged_lesson_id);
-        if (merged_lesson.cref_removal_info().is_removed()) return "cannot add to removed lesson";
+        if (merged_lesson.is_removed()) return "cannot add to removed lesson";
         auto internal_students = merged_lesson.get_student_positions();
         bool exists = std::any_of(internal_students.begin(), internal_students.end(), [=](const Position<Student>& student)
             {

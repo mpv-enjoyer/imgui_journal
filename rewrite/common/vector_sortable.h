@@ -204,7 +204,10 @@ private:
     {
         return lhs < rhs; // helper
     }
-
+    bool is_pos_valid(const Position& position) const
+    {
+        return position.get() < m_data.size();
+    }
 public:
     explicit Vector_Sortable() : m_data() { }
     explicit Vector_Sortable(std::size_t size) : m_data(size, new T()) { }
@@ -213,6 +216,7 @@ public:
 
     // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it->something(); }
     // do-while LOOP WILL CRASH ON 0 ELEMENTS.
+    // for (auto& elem : vector_sortable) { elem.something(); }
     Iterator<T, DataTypeBase> begin()
     {
         return Iterator<T, DataTypeBase>(m_data);
@@ -266,19 +270,23 @@ public:
         m_data.push_back(std::move(value));
         return Position(m_data.size() - 1);
     }
-    T& ref(const Position& position)
+    T& ref(Position position)
     {
         IM_ASSERT(is_pos_valid(position));
         return *m_data[position.get()];
     }
-    const T& cref(const Position& position) const
+    const T& cref(Position position) const
     {
         IM_ASSERT(is_pos_valid(position));
         return *m_data[position.get()];
     }
-    bool is_pos_valid(const Position& position) const
+    T& operator[](Position position)
     {
-        return position.get() < m_data.size();
+        return ref(position);
+    }
+    const T& operator[](Position position) const
+    {
+        return cref(position);
     }
     std::size_t size() const
     {

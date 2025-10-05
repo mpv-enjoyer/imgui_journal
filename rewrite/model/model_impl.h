@@ -26,6 +26,14 @@ public:
     {
         return m_journal_year.get();
     }
+    Journal_Year& const operator*() override
+    {
+        return *m_journal_year;
+    }
+    const Journal_Year& const operator*() const override
+    {
+        return *m_journal_year;
+    }
     void set_year(Year year) override
     {
         /* TODO CRITICAL: Actually implement year change with saving using Loader */

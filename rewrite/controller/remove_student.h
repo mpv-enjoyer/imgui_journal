@@ -11,13 +11,13 @@ public:
     { }
     Error get_error(const IModel& model) override
     {
-        if (model->students()->cref_students().cref(m_student_pos).cref_removal_info().is_removed()) return "Ученик уже удален";
+        if (model->students()->cref_students().cref(m_student_pos).is_removed()) return "Ученик уже удален";
         return {};
     }
     void call(IModel& model) override
     {
-        const Student& student = model->students()->cref_students().cref(m_student_pos);
-        Add_Or_Edit_Student_In_Base(m_student_pos, student.get_name() + " [-]", student.get_contract_pos().get()).call(model);
+        const Student& student = model->students()->cref_students()[m_student_pos];
+        Add_Or_Edit_Student_In_Base(m_student_pos, student.get_name() + " [-]", model->students()->get_contract_number(m_student_pos)).call(model);
         model->students()->ref_removal_info(m_student_pos).remove();
     }
 };
@@ -31,7 +31,7 @@ public:
     { }
     Error get_error(const IModel& model) override
     {
-        if (!model->students()->cref_students().cref(m_student_pos).cref_removal_info().is_removed()) return "Ученик не удален";
+        if (!model->students()->cref_students()[m_student_pos].is_removed()) return "Ученик не удален";
         return {};
     }
     void call(IModel& model) override

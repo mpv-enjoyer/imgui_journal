@@ -1,7 +1,7 @@
 #pragma once
 #include "attendance_internal_lesson.h"
 
-class Attendance_Merged_Lesson
+class Attendance_Merged_Lesson : public Removal_Info
 {
 public:
     static constexpr int AGE_GROUP_COUNT = 8;
@@ -18,7 +18,6 @@ public:
 private:
     int m_number;
     int m_age_group;
-    Removal_Info m_removal_info;
     std::string m_comment;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
 public:
@@ -30,14 +29,6 @@ public:
         {
             m_internal_lessons.push_back(std::move(internal_lesson));
         }
-    }
-    const Removal_Info& cref_removal_info() const
-    {
-        return m_removal_info;
-    }
-    Removal_Info& ref_removal_info()
-    {
-        return m_removal_info;
     }
     const Vector_Sortable<Attendance_Internal_Lesson>& cref_internal_lessons() const
     {
@@ -59,7 +50,7 @@ public:
     std::vector<Position<Student>> get_student_positions() const
     {
         std::vector<Position<Student>> positions;
-        for (auto& attendance_student : m_internal_lessons.cbegin()->cref_data())
+        for (auto& attendance_student : m_internal_lessons.cbegin()->cref_students())
         {
             positions.push_back(attendance_student.get_student_pos());
         }

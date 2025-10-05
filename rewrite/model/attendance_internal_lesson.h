@@ -45,7 +45,7 @@ public:
     {
         return m_teacher_pos;
     }
-    Type get_lesson_name() const
+    Type get_lesson_type() const
     {
         return m_lesson_type;
     }
@@ -61,7 +61,7 @@ public:
     {
         return m_attendance_students.ref(pos);
     }
-    const Vector_Sortable<Attendance_Student>& cref_data() const
+    const Vector_Sortable<Attendance_Student>& cref_students() const
     {
         return m_attendance_students;
     }

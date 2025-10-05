@@ -1,4 +1,7 @@
 #pragma once
+#define NON_COPYABLE(T) \
+    T(T const &) = delete; \
+    void operator=(T const &t) = delete;
 #define NON_COPYABLE_NOR_MOVABLE(T) \
     T(T const &) = delete; \
     void operator=(T const &t) = delete; \

@@ -5,6 +5,7 @@
 #include "attendance_wdays.h"
 #include "teachers.h"
 #include "students.h"
+#include "prices.h"
 
 class Journal_Year
 {
@@ -13,6 +14,7 @@ class Journal_Year
     Ptr<Attendance_Wdays> m_attendance_wdays = Ptr<Attendance_Wdays>::make();
     Ptr<Teachers> m_teachers = Ptr<Teachers>::make();
     Ptr<Students> m_students = Ptr<Students>::make();
+    Ptr<Prices> m_prices = Ptr<Prices>::make();
 public:
     const Year bottom_year;
     explicit Journal_Year(Year year)
@@ -27,4 +29,6 @@ public:
           Ptr<Teachers>& teachers()       { return m_teachers; }
     const Ptr<Students>& students() const { return m_students; }
           Ptr<Students>& students()       { return m_students; }
+    const Ptr<Prices>& prices() const { return m_prices; }
+          Ptr<Prices>& prices()       { return m_prices; }
 };

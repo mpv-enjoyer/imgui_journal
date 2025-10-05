@@ -39,10 +39,6 @@ public:
         auto& merged_lessons = model->attendance_wdays()->cref_wday(m_wday).cref_merged_lessons();
         if (m_position)
         {
-            if (!merged_lessons.is_pos_valid(*m_position))
-            {
-                return "invalid merged lesson position";
-            }
             if (merged_lessons.cref(*m_position).cref_internal_lessons().size() != m_lessons.size())
             {
                 return "internal lesson count cannot be changed";
@@ -50,6 +46,7 @@ public:
         }
         for (auto it = merged_lessons.cbegin(); it; it.next())
         {
+            if (it->is_removed()) continue;
             if (it->get_number() == m_number && !(m_position && it.get_position() == *m_position))
             {
                 return "Группа с таким номером в " + m_wday.get_name() + " уже существует";
@@ -82,7 +79,7 @@ public:
             auto it = current.ref_internal_lessons().begin();
             do
             {
-                auto i = it.get_position().get();
+                size_t i = it.get_position().get();
                 it->set_time(m_lessons[i].begin, m_lessons[i].end);
             } while (it.next());
             return;

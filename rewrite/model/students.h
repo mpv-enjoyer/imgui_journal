@@ -7,13 +7,13 @@ class Students
 {
     Vector_Sortable<Contract> m_contracts;
     Vector_Sortable<Student> m_students;
-    Position<Contract> insert_contract_if_not_exists(int contract_id)
+    Position<Contract> insert_contract_if_not_exists(int contract_number)
     {
         for (auto it = m_contracts.begin(); it; ++it)
         {
-            if (it->get_id() == contract_id) return it.get_position();
+            if (it->get_number() == contract_number) return it.get_position();
         }
-        return m_contracts.push_back(Ptr<Contract>::make(contract_id));
+        return m_contracts.push_back(Ptr<Contract>::make(contract_number));
     }
 public:
     Students() { }
@@ -30,7 +30,11 @@ public:
     }
     Removal_Info& ref_removal_info(Position<Student> student_pos)
     {
-        return m_students.ref(student_pos).ref_removal_info();
+        return m_students[student_pos];
+    }
+    int get_contract_number(Position<Student> student_pos) const
+    {
+        return m_contracts[m_students[student_pos].get_contract_pos()].get_number();
     }
     const Vector_Sortable<Contract>& cref_contracts() const
     {

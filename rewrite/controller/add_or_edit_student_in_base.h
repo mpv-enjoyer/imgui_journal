@@ -6,7 +6,7 @@ class Add_Or_Edit_Student_In_Base : public ICommand
     std::optional<Position<Student>> m_student_pos;
     std::string m_name;
     int m_contract;
-    std::string add_postfix_if_needed(const IModel& model) const
+    std::string name_with_postfix_if_needed(const IModel& model) const
     {
         std::string name_to_set = m_name;
         int postfix_iter = 0;
@@ -19,7 +19,7 @@ class Add_Or_Edit_Student_In_Base : public ICommand
             for (auto it = model->students()->cref_students().begin(); it; ++it)
             {
                 if (m_student_pos && *m_student_pos == it.get_position()) continue;
-                if (it->cref_removal_info().is_removed()) continue;
+                if (it->is_removed()) continue;
                 if (it->get_contract_pos().get() != m_contract) continue;
                 if (it->get_name() != m_name) continue;
                 student_found = true;
@@ -44,7 +44,7 @@ public:
     }
     void call(IModel& model) override
     {
-        std::string name_to_set = add_postfix_if_needed(model);
+        std::string name_to_set = name_with_postfix_if_needed(model);
         if (m_student_pos)
         {
             model->students()->edit(*m_student_pos, name_to_set, m_contract);

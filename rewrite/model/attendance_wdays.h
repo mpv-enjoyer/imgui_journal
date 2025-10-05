@@ -45,5 +45,12 @@ public:
     {
         return ref_internal_lesson(id.internal_lesson_id()).ref_student(id.pos());
     }
-    // Attendance_Holder can be checked and not checked so the boilerplate stops here.
+    const Attendance_Holder& cref_attendance_holder(Attendance_ID id) const
+    {
+        return cref_attendance_student(id.internal_student_id()).cref_holder(id.aday());
+    }
+    Attendance_Holder& ref_attendance_holder(Attendance_ID id)
+    {
+        return ref_attendance_student(id.internal_student_id()).ref_holder(id.aday());
+    }
 };
