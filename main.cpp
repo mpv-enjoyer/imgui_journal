@@ -12,6 +12,11 @@ int main(int argc, char** argv)
             Impl::prefer_renderer(Impl::Renderers::SDL2);
             break;
         }
+        if (arg == "--allow-recalculate-all")
+        {
+            show_button_to_recalculate_all_prices();
+            break;
+        }
     }
     Journal journal;
     JournalHolder graphical(journal);

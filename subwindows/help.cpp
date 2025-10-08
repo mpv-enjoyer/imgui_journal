@@ -1,6 +1,8 @@
 #include "help.h"
 #include "../platforms/platforms.h"
 
+bool _button_recalculate_all_prices = false;
+
 Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
 
@@ -139,6 +141,36 @@ bool Subwindow_Help::show_frame()
     draw_text("BUILD " + std::string(__DATE__) + " " + std::string(__TIME__));
     draw_text("Renderer " + std::string(Impl::renderer()->name()));
     draw_text("OS " + std::string(Impl::platform()->name()));
+    if (_button_recalculate_all_prices && ImGui::Button("Пересчитать все цены за текущий месяц"))
+    {
+        /* dirty fix for already broken prices */
+        for (int wday = 0; wday < 7; wday++)
+        {
+            auto mdays_with_info = journal->enumerate_days(wday);
+            int merged_lesson_count = journal->lesson_info_count(wday);
+            for (auto mday : mdays_with_info)
+            {
+                for (int merged_lesson_id = 0; merged_lesson_id < merged_lesson_count; merged_lesson_id++)
+                {
+                    auto lesson_info = journal->lesson_info(wday, merged_lesson_id);
+                    for (int internal_lesson_id = 0; internal_lesson_id < lesson_info->get_lessons_size(); internal_lesson_id++)
+                    {
+                        Lesson lesson
+                        {
+                            .merged_lesson_id = merged_lesson_id,
+                            .internal_lesson_id = internal_lesson_id
+                        };
+                        for (int internal_student_id = 0; internal_student_id < lesson_info->get_group().get_size(); internal_student_id++)
+                        {
+                            auto status = mday.day->get_status(lesson, internal_student_id);
+                            bool workout_existed = false; // it only matters if workout was deleted. I do not want to delete anything.
+                            journal->set_lesson_status(mday.number - MDAY_DIFF, lesson, internal_student_id, status, workout_existed);
+                        }
+                    }
+                }
+            }
+        }
+    }
     ImGui::EndChild();
     ImGui::PopStyleColor();
     ImGui::End();
@@ -148,4 +180,9 @@ bool Subwindow_Help::show_frame()
 Subwindow_Help::Image::Image(std::string name) : name(name)
 {
     loaded = LoadTextureFromFile(("images/" + name).c_str(), &texture, &width, &height);
+}
+
+void show_button_to_recalculate_all_prices()
+{
+    _button_recalculate_all_prices = true;
 }

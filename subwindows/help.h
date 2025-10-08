@@ -1,6 +1,8 @@
 #pragma once
 #include "subwindows.h"
 
+void show_button_to_recalculate_all_prices();
+
 class Subwindow_Help : public Subwindow
 {
     const ImVec4 background = ImVec4(225.f/255.f, 240.f/255.f, 253.f/255.f, 1.0f);

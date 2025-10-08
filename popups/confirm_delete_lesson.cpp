@@ -39,5 +39,7 @@ bool Popup_Confirm_Delete_Lesson::show_frame()
 void Popup_Confirm_Delete_Lesson::accept_changes()
 {
     IM_ASSERT(check_ok());
+    std::string old_comment = journal->lesson_info(_wday, _merged_lesson_id)->get_group().get_comment();
+    journal->set_group_comment(_wday, _merged_lesson_id, "[-] " + old_comment);
     journal->remove_lesson(_wday, _merged_lesson_id);
 }

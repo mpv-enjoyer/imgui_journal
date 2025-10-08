@@ -183,7 +183,7 @@ void Journal::generate(int base_month, int base_year)
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
 
-    /* TODO: Remove removed lessons for real? */
+    /* Removed lessons are transfered too. */
 
     // Fill lessons status for workouts depending on other months:
     auto workouts = _workout_handler->search_info(_current_month);
@@ -201,7 +201,7 @@ void Journal::generate(int base_month, int base_year)
         _day(workout->should_attend.tm_mday)->set_discount_status(workout->should_lesson, internal_student_id, discount_status);
     }
 
-    for (int group_id = 0; group_id < _all_groups.size(); group_id++) // TODO CRITICAL: test this with other months.
+    for (int group_id = 0; group_id < _all_groups.size(); group_id++)
     {
         Group* group = _all_groups[group_id];
         for (int student_id = 0; student_id < group->get_size(); student_id++)
