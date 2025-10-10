@@ -86,18 +86,7 @@ int Journal::_discount_status(int student_contract)
     return std::min(lesson_contract_counter, max_discount_for_single);
 }
 
-int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
+void Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
 {
-    auto& lessons_in_this_day = _all_lessons[wday];
-    int new_merged_lesson_known_id = lessons_in_this_day.size();
-    for (int i = 0; i < lessons_in_this_day.size(); i++)
-    {
-        if (PTRREF(lessons_in_this_day[i]) > lesson_info)
-        {
-            new_merged_lesson_known_id = i;
-            break;
-        }
-    }
-    lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, &lesson_info);
-    return new_merged_lesson_known_id;
+    _all_lessons[wday].push_back(&lesson_info);
 }

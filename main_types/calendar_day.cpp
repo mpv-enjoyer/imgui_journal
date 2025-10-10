@@ -230,24 +230,11 @@ bool Calendar_Day::add_student_to_group(int known_merged_lesson_id, Student& new
     return true;
 }
 
-bool Calendar_Day::swap_merged_lessons(int old_id, int new_id)
+bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one)
 {
-    if (old_id == new_id) return false;
-    auto begin = attendance_info.begin();
-    auto backup = attendance_info[old_id];
-    attendance_info.erase(begin + old_id);
-    attendance_info.insert(begin + new_id, backup);
-    auto begin_teachers_names = teacher_names.begin();
-    auto backup_teachers_names = teacher_names[old_id];
-    teacher_names.erase(begin_teachers_names + old_id);
-    teacher_names.insert(begin_teachers_names + new_id, backup_teachers_names);
-    return true;
-}
-
-bool Calendar_Day::add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id)
-{
-    attendance_info.insert(attendance_info.begin() + known_new_merged_lesson_id, std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
-    teacher_names.insert(teacher_names.begin() + known_new_merged_lesson_id, std::vector<std::string>(2));
+    int known_new_merged_lesson_id = attendance_info.size();
+    attendance_info.push_back(std::vector<Internal_Attendance_Status>(new_lesson_info.get_lessons_size()));
+    teacher_names.push_back(std::vector<std::string>(2));
     for (int j = 0; j < new_lesson_info.get_lessons_size(); j++)
     {
         Student_Status new_status;

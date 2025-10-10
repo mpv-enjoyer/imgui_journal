@@ -139,8 +139,7 @@ public:
     //the following is needed to properly update the journal
     bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
     bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);
-    bool swap_merged_lessons(int old_id, int new_id);
-    bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one, int known_new_merged_lesson_id);
+    bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one);
     //...
 };
 

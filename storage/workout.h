@@ -41,7 +41,6 @@ public:
     const Workout_Info_* get_info(int should_month, int should_mday, Lesson lesson, int should_student_id);
     const std::vector<const Workout_Info_*> search_info(int should_month);
     void delete_info(const Workout_Info_ *workout_info);
-    bool change_lesson_info_position(int month, int wday, int old_merged_lesson_id, int new_merged_lesson_id, int max_merged_lessons_size);
     // set old_merged_lesson_id to -1 if new lesson.
     // set new_merged_lesson_id to -1 if removed a lesson.
     // returns false if tried to delete a valid lesson_info.

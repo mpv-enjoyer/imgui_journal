@@ -84,7 +84,7 @@ class Journal
     int _discount_student_counter(int student_contract);
     int _discount_lesson_contract_counter(int student_contract);
     int _discount_status(int student_contract);
-    int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
+    void _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
     bool _search_last_generated_month(int *month, int *year);
 

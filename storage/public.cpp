@@ -380,14 +380,13 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
         current->add_lesson_pair(lesson_pairs[i]);
     current->set_group(PTRREF(group));
     std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
-    int new_merged_lesson_known_id = _emplace_lesson_info(wday, PTRREF(current));
+    _emplace_lesson_info(wday, PTRREF(current));
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (int i = 0; i < affected_days.size(); i++)
     {
         bool await_no_one = false;
-        affected_days[i].day->add_merged_lesson(PTRREF(current), await_no_one, new_merged_lesson_known_id);
+        affected_days[i].day->add_merged_lesson(PTRREF(current), await_no_one);
     }
-    _workout_handler->change_lesson_info_position(current_month(), wday, -1, new_merged_lesson_known_id, lessons_in_this_day.size());
 }
 void Journal::add_student_to_group(int student_id, int wday, int merged_lesson_id)
 {
@@ -449,16 +448,6 @@ void Journal::edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Less
     }
 
     lesson_info = lesson_info_checked;
-    _all_lessons[wday].erase(_all_lessons[wday].begin() + merged_lesson_id);
-    int new_merged_lesson_id = _emplace_lesson_info(wday, lesson_info);
-    //workaround???
-    //if (new_index >= merged_lesson_id && new_index != all_lessons[day].size() - 1) new_index++;
-    _workout_handler->change_lesson_info_position(current_month(), wday, merged_lesson_id, new_merged_lesson_id, _all_lessons[wday].size());
-    std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
-    for (auto current : affected_days)
-    {
-        current.day->swap_merged_lessons(merged_lesson_id, new_merged_lesson_id);
-    }
 }
 
 const std::vector<std::vector<std::pair<const Workout_Info_*, const Workout_Info_ *>>> Journal::get_workout_info(int real_wday, int real_merged_lesson, std::vector<int>* student_ids)
