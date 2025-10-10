@@ -150,6 +150,7 @@ public:
     const std::vector<std::vector<std::pair<const Workout_Info_ *, const Workout_Info_ *>>> get_workout_info(int real_wday, int real_merged_lesson, std::vector<int> *student_ids);
     const std::vector<std::vector<const Workout_Info_ *>> get_workout_info(int real_wday, Lesson real_lesson, std::vector<int> *student_ids);
     const Workout_Info_ *get_workout_info(int should_mday, Lesson should_lesson, int should_student_id);
+    const std::vector<int> get_sorted_lesson_ids(int wday);
     void remove_student(int id);
     void restore_student(int id);
     void remove_lesson(int wday, int merged_lesson_id);

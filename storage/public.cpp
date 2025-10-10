@@ -480,6 +480,17 @@ const Workout_Info_* Journal::get_workout_info(int should_mday, Lesson should_le
     return _workout_handler->get_info(current_month(), should_mday, should_lesson, should_student_id);
 }
 
+const std::vector<int> Journal::get_sorted_lesson_ids(int wday)
+{
+    std::vector<int> to_sort(lesson_info_count(wday));
+    std::iota(to_sort.begin(), to_sort.end(), 0);
+    std::stable_sort(to_sort.begin(), to_sort.end(), [&](int lhs_id, int rhs_id)
+    {
+        return (*lesson_info(wday, lhs_id)) < (*lesson_info(wday, rhs_id));
+    });
+    return to_sort;
+}
+
 bool Journal::_match_lesson_types(int l, int r)
 {
     if (l == r) return true;

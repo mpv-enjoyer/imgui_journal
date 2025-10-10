@@ -1,7 +1,7 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(JournalHolder* graphical, Popup_Handler* popup_handler)
-: Subwindow(graphical, popup_handler) { }
+Subwindow_Lessons_List::Subwindow_Lessons_List(JournalHolder *graphical, Popup_Handler *popup_handler)
+    : Subwindow(graphical, popup_handler) {}
 
 bool Subwindow_Lessons_List::show_frame()
 {
@@ -46,8 +46,10 @@ bool Subwindow_Lessons_List::show_frame()
         for (int _wday = 0; _wday < 7; _wday++)
         {
             int wday = CONVERT_TO_RU_CALENDAR(_wday);
-            for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(wday); merged_lesson_id++)
+            std::vector<int> sorted_merged_lesson_ids = journal->get_sorted_lesson_ids(wday);
+            for (int _merged_lesson_id = 0; _merged_lesson_id < journal->lesson_info_count(wday); _merged_lesson_id++)
             {
+                int merged_lesson_id = sorted_merged_lesson_ids[_merged_lesson_id];
                 const auto& current_lesson_info = journal->lesson_info(wday, merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
                 bool is_removed_input_buffer = current_lesson_info->is_discontinued();

@@ -97,9 +97,20 @@ bool Mainwindow::show_frame()
     {
         if (journal->lesson_info_count(graphical->wday) == 0) 
             ImGui::Text("На текущий день не запланированы уроки.");
-        for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(graphical->wday); merged_lesson_id++)
+        std::vector<int> sorted_merged_lesson_ids = journal->get_sorted_lesson_ids(graphical->wday);
+        const Lesson_Info* previous = nullptr;
+        for (int _merged_lesson_id = 0; _merged_lesson_id < journal->lesson_info_count(graphical->wday); _merged_lesson_id++)
         {
-            table(merged_lesson_id);
+            int merged_lesson_id = sorted_merged_lesson_ids[_merged_lesson_id];
+            const Lesson_Info* current = journal->lesson_info(graphical->wday, merged_lesson_id);
+            bool need_sameline = previous && current->get_lesson_pair(0).time_begin == previous->get_lesson_pair(0).time_begin;
+            if (!graphical->edit_mode && previous && previous->is_discontinued())
+            {
+                need_sameline = false;
+                /* First merged lesson is invisible so we don't need to offset */
+            }
+            table(merged_lesson_id, need_sameline);
+            previous = current;
         }
     }
     ImGui::EndChild();
@@ -126,23 +137,13 @@ bool Mainwindow::show_frame()
     return true;
 }
 
-void Mainwindow::table(int merged_lesson_id)
+void Mainwindow::table(int merged_lesson_id, bool need_sameline)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     if (!graphical->edit_mode && merged_lesson.is_discontinued()) return;
     bool disabled = merged_lesson.is_discontinued();
     if (disabled) ImGui::BeginDisabled();
-    if (merged_lesson_id != 0 && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->get_lesson_pair(0).time_begin == merged_lesson.get_lesson_pair(0).time_begin)
-    {
-        if (!graphical->edit_mode && journal->lesson_info(graphical->wday, merged_lesson_id - 1)->is_discontinued())
-        {
-            /* First merged lesson is invisible so we don't need to offset */
-        }
-        else
-        {
-            ImGui::SameLine();
-        }
-    }
+    if (need_sameline) ImGui::SameLine();
     ImGui::BeginGroup();
     if (disabled)
     {

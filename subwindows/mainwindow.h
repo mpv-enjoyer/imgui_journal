@@ -5,7 +5,7 @@ class Subwindow_Handler;
 
 class Mainwindow : public Subwindow
 {
-    void table(int merged_lesson_id);
+    void table(int merged_lesson_id, bool need_sameline);
     bool table_row(int merged_lesson_id, int internal_student_id, int counter);
     int table_cell(int merged_lesson_id, int internal_student_id, int visible_day_id);
     bool attendance_combo(const char* label, int* status, std::string tooltip);
