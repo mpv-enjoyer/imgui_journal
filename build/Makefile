@@ -85,13 +85,13 @@ endif
 
 ifeq ($(WIN32), True)
 	ECHO_MESSAGE = "MinGW"
-	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32 -lboost_serialization-mt
+	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32
 	
 # Compile for 32bit begin
 	CXX = i686-w64-mingw32-g++
 	CXXFLAGS += -m32 -O3
-	CXXFLAGS += -I./mingw32_glfw/include -I./mingw32_boost/include/ -I./mingw32_sdl2/include/ -I./mingw32_sdl2/include/SDL2
-	LIBS += -L./mingw32_glfw/lib/ -L./mingw32_boost/lib/ -L./mingw32_sdl2/lib/ -lSDL2 -lSDL2main -lboost_serialization-mt
+	CXXFLAGS += -I./mingw32/include -I./mingw32/include/SDL2 -I/usr/i686-w64-mingw32/include
+	LIBS += -L./mingw32/lib/ -L/usr/i686-w64-mingw32/lib/ -lSDL2 -lSDL2main -l:libboost_serialization.a -l:libboost_serialization.dll.a
 # Compile for 32bit end
 
 	CXXFLAGS += -mwindows
