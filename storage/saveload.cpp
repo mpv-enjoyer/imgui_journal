@@ -58,8 +58,8 @@ void Journal::save_backup()
     if (!std::filesystem::exists(current_folder_name)) std::filesystem::create_directory(current_folder_name);
     std::string workout_path = current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year);
     std::string journal_path = current_folder_name + "/" + generate_file_name(_current_month, _current_year);
-    if (!std::filesystem::exists(workout_path)) std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), workout_path);
-    if (!std::filesystem::exists(journal_path)) std::filesystem::copy_file(generate_file_name(_current_month, _current_year), journal_path);
+    std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), workout_path, std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file(generate_file_name(_current_month, _current_year), journal_path, std::filesystem::copy_options::overwrite_existing);
 }
 
 bool Journal::save()
