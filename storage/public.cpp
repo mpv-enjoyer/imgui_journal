@@ -379,7 +379,6 @@ void Journal::add_merged_lesson(int wday, int number, std::string comment, int a
     for (int i = 0; i < lesson_pairs.size(); i++)
         current->add_lesson_pair(lesson_pairs[i]);
     current->set_group(PTRREF(group));
-    std::vector<Lesson_Info*>& lessons_in_this_day = std::ref(_all_lessons[wday]);
     _emplace_lesson_info(wday, PTRREF(current));
     std::vector<_Day_With_Info> affected_days = _enumerate_days(wday);
     for (int i = 0; i < affected_days.size(); i++)
