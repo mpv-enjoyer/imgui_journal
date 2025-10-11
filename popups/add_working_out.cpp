@@ -62,8 +62,10 @@ void Popup_Add_Working_Out::update_possible_lessons()
         int wday = current_journal->wday(i);
         input_date.tm_mday = i;
         input_date.tm_wday = wday;
-        for (int j = 0; j < current_journal->lesson_info_count(wday); j++)
+        std::vector<int> sorted_lesson_ids = current_journal->get_sorted_lesson_ids(wday);
+        for (int _j = 0; _j < current_journal->lesson_info_count(wday); _j++)
         {
+            int j = sorted_lesson_ids[_j];
             for (int k = 0; k < current_journal->lesson_info(wday, j)->get_lessons_size(); k++)
             {
                 if (current_journal->is_workout_possible(current_journal->lesson_info(wday, j), k, select_student, caller_lesson_type))
