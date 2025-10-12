@@ -140,10 +140,10 @@ bool Mainwindow::show_frame()
 void Mainwindow::table(int merged_lesson_id, bool need_sameline)
 {
     const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
+    if (need_sameline) ImGui::SameLine();
     if (!graphical->edit_mode && merged_lesson.is_discontinued()) return;
     bool disabled = merged_lesson.is_discontinued();
     if (disabled) ImGui::BeginDisabled();
-    if (need_sameline) ImGui::SameLine();
     ImGui::BeginGroup();
     if (disabled)
     {
