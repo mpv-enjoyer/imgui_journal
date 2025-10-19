@@ -26,11 +26,11 @@ public:
     {
         return m_journal_year.get();
     }
-    Journal_Year& const operator*() override
+    Journal_Year& operator*() override
     {
         return *m_journal_year;
     }
-    const Journal_Year& const operator*() const override
+    const Journal_Year& operator*() const override
     {
         return *m_journal_year;
     }

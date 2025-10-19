@@ -114,5 +114,5 @@ bool GLFW3_Renderer::supports_images()
 
 const char *GLFW3_Renderer::name()
 {
-    return "GLFW3_OPENGL3_Renderer";
+    return GLFW3_Initializer().name();
 }

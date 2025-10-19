@@ -1,5 +1,4 @@
 #pragma once
-
 #include <imgui.h>
 
 #define WINDOW_NAME 		   "Журнал посещения"
@@ -9,11 +8,13 @@
 
 #include <array>
 #include <string>
+#include <functional>
 
 class Impl {
 public:
     class Renderer
     {
+        
     protected:
         bool setup_end()
         {
@@ -36,6 +37,12 @@ public:
         virtual bool supports_images() = 0;
         virtual const char* name() = 0;
         // TODO MAYBE: void set_window_titlebar_icon(GLFWwindow* window);
+        class Initializer
+        {
+        public:
+            virtual const char* name() = 0;
+            virtual Renderer* initialize() = 0;
+        };
     };
     class Platform
     {
@@ -43,11 +50,6 @@ public:
         virtual bool is_application_already_running() = 0;
         virtual const char* font_path() = 0; 
         virtual const char* name() = 0;
-    };
-    enum class Renderers
-    {
-        SDL2,
-        GLFW3
     };
 private:
     class CompiledPlatform : public Platform
@@ -59,11 +61,11 @@ private:
         const char* name() override;
 
     };
-    std::array<Renderers, 2> _attempt_order = { Renderers::GLFW3, Renderers::SDL2 };
+    std::vector<Renderer::Initializer*> _initializers;
     Renderer* _renderer = nullptr;
     CompiledPlatform _platform;
     static Impl* _instance_ptr;
-    Impl() {}
+    Impl();
 public:
     Impl(const Impl& obj) = delete;
     static Impl* instance()
@@ -73,9 +75,8 @@ public:
     }
     Renderer* get_renderer();
     Platform* get_platform();
-    void set_renderer(Renderers renderers);
-    
+
     static Renderer* renderer();
     static Platform* platform();
-    static void prefer_renderer(Renderers renderers);
+    static void prefer_renderer(const char* renderer);
 };

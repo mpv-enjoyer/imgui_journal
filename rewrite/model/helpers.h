@@ -1,9 +1,9 @@
 #pragma once
 #include "journal_year.h"
 
-namespace Helpers
+struct Helpers
 {
-    int get_default_discount_id(const Journal_Year& journal_year, Position<Student> student_pos)
+    static int get_default_discount_id(const Journal_Year& journal_year, Position<Student> student_pos)
     {
         auto discount_student_counter = [&journal_year](Position<Contract> contract) -> int
         {
@@ -28,10 +28,11 @@ namespace Helpers
                     if (merged_lesson.is_removed()) continue;
                     for (const auto& internal_lesson : merged_lesson.cref_internal_lessons())
                     {
-                        for (const auto& student : internal_lesson.cref_students())
+                        for (auto student_it = internal_lesson.cref_students().begin(); student_it; ++student_it)
                         {
+                            const auto& student = *student_it;
                             if (students[student.get_student_pos()].get_contract_pos() != contract) continue;
-                            if (student.is_removed()) continue;
+                            if (merged_lesson.is_student_removed(student_it.get_position())) continue;
                             if (students[student.get_student_pos()].is_removed()) continue;
                             if (!student.get_wants_lesson()) continue;
                             lessons_contract_counter++;
@@ -53,4 +54,4 @@ namespace Helpers
         static const int max_discount_for_single = 1;
         return std::min(lesson_contract_counter, max_discount_for_single);
     }
-}
+};

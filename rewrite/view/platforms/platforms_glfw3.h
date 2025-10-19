@@ -20,3 +20,10 @@ public:
     bool supports_images() override;
     const char* name() override;
 };
+
+class GLFW3_Initializer : public Impl::Renderer::Initializer
+{
+public:
+    const char* name() override { return "GLFW3_OPENGL3_Renderer"; }
+    Impl::Renderer* initialize() override { return new GLFW3_Renderer(); }
+};

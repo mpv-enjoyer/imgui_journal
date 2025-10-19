@@ -21,3 +21,10 @@ public:
     bool supports_images() override;
     const char* name() override;
 };
+
+class SDL2_Initializer : public Impl::Renderer::Initializer
+{
+public:
+    const char* name() override { return "SDL2_SDL2_Renderer"; }
+    Impl::Renderer* initialize() override { return new SDL2_Renderer(); }
+};

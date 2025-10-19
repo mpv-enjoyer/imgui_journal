@@ -20,7 +20,7 @@ class Add_Or_Edit_Student_In_Base : public ICommand
             {
                 if (m_student_pos && *m_student_pos == it.get_position()) continue;
                 if (it->is_removed()) continue;
-                if (it->get_contract_pos().get() != m_contract) continue;
+                if (model->students()->cref_contracts()[it->get_contract_pos()].get_number() != m_contract) continue;
                 if (it->get_name() != m_name) continue;
                 student_found = true;
                 break;

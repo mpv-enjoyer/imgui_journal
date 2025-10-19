@@ -77,6 +77,7 @@ namespace View
                 Impl::renderer()->end_frame();
                 m_controller->flush();
             }
+            TODO_CRITICAL("Hangs here for some reason");
         }
         ~View()
         {

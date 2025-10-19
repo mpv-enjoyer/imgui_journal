@@ -9,6 +9,7 @@ public:
     int get_kopecks() const { return m_kopecks; }
     std::string to_string() const
     {
-        TODO_CRITICAL("Use this: github.com/vpiotr/decimal_for_cpp");
+        return "TODO CRITICAL.";
+        //TODO_CRITICAL("Use this: github.com/vpiotr/decimal_for_cpp");
     }
 };
