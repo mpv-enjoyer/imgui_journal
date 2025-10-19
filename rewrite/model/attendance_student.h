@@ -3,7 +3,7 @@
 #include "removal_info.h"
 #include "student.h"
 
-class Attendance_Student : public Removal_Info
+class Attendance_Student
 {
     NON_COPYABLE(Attendance_Student);
     const Vector_Sortable<Student>::Position m_student_pos;

@@ -20,6 +20,7 @@ private:
     int m_age_group;
     std::string m_comment;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
+    std::vector<bool> m_students_removal_info;
 public:
     Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
     : m_number(number), m_age_group(age_group), m_comment(comment)
@@ -44,6 +45,19 @@ public:
         {
             iter->add_student(holders_count, student_pos);
         }
+        m_students_removal_info.push_back(false);
+    }
+    bool is_student_removed(Position<Attendance_Student> student_pos) const
+    {
+        return m_students_removal_info[student_pos.get()];
+    }
+    void remove_student(Position<Attendance_Student> student_pos)
+    {
+        m_students_removal_info[student_pos.get()] = true;
+    }
+    void restore_student(Position<Attendance_Student> student_pos)
+    {
+        m_students_removal_info[student_pos.get()] = false;
     }
 
     // Cache this maybe?

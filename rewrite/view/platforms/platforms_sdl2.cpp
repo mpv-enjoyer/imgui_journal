@@ -133,5 +133,5 @@ bool SDL2_Renderer::supports_images()
 
 const char *SDL2_Renderer::name()
 {
-    return "SDL2/SDL2_Renderer";
+    return "SDL2_SDL2_Renderer";
 }

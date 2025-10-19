@@ -22,7 +22,7 @@ public:
             {
                 return student == m_student_pos;
             });
-        if (exists) return "m_student_pos already present in merged lesson";
+        if (exists) return "Ученик уже есть в группе";
         return {};
     }
     void call(IModel& model) override

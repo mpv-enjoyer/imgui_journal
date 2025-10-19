@@ -20,7 +20,7 @@ private:
     const Type m_lesson_type;
     JTime m_begin;
     JTime m_end;
-    std::optional<Vector_Sortable<Teacher>::Position> m_teacher_pos;
+    std::vector<std::optional<Position<Teacher>>> m_teachers_pos;
     Vector_Sortable<Attendance_Student> m_attendance_students;
 public:
     Attendance_Internal_Lesson(Type lesson_type, JTime begin, JTime end)
@@ -33,17 +33,17 @@ public:
     }
     JTime get_time_begin() const { return m_begin; }
     JTime get_time_end() const { return m_end; }
-    void set_teacher_pos(Vector_Sortable<Teacher>::Position teacher_pos)
+    void set_teacher_pos(Aday aday, Position<Teacher> teacher_pos)
     {
-        m_teacher_pos = teacher_pos;
+        m_teachers_pos[aday.index()] = teacher_pos;
     }
-    void reset_teacher_pos()
+    void reset_teacher_pos(Aday aday)
     {
-        m_teacher_pos.reset();
+        m_teachers_pos[aday.index()].reset();
     }
-    std::optional<Vector_Sortable<Teacher>::Position> get_teacher_pos() const
+    std::optional<Position<Teacher>> get_teacher_pos(Aday aday) const
     {
-        return m_teacher_pos;
+        return m_teachers_pos[aday.index()];
     }
     Type get_lesson_type() const
     {
@@ -52,6 +52,7 @@ public:
     void add_student(std::size_t holders_count, Position<Student> student_pos)
     {
         m_attendance_students.push_back(Ptr<Attendance_Student>::make(holders_count, student_pos));
+        m_teachers_pos.push_back({});
     }
     const Attendance_Student& cref_student(Vector_Sortable<Attendance_Student>::Position pos) const
     {
