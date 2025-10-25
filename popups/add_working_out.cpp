@@ -154,7 +154,7 @@ bool Popup_Add_Working_Out::show_frame()
         }
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
         is_calendar_filled = false;
-        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingStretchSame))
+        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
