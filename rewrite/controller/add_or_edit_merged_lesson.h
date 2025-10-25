@@ -34,14 +34,14 @@ public:
     {
         if (m_lessons.size() == 0 || m_lessons.size() > 2)
         {
-            return "invalid m_lessons.size()";
+            return "Неверный размер пары (0 или >2)";
         }
         auto& merged_lessons = model->attendance_wdays()->cref_wday(m_wday).cref_merged_lessons();
         if (m_position)
         {
             if (merged_lessons[*m_position].cref_internal_lessons().size() != m_lessons.size())
             {
-                return "internal lesson count cannot be changed";
+                return "Количество уроков в паре не может быть изменено";
             }
         }
         for (auto it = merged_lessons.cbegin(); it; it.next())

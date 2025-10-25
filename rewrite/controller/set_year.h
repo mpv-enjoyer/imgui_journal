@@ -8,7 +8,7 @@ public:
     Set_Year(Year bottom_year) : m_bottom_year(bottom_year) { }
     std::optional<std::string> get_error(const IModel& model) override
     {
-        if (model->bottom_year == m_bottom_year) return "Set year to the same year";
+        if (model->bottom_year == m_bottom_year) return "Год не изменен";
         return {};
     }
     void call(IModel& model) override
