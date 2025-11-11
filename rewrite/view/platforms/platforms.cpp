@@ -47,7 +47,7 @@ auto Impl::platform() -> Platform*
 
 void Impl::prefer_renderer(const char *renderer)
 {
-    IM_ASSERT(!instance()->get_renderer());
+    IM_ASSERT(!instance()->_renderer);
 
     for (auto it = instance()->_initializers.begin(); it != instance()->_initializers.end(); ++it)
     {
