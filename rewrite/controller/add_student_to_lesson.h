@@ -27,7 +27,6 @@ public:
     }
     void call(IModel& model) override
     {
-        std::size_t count = m_merged_lesson_id.wday().calculate_count_for_bottom_year(model->bottom_year);
-        model->attendance_wdays()->ref_merged_lesson(m_merged_lesson_id).add_student(count, m_student_pos);
+        model->attendance_wdays()->ref_merged_lesson(m_merged_lesson_id).add_student(m_student_pos);
     }
 };

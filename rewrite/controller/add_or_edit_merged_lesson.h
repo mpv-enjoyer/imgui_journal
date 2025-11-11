@@ -85,10 +85,11 @@ public:
             return;
         }
 
+        std::size_t count = m_wday.calculate_count_for_bottom_year(model->bottom_year);
         std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons;
         for (auto lesson : m_lessons)
         {
-            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(lesson.type, lesson.begin, lesson.end));
+            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(count, lesson.type, lesson.begin, lesson.end));
         }
         merged.push_back(
             Ptr<Attendance_Merged_Lesson>::make(

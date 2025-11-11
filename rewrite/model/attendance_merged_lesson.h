@@ -39,11 +39,11 @@ public:
     {
         return m_internal_lessons;
     }
-    void add_student(std::size_t holders_count, Position<Student> student_pos)
+    void add_student(Position<Student> student_pos)
     {
         for (auto iter = m_internal_lessons.begin(); iter; iter.next())
         {
-            iter->add_student(holders_count, student_pos);
+            iter->add_student(student_pos);
         }
         m_students_removal_info.push_back(false);
     }

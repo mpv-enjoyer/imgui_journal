@@ -24,6 +24,7 @@ void Controller_Impl::flush()
         auto error = m_pending_commands.front()->get_error(model());
         if (!error) m_pending_commands.front()->call(Model_Impl::get());
         else std::cerr << "[ERROR] " << *error << "\n";
+        // TODO: Better error logging?
         m_pending_commands.pop();
     }
 }
