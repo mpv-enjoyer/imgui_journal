@@ -1,7 +1,5 @@
 #pragma once
 #include "aunit.h"
-#include "button_dangerous.h"
-#include "button_good.h"
 #include "button.h"
 #include "combobox.h"
 #include "command.h"

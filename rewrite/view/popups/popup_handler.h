@@ -8,8 +8,8 @@ namespace View
         std::unique_ptr<Popup> current;
     public:
         Popup_Handler() { };
-        bool is_subwindow_opened();
-        void open_subwindow(std::unique_ptr<Popup> popup);
-        bool render_subwindow();
+        bool is_popup_opened();
+        void open_popup(std::unique_ptr<Popup> popup);
+        bool render_popup();
     };
 }

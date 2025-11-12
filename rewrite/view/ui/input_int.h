@@ -11,8 +11,8 @@ namespace UI
         int m_min;
         int m_max;
     public:
-        Input_Int(std::string id, int value = 0, std::function<bool(int)> callback = [](int) -> bool { return true; }, int min = 0, int max = __INT_MAX__)
-        : AUnit(id), m_value(value), m_callback(callback), m_min(min), m_max(max)
+        Input_Int(std::string id, int value = 0, const Updater* updater = nullptr, std::function<bool(int)> callback = [](int) -> bool { return true; }, int min = 0, int max = __INT_MAX__)
+        : AUnit(id, updater), m_value(value), m_callback(callback), m_min(min), m_max(max)
         { }
         void render_logic()
         {

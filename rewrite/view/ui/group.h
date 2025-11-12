@@ -11,8 +11,8 @@ namespace UI
         std::vector<Ptr<IUnit>> m_units;
         bool m_engine_group;
     public:
-        Group(std::vector<IUnit*> units, bool engine_group = true)
-        : AUnit(""), m_engine_group(engine_group)
+        Group(std::vector<IUnit*> units, const Updater* updater = nullptr, bool engine_group = true)
+        : AUnit("", updater), m_engine_group(engine_group)
         {
             for (auto unit : units)
             {

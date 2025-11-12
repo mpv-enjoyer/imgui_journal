@@ -73,7 +73,7 @@ namespace View
                     if (m_mainwindow.render()) done = true;
                 }
                 m_subwindow_handler.render_subwindow();
-                m_popup_handler.render_subwindow();
+                m_popup_handler.render_popup();
                 Impl::renderer()->end_frame();
                 m_controller->flush();
             }

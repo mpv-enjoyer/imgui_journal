@@ -46,17 +46,13 @@ namespace View
         {
             // Popup error, definitely should be shown to user (or controller error by default):
             if (auto error = get_error()) return error;
-            // Default controller error. May throw my english notes for debugging only:
             return m_controller.get_error(get_action());
         }
     protected:
         const IModel& m_model;
         virtual bool render_logic() = 0;
         virtual Ptr<ICommand> get_action() const = 0;
-        virtual std::optional<std::string> get_error() const
-        {
-            return m_controller.get_error(get_action());
-        }
+        virtual std::optional<std::string> get_error() const = 0;
     public:
         Popup(std::string id, IController& controller)
         : m_id(id), m_controller(controller), m_model(controller.model())

@@ -12,8 +12,8 @@ namespace UI
     	int m_value;
     	std::function<bool(ChoicesT)> m_callback;
     public:
-        Combobox(std::string id, std::vector<std::string> choices, ChoicesT value = 0, std::function<bool(ChoicesT)> callback = [](ChoicesT){ return true; })
-        : AUnit(id), m_value(value), m_callback(callback)
+        Combobox(std::string id, std::vector<std::string> choices, ChoicesT value = 0, const Updater* updater = nullptr, std::function<bool(ChoicesT)> callback = [](ChoicesT){ return true; })
+        : AUnit(id, updater), m_value(value), m_callback(callback)
         {
             if (choices.size() != ChoicesT::COUNT)
             {

@@ -1,5 +1,6 @@
 #pragma once
 #include "common/assert.h"
+#include "common/modifiers.h"
 #include "thirdparty/imgui/imgui.h"
 #include <string>
 
