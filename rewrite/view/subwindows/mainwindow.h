@@ -9,11 +9,11 @@ namespace View
     {
         UI::Input_Int input_int = UI::Input_Int("Student contract here", 0);
         Shared& m_shared;
-        UI::Button button = UI::Button("Add student", [&]()
+        UI::Button button = UI::Button("Add student", nullptr, [&]()
         {
             m_controller.add(Ptr<Add_Or_Edit_Student_In_Base>::make("Student Name", input_int.get_value()));
         }, UI::Button::Colors::Dangerous);
-        UI::Button button2 = UI::Button("Add Group", [&]()
+        UI::Button button2 = UI::Button("Add Group", nullptr, [&]()
         {
             std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
                 {
