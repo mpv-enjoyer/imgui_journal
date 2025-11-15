@@ -51,7 +51,7 @@ void Impl::prefer_renderer(const char *renderer)
 
     for (auto it = instance()->_initializers.begin(); it != instance()->_initializers.end(); ++it)
     {
-        auto* initializer = *it;
+        Renderer::Initializer* initializer = *it;
         if (std::string(initializer->name()) == std::string(renderer))
         {
             std::iter_swap(instance()->_initializers.begin(), it);
