@@ -1,6 +1,7 @@
 #pragma once
 #include "attendance_student.h"
 #include "teachers.h"
+#include "price.h"
 #include <optional>
 
 enum class Lesson_Type
@@ -11,6 +12,27 @@ enum class Lesson_Type
     TECHDRAWING = 3,    // Черчение
     SPECIALCOURSE = 4,  // Спецкурс
 };
+struct Lesson_Type_Prices
+{
+    static const size_t COUNT = 5;
+    Price drawing;
+    Price sculpting;
+    Price design;
+    Price techdrawing;
+    Price specialcourse;
+    Price get(Lesson_Type lesson_type)
+    {
+        switch (lesson_type)
+        {
+        case Lesson_Type::DRAWING: return drawing;
+        case Lesson_Type::SCULPTING: return sculpting;
+        case Lesson_Type::DESIGN: return design;
+        case Lesson_Type::TECHDRAWING: return techdrawing;
+        case Lesson_Type::SPECIALCOURSE: return specialcourse;
+        default: IM_ASSERT(false);
+        }
+    }
+}; // Defining it here so it's easier to sync with prices.h
 
 class Attendance_Internal_Lesson
 {
@@ -49,6 +71,14 @@ public:
     std::optional<Position<Teacher>> get_teacher_pos(Aday aday) const
     {
         return m_aday_data[aday.index()].teacher;
+    }
+    void set_comment(Aday aday, std::string comment)
+    {
+        m_aday_data[aday.index()].comment = comment;
+    }
+    std::string get_comment(Aday aday) const
+    {
+        return m_aday_data[aday.index()].comment;
     }
     Type get_lesson_type() const
     {

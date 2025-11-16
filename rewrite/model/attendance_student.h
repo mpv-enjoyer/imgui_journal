@@ -1,6 +1,6 @@
 #pragma once
 #include "attendance_holder.h"
-#include "removal_info.h"
+#include "common/removal_info.h"
 #include "student.h"
 
 class Attendance_Student
@@ -34,22 +34,6 @@ public:
     {
         return *(m_holders[aday.index()]);
     }
-    //Attendance_Holder get_holder(Aday aday) const
-    //{
-    //    return cref_holder(aday);
-    //}
-    //Attendance_Holder get_holder_checked(Aday aday) const
-    //{
-    //    auto holder = get_holder(aday);
-    //    if (holder.get_status() == Attendance_Status::NO_DATA)
-    //    {
-    //        if (!m_wants_lesson)
-    //        {
-    //            holder.set(Attendance_Status::NOT_AWAITED, holder.get_discount_id());
-    //        }
-    //    }
-    //    return holder;
-    //}
     Vector_Sortable<Student>::Position get_student_pos() const
     {
         return m_student_pos;

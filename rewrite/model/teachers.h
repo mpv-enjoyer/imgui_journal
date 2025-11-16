@@ -2,7 +2,7 @@
 #include "common/vector_sortable.h"
 #include "teacher.h"
 
-class Teachers // Useless?
+class Teachers
 {
     Vector_Sortable<Teacher> m_teachers;
 public:

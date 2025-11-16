@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-class Teacher
+class Teacher : public Removal_Info
 {
     std::string m_name;
     std::string m_abbreviation;

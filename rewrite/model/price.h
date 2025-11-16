@@ -1,15 +1,13 @@
 #pragma once
 #include <string>
 #include "common/modifiers.h"
+#include "thirdparty/decimal.h"
 
 class Price
 {
-    int m_kopecks;
+    dec::decimal2 m_value;
 public:
-    int get_kopecks() const { return m_kopecks; }
-    std::string to_string() const
-    {
-        return "TODO CRITICAL.";
-        //TODO_CRITICAL("Use this: github.com/vpiotr/decimal_for_cpp");
-    }
+    using Value_Type = dec::decimal2;
+    Price(Value_Type value) : m_value(value) { }
+    Value_Type get() const { return m_value; }
 };

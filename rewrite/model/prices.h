@@ -4,14 +4,24 @@
 
 class Prices
 {
-    std::vector<std::vector<Price>> m_lesson_prices;
-    int discount_size = 0;
+    std::vector<std::vector<Lesson_Type_Prices>> m_lesson_prices =
+    {{{
+        .drawing = Price::Value_Type(1),
+        .sculpting = Price::Value_Type(2),
+        .design = Price::Value_Type(3),
+        .techdrawing = Price::Value_Type(4),
+        .specialcourse = Price::Value_Type(5)
+    }}};
 public:
-    Price get_price(Lesson_Type lesson_type, int discount_id)
+    Prices()
+    {
+        TODO_CRITICAL("Replace Lesson_Type_Prices and Lesson_Type enum with a simple std::array");
+    }
+    Lesson_Type_Prices get_prices(Month month, Lesson_Type lesson_type, size_t discount_id)
     {
         IM_ASSERT(m_lesson_prices.size() > 0);
         IM_ASSERT(m_lesson_prices[0].size() > 0);
-        IM_ASSERT(discount_id != -1);
+        DEBUG_ASSERT(discount_id != -1);
         if (discount_id >= discount_size) discount_id = discount_size - 1;
         switch (lesson_type)
         {

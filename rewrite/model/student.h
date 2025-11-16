@@ -5,7 +5,7 @@
 #include "common/vector_sortable.h"
 #include "common/modifiers.h"
 #include "contract.h"
-#include "removal_info.h"
+#include "common/removal_info.h"
 
 class Student : public Removal_Info
 {

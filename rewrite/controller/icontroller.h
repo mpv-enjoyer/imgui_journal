@@ -1,6 +1,6 @@
 #pragma once
 #include "model/imodel.h"
-#include "icommand.h"
+#include "commands/icommand.h"
 #include <optional>
 #include <string>
 

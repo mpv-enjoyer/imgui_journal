@@ -1,7 +1,7 @@
 #pragma once
 #include "subwindow.h"
 #include "view/shared.h"
-#include "controller/commands.h"
+#include "controller/commands/commands.h"
 
 namespace View
 {
