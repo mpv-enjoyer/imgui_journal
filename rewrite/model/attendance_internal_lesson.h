@@ -1,43 +1,13 @@
 #pragma once
 #include "attendance_student.h"
 #include "teachers.h"
-#include "price.h"
+#include "lesson_infos.h"
 #include <optional>
-
-enum class Lesson_Type
-{
-    DRAWING = 0,        // ИЗО
-    SCULPTING = 1,      // Лепка
-    DESIGN = 2,         // Дизайн
-    TECHDRAWING = 3,    // Черчение
-    SPECIALCOURSE = 4,  // Спецкурс
-};
-struct Lesson_Type_Prices
-{
-    static const size_t COUNT = 5;
-    Price drawing;
-    Price sculpting;
-    Price design;
-    Price techdrawing;
-    Price specialcourse;
-    Price get(Lesson_Type lesson_type)
-    {
-        switch (lesson_type)
-        {
-        case Lesson_Type::DRAWING: return drawing;
-        case Lesson_Type::SCULPTING: return sculpting;
-        case Lesson_Type::DESIGN: return design;
-        case Lesson_Type::TECHDRAWING: return techdrawing;
-        case Lesson_Type::SPECIALCOURSE: return specialcourse;
-        default: IM_ASSERT(false);
-        }
-    }
-}; // Defining it here so it's easier to sync with prices.h
 
 class Attendance_Internal_Lesson
 {
 public:
-    using Type = Lesson_Type;
+    using Type = Lesson_Infos::Type;
 private:
     struct Aday_Data
     {
