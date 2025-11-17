@@ -11,31 +11,34 @@ public:
         Month month;
         Mday added_at;
         std::string comment;
+        AUTOOPS2(Payment, month, added_at);
     };
 private:
-    std::vector<Payment> m_payments;
+    Vector_Sortable<Payment> m_payments;
     int m_id;
 public:
     Contract(int id) : m_id(id) { }
     int get_number() const { return m_id; }
-    const std::vector<Payment>& cref_payments() const { return m_payments; }
+    const Vector_Sortable<Payment>& cref_payments() const { return m_payments; }
     void add_payment(Price price, Month month, std::string comment)
     {
         m_payments.push_back(
-            Payment{
+            Ptr<Payment>::make(Payment{
                 .price = price,
                 .month = month,
                 .added_at = Mday::make_current(),
                 .comment = comment
-            }
+            })
         );
     }
-    void remove_payment(size_t payment_id)
+    void remove_payment(Position<Payment> payment_pos)
     {
-        m_payments[payment_id].remove();
+        m_payments[payment_pos].remove();
     }
-    void restore_payment(size_t payment_id)
+    void restore_payment(Position<Payment> payment_pos)
     {
-        m_payments[payment_id].restore();
+        m_payments[payment_pos].restore();
     }
 };
+
+using Payment = Contract::Payment;

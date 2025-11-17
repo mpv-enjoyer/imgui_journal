@@ -36,6 +36,10 @@ public:
     {
         return m_contracts[m_students[student_pos].get_contract_pos()].get_number();
     }
+    Contract& ref_contract(Position<Contract> contract_pos)
+    {
+        return m_contracts[contract_pos];
+    }
     const Vector_Sortable<Contract>& cref_contracts() const
     {
         return m_contracts;

@@ -1,13 +1,16 @@
 #pragma once
 
 #include "add_or_edit_merged_lesson.h"
+#include "add_or_edit_price.h"
 #include "add_or_edit_student_in_base.h"
 #include "add_or_edit_teacher.h"
 #include "add_student_to_lesson.h"
+#include "add_payment.h"
 #include "add_workout.h"
 #include "edit_wants_lesson.h"
 #include "move_student.h"
 #include "remove_lesson.h"
+#include "remove_payment.h"
 #include "remove_student_from_lesson.h"
 #include "remove_student.h"
 #include "remove_teacher.h"
