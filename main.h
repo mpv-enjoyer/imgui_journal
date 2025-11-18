@@ -85,7 +85,7 @@ typedef short Attend_Data;
 
 const int LESSON_TYPE_COUNT = 5;
 //const int LESSON_PRICES_COUNT = 3;
-const int AGE_GROUP_COUNT = 8;
+const int AGE_GROUP_COUNT = 9;
 
 const int STUDY_YEAR_BEGIN_MONTH = 8;
 
