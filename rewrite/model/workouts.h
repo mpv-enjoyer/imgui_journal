@@ -5,17 +5,17 @@
 class Workouts
 {
     NON_COPYABLE_NOR_MOVABLE(Workouts);
-    std::vector<Workout_Lesson_ID> m_workouts;
+    std::vector<Workout> m_workouts;
 public:
     Workouts() { }
-    void add(Workout_Lesson_ID workout)
+    void add(Workout workout)
     {
         if (std::find(m_workouts.begin(), m_workouts.end(), workout) == m_workouts.end())
         {
             m_workouts.push_back(workout);
         }
     }
-    void remove(Workout_Lesson_ID workout)
+    void remove(Workout workout)
     {
         auto it = std::find(m_workouts.begin(), m_workouts.end(), workout);
         if (it != m_workouts.end())
@@ -23,9 +23,9 @@ public:
             m_workouts.erase(it);
         }
     }
-    std::vector<Workout_Lesson_ID> get_by_real(Internal_Lesson_ID internal_lesson_id, Aday aday) const
+    std::vector<Workout> get_by_real(Internal_Lesson_ID internal_lesson_id, Aday aday) const
     {
-        std::vector<Workout_Lesson_ID> output;
+        std::vector<Workout> output;
         for (auto workout : m_workouts)
         {
             if (workout.real_aday() == aday && workout.real_internal_lesson_id() == internal_lesson_id)
@@ -35,7 +35,7 @@ public:
         }
         return output;
     }
-    std::optional<Workout_Lesson_ID> is_should(Attendance_ID attendance_id) const
+    std::optional<Workout> is_should(Attendance_ID attendance_id) const
     {
         for (auto workout : m_workouts)
         {
@@ -43,7 +43,7 @@ public:
         }
         return {};
     }
-    std::optional<Workout_Lesson_ID> is_real(Internal_Lesson_ID internal_lesson_id, Aday aday, Internal_Student_ID should_student_id) const
+    std::optional<Workout> is_real(Internal_Lesson_ID internal_lesson_id, Aday aday, Internal_Student_ID should_student_id) const
     {
         for (const auto& workout : m_workouts)
         {

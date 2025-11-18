@@ -70,17 +70,3 @@ public:
     operator Internal_Lesson_ID() { return internal_lesson_id(); }
     operator Internal_Student_ID() { return internal_student_id(); }
 };
-
-class Workout_Lesson_ID
-{
-    Attendance_ID m_should_id;
-    Internal_Lesson_ID m_real_internal_lesson_id;
-    Aday m_real_aday;
-public:
-    Workout_Lesson_ID(Attendance_ID should_id, Internal_Lesson_ID real_internal_lesson_id, Aday real_aday)
-    : m_should_id(should_id), m_real_internal_lesson_id(real_internal_lesson_id), m_real_aday(real_aday) { }
-    Attendance_ID should_id() const { return m_should_id; }
-    Internal_Lesson_ID real_internal_lesson_id() const { return m_real_internal_lesson_id; }
-    Aday real_aday() const { return m_real_aday; }
-    AUTOEQ3(Workout_Lesson_ID, m_should_id, m_real_internal_lesson_id, m_real_aday);
-};

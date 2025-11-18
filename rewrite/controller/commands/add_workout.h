@@ -3,7 +3,7 @@
 
 class Add_Workout : public ICommand
 {
-    Workout_Lesson_ID m_workout;
+    Workout m_workout;
 
     static Error get_error_not_awaited(Attendance_Status status)
     {
@@ -41,7 +41,7 @@ class Add_Workout : public ICommand
         return {};
     }
 
-    static Error get_error_already_worked_out(const Ptr<Workouts>& workouts, const Workout_Lesson_ID& workout)
+    static Error get_error_already_worked_out(const Ptr<Workouts>& workouts, const Workout& workout)
     {
         if (workouts->is_should(workout.should_id())) return "Отработка уже назначена";
         if (workouts->is_real(workout.real_internal_lesson_id(), workout.real_aday(), workout.should_id()))
@@ -63,7 +63,7 @@ class Add_Workout : public ICommand
         return "Неверное сопоставление should и real для workout.";
     }
 public:
-    Add_Workout(Workout_Lesson_ID workout)
+    Add_Workout(Workout workout)
     : m_workout(workout)
     { }
     Error get_error(const IModel& model) override
