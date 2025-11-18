@@ -16,6 +16,7 @@ class Year;
 class Month;
 class Mday;
 class Wday;
+class Aday;
 
 // Return value is one if Loop was performed
 struct Loop
@@ -69,11 +70,11 @@ public:
     static Month make_from_0(int value, Year year = Year::make_current()) { return Month(value, year); }
     static Month make_from_1(int value, Year year = Year::make_current()) { return Month(value - 1, year); }
     static Month make_current() { return Month(Now.time.tm_mon, Year::make_current()); }
-    static Month make_begin_study_year(Month month) { return make_begin_study_year_from_bottom_year(month.get_bottom_year()); }
+    static Month make_begin_study_year(Month month) { return make_begin_study_year_from_bottom_year(month.get_study_bottom_year()); }
     static Month make_begin_study_year_from_bottom_year(Year bottom_year) { return Month(BEGIN_STUDY_MONTH_FROM_0, bottom_year); }
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
-    Year get_bottom_year()
+    Year get_study_bottom_year()
     {
         Year copy = m_year;
         if (m_value_from_0 < BEGIN_STUDY_MONTH_FROM_0) copy.previous();
@@ -136,6 +137,26 @@ public:
     AUTOOPS2(Month, m_year, m_value_from_0);
 };
 
+// Attendance day. Represents one mday in an array of
+// days with the same wday starting at the study year.
+class Aday // STILL UNTESTED
+{
+    std::size_t m_index = 0;
+    std::size_t m_max_index_for_month;
+    Aday(Mday mday);
+public:
+    static Aday make_from_mday(Mday mday);
+    static Aday make_from_first_wday(Wday wday, Month month);
+    std::size_t index() const { return m_index; }
+    bool next()
+    {
+        if (m_index == m_max_index_for_month) return false;
+        m_index++;
+        return true;
+    }
+    AUTOEQ1(Aday, m_index);
+};
+
 class Mday
 {
     int m_value_from_0;
@@ -150,6 +171,7 @@ public:
     static Mday make_current() { return Mday(Now.time.tm_mday - 1, Month::make_current()); }
     static Mday make_first(Month month = Month::make_current()) { return Mday(0, month); }
     static Mday make_from_first_wday(Wday wday, Month month);
+    static Mday make_from_aday(Year bottom_year, Wday wday, Aday aday);
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
     Month get_month() const { return m_month; }
@@ -257,39 +279,6 @@ public:
     AUTOOPS1(Wday, m_value_EN);
 };
 
-// Attendance day. Represents one mday in an array of
-// days with the same wday starting at the study year.
-class Aday // STILL UNTESTED
-{
-    Mday m_mday;
-    std::size_t m_index = 0;
-    std::size_t m_max_index_for_month;
-    Aday(Mday mday) : m_mday(mday)
-    {
-        auto wday = Wday::make_from_mday(mday);
-        for (auto month = Month::make_begin_study_year(mday.get_month()); month != mday.get_month(); month.next())
-        {
-            m_index += month.calculate_wday_count(wday);
-        }
-        m_max_index_for_month = m_index + mday.get_month().calculate_wday_count(wday);
-        m_index += mday.get_index_in_month();
-    }
-public:
-    static Aday make_from_first_wday(Wday wday, Month month)
-    {
-        return Aday(Mday::make_from_first_wday(wday, month));
-    }
-    Mday mday() const { return m_mday; }
-    std::size_t index() const { return m_index; }
-    bool next()
-    {
-        if (m_index == m_max_index_for_month) return false;
-        m_index++;
-        return true;
-    }
-    AUTOEQ1(Aday, m_mday);
-};
-
 class JTime
 {
     int m_hours; //0-23
@@ -316,6 +305,27 @@ inline int Month::calculate_wday_count(Wday wday) const
     return (get_day_count() - Mday::make_from_first_wday(wday, *this).get_from_1()) / Wday::COUNT + 1;
 }
 
+inline Aday::Aday(Mday mday)
+{
+    auto wday = Wday::make_from_mday(mday);
+    for (auto month = Month::make_begin_study_year(mday.get_month()); month != mday.get_month(); month.next())
+    {
+        m_index += month.calculate_wday_count(wday);
+    }
+    m_max_index_for_month = m_index + mday.get_month().calculate_wday_count(wday);
+    m_index += mday.get_index_in_month();
+}
+
+inline Aday Aday::make_from_mday(Mday mday)
+{
+    return Aday(mday);
+}
+
+inline Aday Aday::make_from_first_wday(Wday wday, Month month)
+{
+    return Aday(Mday::make_from_first_wday(wday, month));
+}
+
 inline Mday Mday::make_from_first_wday(Wday wday, Month month)
 {
     // int get_first_wday(int month, int year, int wday)
@@ -330,7 +340,22 @@ inline Mday Mday::make_from_first_wday(Wday wday, Month month)
     return Mday(diff, month); // TODO: TEST THIS
 }
 
+inline Mday Mday::make_from_aday(Year bottom_year, Wday wday, Aday aday)
+{
+    std::size_t aday_index = aday.index();
+    std::size_t aday_index_current = 0;
+        //auto wday = Wday::make_from_mday();
+    Month month = Month::make_begin_study_year_from_bottom_year(bottom_year);
+    for (; aday_index_current + month.calculate_wday_count(wday) < aday_index; month.next())
+    {
+        aday_index_current += month.calculate_wday_count(wday);
+    }
+    std::size_t first_mday_from_0 = Mday::make_from_first_wday(wday, month).get_from_0();
+    return Mday::make_from_0(first_mday_from_0 + (aday_index_current - aday_index) * Wday::COUNT, month); // TODO: TEST THIS
+}
+
 inline int Mday::get_index_in_month() const
 {
     return get_from_0() / Wday::COUNT;
 }
+

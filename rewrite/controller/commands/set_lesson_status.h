@@ -13,7 +13,8 @@ public:
     { }
     Error get_error(const IModel& model) override
     {
-        if (model->holidays()->get_holiday(m_id.aday().mday())) return "На этот день назначен выходной";
+        Mday mday = Mday::make_from_aday(model->bottom_year, m_id.wday(), m_id.aday());
+        if (model->holidays()->get_holiday(mday)) return "На этот день назначен выходной";
         auto current_status = model->attendance_wdays()->cref_attendance_holder(m_id).get_status();
         if (current_status == Attendance_Status::NOT_AWAITED)
         {

@@ -54,6 +54,7 @@ public:
     {
         return m_lesson_type;
     }
+    // For Attendance_Merged_Lesson. Don't use elsewhere:
     void add_student(Position<Student> student_pos)
     {
         m_attendance_students.push_back(Ptr<Attendance_Student>::make(m_aday_data.size(), student_pos));
