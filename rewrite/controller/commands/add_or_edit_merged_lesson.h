@@ -91,18 +91,30 @@ public:
                 size_t i = it.get_position().get();
                 it->set_time(m_lessons[i].begin, m_lessons[i].end);
             } while (it.next());
+            current.set_active_adays(m_adays_are_active);
             return;
         }
 
-        std::size_t adays_count = m_wday.calculate_count_for_bottom_year(model->bottom_year);
+        std::size_t adays_count = m_adays_are_active.size();
         std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons;
         for (auto lesson : m_lessons)
         {
             internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
         }
 
+        std::vector<Aday_With_Status> adays_with_status;
+        for (size_t index = 0; index < adays_count; index++)
+        {
+            Aday_With_Status current =
+            {
+                .aday = Aday::make_from_index(index),
+                .is_active = m_adays_are_active[index]
+            };
+            adays_with_status.push_back(current);
+        }
+
         merged.push_back(
             Ptr<Attendance_Merged_Lesson>::make(
-                std::move(internal_lessons), m_number, m_age_group, m_comment, m_adays_are_active));
+                std::move(internal_lessons), m_number, m_age_group, m_comment, adays_with_status));
     }
 };

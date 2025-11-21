@@ -22,7 +22,7 @@ namespace View
                     .end = JTime(11, 50)
                 }
             };
-            m_controller.add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Wday::make_current(), 0, "comment", 4, requests));
+            m_controller.add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
         }, UI::Button::Colors::Dangerous);
         bool render_logic() override
         {

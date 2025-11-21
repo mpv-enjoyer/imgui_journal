@@ -1,4 +1,5 @@
 set -uxe
+cd $(dirname $(realpath $0))
 
 COMMANDS_FILE="commands.h"
 echo "#pragma once" > $COMMANDS_FILE
