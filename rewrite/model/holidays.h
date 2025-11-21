@@ -18,8 +18,16 @@ public:
         }
         return {};
     }
-    void add_holiday(Mday mday)
+    std::set<Holiday> get_holidays() const
     {
-        m_holidays.insert(Holiday(mday));
+        return m_holidays;
+    }
+    void add_holiday(Holiday holiday)
+    {
+        m_holidays.insert(holiday);
+    }
+    void remove_holiday(Mday mday)
+    {
+        m_holidays.erase(Holiday(mday));
     }
 };

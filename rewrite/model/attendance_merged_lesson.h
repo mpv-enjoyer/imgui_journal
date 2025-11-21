@@ -15,15 +15,21 @@ public:
         "9 лет, школьная группа",
         "10-11 лет, школьная группа",
         "12-13 лет, школьная группа"};
+    struct Aday_With_Status
+    {
+        Aday aday;
+        bool is_active;
+    };
 private:
     int m_number;
     int m_age_group;
     std::string m_comment;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
     std::vector<bool> m_students_removal_info;
+    std::vector<Aday_With_Status> m_adays;
 public:
-    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
-    : m_number(number), m_age_group(age_group), m_comment(comment)
+    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment, std::vector<Aday_With_Status> adays)
+    : m_number(number), m_age_group(age_group), m_comment(comment), m_adays(adays)
     {
         IM_ASSERT(internal_lessons.size() != 0);
         for (auto& internal_lesson : internal_lessons)
@@ -104,4 +110,18 @@ public:
     {
         m_comment = comment;
     }
+    void set_active_adays(std::vector<bool> adays)
+    {
+        DEBUG_ASSERT(adays.size() == m_adays.size());
+        for (size_t i = 0; i < adays.size(); i++)
+        {
+            m_adays[i].is_active = adays[i];
+        }
+    }
+    std::vector<Aday_With_Status> get_adays() const
+    {
+        return m_adays;
+    }
 };
+
+using Aday_With_Status = Attendance_Merged_Lesson::Aday_With_Status;

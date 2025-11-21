@@ -12,17 +12,26 @@ public:
     };
 private:
     const std::optional<Position<Attendance_Merged_Lesson>> m_position;
+    std::vector<bool> m_adays_are_active; // is_active?
     Wday m_wday;
     int m_number;
     std::string m_comment;
     int m_age_group;
     std::vector<Request> m_lessons;
 public:
-    Add_Or_Edit_Merged_Lesson(Wday wday, int number, std::string comment, int age_group, std::vector<Request> lessons)
-    : m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
-    { }
-    Add_Or_Edit_Merged_Lesson(Position<Attendance_Merged_Lesson> pos, Wday wday, int number, std::string comment, int age_group, std::vector<std::pair<JTime, JTime>> lessons)
-    : m_position(pos), m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group)
+    Add_Or_Edit_Merged_Lesson(Mday mday, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : m_wday(Wday::make_from_mday(mday)), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
+    {
+        Year bottom_year = mday.get_month().get_study_bottom_year();
+        std::size_t adays_count = m_wday.calculate_count_for_bottom_year(bottom_year);
+        std::size_t requested_aday_index = Aday::make_from_mday(mday).index();
+        for (size_t i = 0; i < adays_count; i++)
+        {
+            m_adays_are_active.push_back(i >= requested_aday_index);
+        }
+    }
+    Add_Or_Edit_Merged_Lesson(Position<Attendance_Merged_Lesson> pos, std::vector<bool> adays_are_active, Wday wday, int number, std::string comment, int age_group, std::vector<std::pair<JTime, JTime>> lessons)
+    : m_position(pos), m_adays_are_active(adays_are_active), m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group)
     {
         for (auto lesson : m_lessons)
         {
@@ -85,14 +94,15 @@ public:
             return;
         }
 
-        std::size_t count = m_wday.calculate_count_for_bottom_year(model->bottom_year);
+        std::size_t adays_count = m_wday.calculate_count_for_bottom_year(model->bottom_year);
         std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons;
         for (auto lesson : m_lessons)
         {
-            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(count, lesson.type, lesson.begin, lesson.end));
+            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
         }
+
         merged.push_back(
             Ptr<Attendance_Merged_Lesson>::make(
-                std::move(internal_lessons), m_number, m_age_group, m_comment));
+                std::move(internal_lessons), m_number, m_age_group, m_comment, m_adays_are_active));
     }
 };
