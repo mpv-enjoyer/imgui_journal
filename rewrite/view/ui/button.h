@@ -55,7 +55,7 @@ namespace UI
             int applied_count = apply_colors(m_colors);
             bool result = ImGui::Button(m_id.c_str(), {m_width, 0});
             ImGui::PopStyleColor(applied_count);
-            if (result) m_callback();
+            if (m_callback && result) m_callback();
         }
     };
 }

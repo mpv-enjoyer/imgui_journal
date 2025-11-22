@@ -2,6 +2,7 @@
 #include "model/imodel.h"
 #include "controller/icontroller.h"
 #include "view/ui/ui.h"
+#include "view/elements/elements.h"
 
 namespace View
 {

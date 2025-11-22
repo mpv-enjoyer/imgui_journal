@@ -29,7 +29,7 @@ namespace UI
         {
             int value_buffer = m_value;
             if (!ImGui::Combo(m_id.c_str(), &value_buffer, m_choices.c_str())) return;
-            if (m_callback(value_buffer)) m_value = value_buffer;
+            if (!m_callback || m_callback(value_buffer)) m_value = value_buffer;
         }
     };
 }

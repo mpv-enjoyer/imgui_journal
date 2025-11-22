@@ -51,4 +51,13 @@ namespace UI
         ~Scope_Color() { ImGui::PopStyleColor(); }
         operator bool() { return true; }
     };
+
+    struct Scope_Color_Input
+    {
+        Scope_Color scope_color;
+        NON_COPYABLE_NOR_MOVABLE(Scope_Color_Input);
+        [[nodiscard]] explicit Scope_Color_Input()
+        : scope_color(ImGuiCol_FrameBg, ImVec4(ImColor::HSV(0.0f, 0.0f, 0.75f)))
+        { }
+    };
 }

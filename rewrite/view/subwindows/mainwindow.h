@@ -18,12 +18,14 @@ namespace View
             std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
                 {
                     .type = Attendance_Internal_Lesson::Type::DESIGN,
-                    .begin = JTime(10, 40),
-                    .end = JTime(11, 50)
+                    .begin = begin_jtime.get_value(),
+                    .end = end_jtime.get_value()
                 }
             };
             m_controller.add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
         }, UI::Button::Colors::Dangerous);
+        UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
+        UI::Input_JTime end_jtime = UI::Input_JTime("##end");
         bool render_logic() override
         {
             input_int.render();
@@ -35,6 +37,11 @@ namespace View
                 ImGui::Text("student %s contract %i", it->get_name().c_str(), contract_number);
             }
             button2.render();
+            begin_jtime.render();
+            ImGui::SameLine();
+            ImGui::Text(" _ ");
+            ImGui::SameLine();
+            end_jtime.render();
             return ImGui::Button("Exit lol");
         }
     public:

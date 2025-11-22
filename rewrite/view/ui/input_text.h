@@ -17,9 +17,10 @@ namespace UI
         { }
         void render_logic() override
         {
+            UI::Scope_Color_Input color;
             if (!ImGui::InputText(m_id.c_str(), &m_text_buffer)) return;
             if (m_text_buffer.size() > m_max_length) m_text_buffer = m_text_buffer.substr(0, m_max_length);
-            if (m_callback(m_text_buffer)) m_text = m_text_buffer;
+            if (!m_callback || m_callback(m_text_buffer)) m_text = m_text_buffer;
         }
         std::string get_value() const
         {
