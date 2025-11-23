@@ -30,7 +30,7 @@ namespace UI
                 ImGui::SetNextItemWidth(items_width);
                 m_input_hours.render();
                 ImGui::TableNextColumn();
-                ImGui::Text(":");
+                label(":");
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth(items_width);
                 m_input_minutes.render();

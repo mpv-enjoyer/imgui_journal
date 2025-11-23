@@ -1,6 +1,7 @@
 #pragma once
 #include "iunit.h"
 #include "common/modifiers.h"
+#include <optional>
 
 namespace UI
 {
@@ -82,5 +83,9 @@ namespace UI
     void label(std::string text)
     {
         ImGui::Text("%s", text.c_str());
+    }
+    void label(std::string text, ImVec4 col)
+    {
+        ImGui::TextColored(col, "%s", text.c_str());
     }
 }

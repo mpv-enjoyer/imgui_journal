@@ -20,7 +20,7 @@ namespace View
             }
             void print() const
             {
-                ImGui::TextColored({0.9f, 0.1f, 0.1f, 1.0f}, m_error.c_str());
+                UI::label(m_error, {0.9f, 0.1f, 0.1f, 1.0f});
             }
         } m_last_error;
 

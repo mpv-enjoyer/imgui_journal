@@ -31,17 +31,17 @@ namespace View
         bool render_logic() override
         {
             input_int.render();
-            ImGui::Text("%s", m_shared.edit_mode ? "edit mode" : "not edit mode");
+            UI::label(m_shared.edit_mode ? "edit mode" : "not edit mode");
             button.render();
             for (auto it = m_model->students()->cref_students().cbegin(); it; it.next())
             {
                 int contract_number = m_model->students()->get_contract_number(it.get_position());
-                ImGui::Text("student %s contract %i", it->get_name().c_str(), contract_number);
+                UI::label("student " + it->get_name() + " contract " + std::to_string(contract_number));
             }
             button2.render();
             begin_jtime.render();
             ImGui::SameLine();
-            ImGui::Text(" _ ");
+            UI::label(" _ ");
             ImGui::SameLine();
             end_jtime.render();
             checkbox.render();
