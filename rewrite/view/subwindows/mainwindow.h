@@ -26,6 +26,8 @@ namespace View
         }, UI::Button::Colors::Dangerous);
         UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
         UI::Input_JTime end_jtime = UI::Input_JTime("##end");
+        std::unique_ptr<UI::Select_Students> select_students;
+        UI::Checkbox checkbox = UI::Checkbox("Select multiple?");
         bool render_logic() override
         {
             input_int.render();
@@ -42,6 +44,15 @@ namespace View
             ImGui::Text(" _ ");
             ImGui::SameLine();
             end_jtime.render();
+            checkbox.render();
+            if (ImGui::Button("Select Students"))
+            {
+                select_students.reset(new UI::Select_Students("Select Students", m_controller.model(), [&](Position<Student> pos)
+                {
+                    return pos.get() % 2 == 1;
+                }, checkbox.get_value()));
+            }
+            if (select_students) select_students->render();
             return ImGui::Button("Exit lol");
         }
     public:

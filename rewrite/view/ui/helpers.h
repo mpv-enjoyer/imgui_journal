@@ -60,4 +60,27 @@ namespace UI
         : scope_color(ImGuiCol_FrameBg, ImVec4(ImColor::HSV(0.0f, 0.0f, 0.75f)))
         { }
     };
+
+    bool button_selectable(std::string id, bool selected, bool small = false)
+    {
+        if (selected)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(2.0f / 7.0f, 0.8f, 0.8f));
+        }
+        bool output;
+        if (!small) output = ImGui::Button(id.c_str());
+        else output = ImGui::SmallButton(id.c_str());
+        if (selected)
+        {
+            ImGui::PopStyleColor(3);
+        }
+        return output;
+    }
+
+    void label(std::string text)
+    {
+        ImGui::Text("%s", text.c_str());
+    }
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "aunit.h"
 #include "button.h"
+#include "checkbox.h"
 #include "combobox.h"
 #include "command.h"
 #include "group.h"
