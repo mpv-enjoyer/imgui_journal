@@ -1,0 +1,36 @@
+#pragma once
+#include "view/ui/ui.h"
+#include "model/lesson_infos.h"
+
+namespace UI
+{
+    class Select_Lesson_Type : public AUnit
+    {
+    private:
+        const Combobox_Choices<std::vector<Lesson_Type>> M_CHOICES =
+        {
+            {"ИЗО", { Lesson_Type::DRAWING }},
+            {"Лепка", { Lesson_Type::SCULPTING }},
+            {"ИЗО+Лепка", { Lesson_Type::DRAWING, Lesson_Type::SCULPTING }},
+            {"Лепка+ИЗО", { Lesson_Type::SCULPTING, Lesson_Type::DRAWING }},
+            {"Дизайн", { Lesson_Type::DESIGN }},
+            {"Черчение", { Lesson_Type::TECHDRAWING }},
+            {"Спецкурс", { Lesson_Type::SPECIALCOURSE }}
+        };
+        
+        Combobox<std::vector<Lesson_Type>> m_combo;
+        std::vector<Lesson_Type> m_values;
+        std::function<void (std::vector<Lesson_Type>)> m_callback;
+        void render_logic() override
+        {
+            m_combo.render();
+        }
+    public:
+        Select_Lesson_Type(std::string id, std::function<bool (std::vector<Lesson_Type>)> callback)
+        : AUnit(id), m_combo(id, M_CHOICES, nullptr, callback) { }
+        std::vector<Lesson_Type> get_lesson_types() const
+        {
+            return m_combo.get_choice();
+        }
+    };
+}

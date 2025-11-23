@@ -13,11 +13,12 @@ namespace View
         {
             m_controller.add(Ptr<Add_Or_Edit_Student_In_Base>::make("Student Name", input_int.get_value()));
         }, UI::Button::Colors::Dangerous);
+        UI::Select_Lesson_Type select_lesson_type = UI::Select_Lesson_Type("Select lesson type", nullptr);
         UI::Button button2 = UI::Button("Add Group", nullptr, [&]()
         {
             std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
                 {
-                    .type = Attendance_Internal_Lesson::Type::DESIGN,
+                    .type = select_lesson_type.get_lesson_types().front(),
                     .begin = begin_jtime.get_value(),
                     .end = end_jtime.get_value()
                 }
@@ -53,6 +54,7 @@ namespace View
                 }, checkbox.get_value()));
             }
             if (select_students) select_students->render();
+            else select_lesson_type.render();
             return ImGui::Button("Exit lol");
         }
     public:
