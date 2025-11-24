@@ -17,8 +17,8 @@ namespace UI
     protected:
         std::vector<char> m_buffer;
     public:
-        Input_Int(std::string id, int value = 0, const Updater* updater = nullptr, std::function<bool(int)> callback = nullptr, int min = 0, int max = __INT_MAX__)
-        : AUnit(id, updater), m_value(value), m_callback(callback), m_min(min), m_max(max), m_buffer(std::to_string(m_max).size() + 1, '\0')
+        Input_Int(std::string id, int value = 0, std::function<bool(int)> callback = nullptr, int min = 0, int max = __INT_MAX__)
+        : AUnit(id), m_value(value), m_callback(callback), m_min(min), m_max(max), m_buffer(std::to_string(m_max).size() + 1, '\0')
         {
             update_visible_value();
         }

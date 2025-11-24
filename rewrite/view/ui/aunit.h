@@ -39,7 +39,6 @@ namespace UI
         NON_COPYABLE(AUnit);
     protected:
         const std::string m_id;
-        const Updater* const m_updater;
         bool m_enabled = true;
         float m_width;
         virtual void render_logic() { }
@@ -52,17 +51,15 @@ namespace UI
             std::cerr << "ERROR [AUnit " << m_id << "]: " << reason << "\n";
         }
     public:
-        AUnit(std::string id, const Updater* updater = nullptr, float width = 0)
-        : m_id(id), m_updater(updater), m_width(width)
+        AUnit(std::string id, float width = 0)
+        : m_id(id), m_width(width)
         { }
         void render() override final
         {
-            if (m_updater && m_updater->wants_update()) update();
             if (!m_enabled) ImGui::BeginDisabled();
             render_logic();
             if (!m_enabled) ImGui::EndDisabled();
         }
-        virtual void update() { }
         virtual void disable() override { m_enabled = false; }
         virtual void enable() override { m_enabled = true; }
         virtual bool is_enabled() override { return m_enabled; }

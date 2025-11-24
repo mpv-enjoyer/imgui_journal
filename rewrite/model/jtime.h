@@ -114,6 +114,18 @@ public:
         if (Loop::minus(m_value_from_0, COUNT)) m_year.previous();
         return m_value_from_0 != END_STUDY_MONTH_FROM_0;
     }
+    bool next_bounded()
+    {
+        bool result = next();
+        if (!result) previous();
+        return result;
+    }
+    bool previous_bounded()
+    {
+        bool result = previous();
+        if (!result) next();
+        return result;
+    }
     int get_day_count() const
     {
         //int get_number_of_days(int month, int year_starting_from_zero)

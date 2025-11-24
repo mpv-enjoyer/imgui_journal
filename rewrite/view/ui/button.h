@@ -45,8 +45,8 @@ namespace UI
             return 3;
         }
     public:
-        Button(std::string id, const Updater* updater = nullptr, std::function<void()> callback = []() -> void {}, Colors colors = Colors::Common)
-        : AUnit(id, updater), m_callback(callback), m_colors(colors)
+        Button(std::string id, std::function<void()> callback = []() -> void {}, Colors colors = Colors::Common)
+        : AUnit(id), m_callback(callback), m_colors(colors)
         { }
         void update() { };
     protected:

@@ -14,7 +14,7 @@ namespace UI
             }
         public:
             JTime_Input_Int(std::string id, int max, int value)
-            : Input_Int(id, value, nullptr, nullptr, 0, max)
+            : Input_Int(id, value, nullptr, 0, max)
             {
                 update_visible_value();
             }

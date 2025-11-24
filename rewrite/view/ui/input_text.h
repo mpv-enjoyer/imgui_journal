@@ -12,8 +12,8 @@ namespace UI
         std::function<bool(std::string)> m_callback;
         std::size_t m_max_length;
     public:
-        Input_Text(std::string id, std::string text, const Updater* updater = nullptr, std::function<bool(std::string)> callback = [](std::string) -> bool { return true; }, std::size_t max_length = 1000)
-        : AUnit(id, updater), m_text(text), m_text_buffer(text), m_callback(callback), m_max_length(max_length)
+        Input_Text(std::string id, std::string text, std::function<bool(std::string)> callback = [](std::string) -> bool { return true; }, std::size_t max_length = 1000)
+        : AUnit(id), m_text(text), m_text_buffer(text), m_callback(callback), m_max_length(max_length)
         { }
         void render_logic() override
         {
