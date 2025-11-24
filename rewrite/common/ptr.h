@@ -29,6 +29,10 @@ struct Ptr : std::unique_ptr<T> {
         return std::unique_ptr<T>::get();
     }
 
+    //void swap(Ptr<T> &ptr) noexcept {
+    //    static_cast<std::unique_ptr<T>>(*this).swap(static_cast<std::unique_ptr<T>>(ptr));
+    //}
+
     template <typename... Args>
     static Ptr<T> make(Args&&... args)
     { return Ptr<T>(new T(std::forward<Args>(args)...)); }

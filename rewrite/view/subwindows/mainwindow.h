@@ -29,6 +29,10 @@ namespace View
         UI::Input_JTime end_jtime = UI::Input_JTime("##end");
         std::unique_ptr<UI::Select_Students> select_students;
         UI::Checkbox checkbox = UI::Checkbox("Select multiple?");
+        UI::Calendar calendar = UI::Calendar("I am a calendar", Month::make_begin_study_year(Month::make_current()), [](Mday mday)
+        {
+            return mday.get_from_0() % 3 == 1;
+        });
         bool render_logic() override
         {
             input_int.render();
@@ -55,6 +59,7 @@ namespace View
             }
             if (select_students) select_students->render();
             else select_lesson_type.render();
+            calendar.render();
             return ImGui::Button("Exit lol");
         }
     public:

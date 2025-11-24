@@ -12,10 +12,6 @@ namespace UI
         ImGuiTableFlags m_flags;
         ImVec2 m_outer_size;
         float m_inner_width;
-    public:
-        Table(std::string id, std::vector<Table_Column_Config> headers, ImGuiTableFlags flags = 0, ImVec2 outer_size = ImVec2((0.0F), (0.0F)), float inner_width = (0.0F))
-        : AUnit(id), m_column_count(headers.size()), m_headers(headers), m_flags(flags), m_outer_size(outer_size), m_inner_width(inner_width)
-        { }
     protected:
         void render_logic() override
         {
@@ -31,6 +27,10 @@ namespace UI
             }
             ImGui::EndTable();
         }
+    public:
+        Table(std::string id, std::vector<Table_Column_Config> headers, ImGuiTableFlags flags = 0, ImVec2 outer_size = ImVec2((0.0F), (0.0F)), float inner_width = (0.0F))
+        : AUnit(id), m_column_count(headers.size()), m_headers(headers), m_flags(flags), m_outer_size(outer_size), m_inner_width(inner_width)
+        { }
         void add_row(Table_Row row)
         {
             if (row.size() != m_column_count)

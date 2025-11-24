@@ -36,7 +36,7 @@ namespace UI
 
     class AUnit : public IUnit
     {
-        NON_COPYABLE(AUnit);
+        // NON_COPYABLE(AUnit); 
     protected:
         const std::string m_id;
         bool m_enabled = true;

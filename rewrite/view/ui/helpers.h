@@ -2,6 +2,7 @@
 #include "iunit.h"
 #include "common/modifiers.h"
 #include <optional>
+#include <functional>
 
 namespace UI
 {
@@ -62,6 +63,18 @@ namespace UI
         { }
     };
 
+    struct Scope_Disabled
+    {
+        NON_COPYABLE_NOR_MOVABLE(Scope_Disabled);
+        bool value;
+        [[nodiscard]] explicit Scope_Disabled(bool disabled = true) : value(disabled)
+        {
+            if (value) ImGui::BeginDisabled();
+        }
+        ~Scope_Disabled() { if (value) ImGui::EndDisabled(); }
+        operator bool() { return true; }
+    };
+
     bool button_selectable(std::string id, bool selected, bool small = false)
     {
         if (selected)
@@ -87,5 +100,14 @@ namespace UI
     void label(std::string text, ImVec4 col)
     {
         ImGui::TextColored(col, "%s", text.c_str());
+    }
+
+    void table(std::string id, int column_count, ImGuiTableFlags flags = 0, ImVec2 outer_size = ImVec2((0.0F), (0.0F)), float inner_width = (0.0F), std::function<void()> body = nullptr)
+    {
+        if (body && ImGui::BeginTable(id.c_str(), column_count, flags, outer_size, inner_width))
+        {
+            body();
+            ImGui::EndTable();
+        }
     }
 }
