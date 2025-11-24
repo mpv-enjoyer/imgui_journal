@@ -1,5 +1,6 @@
 #include "model/model_impl.h"
 #include "controller_impl.h"
+#include "common/logs.h"
 #include <iostream>
 
 const IModel &Controller_Impl::model() const
@@ -12,7 +13,7 @@ void Controller_Impl::add(Ptr<ICommand> command)
     m_pending_commands.push(std::move(command));
 }
 
-std::optional<std::string> Controller_Impl::get_error(Ptr<ICommand> command) const
+std::optional<std::string> Controller_Impl::get_error(Ptr<ICommand>& command) const
 {
     return command->get_error(model());
 }
@@ -23,8 +24,7 @@ void Controller_Impl::flush()
     {
         auto error = m_pending_commands.front()->get_error(model());
         if (!error) m_pending_commands.front()->call(Model_Impl::get());
-        else std::cerr << "[ERROR] " << *error << "\n";
-        // TODO: Better error logging?
+        else log_error(*error);
         m_pending_commands.pop();
     }
 }

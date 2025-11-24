@@ -9,7 +9,7 @@ public:
     Edit_Wants_Lesson(Internal_Student_ID id, bool enable)
     : m_id(id), m_enable(enable)
     { }
-    virtual Error get_error(const IModel& model)
+    Error get_error(const IModel& model) const override
     {
         const auto& attendance_student = model->attendance_wdays()->cref_attendance_student(m_id);
         auto student_pos = attendance_student.get_student_pos();
@@ -27,7 +27,7 @@ public:
         }
         return {};
     }
-    virtual void call(IModel& model)
+    void call(IModel& model)
     {
         model->attendance_wdays()->ref_attendance_student(m_id).set_wants_lesson(m_enable);
     }

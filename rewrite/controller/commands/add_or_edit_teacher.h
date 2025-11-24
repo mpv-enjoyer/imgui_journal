@@ -11,7 +11,7 @@ public:
     : m_teacher_pos(teacher_pos), m_name(name), m_abbreviation(abbreviation) { }
     Add_Or_Edit_Teacher(std::string name, std::string abbreviation)
     : m_name(name), m_abbreviation(abbreviation) { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         return {};
     }

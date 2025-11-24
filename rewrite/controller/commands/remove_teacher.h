@@ -9,7 +9,7 @@ public:
     Remove_Teacher(Position<Teacher> teacher_pos)
     : m_teacher_pos(teacher_pos)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (model->teachers()->cref_data()[m_teacher_pos].is_removed()) return "Учитель уже удален";
         return {};
@@ -29,7 +29,7 @@ public:
     Restore_Teacher(Position<Teacher> teacher_pos)
     : m_teacher_pos(teacher_pos)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (!model->teachers()->cref_data()[m_teacher_pos].is_removed()) return "Учитель не удален";
         return {};

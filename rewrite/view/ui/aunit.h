@@ -42,14 +42,6 @@ namespace UI
         bool m_enabled = true;
         float m_width;
         virtual void render_logic() { }
-        void log_warning(std::string reason)
-        {
-            std::cerr << "WARN  [AUnit " << m_id << "]: " << reason << "\n";
-        }
-        void log_error(std::string reason)
-        {
-            std::cerr << "ERROR [AUnit " << m_id << "]: " << reason << "\n";
-        }
     public:
         AUnit(std::string id, float width = 0)
         : m_id(id), m_width(width)

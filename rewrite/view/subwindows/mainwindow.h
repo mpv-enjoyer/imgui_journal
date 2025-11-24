@@ -1,5 +1,5 @@
 #pragma once
-#include "subwindow.h"
+#include "subwindow_handler.h"
 #include "view/shared.h"
 #include "controller/commands/commands.h"
 
@@ -35,6 +35,11 @@ namespace View
         });
         bool render_logic() override
         {
+            if (ImGui::Button("Добавить учеников в первый урок"))
+            {
+                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Position<Attendance_Merged_Lesson>(0));
+                popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(m_controller, merged_lesson_id));
+            }
             input_int.render();
             UI::label(m_shared.edit_mode ? "edit mode" : "not edit mode");
             button.render();
@@ -63,8 +68,8 @@ namespace View
             return ImGui::Button("Exit lol");
         }
     public:
-        Mainwindow(IController& controller, Shared& shared)
-        : Subwindow("mainwindow", controller), m_shared(shared)
+        Mainwindow(IController& controller, Shared& shared, Popup_Handler& popup_handler, Subwindow_Handler& subwindow_handler)
+        : Subwindow("mainwindow", controller, popup_handler, subwindow_handler), m_shared(shared)
         { }
     };
 }

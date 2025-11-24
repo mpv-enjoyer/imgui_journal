@@ -29,7 +29,7 @@ public:
     Position<Attendance_Internal_Lesson> pos() const { return m_internal_lesson_pos; }
     Merged_Lesson_ID merged_lesson_id() const { return m_merged_lesson_id; }
     AUTOEQ2(Internal_Lesson_ID, m_merged_lesson_id, m_internal_lesson_pos);
-    operator Merged_Lesson_ID() { return merged_lesson_id(); }
+    operator Merged_Lesson_ID() const { return merged_lesson_id(); }
 };
 
 class Internal_Student_ID
@@ -46,8 +46,8 @@ public:
     Merged_Lesson_ID merged_lesson_id() const { return m_internal_lesson_id.merged_lesson_id(); }
     Internal_Lesson_ID internal_lesson_id() const { return m_internal_lesson_id; }
     AUTOEQ2(Internal_Student_ID, m_internal_lesson_id, m_attendance_student_pos);
-    operator Merged_Lesson_ID() { return merged_lesson_id(); }
-    operator Internal_Lesson_ID() { return internal_lesson_id(); }
+    operator Merged_Lesson_ID() const { return merged_lesson_id(); }
+    operator Internal_Lesson_ID() const { return internal_lesson_id(); }
 };
 
 class Attendance_ID
@@ -66,7 +66,7 @@ public:
     Merged_Lesson_ID merged_lesson_id() const { return m_internal_student_id.merged_lesson_id(); }
     Internal_Lesson_ID internal_lesson_id() const { return m_internal_student_id.internal_lesson_id(); }
     AUTOEQ2(Attendance_ID, m_internal_student_id, m_aday);
-    operator Merged_Lesson_ID() { return merged_lesson_id(); }
-    operator Internal_Lesson_ID() { return internal_lesson_id(); }
-    operator Internal_Student_ID() { return internal_student_id(); }
+    operator Merged_Lesson_ID() const { return merged_lesson_id(); }
+    operator Internal_Lesson_ID() const { return internal_lesson_id(); }
+    operator Internal_Student_ID() const { return internal_student_id(); }
 };

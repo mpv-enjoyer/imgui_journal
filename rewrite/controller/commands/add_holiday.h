@@ -8,7 +8,7 @@ class Add_Holiday : public ICommand
 public:
     Add_Holiday(Mday mday, std::string reason)
     : m_mday(mday), m_reason(reason) { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (model->holidays()->get_holiday(m_mday)) return "На этот день уже назначен праздник";
         return {};

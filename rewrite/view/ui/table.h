@@ -35,7 +35,7 @@ namespace UI
         {
             if (row.size() != m_column_count)
             {
-                log_warning("Row size != Header row size");
+                DEBUG_ASSERT(false && "Row size != Header row size");
             }
             m_rows.push_back(row);
         }

@@ -53,7 +53,7 @@ namespace View
         Popup_Handler m_popup_handler;
         Subwindow_Handler m_subwindow_handler;
         Ptr<IController> m_controller = Ptr<Controller_Impl>::make();
-        Mainwindow m_mainwindow = Mainwindow(*m_controller.get(), m_shared);
+        Mainwindow m_mainwindow = Mainwindow(*m_controller.get(), m_shared, m_popup_handler, m_subwindow_handler);
     public:
         View()
         {

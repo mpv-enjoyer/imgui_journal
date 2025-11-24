@@ -36,7 +36,7 @@ public:
     Add_Or_Edit_Student_In_Base(Position<Student> student_pos, std::string name, int contract)
     : m_student_pos(student_pos), m_name(name), m_contract(contract)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (m_contract < 0) return "Неверный номер договора";
         if (m_name.size() == 0) return "Не задан ФИ";

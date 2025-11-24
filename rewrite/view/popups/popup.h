@@ -1,7 +1,9 @@
 #pragma once
-#include "../ui/ui.h"
+#include "view/ui/ui.h"
 #include "model/imodel.h"
 #include "controller/icontroller.h"
+#include "view/elements/elements.h"
+#include "controller/commands/commands.h"
 
 namespace View
 {
@@ -46,12 +48,16 @@ namespace View
         {
             // Popup error, definitely should be shown to user (or controller error by default):
             if (auto error = get_error()) return error;
-            return m_controller.get_error(get_action());
+            for (auto& action : get_actions())
+            {
+                if (auto error = m_controller.get_error(action)) return error;
+            }
+            return {};
         }
     protected:
         const IModel& m_model;
         virtual bool render_logic() = 0;
-        virtual Ptr<ICommand> get_action() const = 0;
+        virtual std::vector<Ptr<ICommand>> get_actions() const = 0;
         virtual std::optional<std::string> get_error() const = 0;
     public:
         Popup(std::string id, IController& controller)
@@ -80,7 +86,10 @@ namespace View
                 }
                 else
                 {
-                    m_controller.add(get_action());
+                    for (auto& action : get_actions())
+                    {
+                        m_controller.add(std::move(action));
+                    }
                     popup_active = false;
                 }
             }

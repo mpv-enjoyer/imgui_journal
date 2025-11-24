@@ -9,7 +9,7 @@ public:
     Remove_Student(Position<Student> student_pos)
     : m_student_pos(student_pos)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (model->students()->cref_students().cref(m_student_pos).is_removed()) return "Ученик уже удален";
         return {};
@@ -29,7 +29,7 @@ public:
     Restore_Student(Position<Student> student_pos)
     : m_student_pos(student_pos)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (!model->students()->cref_students()[m_student_pos].is_removed()) return "Ученик не удален";
         return {};

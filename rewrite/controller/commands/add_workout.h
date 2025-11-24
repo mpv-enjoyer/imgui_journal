@@ -66,7 +66,7 @@ public:
     Add_Workout(Workout workout)
     : m_workout(workout)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         auto& wdays = model->attendance_wdays();
         Error e = {};

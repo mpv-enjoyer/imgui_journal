@@ -8,7 +8,7 @@ public:
     Remove_Lesson(Merged_Lesson_ID id)
     : m_id(id)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (model->attendance_wdays()->cref_merged_lesson(m_id).is_removed()) return "Группа уже удалена";
         return {};
@@ -26,7 +26,7 @@ public:
     Restore_Lesson(Merged_Lesson_ID id)
     : m_id(id)
     { }
-    Error get_error(const IModel& model) override
+    Error get_error(const IModel& model) const override
     {
         if (!model->attendance_wdays()->cref_merged_lesson(m_id).is_removed()) return "Группа не удалена";
         return {};

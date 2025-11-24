@@ -11,7 +11,7 @@ public:
     Remove_Student_From_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Attendance_Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
-    std::optional<std::string> get_error(const IModel& model) override
+    std::optional<std::string> get_error(const IModel& model) const override
     {
         if (model->attendance_wdays()->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик уже удален";
         return {};
@@ -30,7 +30,7 @@ public:
     Restore_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Attendance_Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
-    std::optional<std::string> get_error(const IModel& model) override
+    std::optional<std::string> get_error(const IModel& model) const override
     {
         if (!model->attendance_wdays()->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик ещё не удален";
         return {};

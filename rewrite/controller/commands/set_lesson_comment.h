@@ -9,7 +9,7 @@ class Set_Lesson_Comment : public ICommand
 public:
     Set_Lesson_Comment(Internal_Lesson_ID internal_lesson_id, Aday aday, std::string comment)
     : m_internal_lesson_id(internal_lesson_id), m_aday(aday), m_comment(comment) { }
-    Error get_error(const IModel&) override
+    Error get_error(const IModel&) const override
     {
         return {};
     }

@@ -14,7 +14,7 @@ public:
     Add_Or_Edit_Price(Lesson_Type lesson_type, Month month, Price price, std::size_t discount_id)
     : m_lesson_type(lesson_type), m_month(month), m_price(price), m_discount_id(discount_id)
     { }
-    Error get_error(const IModel&) override
+    Error get_error(const IModel&) const override
     {
         if (m_price.get() < 0) return "Невозможно установить негативную цену";
         return {};

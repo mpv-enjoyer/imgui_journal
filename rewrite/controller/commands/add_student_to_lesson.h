@@ -9,7 +9,7 @@ public:
     Add_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
-    std::optional<std::string> get_error(const IModel& model) override
+    std::optional<std::string> get_error(const IModel& model) const override
     {
         if (model->students()->cref_students().cref(m_student_pos).is_removed())
         {

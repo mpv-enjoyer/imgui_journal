@@ -5,7 +5,7 @@ class Save : public ICommand
 {
 public:
     Save() { }
-    std::optional<std::string> get_error(const IModel& model) override
+    std::optional<std::string> get_error(const IModel& model) const override
     {
         return {};
     }
