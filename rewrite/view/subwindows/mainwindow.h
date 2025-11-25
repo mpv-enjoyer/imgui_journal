@@ -1,5 +1,6 @@
 #pragma once
 #include "subwindow_handler.h"
+#include "testwindow.h"
 #include "view/shared.h"
 #include "controller/commands/commands.h"
 
@@ -7,69 +8,72 @@ namespace View
 {
     class Mainwindow : public Subwindow
     {
-        UI::Input_Int input_int = UI::Input_Int("Student contract here", 0);
-        Shared& m_shared;
-        UI::Button button = UI::Button("Add student", [&]()
+        // const Attendance_Merged_Lesson& merged_lesson(Position<Attendance_Merged_Lesson> pos)
+        // {
+        //     return model()->attendance_wdays()->cref_wday(shared().wday).cref_merged_lessons()[pos];
+        // }
+        void table(Merged_Lesson_ID merged_lesson_id)
         {
-            m_controller.add(Ptr<Add_Or_Edit_Student_In_Base>::make("Student Name", input_int.get_value()));
-        }, UI::Button::Colors::Dangerous);
-        UI::Select_Lesson_Type select_lesson_type = UI::Select_Lesson_Type("Select lesson type", nullptr);
-        UI::Button button2 = UI::Button("Add Group", [&]()
-        {
-            std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
+            const Attendance_Merged_Lesson& merged_lesson = model()->attendance_wdays()->cref_merged_lesson(merged_lesson_id);
+            if (!shared().edit_mode && merged_lesson.is_removed()) return;
+            UI::Scope_Disabled disabled(merged_lesson.is_removed());
+            UI::Scope_Group group;
+            if (disabled)
+            {
+                UI::label("Удаленная", UI::RED); ImGui::SameLine();
+            }
+            UI::label(merged_lesson.get_description());
+            std::string table_name = "##table" + std::to_string(merged_lesson_id.pos().get());
+            static const int DEFAULT_COLUMN_COUNT = 6;
+            auto all_adays = merged_lesson.get_adays();
+            size_t begin_aday_index = Aday::make_from_first_wday(shared().wday, shared().month).index();
+            size_t end_aday_index = begin_aday_index + shared().month.calculate_wday_count(shared().wday);
+            std::vector<Aday_With_Status> adays(all_adays.begin() + begin_aday_index, all_adays.begin() + end_aday_index);
+            int table_columns = DEFAULT_COLUMN_COUNT + adays.size();
+            UI::table(table_name, table_columns, 
+            ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_NoPadInnerX,
+            ImVec2(std::numeric_limits<float>::max(),(0.0F)), {}, [&]() {
+                ImU32 row_bg_color = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered));
+                ImGui::TableNextColumn(); UI::label("No");
+                ImGui::TableNextColumn(); UI::label("ФИ ученика");
+                ImGui::TableNextColumn(); UI::label("Дог-р");
+                ImGui::TableNextColumn(); UI::label("Программа");
+                ImGui::TableNextColumn(); UI::label("Цена");
+                for (auto aday : adays)
                 {
-                    .type = select_lesson_type.get_lesson_types().front(),
-                    .begin = begin_jtime.get_value(),
-                    .end = end_jtime.get_value()
+                    ImGui::TableNextColumn();
+                    UI::label(Mday::make_from_aday(shared().month.get_study_bottom_year(), shared().wday, aday.aday).to_string());
                 }
-            };
-            m_controller.add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
-        }, UI::Button::Colors::Dangerous);
-        UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
-        UI::Input_JTime end_jtime = UI::Input_JTime("##end");
-        std::unique_ptr<UI::Select_Students> select_students;
-        UI::Checkbox checkbox = UI::Checkbox("Select multiple?");
-        UI::Calendar calendar = UI::Calendar("I am a calendar", Month::make_begin_study_year(Month::make_current()), [](Mday mday)
-        {
-            return mday.get_from_0() % 3 == 1;
-        });
+                ImGui::TableNextColumn();
+                ImGui::Text("Сумма");
+            });
+        }
+
         bool render_logic() override
         {
-            if (ImGui::Button("Добавить учеников в первый урок"))
+            auto& merged_lessons = model()->attendance_wdays()->cref_wday(shared().wday).cref_merged_lessons();
+            const Attendance_Merged_Lesson* previous = nullptr;
+            for (auto iter = merged_lessons.csorted_begin(); iter; ++iter )
             {
-                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Position<Attendance_Merged_Lesson>(0));
-                popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(m_controller, merged_lesson_id));
-            }
-            input_int.render();
-            UI::label(m_shared.edit_mode ? "edit mode" : "not edit mode");
-            button.render();
-            for (auto it = m_model->students()->cref_students().cbegin(); it; it.next())
-            {
-                int contract_number = m_model->students()->get_contract_number(it.get_position());
-                UI::label("student " + it->get_name() + " contract " + std::to_string(contract_number));
-            }
-            button2.render();
-            begin_jtime.render();
-            ImGui::SameLine();
-            UI::label(" _ ");
-            ImGui::SameLine();
-            end_jtime.render();
-            checkbox.render();
-            if (ImGui::Button("Select Students"))
-            {
-                select_students.reset(new UI::Select_Students("Select Students", m_controller.model(), [&](Position<Student> pos)
+                auto iter_begin_time = iter->cref_internal_lessons().cbegin()->get_time_begin();
+                bool need_sameline = false;
+                if (previous && iter_begin_time == previous->cref_internal_lessons().cbegin()->get_time_begin())
                 {
-                    return pos.get() % 2 == 1;
-                }, checkbox.get_value()));
+                    need_sameline = true;
+                }
+                if (!shared().edit_mode && previous && previous->is_removed()) need_sameline = false;
+                if (need_sameline) ImGui::SameLine();
+                Merged_Lesson_ID merged_lesson_id(shared().wday, iter.get_position());
+                table(merged_lesson_id);
+                previous = &iter.get();
             }
-            if (select_students) select_students->render();
-            else select_lesson_type.render();
-            calendar.render();
             return ImGui::Button("Exit lol");
         }
     public:
-        Mainwindow(IController& controller, Shared& shared, Popup_Handler& popup_handler, Subwindow_Handler& subwindow_handler)
-        : Subwindow("mainwindow", controller, popup_handler, subwindow_handler), m_shared(shared)
-        { }
+        Mainwindow(IController& controller, Shared& shared)
+        : Subwindow("mainwindow", controller, shared)
+        {
+            subwindow_handler().open_subwindow(std::make_unique<Testwindow>(controller, shared));
+        }
     };
 }

@@ -202,6 +202,10 @@ public:
         m_value_from_0 += 7;
         return true;
     }
+    std::string to_string() const
+    {
+        return std::to_string(get_from_1()) + "." + std::to_string(get_month().get_from_1());
+    }
     AUTOOPS2(Mday, m_month, m_value_from_0);
 };
 
@@ -307,6 +311,14 @@ public:
     { }
     int get_minutes() const { return m_minutes; }
     int get_hours() const { return m_hours; }
+    std::string to_string() const
+    {
+        std::string output;
+        output.append(std::to_string(get_hours()) + ":");
+        if (get_minutes() < 10) output.append("0");
+        output.append(std::to_string(get_minutes()));
+        return output;
+    }
     AUTOOPS2(JTime, m_hours, m_minutes);
 };
 
@@ -354,12 +366,12 @@ inline Mday Mday::make_from_aday(Year bottom_year, Wday wday, Aday aday)
     std::size_t aday_index_current = 0;
         //auto wday = Wday::make_from_mday();
     Month month = Month::make_begin_study_year_from_bottom_year(bottom_year);
-    for (; aday_index_current + month.calculate_wday_count(wday) < aday_index; month.next())
+    for (; aday_index_current + month.calculate_wday_count(wday) <= aday_index; month.next())
     {
         aday_index_current += month.calculate_wday_count(wday);
     }
     std::size_t first_mday_from_0 = Mday::make_from_first_wday(wday, month).get_from_0();
-    return Mday::make_from_0(first_mday_from_0 + (aday_index_current - aday_index) * Wday::COUNT, month); // TODO: TEST THIS
+    return Mday::make_from_0(first_mday_from_0 + (aday_index - aday_index_current) * Wday::COUNT, month); // TODO: TEST THIS
 }
 
 inline int Mday::get_index_in_month() const

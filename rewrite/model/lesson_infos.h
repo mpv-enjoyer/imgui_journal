@@ -15,25 +15,18 @@ public:
         TECHDRAWING = 3,    // Черчение
         SPECIALCOURSE = 4,  // Спецкурс
     };
+    const static std::size_t ID_COUNT = 5;
 private:
     struct Lesson_Info
     {
-        std::string name;
         std::vector<std::vector<Price>> prices; // [month_from_study_year][discount_id]
-        Lesson_Info(std::string name_, Price default_price_ = Price::Value_Type(1))
-        : name(name_), prices(Month::COUNT, std::vector<Price>(1, default_price_))
+        Lesson_Info(Price default_price_ = Price::Value_Type(1))
+        : prices(Month::COUNT, std::vector<Price>(1, default_price_))
         { }
         std::vector<Price>& price(Month month) { return prices[month.calculate_study_year_index()]; }
         const std::vector<Price>& price(Month month) const { return prices[month.calculate_study_year_index()]; }
     };
-    std::vector<Lesson_Info> m_data =
-    {
-        Lesson_Info { "ИЗО" },
-        Lesson_Info { "Лепка" },
-        Lesson_Info { "Дизайн" },
-        Lesson_Info { "Черчение" },
-        Lesson_Info { "Спецкурс" },        
-    };
+    std::vector<Lesson_Info> m_data;
     static std::size_t translate_lesson_type(Type type)
     {
         switch (type)
@@ -44,21 +37,35 @@ private:
         case Type::TECHDRAWING: return 3;   // Черчение
         case Type::SPECIALCOURSE: return 4; // Спецкурс
         }
+        IM_ASSERT(false && "unreachable");
     }
     Lesson_Info& lesson_info(Type type) { return m_data[translate_lesson_type(type)]; }
     const Lesson_Info& lesson_info(Type type) const { return m_data[translate_lesson_type(type)]; }
 public:
-    const static std::size_t ID_COUNT = 5;
-    Lesson_Infos() { }
+    Lesson_Infos()
+    {
+        for (size_t i = 0; i < ID_COUNT; i++)
+        {
+            m_data.push_back(Lesson_Info());
+        }
+    }
     Price get_price(Type lesson_type, Month month, std::size_t discount_id) const
     {
         const auto& current = lesson_info(lesson_type).price(month);
         if (discount_id >= current.size()) return current.back();
         return current[discount_id];
     }
-    std::string get_name(Type lesson_type) const
+    static std::string get_name(Type lesson_type)
     {
-        return lesson_info(lesson_type).name;
+        static std::array<std::string, ID_COUNT> NAMES =
+        {
+            "ИЗО",
+            "Лепка",
+            "Дизайн",
+            "Черчение",
+            "Спецкурс", 
+        };
+        return NAMES[translate_lesson_type(lesson_type)];
     }
     size_t get_discounts_count(Type lesson_type, Month month) const
     {

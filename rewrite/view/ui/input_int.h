@@ -27,7 +27,11 @@ namespace UI
             UI::Scope_Color_Input color;
             if (!ImGui::InputText(m_id.c_str(), m_buffer.data(), m_buffer.size(), ImGuiInputTextFlags_AutoSelectAll)) return;
             int value_buffer;
-            if (std::sscanf(m_buffer.data(), "%i", &value_buffer) == 0) return;
+            if (std::sscanf(m_buffer.data(), "%i", &value_buffer) == 0)
+            {
+                update_visible_value();
+                return;
+            }
             if (value_buffer < m_min) value_buffer = m_min;
             if (value_buffer > m_max) value_buffer = m_max;
             if (!m_callback || m_callback(value_buffer)) m_value = value_buffer;

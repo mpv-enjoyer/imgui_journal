@@ -72,7 +72,7 @@ namespace UI
             if (value) ImGui::BeginDisabled();
         }
         ~Scope_Disabled() { if (value) ImGui::EndDisabled(); }
-        operator bool() { return true; }
+        operator bool() { return value; }
     };
 
     bool button_selectable(std::string id, bool selected, bool small = false)
@@ -93,6 +93,15 @@ namespace UI
         return output;
     }
 
+    bool button_colored(std::string label, float r, float g, float b)
+    {
+        ImVec4 color(r, g, b, 1.0f);
+        ImGui::PushStyleColor(ImGuiCol_Button, color);
+        bool result = ImGui::Button(label.c_str());
+        ImGui::PopStyleColor();
+        return result;
+    }
+
     void label(std::string text)
     {
         ImGui::Text("%s", text.c_str());
@@ -110,4 +119,6 @@ namespace UI
             ImGui::EndTable();
         }
     }
+
+    static const ImVec4 RED = ImVec4(255, 0, 0, 255);
 }

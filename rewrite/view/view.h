@@ -48,12 +48,13 @@ namespace View
 
     class View
     {
+        NON_COPYABLE_NOR_MOVABLE(View);
         Timers m_timers;
-        Shared m_shared;
-        Popup_Handler m_popup_handler;
         Subwindow_Handler m_subwindow_handler;
+        Popup_Handler m_popup_handler;
+        Shared m_shared = Shared(m_subwindow_handler, m_popup_handler);
         Ptr<IController> m_controller = Ptr<Controller_Impl>::make();
-        Mainwindow m_mainwindow = Mainwindow(*m_controller.get(), m_shared, m_popup_handler, m_subwindow_handler);
+        Mainwindow m_mainwindow = Mainwindow(*m_controller.get(), m_shared);
     public:
         View()
         {

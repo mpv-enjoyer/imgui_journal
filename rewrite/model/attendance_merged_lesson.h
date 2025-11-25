@@ -122,6 +122,41 @@ public:
     {
         return m_adays;
     }
+    std::string get_group_description() const
+    {
+        std::stringstream output;
+        output << "#" << std::to_string(get_number());
+        output << ", " << AGE_GROUPS[m_age_group];
+        if (m_comment.size() != 0) output << ", " << get_comment();
+        return output.str();
+    }
+
+    std::string get_description() const
+    {
+        std::stringstream output;
+        output << "Группа " << get_group_description();
+        for (const auto& internal_lesson : cref_internal_lessons())
+        {
+            output << ", " << Lesson_Infos::get_name(internal_lesson.get_lesson_type()) << " ";
+            output << internal_lesson.get_time_begin().to_string();
+            output << " - ";
+            output << internal_lesson.get_time_end().to_string();
+        }
+        return output.str();
+    }
+    std::string get_description(Position<Attendance_Internal_Lesson> pos)
+    {
+        std::stringstream output;
+        output << "Группа " << get_group_description();
+        const auto& internal_lesson = cref_internal_lessons()[pos];
+        output << ", " << Lesson_Infos::get_name(internal_lesson.get_lesson_type()) << " ";
+        output << internal_lesson.get_time_begin().to_string();
+        output << " - ";
+        output << internal_lesson.get_time_end().to_string();
+        return output.str();
+    }
+
+    AUTOOPS1(Attendance_Merged_Lesson, cref_internal_lessons().cbegin()->get_time_begin());
 };
 
 using Aday_With_Status = Attendance_Merged_Lesson::Aday_With_Status;
