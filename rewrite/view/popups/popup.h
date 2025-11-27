@@ -55,16 +55,13 @@ namespace View
             return {};
         }
     protected:
-        const IModel& m_model;
+        const IModel& model() const { return m_controller.model(); };
         virtual bool render_logic() = 0;
         virtual std::vector<Ptr<ICommand>> get_actions() const = 0;
         virtual std::optional<std::string> get_error() const = 0;
     public:
         Popup(std::string id, IController& controller)
-        : m_id(id), m_controller(controller), m_model(controller.model())
-        {
-
-        }
+        : m_id(id), m_controller(controller) { }
         bool render()
         {
             ImGui::OpenPopup(m_id.c_str());

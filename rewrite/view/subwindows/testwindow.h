@@ -15,14 +15,14 @@ namespace View
         UI::Select_Lesson_Type select_lesson_type = UI::Select_Lesson_Type("Select lesson type", nullptr);
         UI::Button button2 = UI::Button("Add Group", [&]()
         {
-            std::vector<Add_Or_Edit_Merged_Lesson::Request> requests = {
+            std::vector<::Add_Or_Edit_Merged_Lesson::Request> requests = {
                 {
                     .type = select_lesson_type.get_lesson_types().front(),
                     .begin = begin_jtime.get_value(),
                     .end = end_jtime.get_value()
                 }
             };
-            controller().add(Ptr<Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
+            controller().add(Ptr<::Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
         }, UI::Button::Colors::Dangerous);
         UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
         UI::Input_JTime end_jtime = UI::Input_JTime("##end");

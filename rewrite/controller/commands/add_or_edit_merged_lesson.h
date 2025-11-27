@@ -12,7 +12,7 @@ public:
     };
 private:
     const std::optional<Position<Attendance_Merged_Lesson>> m_position;
-    std::vector<bool> m_adays_are_active; // is_active?
+    std::vector<bool> m_adays_are_active;
     Wday m_wday;
     int m_number;
     std::string m_comment;
@@ -30,15 +30,9 @@ public:
             m_adays_are_active.push_back(i >= requested_aday_index);
         }
     }
-    Add_Or_Edit_Merged_Lesson(Position<Attendance_Merged_Lesson> pos, std::vector<bool> adays_are_active, Wday wday, int number, std::string comment, int age_group, std::vector<std::pair<JTime, JTime>> lessons)
-    : m_position(pos), m_adays_are_active(adays_are_active), m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group)
-    {
-        for (auto lesson : m_lessons)
-        {
-            m_lessons.emplace_back(Request{.begin = lesson.begin, .end = lesson.end});
-            // Not filling in type because you should not be able to edit it.
-        }
-    }
+    Add_Or_Edit_Merged_Lesson(Merged_Lesson_ID id, std::vector<bool> adays_are_active, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : m_position(id.pos()), m_adays_are_active(adays_are_active), m_wday(id.wday()), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
+    { }
     Error get_error(const IModel& model) const override
     {
         if (m_lessons.size() == 0 || m_lessons.size() > 2)
@@ -78,7 +72,7 @@ public:
 
     void call(IModel& model) override
     {
-        auto& merged = model->attendance_wdays()->ref_wday(m_wday).ref_merged_lessons();
+        auto& merged = model->ref_wday(m_wday).ref_merged_lessons();
         if (m_position)
         {
             auto& current = merged.ref(*m_position);

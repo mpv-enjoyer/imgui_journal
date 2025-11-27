@@ -10,12 +10,12 @@ public:
     { }
     Error get_error(const IModel& model) const override
     {
-        if (model->attendance_wdays()->cref_merged_lesson(m_id).is_removed()) return "Группа уже удалена";
+        if (model->cref_merged_lesson(m_id).is_removed()) return "Группа уже удалена";
         return {};
     }
     void call(IModel& model) override
     {
-        model->attendance_wdays()->ref_merged_lesson(m_id).remove();
+        model->ref_merged_lesson(m_id).remove();
     }
 };
 
@@ -28,11 +28,11 @@ public:
     { }
     Error get_error(const IModel& model) const override
     {
-        if (!model->attendance_wdays()->cref_merged_lesson(m_id).is_removed()) return "Группа не удалена";
+        if (!model->cref_merged_lesson(m_id).is_removed()) return "Группа не удалена";
         return {};
     }
     void call(IModel& model) override
     {
-        model->attendance_wdays()->ref_merged_lesson(m_id).restore();
+        model->ref_merged_lesson(m_id).restore();
     }
 };

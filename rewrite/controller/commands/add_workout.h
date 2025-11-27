@@ -15,28 +15,28 @@ class Add_Workout : public ICommand
         }
     }
 
-    static Error get_error_removed_merged_lesson(const Ptr<Attendance_Wdays>& wdays, Merged_Lesson_ID id)
+    static Error get_error_removed_merged_lesson(const IModel& model, Merged_Lesson_ID id)
     {
-        if (wdays->cref_merged_lesson(id).is_removed()) return "Группа удалена";
+        if (model->cref_merged_lesson(id).is_removed()) return "Группа удалена";
         return {};
     }
 
     static Error get_error_removed_student(const IModel& model, Internal_Student_ID should_id)
     {
-        auto& attendance_student = model->attendance_wdays()->cref_attendance_student(should_id);
+        auto& attendance_student = model->cref_attendance_student(should_id);
         Position<Student> student_pos = attendance_student.get_student_pos();
         if (model->students()->cref_students().cref(student_pos).is_removed()) return "Ученик удален";
         if (!attendance_student.get_wants_lesson()) return "Ученик удален из группы";
         return {};
     }
 
-    static Error get_error_student_in_real_lesson(const Ptr<Attendance_Wdays>& wdays, Internal_Student_ID should_id, Internal_Lesson_ID real_id)
+    static Error get_error_student_in_real_lesson(const IModel& model, Internal_Student_ID should_id, Internal_Lesson_ID real_id)
     {
-        auto student_pos = wdays->cref_attendance_student(should_id).get_student_pos();
-        auto student_positions_in_real = wdays->cref_merged_lesson(real_id).get_student_positions();
+        auto student_pos = model->cref_attendance_student(should_id).get_student_pos();
+        auto student_positions_in_real = model->cref_merged_lesson(real_id).get_student_positions();
         for (auto current : student_positions_in_real)
         {
-            if (current == student_pos && wdays->cref_attendance_student(should_id).get_wants_lesson()) return "Ученик уже есть в этой группе";
+            if (current == student_pos && model->cref_attendance_student(should_id).get_wants_lesson()) return "Ученик уже есть в этой группе";
         }
         return {};
     }
@@ -68,16 +68,15 @@ public:
     { }
     Error get_error(const IModel& model) const override
     {
-        auto& wdays = model->attendance_wdays();
         Error e = {};
         false
-         || (e = get_error_removed_merged_lesson(wdays, m_workout.real_internal_lesson_id()))
-         || (e = get_error_removed_merged_lesson(wdays, m_workout.should_id()))
+         || (e = get_error_removed_merged_lesson(model, m_workout.real_internal_lesson_id()))
+         || (e = get_error_removed_merged_lesson(model, m_workout.should_id()))
          || (e = get_error_removed_student(model, m_workout.should_id()))
-         || (e = get_error_student_in_real_lesson(wdays, m_workout.should_id(), m_workout.real_internal_lesson_id()))
+         || (e = get_error_student_in_real_lesson(model, m_workout.should_id(), m_workout.real_internal_lesson_id()))
          || (e = get_error_already_worked_out(model->workouts(), m_workout))
-         || (e = get_error_not_awaited(wdays->cref_attendance_student(m_workout.should_id()).cref_holder(m_workout.should_id().aday()).get_status()))
-         || (e = get_error_lessons_type_dont_match(wdays->cref_internal_lesson(m_workout.real_internal_lesson_id()).get_lesson_type(), wdays->cref_internal_lesson(m_workout.should_id()).get_lesson_type()));
+         || (e = get_error_not_awaited(model->cref_attendance_student(m_workout.should_id()).cref_holder(m_workout.should_id().aday()).get_status()))
+         || (e = get_error_lessons_type_dont_match(model->cref_internal_lesson(m_workout.real_internal_lesson_id()).get_lesson_type(), model->cref_internal_lesson(m_workout.should_id()).get_lesson_type()));
         return e;
     }
 

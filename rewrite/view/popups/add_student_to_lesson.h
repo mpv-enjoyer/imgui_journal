@@ -12,20 +12,21 @@ namespace View
         Add_Student_To_Lesson(IController& controller, Merged_Lesson_ID merged_lesson_id)
         : Popup("Добавление ученика в группу", controller),
           m_merged_lesson_id(merged_lesson_id),
-          m_merged_lesson_students(controller.model()->attendance_wdays()->cref_merged_lesson(merged_lesson_id).get_student_positions()),
+          m_merged_lesson_students(model()->cref_merged_lesson(merged_lesson_id).get_student_positions()),
           m_select_students("##Выбрать_учеников", controller.model(), [&](Position<Student> student_pos) -> bool
         {
             return !std::any_of(m_merged_lesson_students.begin(), m_merged_lesson_students.end(), [student_pos](auto any_pos)
             {
                 return student_pos == any_pos;
             });
-        }, true) { }
+        }, true)
+        { }
         bool render_logic() override
         {
             m_select_students.render();
             return true;
         }
-        std::vector<Ptr<ICommand>> get_actions() const
+        std::vector<Ptr<ICommand>> get_action() const
         {
             std::vector<Ptr<ICommand>> output;
             for (auto student_pos : m_select_students.get_student_positions())

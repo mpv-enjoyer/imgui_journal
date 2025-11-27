@@ -5,21 +5,25 @@ class Attendance_Merged_Lesson : public Removal_Info
 {
 public:
     static constexpr int AGE_GROUP_COUNT = 9;
-    std::array<std::string, AGE_GROUP_COUNT> AGE_GROUPS = 
-        {"возраст не указан",
-        "4 года, дошкольная группа",
-        "5 лет, дошкольная группа",
-        "6 лет, дошкольная группа",
-        "7 лет, школьная группа",
-        "8 лет, школьная группа",
-        "9 лет, школьная группа",
-        "10-11 лет, школьная группа",
-        "12-13 лет, школьная группа"};
     struct Aday_With_Status
     {
         Aday aday;
         bool is_active;
     };
+    static std::array<std::string, AGE_GROUP_COUNT> get_all_age_groups()
+    {
+        const static std::array<std::string, AGE_GROUP_COUNT> AGE_GROUPS = 
+            {"возраст не указан",
+            "4 года, дошкольная группа",
+            "5 лет, дошкольная группа",
+            "6 лет, дошкольная группа",
+            "7 лет, школьная группа",
+            "8 лет, школьная группа",
+            "9 лет, школьная группа",
+            "10-11 лет, школьная группа",
+            "12-13 лет, школьная группа"};
+        return AGE_GROUPS;
+    }
 private:
     int m_number;
     int m_age_group;
@@ -76,16 +80,7 @@ public:
         }
         return positions;
     }
-    
-    // bad idea. students contain unique info.
-    //const Vector_Sortable<Attendance_Student>& cref_students() const
-    //{
-    //    return m_internal_lessons.cbegin()->cref_data();
-    //}
-    //Vector_Sortable<Attendance_Student>& ref_students()
-    //{
-    //    return m_internal_lessons.begin()->ref_data();
-    //}
+
     int get_age_group() const
     {
         return m_age_group;
@@ -126,7 +121,7 @@ public:
     {
         std::stringstream output;
         output << "#" << std::to_string(get_number());
-        output << ", " << AGE_GROUPS[m_age_group];
+        output << ", " << get_all_age_groups()[m_age_group];
         if (m_comment.size() != 0) output << ", " << get_comment();
         return output.str();
     }
@@ -154,6 +149,10 @@ public:
         output << " - ";
         output << internal_lesson.get_time_end().to_string();
         return output.str();
+    }
+    std::string get_age_group_string() const
+    {
+        return get_all_age_groups()[m_age_group];
     }
 
     AUTOOPS1(Attendance_Merged_Lesson, cref_internal_lessons().cbegin()->get_time_begin());

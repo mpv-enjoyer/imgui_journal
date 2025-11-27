@@ -25,8 +25,8 @@ namespace UI
     	std::function<bool(T)> m_callback;
         std::vector<char> m_choices_combo_text;
     public:
-        Combobox(std::string id, std::vector<Choice> choices, std::function<bool(T)> callback = nullptr)
-        : AUnit(id), m_choices(choices), m_value(0), m_callback(callback)
+        Combobox(std::string id, std::vector<Choice> choices, int value = 0, std::function<bool(T)> callback = nullptr)
+        : AUnit(id), m_choices(choices), m_value(value), m_callback(callback)
         {
             for (auto choice : choices)
             {

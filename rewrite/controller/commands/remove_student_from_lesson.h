@@ -13,12 +13,12 @@ public:
     { }
     std::optional<std::string> get_error(const IModel& model) const override
     {
-        if (model->attendance_wdays()->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик уже удален";
+        if (model->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик уже удален";
         return {};
     }
     void call(IModel& model) override
     {
-        model->attendance_wdays()->ref_merged_lesson(m_merged_lesson_id).remove_student(m_student_pos);
+        model->ref_merged_lesson(m_merged_lesson_id).remove_student(m_student_pos);
     }
 };
 
@@ -32,11 +32,11 @@ public:
     { }
     std::optional<std::string> get_error(const IModel& model) const override
     {
-        if (!model->attendance_wdays()->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик ещё не удален";
+        if (!model->cref_merged_lesson(m_merged_lesson_id).is_student_removed(m_student_pos)) return "Ученик ещё не удален";
         return {};
     }
     void call(IModel& model) override
     {
-        model->attendance_wdays()->ref_merged_lesson(m_merged_lesson_id).restore_student(m_student_pos);
+        model->ref_merged_lesson(m_merged_lesson_id).restore_student(m_student_pos);
     }
 };

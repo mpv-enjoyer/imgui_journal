@@ -11,7 +11,7 @@ class IController
 {
 public:
     virtual const IModel& model() const = 0;
-    virtual void add(Ptr<ICommand> command) = 0;
-    virtual std::optional<std::string> get_error(Ptr<ICommand>& command) const = 0;
+    virtual void add(std::shared_ptr<ICommand> command) = 0;
+    virtual std::optional<std::string> get_error(const std::shared_ptr<ICommand>& command) const = 0;
     virtual void flush() = 0;
 };

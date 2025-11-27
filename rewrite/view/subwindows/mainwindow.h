@@ -1,6 +1,7 @@
 #pragma once
 #include "subwindow_handler.h"
 #include "testwindow.h"
+#include "lessons_list.h"
 #include "view/shared.h"
 #include "controller/commands/commands.h"
 
@@ -14,7 +15,7 @@ namespace View
         // }
         void table(Merged_Lesson_ID merged_lesson_id)
         {
-            const Attendance_Merged_Lesson& merged_lesson = model()->attendance_wdays()->cref_merged_lesson(merged_lesson_id);
+            const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
             if (!shared().edit_mode && merged_lesson.is_removed()) return;
             UI::Scope_Disabled disabled(merged_lesson.is_removed());
             UI::Scope_Group group;
@@ -51,6 +52,10 @@ namespace View
 
         bool render_logic() override
         {
+            if (UI::button_colored("Группы", Lessons_List::get_background_color()))
+            {
+                subwindow_handler().open_subwindow(std::make_unique<Lessons_List>(controller(), shared()));
+            }
             auto& merged_lessons = model()->attendance_wdays()->cref_wday(shared().wday).cref_merged_lessons();
             const Attendance_Merged_Lesson* previous = nullptr;
             for (auto iter = merged_lessons.csorted_begin(); iter; ++iter )

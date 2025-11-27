@@ -38,7 +38,7 @@ namespace UI
     {
         // NON_COPYABLE(AUnit); 
     protected:
-        const std::string m_id;
+        std::string m_id; // CONST
         bool m_enabled = true;
         float m_width;
         virtual void render_logic() { }

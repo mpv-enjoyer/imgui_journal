@@ -213,7 +213,7 @@ public:
     explicit Vector_Sortable(std::initializer_list<T> initializer) : m_data(initializer) { }
     ~Vector_Sortable() = default;
 
-    // Usage: for (auto it = vector_sortable.begin(); it; it.next()) { it->something(); }
+    // Usage: for (auto it = vector_sortable.begin(); !!it; ++it) { it->something(); }
     // do-while LOOP WILL CRASH ON 0 ELEMENTS.
     // for (auto& elem : vector_sortable) { elem.something(); }
     Iterator<T, DataTypeBase> begin()

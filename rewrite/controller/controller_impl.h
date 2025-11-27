@@ -4,11 +4,11 @@
 
 class Controller_Impl : public IController
 {
-    std::queue<Ptr<ICommand>> m_pending_commands;
+    std::queue<std::shared_ptr<ICommand>> m_pending_commands;
 public:
     Controller_Impl() { }
     const IModel& model() const override;
-    void add(Ptr<ICommand> command) override;
-    std::optional<std::string> get_error(Ptr<ICommand>& command) const override;
+    void add(std::shared_ptr<ICommand> command) override;
+    std::optional<std::string> get_error(const std::shared_ptr<ICommand>& command) const override;
     void flush() override;
 };

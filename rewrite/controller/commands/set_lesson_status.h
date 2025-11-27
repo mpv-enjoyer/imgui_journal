@@ -15,7 +15,7 @@ public:
     {
         Mday mday = Mday::make_from_aday(model->bottom_year, m_id.wday(), m_id.aday());
         if (model->holidays()->get_holiday(mday)) return "На этот день назначен выходной";
-        auto current_status = model->attendance_wdays()->cref_attendance_holder(m_id).get_status();
+        auto current_status = model->cref_attendance_holder(m_id).get_status();
         if (current_status == Attendance_Status::NOT_AWAITED)
         {
             // Handle legacy NAW's:
@@ -25,7 +25,7 @@ public:
     }
     void call(IModel& model) override
     {
-        auto& attendance_student = model->attendance_wdays()->ref_attendance_student(m_id);
+        auto& attendance_student = model->ref_attendance_student(m_id);
         auto& holder = attendance_student.ref_holder(m_id.aday());
         
         auto student_pos = attendance_student.get_student_pos();

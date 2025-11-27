@@ -29,15 +29,7 @@ private:
     std::vector<Lesson_Info> m_data;
     static std::size_t translate_lesson_type(Type type)
     {
-        switch (type)
-        {
-        case Type::DRAWING: return 0;       // ИЗО
-        case Type::SCULPTING: return 1;     // Лепка
-        case Type::DESIGN: return 2;        // Дизайн
-        case Type::TECHDRAWING: return 3;   // Черчение
-        case Type::SPECIALCOURSE: return 4; // Спецкурс
-        }
-        IM_ASSERT(false && "unreachable");
+        return static_cast<std::underlying_type_t<Type>>(type);
     }
     Lesson_Info& lesson_info(Type type) { return m_data[translate_lesson_type(type)]; }
     const Lesson_Info& lesson_info(Type type) const { return m_data[translate_lesson_type(type)]; }

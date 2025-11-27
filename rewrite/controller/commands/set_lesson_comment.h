@@ -15,7 +15,7 @@ public:
     }
     void call(IModel& model)
     {
-        auto& internal_lesson = model->attendance_wdays()->ref_internal_lesson(m_internal_lesson_id);
+        auto& internal_lesson = model->ref_internal_lesson(m_internal_lesson_id);
         internal_lesson.set_comment(m_aday, m_comment);
     }
 };

@@ -8,12 +8,12 @@ const IModel &Controller_Impl::model() const
     return Model_Impl::get();
 }
 
-void Controller_Impl::add(Ptr<ICommand> command)
+void Controller_Impl::add(std::shared_ptr<ICommand> command)
 {
     m_pending_commands.push(std::move(command));
 }
 
-std::optional<std::string> Controller_Impl::get_error(Ptr<ICommand>& command) const
+std::optional<std::string> Controller_Impl::get_error(const std::shared_ptr<ICommand>& command) const
 {
     return command->get_error(model());
 }

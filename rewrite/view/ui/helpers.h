@@ -1,6 +1,7 @@
 #pragma once
 #include "iunit.h"
 #include "common/modifiers.h"
+#include "common/nowarns.h"
 #include <optional>
 #include <functional>
 
@@ -63,17 +64,48 @@ namespace UI
         { }
     };
 
-    struct Scope_Disabled
+    class Scope_Disabled
     {
+        bool m_value;
+    public:
         NON_COPYABLE_NOR_MOVABLE(Scope_Disabled);
-        bool value;
-        [[nodiscard]] explicit Scope_Disabled(bool disabled = true) : value(disabled)
+        [[nodiscard]] explicit Scope_Disabled(bool disabled = true) : m_value(disabled)
         {
-            if (value) ImGui::BeginDisabled();
+            if (m_value) ImGui::BeginDisabled();
         }
-        ~Scope_Disabled() { if (value) ImGui::EndDisabled(); }
-        operator bool() { return value; }
+        void enable()
+        {
+            if (m_value) ImGui::EndDisabled();
+            m_value = false;
+        }
+        void disable()
+        {
+            if (!m_value) ImGui::BeginDisabled();
+            m_value = true;
+        }
+        ~Scope_Disabled() { if (m_value) ImGui::EndDisabled(); }
+        operator bool() { return m_value; }
     };
+
+    std::string id(const std::string prefix, std::vector<int> unique)
+    {
+        std::string output = prefix;
+        for (int i = 0; i < unique.size(); i++)
+        {
+            output.append("." + std::to_string(unique[i]));
+        }
+        return output;
+    }
+
+    bool button_dangerous(std::string id)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7.0f / 7.0f, 0.8f, 0.8f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7.0f / 7.0f, 0.9f, 0.9f));
+        bool output = ImGui::Button(id.c_str());
+        ImGui::PopStyleColor(3);
+        return output;
+    }
 
     bool button_selectable(std::string id, bool selected, bool small = false)
     {
@@ -93,9 +125,8 @@ namespace UI
         return output;
     }
 
-    bool button_colored(std::string label, float r, float g, float b)
+    bool button_colored(std::string label, ImVec4 color)
     {
-        ImVec4 color(r, g, b, 1.0f);
         ImGui::PushStyleColor(ImGuiCol_Button, color);
         bool result = ImGui::Button(label.c_str());
         ImGui::PopStyleColor();
@@ -120,5 +151,6 @@ namespace UI
         }
     }
 
-    static const ImVec4 RED = ImVec4(255, 0, 0, 255);
+    static const ImVec4 RED = ImVec4(1.0, 0.0, 0.0, 1.0);
+    static const ImVec4 GREEN = ImVec4(0.1, 0.9, 0.1, 1.0);
 }
