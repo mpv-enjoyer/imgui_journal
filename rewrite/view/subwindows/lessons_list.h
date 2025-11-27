@@ -20,7 +20,10 @@ namespace View
             if (ImGui::Button("Вернуться к журналу")) return true;
             ImGui::SameLine();
             // TODO: everything here basically
-            ImGui::Button("Добавить группу (unimpl)");
+            if (ImGui::Button("Добавить группу"))
+            {
+                popup_handler().open_popup(std::make_unique<Add_Or_Edit_Merged_Lesson>(controller(), shared().wday));
+            }
             UI::label("Список всех групп");
             const static size_t COLUMN_COUNT = 6;
             UI::Scope_Child child("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
@@ -39,30 +42,31 @@ namespace View
                     {
                         const auto& merged_lesson = *merged_lesson_it;
                         if (merged_lesson.is_removed() && !shared().edit_mode) continue;
-                        UI::Scope_Disabled disabled(merged_lesson.is_removed());
-                        ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0);
-                            UI::label(std::to_string(merged_lesson.get_number()));
-                        ImGui::TableSetColumnIndex(1);
-                            UI::label(wday.get_name());
-                        ImGui::TableSetColumnIndex(2);
-                            for (auto it = merged_lesson.cref_internal_lessons().cbegin(); !!it; ++it)
-                            {
-                                UI::label(std::to_string(it.get_position().get() + 1) + ". " + Lesson_Infos::get_name(it->get_lesson_type()));
-                                UI::label(it->get_time_begin().to_string() + " - " + it->get_time_end().to_string());
-                            }
-                        ImGui::TableSetColumnIndex(3);
-                            UI::label(merged_lesson.get_comment());
-                        ImGui::TableSetColumnIndex(4);
-                            UI::label(merged_lesson.get_age_group_string());
-                        ImGui::TableSetColumnIndex(5);
-                        
-                        disabled.enable();
-                        if (shared().month == Month::make_current()) disabled.disable();
-                
-                        std::string restore_label = UI::id("Восстановить группу##", {wday.get_RU(), int(merged_lesson_it.get_position().get())});
-                        std::string delete_label = UI::id("Удалить группу##", {wday.get_RU(), int(merged_lesson_it.get_position().get())});
-                        std::string edit_label = UI::id("Изменить группу##", {wday.get_RU(), int(merged_lesson_it.get_position().get())});
+                        {
+                            UI::Scope_Disabled disabled(merged_lesson.is_removed());
+                            ImGui::TableNextRow();
+                            ImGui::TableSetColumnIndex(0);
+                                UI::label(std::to_string(merged_lesson.get_number()));
+                            ImGui::TableSetColumnIndex(1);
+                                UI::label(wday.get_name());
+                            ImGui::TableSetColumnIndex(2);
+                                for (auto it = merged_lesson.cref_internal_lessons().cbegin(); !!it; ++it)
+                                {
+                                    UI::label(std::to_string(it.get_position().get() + 1) + ". " + Lesson_Infos::get_name(it->get_lesson_type()));
+                                    UI::label(it->get_time_begin().to_string() + " - " + it->get_time_end().to_string());
+                                }
+                            ImGui::TableSetColumnIndex(3);
+                                UI::label(merged_lesson.get_comment());
+                            ImGui::TableSetColumnIndex(4);
+                                UI::label(merged_lesson.get_age_group_string());
+                            ImGui::TableSetColumnIndex(5);
+                        }
+
+                        UI::Scope_Disabled disabled(shared().month != Month::make_current());
+                        int merged_lesson_int = int(merged_lesson_it.get_position().get());
+                        std::string restore_label = UI::id("Восстановить группу##", {wday.get_RU(), merged_lesson_int});
+                        std::string delete_label = UI::id("Удалить группу##", {wday.get_RU(), merged_lesson_int});
+                        std::string edit_label = UI::id("Изменить группу##", {wday.get_RU(), merged_lesson_int});
                         Merged_Lesson_ID merged_lesson_id(wday, merged_lesson_it.get_position());
 
                         if (shared().edit_mode)

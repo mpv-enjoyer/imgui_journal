@@ -20,7 +20,7 @@ namespace UI
         Checkbox(std::string id, std::function<bool(bool)> callback = nullptr)
         : AUnit(id), m_callback(callback)
         {
-
+            
         }
         bool get_value() const
         {

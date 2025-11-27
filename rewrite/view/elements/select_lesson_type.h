@@ -46,5 +46,9 @@ namespace UI
         {
             return m_combo.get_choice();
         }
+        void trigger_callback()
+        {
+            m_combo.trigger_callback();
+        }
     };
 }

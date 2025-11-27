@@ -57,7 +57,7 @@ namespace View
     protected:
         const IModel& model() const { return m_controller.model(); };
         virtual bool render_logic() = 0;
-        virtual std::vector<Ptr<ICommand>> get_actions() const = 0;
+        virtual std::vector<std::shared_ptr<ICommand>> get_actions() const = 0;
         virtual std::optional<std::string> get_error() const = 0;
     public:
         Popup(std::string id, IController& controller)

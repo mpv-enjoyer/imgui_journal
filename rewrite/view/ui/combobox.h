@@ -49,6 +49,10 @@ namespace UI
         {
             return m_choices[m_value].value;
         }
+        void trigger_callback()
+        {
+            if (m_callback) m_callback(get_choice());
+        }
     };
 
     template <typename T>

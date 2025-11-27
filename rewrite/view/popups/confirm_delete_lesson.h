@@ -22,21 +22,13 @@ namespace View
             UI::label("Возраст: " + merged_lesson.get_age_group_string());
             return true;
         }
-        ICommand::Error call(IController& controller) override
+        virtual std::vector<std::shared_ptr<ICommand>> get_actions() const
         {
-            auto action = Ptr<Remove_Lesson>::make(m_id);
-            if (auto error = controller.get_error(action))
-            {
-                
-            }
-        }
-        Ptr<ICommand> get_action() const override
-        {
-            return Ptr<Remove_Lesson>::make(m_id);
+            return { std::make_shared<Remove_Lesson>(m_id) };
         }
         std::optional<std::string> get_error() const
         {
-            return {};
+            return { };
         }
     public:
         Confirm_Delete_Lesson(IController& controller, Merged_Lesson_ID id)

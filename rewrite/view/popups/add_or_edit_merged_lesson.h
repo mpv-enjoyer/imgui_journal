@@ -49,6 +49,11 @@ namespace View
             Request(int i, Lesson_Type type)
             : begin(std::to_string(i)), end(std::to_string(i)), lesson_type(type)
             { }
+            Request(int i, const Attendance_Internal_Lesson& internal_lesson)
+            : begin(std::to_string(i), internal_lesson.get_time_begin()), 
+              end(std::to_string(i), internal_lesson.get_time_end()),
+              lesson_type(internal_lesson.get_lesson_type())
+            { }
         };
         std::vector<Request> m_requests;
         bool render_logic() override
@@ -61,7 +66,7 @@ namespace View
 
             for (size_t i = 0; i < m_requests.size(); i++)
             {
-                if (m_requests.size() != 0)
+                if (m_requests.size() > 1)
                 {
                     UI::label(std::to_string(i + 1) + ". " + Lesson_Infos::get_name(m_requests[i].lesson_type));
                 }
@@ -76,7 +81,7 @@ namespace View
             m_comment.render();
             return true;
         }
-        std::vector<Ptr<ICommand>> get_actions() const
+        std::vector<std::shared_ptr<ICommand>> get_actions() const
         {
             std::vector<::Add_Or_Edit_Merged_Lesson::Request> requests;
             for (auto request : m_requests)
@@ -92,12 +97,12 @@ namespace View
                     adays.push_back(aday.is_active);
                     // TODO: give user power to edit this
                 }
-                return { Ptr<::Add_Or_Edit_Merged_Lesson>::make(*m_id, adays, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
+                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(*m_id, adays, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
             else
             {
                 // TODO: adding only current day here rn!!! GET MDAY!!!
-                return { Ptr<::Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
+                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(Mday::make_current(), m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
         }
         std::optional<std::string> get_error() const
@@ -112,7 +117,14 @@ namespace View
         m_input_number("Номер", model()->cref_merged_lesson(id).get_number()),
         m_select_age_group("Возраст", get_age_groups(), model()->cref_merged_lesson(id).get_age_group()),
         m_comment("Описание (необязательно)", model()->cref_merged_lesson(id).get_comment())
-        { }
+        {
+            const auto& internal_lessons = model()->cref_merged_lesson(id).cref_internal_lessons();
+            for (int i = 0; i < internal_lessons.size(); i++)
+            {
+                auto pos = Position<Attendance_Internal_Lesson>(i);
+                m_requests.emplace_back(i, internal_lessons[pos]);
+            }
+        }
         Add_Or_Edit_Merged_Lesson(IController& controller, Wday wday)
         : Popup("Добавить группу на " + wday.get_name(), controller), m_wday(wday),
         m_select_wday("День недели", get_wdays(), wday.get_RU()),
@@ -133,6 +145,8 @@ namespace View
         m_input_number("Номер"),
         m_select_age_group("Возраст", get_age_groups()),
         m_comment("Описание (необязательно)", "")
-        { }
+        {
+            m_select_lesson_type.trigger_callback();
+        }
     };
 }

@@ -26,9 +26,9 @@ namespace View
             m_select_students.render();
             return true;
         }
-        std::vector<Ptr<ICommand>> get_action() const
+        std::vector<std::shared_ptr<ICommand>> get_actions() const override
         {
-            std::vector<Ptr<ICommand>> output;
+            std::vector<std::shared_ptr<ICommand>> output;
             for (auto student_pos : m_select_students.get_student_positions())
             {
                 output.emplace_back(Ptr<::Add_Student_To_Lesson>::make(m_merged_lesson_id, student_pos));
