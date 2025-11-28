@@ -43,7 +43,9 @@ namespace View
                 for (auto aday : adays)
                 {
                     ImGui::TableNextColumn();
-                    UI::label(Mday::make_from_aday(shared().month.get_study_bottom_year(), shared().wday, aday.aday).to_string());
+                    Mday mday = Mday::make_from_aday(shared().month.get_study_bottom_year(), shared().wday, aday.aday);
+                    if (!aday.is_active) UI::label("--");
+                    else UI::label(mday.to_string());
                 }
                 ImGui::TableNextColumn();
                 ImGui::Text("Сумма");

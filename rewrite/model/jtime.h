@@ -183,11 +183,19 @@ public:
     static Mday make_first(Month month = Month::make_current()) { return Mday(0, month); }
     static Mday make_from_first_wday(Wday wday, Month month);
     static Mday make_from_aday(Year bottom_year, Wday wday, Aday aday);
+    static Mday make_nearest_past_wday_included(Mday mday, Wday wday);
+    static Mday make_nearest_future_wday_included(Mday mday, Wday wday);
     int get_from_0() const { return m_value_from_0; }
     int get_from_1() const { return m_value_from_0 + 1; }
     Month get_month() const { return m_month; }
     Year get_year() const { return m_month.get_year(); }
     int get_index_in_month() const;
+    bool previous()
+    {
+        if (m_value_from_0 == 0) return false;
+        m_value_from_0--;
+        return true;
+    }
     bool next()
     {
         int day_count = get_month().get_day_count();
@@ -372,6 +380,32 @@ inline Mday Mday::make_from_aday(Year bottom_year, Wday wday, Aday aday)
     }
     std::size_t first_mday_from_0 = Mday::make_from_first_wday(wday, month).get_from_0();
     return Mday::make_from_0(first_mday_from_0 + (aday_index - aday_index_current) * Wday::COUNT, month); // TODO: TEST THIS
+}
+
+inline Mday Mday::make_nearest_past_wday_included(Mday mday, Wday wday)
+{
+    if (Mday::make_first(mday.get_month()) > mday)
+    {
+        Month month = mday.get_month();
+        if (!month.previous()) return make_nearest_future_wday_included(mday, wday);
+        mday = Mday::make_from_1(month.get_day_count(), month);
+    }
+    for (; Wday::make_from_mday(mday) != wday; mday.previous()) { /* */ }
+    return mday;
+}
+
+inline Mday Mday::make_nearest_future_wday_included(Mday mday, Wday wday)
+{
+    Month month = mday.get_month();
+    Mday last_mday_wday = Mday::make_from_0(Mday::make_from_first_wday(wday, month).get_from_0() + (month.calculate_wday_count(wday) - 1) * Wday::COUNT, month);
+    if (last_mday_wday < mday)
+    {
+        Month month = mday.get_month();
+        if (!month.next()) return make_nearest_past_wday_included(mday, wday);
+        mday = Mday::make_from_0(0, month);
+    }
+    for (; Wday::make_from_mday(mday) != wday; mday.previous()) { }
+    return mday;
 }
 
 inline int Mday::get_index_in_month() const

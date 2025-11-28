@@ -27,11 +27,24 @@ namespace View
             }
             return output;
         }
+        static UI::Select_Aday get_select_adays(const IModel& model, Wday wday)
+        {
+            Year bottom_year = model->bottom_year;
+            if (bottom_year != Month::make_current().get_study_bottom_year())
+            {
+                Mday mday = Mday::make_from_first_wday(wday, Month::make_begin_study_year_from_bottom_year(bottom_year));
+                return UI::Select_Aday("Дата первого урока", mday, Aday::make_from_index(0), Aday::make_from_index(wday.calculate_count_for_bottom_year(bottom_year)));
+            }
+            Mday mday = Mday::make_nearest_past_wday_included(Mday::make_current(), wday);
+            return UI::Select_Aday("Дата первого урока", mday, Aday::make_from_index(0), Aday::make_from_mday(mday));
+        }
         UI::Combobox<Wday> m_select_wday;
         UI::Select_Lesson_Type m_select_lesson_type;
         UI::Input_Int m_input_number;
         UI::Combobox<int> m_select_age_group;
         UI::Input_Text m_comment;
+        std::optional<UI::Select_Aday> m_select_aday;
+        std::optional<UI::Checkbox> m_hide_select_aday; // TODO: refactor this?
         struct Request
         {
             UI::Input_JTime begin;
@@ -79,6 +92,8 @@ namespace View
             m_input_number.render();
             m_select_age_group.render();
             m_comment.render();
+            if (m_hide_select_aday) m_hide_select_aday->render();
+            if (m_select_aday && m_hide_select_aday && m_hide_select_aday->get_value()) m_select_aday->render();
             return true;
         }
         std::vector<std::shared_ptr<ICommand>> get_actions() const
@@ -95,14 +110,16 @@ namespace View
                 for (auto aday : model()->cref_merged_lesson(*m_id).get_adays())
                 {
                     adays.push_back(aday.is_active);
-                    // TODO: give user power to edit this
+                    // TODO: give user power to edit this somewhere?
                 }
                 return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(*m_id, adays, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
             else
             {
-                // TODO: adding only current day here rn!!! GET MDAY!!!
-                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(Mday::make_current(), m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
+                Aday aday = get_select_adays(model(), m_select_wday.get_choice()).get_choice();
+                if (m_select_aday && m_hide_select_aday && m_hide_select_aday->get_value()) aday = m_select_aday->get_choice();
+                Mday begin_mday = Mday::make_from_aday(model()->bottom_year, m_select_wday.get_choice(), aday);
+                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(begin_mday, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
         }
         std::optional<std::string> get_error() const
@@ -111,7 +128,7 @@ namespace View
         }
     public:
         Add_Or_Edit_Merged_Lesson(IController& controller, Merged_Lesson_ID id)
-        : Popup("Изменить группу " + id.wday().get_name(), controller), m_wday(id.wday()), m_id(id),
+        : Popup("Изменить группу", controller), m_wday(id.wday()), m_id(id),
         m_select_wday("День недели", get_wdays(), id.wday().get_RU()),
         m_select_lesson_type("Программа", nullptr, &(model()->cref_merged_lesson(id))),
         m_input_number("Номер", model()->cref_merged_lesson(id).get_number()),
@@ -126,8 +143,13 @@ namespace View
             }
         }
         Add_Or_Edit_Merged_Lesson(IController& controller, Wday wday)
-        : Popup("Добавить группу на " + wday.get_name(), controller), m_wday(wday),
-        m_select_wday("День недели", get_wdays(), wday.get_RU()),
+        : Popup("Добавить группу", controller), m_wday(wday),
+        m_select_wday("День недели", get_wdays(), wday.get_RU(), [&](Wday wday)
+        {
+            m_select_aday = get_select_adays(model(), wday);
+            m_hide_select_aday = UI::Checkbox("Выбрать дату первого урока##chkbox");
+            return true;
+        }),
         m_select_lesson_type("Программа", [&](std::vector<Lesson_Type> lesson_types)
         {
             JTime time_default(0, 0);
@@ -144,7 +166,9 @@ namespace View
         }),
         m_input_number("Номер"),
         m_select_age_group("Возраст", get_age_groups()),
-        m_comment("Описание (необязательно)", "")
+        m_comment("Описание (необязательно)", ""),
+        m_select_aday(get_select_adays(model(), wday)),
+        m_hide_select_aday("Выбрать дату первого урока##chkbox")
         {
             m_select_lesson_type.trigger_callback();
         }
