@@ -114,7 +114,7 @@ namespace View
         {
             const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
             const Student& student = model()->students()->cref_students()[student_pos];
-            const bool disabled = [&](){
+            const bool skip = [&](){
                 for (auto aday : adays)
                 {
                     if (!aday.is_active) continue;
@@ -129,7 +129,8 @@ namespace View
                 }
                 return true; // Calculate visibility without using Removal_Info. That's for later use.
             }();
-            if (disabled) return false;
+            if (skip) return false;
+            TODO_CRITICAL("disabled if: student is deleted/student is deleted from a group/student is deleted from a internal lesson/student went to a single lesson(UNIMPL)");
             const int contract = model()->students()->cref_contracts()[model()->students()->cref_students()[student_pos].get_contract_pos()].get_number();
             //if (disabled && !graphical->edit_mode && !group.is_moved_away(student)) return false;
             ImGui::TableNextRow();
