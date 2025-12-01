@@ -1,7 +1,7 @@
 #pragma once
 #include <cinttypes>
 
-enum class Attendance_Status
+enum class Attendance_Status : int
 {
     //INVALID     = -2, Crash if encounter those
     NOT_AWAITED = -1, // Don't use. Use Holidays, Attendance_Student::m_wants_lesson, ...?

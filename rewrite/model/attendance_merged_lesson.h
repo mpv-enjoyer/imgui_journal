@@ -69,8 +69,6 @@ public:
     {
         m_students_removal_info[student_pos.get()] = false;
     }
-
-    // Cache this maybe?
     std::vector<Position<Student>> get_student_positions() const
     {
         std::vector<Position<Student>> positions;
@@ -80,7 +78,6 @@ public:
         }
         return positions;
     }
-
     int get_age_group() const
     {
         return m_age_group;
