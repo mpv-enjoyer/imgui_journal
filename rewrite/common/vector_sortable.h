@@ -83,7 +83,7 @@ private:
         {
             return &get();
         }
-        Position get_position() const
+        Position get_pos() const
         {
             assert(!is_done());
             return Position(m_index);
@@ -181,7 +181,7 @@ private:
         {
             return &get();
         }
-        Position get_position() const
+        Position get_pos() const
         {
             assert(!is_done());
             return Position(m_indices[m_index]);

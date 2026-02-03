@@ -23,10 +23,10 @@ namespace UI
         {
             for (auto it = model->students()->cref_students().cbegin(); it; ++it)
             {
-                if (!filter || filter(it.get_position()))
+                if (!filter || filter(it.get_pos()))
                 {
                     int contract_number = model->students()->cref_contracts()[it->get_contract_pos()].get_number();
-                    m_data.emplace_back(it.get_position(), it->get_name() + " (" + std::to_string(contract_number) + ")");
+                    m_data.emplace_back(it.get_pos(), it->get_name() + " (" + std::to_string(contract_number) + ")");
                 }
             }
         }

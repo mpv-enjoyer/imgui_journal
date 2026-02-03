@@ -29,7 +29,12 @@ private:
     int m_age_group;
     std::string m_comment;
     Vector_Sortable<AInternal_Lesson> m_internal_lessons;
-    std::vector<bool> m_students_removal_info;
+    struct Student_Info
+    {
+        bool is_removed = false;
+        std::optional<Month> begin;
+    };
+    std::vector<Student_Info> m_students_info;
     std::vector<Aday_With_Status> m_adays;
 public:
     AMerged_Lesson(std::vector<Ptr<AInternal_Lesson>> internal_lessons, int number, int age_group, std::string comment, std::vector<Aday_With_Status> adays)
@@ -55,19 +60,28 @@ public:
         {
             iter->add_student(student_pos);
         }
-        m_students_removal_info.push_back(false);
+        m_students_info.push_back({});
     }
     bool is_student_removed(Pos<AStudent> student_pos) const
     {
-        return m_students_removal_info[student_pos.get()];
+        return m_students_info[student_pos.get()].is_removed;
     }
     void remove_student(Pos<AStudent> student_pos)
     {
-        m_students_removal_info[student_pos.get()] = true;
+        m_students_info[student_pos.get()].is_removed = true;
     }
     void restore_student(Pos<AStudent> student_pos)
     {
-        m_students_removal_info[student_pos.get()] = false;
+        m_students_info[student_pos.get()].is_removed = false;
+    }
+    std::optional<Month> get_student_attend_begin(Pos<AStudent> student_pos) const
+    {
+        return m_students_info[student_pos.get()].begin;
+    }
+    void set_student_attend_begin(Pos<AStudent> student_pos, Month ) const
+    {
+        TODO_CRITICAL(this);
+        return m_students_info[student_pos.get()].begin;
     }
     std::vector<Pos<Student>> get_student_positions() const
     {

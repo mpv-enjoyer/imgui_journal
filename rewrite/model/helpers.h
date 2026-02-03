@@ -32,7 +32,7 @@ struct Helpers
                         {
                             const auto& student = *student_it;
                             if (students[student.get_student_pos()].get_contract_pos() != contract) continue;
-                            if (merged_lesson.is_student_removed(student_it.get_position())) continue;
+                            if (merged_lesson.is_student_removed(student_it.get_pos())) continue;
                             if (students[student.get_student_pos()].is_removed()) continue;
                             if (!student.get_wants_lesson()) continue;
                             lessons_contract_counter++;

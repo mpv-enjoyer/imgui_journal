@@ -15,7 +15,7 @@ namespace View
             for (auto it = merged_lesson.cref_internal_lessons().cbegin(); !!it; ++it)
             {
                 std::string lesson_type = Lesson_Infos::get_name(it->get_lesson_type());
-                UI::label(std::to_string(it.get_position().get() + 1) + ". " + lesson_type);
+                UI::label(std::to_string(it.get_pos().get() + 1) + ". " + lesson_type);
                 UI::label(it->get_time_begin().to_string() + " - " + it->get_time_end().to_string());
             }
             UI::label("Описание: " + merged_lesson.get_comment());

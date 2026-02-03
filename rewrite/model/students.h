@@ -11,7 +11,7 @@ class Students
     {
         for (auto it = m_contracts.begin(); it; ++it)
         {
-            if (it->get_number() == contract_number) return it.get_position();
+            if (it->get_number() == contract_number) return it.get_pos();
         }
         return m_contracts.push_back(Ptr<Contract>::make(contract_number));
     }

@@ -22,13 +22,13 @@ namespace View
         {
             for (auto merged_lesson_it = model()->cref_wday(shared().wday).cref_merged_lessons().csorted_begin(); !!merged_lesson_it; ++merged_lesson_it)
             {
-                Merged_Lesson_ID merged_lesson_id(shared().wday, merged_lesson_it.get_position());
+                Merged_Lesson_ID merged_lesson_id(shared().wday, merged_lesson_it.get_pos());
                 for (auto internal_lesson_it = model()->cref_merged_lesson(merged_lesson_id).cref_internal_lessons().cbegin(); !!internal_lesson_it; ++internal_lesson_it)
                 {
-                    Internal_Lesson_ID internal_lesson_id(merged_lesson_id, internal_lesson_it.get_position());
+                    Internal_Lesson_ID internal_lesson_id(merged_lesson_id, internal_lesson_it.get_pos());
                     for (auto internal_student_it = model()->cref_internal_lesson(internal_lesson_id).cref_students().csorted_begin(M_COMPARE_ATTENDANCE_STUDENTS); !!internal_student_it; ++internal_student_it)
                     {
-                        Internal_Student_ID internal_student_id(internal_lesson_id, internal_student_it.get_position());
+                        Internal_Student_ID internal_student_id(internal_lesson_id, internal_student_it.get_pos());
                         for (int aday = 0; aday < shared().wday.calculate_count_for_bottom_year(model()->bottom_year); aday++)
                         {
                             Attendance_ID attendance_id(internal_student_id, Aday::make_from_index(aday));
@@ -247,7 +247,7 @@ namespace View
                 }
                 if (!shared().edit_mode && previous && previous->is_removed()) need_sameline = false;
                 if (need_sameline) ImGui::SameLine();
-                Merged_Lesson_ID merged_lesson_id(shared().wday, iter.get_position());
+                Merged_Lesson_ID merged_lesson_id(shared().wday, iter.get_pos());
                 table(merged_lesson_id);
                 previous = &iter.get();
             }

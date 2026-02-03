@@ -44,7 +44,7 @@ namespace View
             button.render();
             for (auto it = model()->students()->cref_students().cbegin(); it; it.next())
             {
-                int contract_number = model()->students()->get_contract_number(it.get_position());
+                int contract_number = model()->students()->get_contract_number(it.get_pos());
                 UI::label("student " + it->get_name() + " contract " + std::to_string(contract_number));
             }
             button2.render();

@@ -18,7 +18,7 @@ class Add_Or_Edit_Student_In_Base : public ICommand
             if (postfix_iter != 0) name_to_set += " (" + std::to_string(postfix_iter) + ")";
             for (auto it = model->students()->cref_students().begin(); it; ++it)
             {
-                if (m_student_pos && *m_student_pos == it.get_position()) continue;
+                if (m_student_pos && *m_student_pos == it.get_pos()) continue;
                 if (it->is_removed()) continue;
                 if (model->students()->cref_contracts()[it->get_contract_pos()].get_number() != m_contract) continue;
                 if (it->get_name() != name_to_set) continue;
