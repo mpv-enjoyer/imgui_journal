@@ -12,7 +12,7 @@ namespace View
     {
         static const int SUBCOLUMN_WIDTH_PXLS = 40;
         const std::function<bool(const Student&, const Student&)> M_COMPARE_STUDENTS;
-        const std::function<bool(const Attendance_Student&, const Attendance_Student&)> M_COMPARE_ATTENDANCE_STUDENTS;
+        const std::function<bool(const AStudent&, const AStudent&)> M_COMPARE_ATTENDANCE_STUDENTS;
         struct
         {
             std::vector<std::pair<Attendance_ID, std::string>> workouts_should;
@@ -60,8 +60,8 @@ namespace View
         void attendance_combo(std::string label, Attendance_ID id, std::size_t& workouts_buf_offset)
         {
             ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
-            Attendance_Status status = model()->cref_attendance_holder(id).get_status();
-            if (status == Attendance_Status::NOT_AWAITED)
+            AStatus status = model()->cref_attendance_holder(id).get_status();
+            if (status == AStatus::NOT_AWAITED)
             {
                 ImVec2 gradient_size = ImVec2(SUBCOLUMN_WIDTH_PXLS, ImGui::GetFrameHeight());
                 {
@@ -75,7 +75,7 @@ namespace View
             }
 
             const std::vector<const char*> items = { " ", "V", "Б", "O", "ОТР" };
-            int status_id = static_cast<std::underlying_type_t<Attendance_Status>>(status);
+            int status_id = static_cast<std::underlying_type_t<AStatus>>(status);
             const char* combo_preview_value = items[status_id];  // Pass in the preview value visible before opening the combo (it could be anything)
             std::string tooltip = "";
             bool modify_for_workout = false;
@@ -96,7 +96,7 @@ namespace View
                         if (status_id != n)
                         {
                             // n changed:
-                            controller().add(std::make_shared<Set_Lesson_Status>(id, static_cast<Attendance_Status>(n)));
+                            controller().add(std::make_shared<Set_Lesson_Status>(id, static_cast<AStatus>(n)));
                         }
                         ImGui::EndCombo();
                         return;
@@ -110,9 +110,9 @@ namespace View
             if (modify_for_workout) ImGui::SetItemTooltip(tooltip.c_str());
         }
 
-        bool Mainwindow::table_row(Merged_Lesson_ID merged_lesson_id, Position<Student> student_pos, Position<Attendance_Student> attendance_student_pos, int counter, std::vector<Attendance_Merged_Lesson::Aday_With_Status> adays)
+        bool table_row(Merged_Lesson_ID merged_lesson_id, Pos<Student> student_pos, Pos<AStudent> attendance_student_pos, int counter, std::vector<AMerged_Lesson::Aday_With_Status> adays)
         {
-            const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
+            const AMerged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
             const Student& student = model()->students()->cref_students()[student_pos];
             const bool skip = [&](){
                 for (auto aday : adays)
@@ -120,7 +120,7 @@ namespace View
                     if (!aday.is_active) continue;
                     for (const auto& internal_lesson : merged_lesson.cref_internal_lessons())
                     {
-                        if (internal_lesson.cref_student(attendance_student_pos).cref_holder(aday.aday).get_status() == Attendance_Status::NOT_AWAITED)
+                        if (internal_lesson.cref_student(attendance_student_pos).cref_holder(aday.aday).get_status() == AStatus::NOT_AWAITED)
                         {
                             continue;
                         }
@@ -130,57 +130,58 @@ namespace View
                 return true; // Calculate visibility without using Removal_Info. That's for later use.
             }();
             if (skip) return false;
-            TODO_CRITICAL("disabled if: student is deleted/student is deleted from a group/student is deleted from a internal lesson/student went to a single lesson(UNIMPL)");
-            const int contract = model()->students()->cref_contracts()[model()->students()->cref_students()[student_pos].get_contract_pos()].get_number();
+            // TODO_CRITICAL("disabled if: student is deleted/student is deleted from a group/student is deleted from a internal lesson/student went to a single lesson(UNIMPL)");
+            // const int contract = model()->students()->cref_contracts()[model()->students()->cref_students()[student_pos].get_contract_pos()].get_number();
             //if (disabled && !graphical->edit_mode && !group.is_moved_away(student)) return false;
-            ImGui::TableNextRow();
-            if (disabled)
-            {
-                ImGui::BeginDisabled();
-                ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"-");
-            }
-            else
-            {
-                ImGui::TableSetColumnIndex(0); ImGui::Text("%i", counter);
-            }
-            ImGui::TableSetColumnIndex(1); ImGui::Text(student.get_name().c_str());
-            ImGui::TableSetColumnIndex(2); ImGui::Text("%i", student.get_contract());
-            Attend_Data attend_data = group.get_attend_data(internal_student_id);
-            std::vector<bool> is_internal_lesson_enabled;
-            if (merged_lesson.get_lessons_size() == 1)
-                is_internal_lesson_enabled.push_back(true);
-            else
-            {
-                if (attend_data == ATTEND_FIRST) is_internal_lesson_enabled = {true, false};
-                if (attend_data == ATTEND_SECOND) is_internal_lesson_enabled = {false, true};
-                if (attend_data == ATTEND_BOTH) is_internal_lesson_enabled = {true, true};
-            }
-            int show_price_sum = 0;
-            std::string show_lesson_name = journal->merged_lesson_name(graphical->wday, merged_lesson_id, internal_student_id);
-            for (int i = 0; i < merged_lesson.get_lessons_size(); i++)
-            {
-                if (!is_internal_lesson_enabled[i]) continue;
-                int lesson_type = merged_lesson.get_lesson_pair(i).lesson_name_id;
-                show_price_sum += journal->lesson_common_price(contract, lesson_type);
-            }
-            ImGui::TableSetColumnIndex(3);
-            ImGui::Text(show_lesson_name.c_str());
-            ImGui::TableSetColumnIndex(4); ImGui::Text(c_str_int(show_price_sum));
-
-            int price_sum = 0;
-            for (int current_day_cell = 0; current_day_cell < graphical->visible_days.size(); current_day_cell++)
-            {
-                price_sum += table_cell(merged_lesson_id, internal_student_id, current_day_cell);
-            }
-            ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + graphical->visible_days.size());
-            ImGui::TextDisabled(c_str_int(price_sum));
-            if (disabled) ImGui::EndDisabled();
-            return !disabled;
+            // ImGui::TableNextRow();
+            // if (disabled)
+            // {
+                // ImGui::BeginDisabled();
+                // ImGui::TableSetColumnIndex(0); ImGui::TextColored(ImVec4(1.0F, 0.0F, 0.0F, 1.0F),"-");
+            // }
+            // else
+            // {
+                // ImGui::TableSetColumnIndex(0); ImGui::Text("%i", counter);
+            // }
+            // ImGui::TableSetColumnIndex(1); ImGui::Text(student.get_name().c_str());
+            // ImGui::TableSetColumnIndex(2); ImGui::Text("%i", student.get_contract());
+            // Attend_Data attend_data = group.get_attend_data(internal_student_id);
+            // std::vector<bool> is_internal_lesson_enabled;
+            // if (merged_lesson.get_lessons_size() == 1)
+                // is_internal_lesson_enabled.push_back(true);
+            // else
+            // {
+                // if (attend_data == ATTEND_FIRST) is_internal_lesson_enabled = {true, false};
+                // if (attend_data == ATTEND_SECOND) is_internal_lesson_enabled = {false, true};
+                // if (attend_data == ATTEND_BOTH) is_internal_lesson_enabled = {true, true};
+            // }
+            // int show_price_sum = 0;
+            // std::string show_lesson_name = journal->merged_lesson_name(graphical->wday, merged_lesson_id, internal_student_id);
+            // for (int i = 0; i < merged_lesson.get_lessons_size(); i++)
+            // {
+                // if (!is_internal_lesson_enabled[i]) continue;
+                // int lesson_type = merged_lesson.get_lesson_pair(i).lesson_name_id;
+                // show_price_sum += journal->lesson_common_price(contract, lesson_type);
+            // }
+            // ImGui::TableSetColumnIndex(3);
+            // ImGui::Text(show_lesson_name.c_str());
+            // ImGui::TableSetColumnIndex(4); ImGui::Text(c_str_int(show_price_sum));
+// 
+            // int price_sum = 0;
+            // for (int current_day_cell = 0; current_day_cell < graphical->visible_days.size(); current_day_cell++)
+            // {
+                // price_sum += table_cell(merged_lesson_id, internal_student_id, current_day_cell);
+            // }
+            // ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + graphical->visible_days.size());
+            // ImGui::TextDisabled(c_str_int(price_sum));
+            // if (disabled) ImGui::EndDisabled();
+            // return !disabled;
+            return true;
         }
 
         void table(Merged_Lesson_ID merged_lesson_id)
         {
-            const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
+            const AMerged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
             if (!shared().edit_mode && merged_lesson.is_removed()) return;
             UI::Scope_Disabled disabled(merged_lesson.is_removed());
             UI::Scope_Group group;
@@ -223,7 +224,7 @@ namespace View
             int counter = 1;
             for (std::size_t i : sort_ordered(student_positions, compare_students_by_pos_id))
             {
-                bool enabled = table_row(merged_lesson_id, student_positions[i], Position<Attendance_Student>(i), counter, adays);
+                bool enabled = table_row(merged_lesson_id, student_positions[i], Pos<AStudent>(i), counter, adays);
                 if (enabled) counter++;
             }
         }
@@ -235,7 +236,7 @@ namespace View
                 subwindow_handler().open_subwindow(std::make_unique<Lessons_List>(controller(), shared()));
             }
             auto& merged_lessons = model()->attendance_wdays()->cref_wday(shared().wday).cref_merged_lessons();
-            const Attendance_Merged_Lesson* previous = nullptr;
+            const AMerged_Lesson* previous = nullptr;
             for (auto iter = merged_lessons.csorted_begin(); iter; ++iter )
             {
                 auto iter_begin_time = iter->cref_internal_lessons().cbegin()->get_time_begin();
@@ -258,9 +259,11 @@ namespace View
         M_COMPARE_STUDENTS([&](const Student& l_student, const Student& r_student) -> bool {
             auto l_contract = model()->students()->cref_contracts()[l_student.get_contract_pos()].get_number();
             auto r_contract = model()->students()->cref_contracts()[r_student.get_contract_pos()].get_number();
-            return std::tie(l_contract, l_student.get_name()) < std::tie(r_contract, r_student.get_name());
+            auto l_name = l_student.get_name();
+            auto r_name = r_student.get_name();
+            return std::tie(l_contract, l_name) < std::tie(r_contract, r_name);
         }),
-        M_COMPARE_ATTENDANCE_STUDENTS([&](const Attendance_Student& l, const Attendance_Student& r) -> bool {
+        M_COMPARE_ATTENDANCE_STUDENTS([&](const AStudent& l, const AStudent& r) -> bool {
             auto l_student = model()->students()->cref_students()[l.get_student_pos()];
             auto r_student = model()->students()->cref_students()[r.get_student_pos()];
             return M_COMPARE_STUDENTS(l_student, r_student);

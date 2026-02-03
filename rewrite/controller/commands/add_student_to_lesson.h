@@ -4,9 +4,9 @@
 class Add_Student_To_Lesson : public ICommand
 {
     Merged_Lesson_ID m_merged_lesson_id;
-    Position<Student> m_student_pos;
+    Pos<Student> m_student_pos;
 public:
-    Add_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Student> student_pos)
+    Add_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Pos<Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
     std::optional<std::string> get_error(const IModel& model) const override
@@ -18,7 +18,7 @@ public:
         auto& merged_lesson = model->cref_merged_lesson(m_merged_lesson_id);
         if (merged_lesson.is_removed()) return "Невозможно добавить ученика к удаленному уроку";
         auto internal_students = merged_lesson.get_student_positions();
-        bool exists = std::any_of(internal_students.begin(), internal_students.end(), [=](const Position<Student>& student)
+        bool exists = std::any_of(internal_students.begin(), internal_students.end(), [=](const Pos<Student>& student)
             {
                 return student == m_student_pos;
             });

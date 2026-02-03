@@ -3,19 +3,19 @@
 #include "common/removal_info.h"
 #include "student.h"
 
-class Attendance_Student
+class AStudent
 {
-    NON_COPYABLE(Attendance_Student);
-    const Vector_Sortable<Student>::Position m_student_pos;
+    NON_COPYABLE(AStudent);
+    const Pos<Student> m_student_pos;
     bool m_wants_lesson = true;
-    std::vector<Ptr<Attendance_Holder>> m_holders;
+    std::vector<Ptr<AHolder>> m_holders;
 public:
-    Attendance_Student(std::size_t holders_count, Vector_Sortable<Student>::Position student_pos)
+    AStudent(std::size_t holders_count, Pos<Student> student_pos)
     : m_student_pos(student_pos)
     {
         for (std::size_t i = 0; i < holders_count; i++)
         {
-            m_holders.push_back(Ptr<Attendance_Holder>::make());
+            m_holders.push_back(Ptr<AHolder>::make());
         }
     }
     bool get_wants_lesson() const
@@ -26,15 +26,15 @@ public:
     {
         m_wants_lesson = value;
     }
-    const Attendance_Holder& cref_holder(Aday aday) const
+    const AHolder& cref_holder(Aday aday) const
     {
         return *(m_holders[aday.index()]);
     }
-    Attendance_Holder& ref_holder(Aday aday)
+    AHolder& ref_holder(Aday aday)
     {
         return *(m_holders[aday.index()]);
     }
-    Vector_Sortable<Student>::Position get_student_pos() const
+    Pos<Student> get_student_pos() const
     {
         return m_student_pos;
     }

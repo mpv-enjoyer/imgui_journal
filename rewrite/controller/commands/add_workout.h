@@ -5,12 +5,12 @@ class Add_Workout : public ICommand
 {
     Workout m_workout;
 
-    static Error get_error_not_awaited(Attendance_Status status)
+    static Error get_error_not_awaited(AStatus status)
     {
         switch (status)
         {
-        case Attendance_Status::NOT_AWAITED: return "Ученик не должен приходить на этот урок";
-        case Attendance_Status::ON_LESSON: return "Ученик присутствовал на этом уроке";
+        case AStatus::NOT_AWAITED: return "Ученик не должен приходить на этот урок";
+        case AStatus::ON_LESSON: return "Ученик присутствовал на этом уроке";
         default: return {};
         }
     }
@@ -24,7 +24,7 @@ class Add_Workout : public ICommand
     static Error get_error_removed_student(const IModel& model, Internal_Student_ID should_id)
     {
         auto& attendance_student = model->cref_attendance_student(should_id);
-        Position<Student> student_pos = attendance_student.get_student_pos();
+        Pos<Student> student_pos = attendance_student.get_student_pos();
         if (model->students()->cref_students().cref(student_pos).is_removed()) return "Ученик удален";
         if (!attendance_student.get_wants_lesson()) return "Ученик удален из группы";
         return {};

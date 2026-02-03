@@ -1,7 +1,7 @@
 #pragma once
 #include <cinttypes>
 
-enum class Attendance_Status : int
+enum class AStatus : int
 {
     //INVALID     = -2, Crash if encounter those
     NOT_AWAITED = -1, // Don't use. Use Holidays, Attendance_Student::m_wants_lesson, ...?
@@ -12,18 +12,18 @@ enum class Attendance_Status : int
     //WORKED_OUT  = 4 Store workouts in Workouts class instead.
 };
 
-class Attendance_Holder
+class AHolder
 {
-    Attendance_Status m_status = Attendance_Status::NO_DATA;
+    AStatus m_status = AStatus::NO_DATA;
     int m_discount_id = 0;
 public:
-    Attendance_Holder() { };
-    void set(Attendance_Status status, int discount_id)
+    AHolder() { };
+    void set(AStatus status, int discount_id)
     {
         m_status = status;
         m_discount_id = discount_id;
     }
-    Attendance_Status get_status() const
+    AStatus get_status() const
     {
         return m_status;
     }

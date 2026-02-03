@@ -5,9 +5,9 @@ class Set_Lesson_Teacher : public ICommand
 {
     Internal_Lesson_ID m_internal_lesson_id;
     Aday m_aday;
-    Position<Teacher> m_teacher_pos;
+    Pos<Teacher> m_teacher_pos;
 public:
-    Set_Lesson_Teacher(Internal_Lesson_ID internal_lesson_id, Aday aday, Position<Teacher> teacher_pos)
+    Set_Lesson_Teacher(Internal_Lesson_ID internal_lesson_id, Aday aday, Pos<Teacher> teacher_pos)
     : m_internal_lesson_id(internal_lesson_id), m_aday(aday), m_teacher_pos(teacher_pos) { }
     Error get_error(const IModel&) const override
     {

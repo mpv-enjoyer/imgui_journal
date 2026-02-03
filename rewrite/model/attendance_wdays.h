@@ -2,22 +2,22 @@
 #include "attendance_wday.h"
 #include "ids.h"
 
-class Attendance_Wdays
+class AWdays
 {
-    Vector_Sortable<Attendance_Wday> m_wdays;
+    Vector_Sortable<AWday> m_wdays;
 public:
-    Attendance_Wdays()
+    AWdays()
     {
         for (std::size_t i = 0; i < Wday::COUNT; i++)
         {
-            m_wdays.push_back(Ptr<Attendance_Wday>::make());
+            m_wdays.push_back(Ptr<AWday>::make());
         }
     }
-    const Attendance_Wday& cref_wday(Wday wday) const
+    const AWday& cref_wday(Wday wday) const
     {
         return *(m_wdays.cref_data().at(wday.get_EN()));
     }
-    Attendance_Wday& ref_wday(Wday wday)
+    AWday& ref_wday(Wday wday)
     {
         return *(m_wdays.ref_data().at(wday.get_EN()));
     }

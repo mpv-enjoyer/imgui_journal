@@ -9,7 +9,7 @@ namespace View
 
         bool render_logic() override
         {
-            const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(m_id);
+            const AMerged_Lesson& merged_lesson = model()->cref_merged_lesson(m_id);
             UI::label("Номер группы: " + std::to_string(merged_lesson.get_number()));
 
             for (auto it = merged_lesson.cref_internal_lessons().cbegin(); !!it; ++it)

@@ -15,16 +15,16 @@ public:
         "9 лет, школьная группа", 
         "10-11 лет, школьная группа", 
         "12-13 лет, школьная группа"};
-    IMerged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
+    IMerged_Lesson(std::vector<Ptr<AInternal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
     { }
     std::vector<Aday> adays(Month month) const; // decorate as {aday} in Workout_Merged_Lesson, calc in Attendance_Merged_Lesson
-    const Vector_Sortable<Attendance_Internal_Lesson>& cref_internal_lessons() const;
-    Vector_Sortable<Attendance_Internal_Lesson>& ref_internal_lessons();
-    void add_student(Position<Student> student_pos); // decorate as { return; } in Workout_Merged_Lesson
-    bool is_student_removed(Position<Attendance_Student> student_pos) const;
-    void remove_student(Position<Attendance_Student> student_pos);
-    void restore_student(Position<Attendance_Student> student_pos);
-    std::vector<Position<Student>> get_student_positions();
+    const Vector_Sortable<AInternal_Lesson>& cref_internal_lessons() const;
+    Vector_Sortable<AInternal_Lesson>& ref_internal_lessons();
+    void add_student(Pos<Student> student_pos); // decorate as { return; } in Workout_Merged_Lesson
+    bool is_student_removed(Pos<AStudent> student_pos) const;
+    void remove_student(Pos<AStudent> student_pos);
+    void restore_student(Pos<AStudent> student_pos);
+    std::vector<Pos<Student>> get_student_positions();
     int get_age_group() const;
     void set_age_group(int age_group);
     int get_number() const;

@@ -292,4 +292,4 @@ public:
 };
 
 template <typename T>
-using Position = typename Vector_Sortable<T>::Position;
+using Pos = typename Vector_Sortable<T>::Position;

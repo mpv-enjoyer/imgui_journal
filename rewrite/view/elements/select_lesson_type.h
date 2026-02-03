@@ -17,7 +17,7 @@ namespace UI
             {"Черчение", { Lesson_Type::TECHDRAWING }},
             {"Спецкурс", { Lesson_Type::SPECIALCOURSE }}
         };
-        int get_choice_from_provided(const Attendance_Merged_Lesson* merged_lesson) const
+        int get_choice_from_provided(const AMerged_Lesson* merged_lesson) const
         {
             if (!merged_lesson) return 0;
             std::vector<Lesson_Type> lesson_types;
@@ -40,7 +40,7 @@ namespace UI
             m_combo.render();
         }
     public:
-        Select_Lesson_Type(std::string id, std::function<bool (std::vector<Lesson_Type>)> callback, const Attendance_Merged_Lesson* merged_lesson = nullptr)
+        Select_Lesson_Type(std::string id, std::function<bool (std::vector<Lesson_Type>)> callback, const AMerged_Lesson* merged_lesson = nullptr)
         : AUnit(id), m_combo(id, M_CHOICES, get_choice_from_provided(merged_lesson), callback) { }
         std::vector<Lesson_Type> get_lesson_types() const
         {

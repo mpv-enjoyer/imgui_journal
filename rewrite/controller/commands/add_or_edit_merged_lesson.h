@@ -6,12 +6,12 @@ class Add_Or_Edit_Merged_Lesson : public ICommand
 public:
     struct Request
     {
-        Attendance_Internal_Lesson::Type type;
+        AInternal_Lesson::Type type;
         JTime begin;
         JTime end;
     };
 private:
-    const std::optional<Position<Attendance_Merged_Lesson>> m_position;
+    const std::optional<Pos<AMerged_Lesson>> m_position;
     std::vector<bool> m_adays_are_active;
     Wday m_wday;
     int m_number;
@@ -90,10 +90,10 @@ public:
         }
 
         std::size_t adays_count = m_adays_are_active.size();
-        std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons;
+        std::vector<Ptr<AInternal_Lesson>> internal_lessons;
         for (auto lesson : m_lessons)
         {
-            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
+            internal_lessons.push_back(Ptr<AInternal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
         }
 
         std::vector<Aday_With_Status> adays_with_status;
@@ -108,7 +108,7 @@ public:
         }
 
         merged.push_back(
-            Ptr<Attendance_Merged_Lesson>::make(
+            Ptr<AMerged_Lesson>::make(
                 std::move(internal_lessons), m_number, m_age_group, m_comment, adays_with_status));
     }
 };

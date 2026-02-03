@@ -3,12 +3,12 @@
 
 class Add_Payment : public ICommand
 {
-    Position<Contract> m_contract_pos;
+    Pos<Contract> m_contract_pos;
     Price m_price;
     Month m_month;
     std::string m_comment;
 public:
-    Add_Payment(Position<Contract> contract_pos, Price price, Month month, std::string comment)
+    Add_Payment(Pos<Contract> contract_pos, Price price, Month month, std::string comment)
     : m_contract_pos(contract_pos), m_price(price), m_month(month), m_comment(comment)
     { }
     Error get_error(const IModel&) const override

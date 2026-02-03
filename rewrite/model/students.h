@@ -7,7 +7,7 @@ class Students
 {
     Vector_Sortable<Contract> m_contracts;
     Vector_Sortable<Student> m_students;
-    Position<Contract> insert_contract_if_not_exists(int contract_number)
+    Pos<Contract> insert_contract_if_not_exists(int contract_number)
     {
         for (auto it = m_contracts.begin(); it; ++it)
         {
@@ -22,21 +22,21 @@ public:
         auto position = insert_contract_if_not_exists(contract_id);
         m_students.push_back(Ptr<Student>::make(name, position));
     }
-    void edit(Position<Student> student_pos, std::string name, int contract_id)
+    void edit(Pos<Student> student_pos, std::string name, int contract_id)
     {
         auto& student = m_students.ref(student_pos);
         student.set_contract_pos(insert_contract_if_not_exists(contract_id));
         student.set_name(name);
     }
-    Removal_Info& ref_removal_info(Position<Student> student_pos)
+    Removal_Info& ref_removal_info(Pos<Student> student_pos)
     {
         return m_students[student_pos];
     }
-    int get_contract_number(Position<Student> student_pos) const
+    int get_contract_number(Pos<Student> student_pos) const
     {
         return m_contracts[m_students[student_pos].get_contract_pos()].get_number();
     }
-    Contract& ref_contract(Position<Contract> contract_pos)
+    Contract& ref_contract(Pos<Contract> contract_pos)
     {
         return m_contracts[contract_pos];
     }

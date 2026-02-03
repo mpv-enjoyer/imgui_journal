@@ -8,17 +8,17 @@ namespace UI
     {
         struct Student_Data
         {
-            Position<Student> position;
+            Pos<Student> position;
             bool enabled;
             std::string description;
-            Student_Data(Position<Student> position_, std::string description_)
+            Student_Data(Pos<Student> position_, std::string description_)
             : position(position_), enabled(false), description(description_) { }
         };
         std::vector<Student_Data> m_data;
         bool m_multi;
         ImGuiTextFilter m_filter;
     public:
-        Select_Students(std::string id, const IModel& model, std::function<bool(Position<Student> student)> filter, bool multi)
+        Select_Students(std::string id, const IModel& model, std::function<bool(Pos<Student> student)> filter, bool multi)
         : AUnit(id), m_multi(multi)
         {
             for (auto it = model->students()->cref_students().cbegin(); it; ++it)
@@ -59,17 +59,17 @@ namespace UI
                 label(student_data.description);
             }
         }
-        std::optional<Position<Student>> get_student_position() const
+        std::optional<Pos<Student>> get_student_position() const
         {
             if (m_multi) return {};
             auto it = std::find_if(m_data.begin(), m_data.end(), [](const Student_Data& student_data) { return student_data.enabled; });
             if (it == m_data.end()) return {};
             else return it->position;
         }
-        std::vector<Position<Student>> get_student_positions() const
+        std::vector<Pos<Student>> get_student_positions() const
         {
             if (!m_multi) return {};
-            std::vector<Position<Student>> result;
+            std::vector<Pos<Student>> result;
             result.reserve(m_data.size());
             for (const auto& student_data : m_data)
             {

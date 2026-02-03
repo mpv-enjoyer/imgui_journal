@@ -20,7 +20,7 @@ namespace View
         static UI::Combobox_Choices<int> get_age_groups()
         {
             UI::Combobox_Choices<int> output;
-            auto age_groups = Attendance_Merged_Lesson::get_all_age_groups();
+            auto age_groups = AMerged_Lesson::get_all_age_groups();
             for (int i = 0; i < age_groups.size(); i++)
             {
                 output.emplace_back(age_groups[i], i);
@@ -62,7 +62,7 @@ namespace View
             Request(int i, Lesson_Type type)
             : begin(std::to_string(i)), end(std::to_string(i)), lesson_type(type)
             { }
-            Request(int i, const Attendance_Internal_Lesson& internal_lesson)
+            Request(int i, const AInternal_Lesson& internal_lesson)
             : begin(std::to_string(i), internal_lesson.get_time_begin()), 
               end(std::to_string(i), internal_lesson.get_time_end()),
               lesson_type(internal_lesson.get_lesson_type())
@@ -138,7 +138,7 @@ namespace View
             const auto& internal_lessons = model()->cref_merged_lesson(id).cref_internal_lessons();
             for (int i = 0; i < internal_lessons.size(); i++)
             {
-                auto pos = Position<Attendance_Internal_Lesson>(i);
+                auto pos = Pos<AInternal_Lesson>(i);
                 m_requests.emplace_back(i, internal_lessons[pos]);
             }
         }

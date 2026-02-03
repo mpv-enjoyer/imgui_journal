@@ -36,7 +36,7 @@ namespace View
         {
             if (ImGui::Button("Добавить учеников в первый урок"))
             {
-                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Position<Attendance_Merged_Lesson>(0));
+                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Pos<AMerged_Lesson>(0));
                 popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(controller(), merged_lesson_id));
             }
             input_int.render();
@@ -56,7 +56,7 @@ namespace View
             checkbox.render();
             if (ImGui::Button("Select Students"))
             {
-                select_students.reset(new UI::Select_Students("Select Students", controller().model(), [&](Position<Student> pos)
+                select_students.reset(new UI::Select_Students("Select Students", controller().model(), [&](Pos<Student> pos)
                 {
                     return pos.get() % 2 == 1;
                 }, checkbox.get_value()));
