@@ -68,6 +68,11 @@ void Render::main_loop()
         }
         show_frame();
     }
+
+    // BUG MITIGATION: no info was ever saved for journal if:
+      // journal_main != journal
+      // journal wasn't automatically saved
+    change_current_month(journal_main->current_month(), journal_main->current_year());
 }
 
 // the program usually doesn't update the screen by itself

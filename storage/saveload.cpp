@@ -46,6 +46,7 @@ bool Journal::save_file_exists(int month, int year)
 void Journal::save_workouts()
 {
     if (!_check_rights({State::Fullaccess, State::Limited, State::Preview})) return;
+    // printf("saving journal workouts %i\n", current_month());
     std::ofstream ofs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
     boost::archive::text_oarchive oa(ofs);
     oa << _workout_handler;
@@ -65,6 +66,7 @@ void Journal::save_backup()
 bool Journal::save()
 {
     if (restrict_saving) return false;
+    // printf("saving journal month %i with workouts\n", current_month());
     save_workouts();
     if (!_check_rights({State::Fullaccess, State::Limited})) return false;
 

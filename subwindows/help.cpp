@@ -2,6 +2,7 @@
 #include "../platforms/platforms.h"
 
 bool _button_recalculate_all_prices = false;
+bool _button_open_workout_debugging = false;
 
 Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
@@ -185,4 +186,9 @@ Subwindow_Help::Image::Image(std::string name) : name(name)
 void show_button_to_recalculate_all_prices()
 {
     _button_recalculate_all_prices = true;
+}
+
+void show_button_to_open_workout_debugging()
+{
+    _button_open_workout_debugging = true;
 }
