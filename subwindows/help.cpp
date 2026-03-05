@@ -1,5 +1,6 @@
 #include "help.h"
 #include "../platforms/platforms.h"
+#include "../popups/workout_debugging.h"
 
 bool _button_recalculate_all_prices = false;
 bool _button_open_workout_debugging = false;
@@ -7,12 +8,13 @@ bool _button_open_workout_debugging = false;
 Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
 
+
 bool Subwindow_Help::draw_image(Image image)
 {
     Image current = image;
     if (!(current.loaded))
     {
-        ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1), "not found: %s", image.name.c_str());
+        ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1), "not found/images not supported: %s", image.name.c_str());
         return false;
     }
     ImGui::Image((void*)(intptr_t)(current.texture), ImVec2(current.width, current.height));
@@ -142,7 +144,7 @@ bool Subwindow_Help::show_frame()
     draw_text("BUILD " + std::string(__DATE__) + " " + std::string(__TIME__));
     draw_text("Renderer " + std::string(Impl::renderer()->name()));
     draw_text("OS " + std::string(Impl::platform()->name()));
-    if (_button_recalculate_all_prices && ImGui::Button("Пересчитать все цены за текущий месяц"))
+    if (_button_recalculate_all_prices && ImGui::Button("[DEBUG] Пересчитать все цены за текущий месяц"))
     {
         /* dirty fix for already broken prices */
         for (int wday = 0; wday < 7; wday++)
@@ -172,6 +174,10 @@ bool Subwindow_Help::show_frame()
             }
         }
     }
+    if (_button_open_workout_debugging && ImGui::Button("[DEBUG] Удалить поврежденные отработки за текущий месяц"))
+    {
+        popup_handler->open_popup(new Popup_Workout_Debugging(graphical));
+    }
     ImGui::EndChild();
     ImGui::PopStyleColor();
     ImGui::End();
@@ -180,7 +186,14 @@ bool Subwindow_Help::show_frame()
 
 Subwindow_Help::Image::Image(std::string name) : name(name)
 {
-    loaded = LoadTextureFromFile(("images/" + name).c_str(), &texture, &width, &height);
+    if (!Impl::renderer()->supports_images())
+    {
+        loaded = false;
+    }
+    else
+    {
+        loaded = LoadTextureFromFile(("images/" + name).c_str(), &texture, &width, &height);
+    }
 }
 
 void show_button_to_recalculate_all_prices()

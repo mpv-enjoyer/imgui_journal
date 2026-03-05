@@ -10,12 +10,14 @@ int main(int argc, char** argv)
         if (arg == "--enable-legacy-render-driver")
         {
             Impl::prefer_renderer(Impl::Renderers::SDL2);
-            break;
         }
         if (arg == "--allow-recalculate-all")
         {
             show_button_to_recalculate_all_prices();
-            break;
+        }
+        if (arg == "--allow-workout-debugging")
+        {
+            show_button_to_open_workout_debugging();
         }
     }
     Journal journal;

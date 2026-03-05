@@ -2,7 +2,7 @@
 #include "subwindows.h"
 
 void show_button_to_recalculate_all_prices();
-
+void show_button_to_open_workout_debugging();
 
 class Subwindow_Help : public Subwindow
 {
@@ -13,7 +13,7 @@ class Subwindow_Help : public Subwindow
         int width;
         int height;
         GLuint texture;
-        bool loaded;
+        bool loaded = false;
         Image(std::string name);
     };
     Image add_student_to_base = Image("add_student_to_base.png");

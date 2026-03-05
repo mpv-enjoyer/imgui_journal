@@ -37,4 +37,5 @@ public:
 #include "confirm_delete_student.h"
 #include "confirm_delete_lesson.h"
 #include "move_student_to_group.h"
+#include "workout_debugging.h"
 #include "popup_handler.h"

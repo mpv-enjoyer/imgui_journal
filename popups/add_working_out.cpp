@@ -253,6 +253,7 @@ void Popup_Add_Working_Out::accept_changes()
     caller_mday, caller_month, caller_year };
     // Assume that students aren't being deleted
     current_journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+    // TODO: The data is now inconsistent if the program crashes before the quicksave.
 }
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()

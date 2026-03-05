@@ -73,16 +73,9 @@ bool Mainwindow::show_frame()
         }
         if (ImGui::BeginMenu("Помощь"))
         {
-            if (Impl::renderer()->supports_images())
+            if (ImGui::Button("Справка"))
             {
-                if (ImGui::Button("Справка"))
-                {
-                    subwindow_handler->open_subwindow(new Subwindow_Help(graphical, popup_handler));
-                }
-            }
-            else
-            {
-                ImGui::TextDisabled("BUILD " __DATE__ " " __TIME__);
+                subwindow_handler->open_subwindow(new Subwindow_Help(graphical, popup_handler));
             }
             ImGui::EndMenu();
         }

@@ -116,4 +116,5 @@ void Popup_Confirm_Delete_Workout::accept_changes()
     {
         journal->set_lesson_status(workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
     }
+    // TODO: The data is now inconsistent if the program crashes before the quicksave.
 }
