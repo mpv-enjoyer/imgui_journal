@@ -19,6 +19,10 @@ int main(int argc, char** argv)
         {
             show_button_to_open_workout_debugging();
         }
+        if (arg == "--log-regular-saves")
+        {
+            turn_on_log_regular_saves();
+        }
     }
     Journal journal;
     JournalHolder graphical(journal);

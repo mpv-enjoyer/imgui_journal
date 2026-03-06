@@ -467,6 +467,8 @@ void Mainwindow::table_teacher_names_row(int merged_lesson_id)
     [[maybe_unused]] const Lesson_Info& merged_lesson = PTRREF(journal->lesson_info(graphical->wday, merged_lesson_id));
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(1); ImGui::TextDisabled("Преподаватель: ");
+    bool disabled = graphical->journal.get_state() == Journal::State::Empty || graphical->journal.get_state() == Journal::State::Preview;
+    if (disabled) ImGui::BeginDisabled();
     for (int day_id = 0; day_id < graphical->visible_days.size(); day_id++)
     {
         ImGui::TableSetColumnIndex(DEFAULT_COLUMN_COUNT + day_id);
@@ -482,4 +484,5 @@ void Mainwindow::table_teacher_names_row(int merged_lesson_id)
             if (ImGui::InputText(label.c_str(), &teacher_name_buf)) journal->set_teacher_name(mday, lesson, teacher_name_buf);
         }
     }
+    if (disabled) ImGui::EndDisabled();
 }

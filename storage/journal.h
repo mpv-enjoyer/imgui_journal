@@ -9,6 +9,7 @@
 #define NAME_TECHDRAWING 3   // Черчение
 #define NAME_SPECIALCOURSE 4 // Спецкурс
 
+void turn_on_log_regular_saves();
 class Test_Journal
 {
     void add_student();

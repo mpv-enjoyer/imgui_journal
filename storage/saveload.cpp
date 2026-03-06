@@ -1,6 +1,13 @@
 #include "journal.h"
 #include <filesystem>
 
+bool log_regular_saves = false;
+
+void turn_on_log_regular_saves()
+{
+    log_regular_saves = true;
+}
+
 std::string generate_file_name(int month, int year)
 {
     return "save_" + std::to_string(month + 1) + "m_" + std::to_string(year + 1900) + "y.data";
@@ -46,7 +53,7 @@ bool Journal::save_file_exists(int month, int year)
 void Journal::save_workouts()
 {
     if (!_check_rights({State::Fullaccess, State::Limited, State::Preview})) return;
-    // printf("saving journal workouts %i\n", current_month());
+    if (log_regular_saves) printf("saving workouts month %i\n", current_month());
     std::ofstream ofs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
     boost::archive::text_oarchive oa(ofs);
     oa << _workout_handler;
@@ -66,9 +73,9 @@ void Journal::save_backup()
 bool Journal::save()
 {
     if (restrict_saving) return false;
-    // printf("saving journal month %i with workouts\n", current_month());
     save_workouts();
     if (!_check_rights({State::Fullaccess, State::Limited})) return false;
+    if (log_regular_saves) printf("saving journal month %i\n", current_month());
 
     {
         std::ofstream ofs(generate_file_name(_current_month, _current_year));
@@ -122,6 +129,7 @@ bool Journal::load_workouts()
     {
         return false;
     }
+    if (log_regular_saves) printf("loading workouts month %i\n", current_month());
     boost::archive::text_iarchive workout_ia(workout_ifs);
     workout_ia >> _workout_handler;
     return true;
@@ -138,6 +146,7 @@ bool Journal::load()
     {
         return false;
     }
+    if (log_regular_saves) printf("loading journal month %i\n", current_month());
     boost::archive::text_iarchive ia(ifs);
     ia >> _all_students;
     ia >> _all_groups;
