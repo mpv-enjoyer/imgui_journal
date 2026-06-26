@@ -5,9 +5,11 @@ class Edit_Wants_Lesson : public ICommand
 {
     Internal_Student_ID m_id;
     bool m_enable;
+    Month m_month;
+    bool m_change_all_future_months;
 public:
-    Edit_Wants_Lesson(Internal_Student_ID id, bool enable)
-    : m_id(id), m_enable(enable)
+    Edit_Wants_Lesson(Internal_Student_ID id, bool enable, Month month, bool change_all_future_months)
+    : m_id(id), m_enable(enable), m_month(month), m_change_all_future_months(change_all_future_months)
     { }
     Error get_error(const IModel& model) const override
     {

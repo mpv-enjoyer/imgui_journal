@@ -78,10 +78,9 @@ public:
     {
         return m_students_info[student_pos.get()].begin;
     }
-    void set_student_attend_begin(Pos<AStudent> student_pos, Month ) const
+    void set_student_attend_begin(Pos<AStudent> student_pos, Month month, Wday this_wday)
     {
-        TODO_CRITICAL(this);
-        return m_students_info[student_pos.get()].begin;
+        m_students_info[student_pos.get()].begin;
     }
     std::vector<Pos<Student>> get_student_positions() const
     {
@@ -116,18 +115,18 @@ public:
     {
         m_comment = comment;
     }
-    void set_active_adays(std::vector<bool> adays)
-    {
-        DEBUG_ASSERT(adays.size() == m_adays.size());
-        for (size_t i = 0; i < adays.size(); i++)
-        {
-            m_adays[i].is_active = adays[i];
-        }
-    }
-    std::vector<Aday_With_Status> get_adays() const
-    {
-        return m_adays;
-    }
+    // void set_active_adays(std::vector<bool> adays)
+    // {
+    //     DEBUG_ASSERT(adays.size() == m_adays.size());
+    //     for (size_t i = 0; i < adays.size(); i++)
+    //     {
+    //         m_adays[i].is_active = adays[i];
+    //     }
+    // }
+    // std::vector<Aday_With_Status> get_adays() const
+    // {
+    //     return m_adays;
+    // }
     std::string get_group_description() const
     {
         std::stringstream output;

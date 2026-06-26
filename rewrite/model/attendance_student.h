@@ -7,24 +7,26 @@ class AStudent
 {
     NON_COPYABLE(AStudent);
     const Pos<Student> m_student_pos;
-    bool m_wants_lesson = true;
     std::vector<Ptr<AHolder>> m_holders;
+    // Use this student in an internal lesson for a discount + visual student in group
+    // Change this through set_wants_lesson, remove_student, remove_lesson
+    std::vector<bool> m_wants_lessons_by_month;
 public:
     AStudent(std::size_t holders_count, Pos<Student> student_pos)
-    : m_student_pos(student_pos)
+    : m_student_pos(student_pos), m_wants_lessons_by_month(Month::COUNT, false)
     {
         for (std::size_t i = 0; i < holders_count; i++)
         {
             m_holders.push_back(Ptr<AHolder>::make());
         }
     }
-    bool get_wants_lesson() const
+    bool get_wants_lesson(Month month) const
     {
-        return m_wants_lesson;
+        return m_wants_lessons_by_month[month.calculate_study_year_index()];
     }
-    void set_wants_lesson(bool value)
+    void set_wants_lesson(Month month, bool value)
     {
-        m_wants_lesson = value;
+        m_wants_lessons_by_month[month.calculate_study_year_index()] = value;
     }
     const AHolder& cref_holder(Aday aday) const
     {
