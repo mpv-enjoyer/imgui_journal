@@ -28,7 +28,7 @@ public:
         student.set_contract_pos(insert_contract_if_not_exists(contract_id));
         student.set_name(name);
     }
-    Removal_Info& ref_removal_info(Position<Student> student_pos)
+    Removal_Info_Per_Month& ref_removal_info(Position<Student> student_pos)
     {
         return m_students[student_pos];
     }

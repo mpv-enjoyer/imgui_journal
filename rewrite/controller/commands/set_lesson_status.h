@@ -33,6 +33,8 @@ public:
         {
             model->workouts()->remove(*workout);
         }
-        holder.set(m_status, Helpers::get_default_discount_id(*model, student_pos));
+        Month month = model->get_mday(m_id.wday(), m_id.aday()).get_month();
+        Position<Contract> contract_pos = model->students()->cref_students()[student_pos].get_contract_pos();
+        holder.set(m_status, model->get_default_discount_id(month, contract_pos));
     }
 };

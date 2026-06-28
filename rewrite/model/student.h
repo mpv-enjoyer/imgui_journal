@@ -7,7 +7,7 @@
 #include "contract.h"
 #include "common/removal_info.h"
 
-class Student : public Removal_Info
+class Student : public Removal_Info_Per_Month
 {
     std::string m_name;
     Vector_Sortable<Contract>::Position m_contract_pos;

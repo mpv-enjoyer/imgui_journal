@@ -1,7 +1,7 @@
 #pragma once
 #include "attendance_internal_lesson.h"
 
-class IMerged_Lesson : public Removal_Info
+class IMerged_Lesson : public Removal_Info_Per_Month
 {
 public:
     static constexpr int AGE_GROUP_COUNT = 9;

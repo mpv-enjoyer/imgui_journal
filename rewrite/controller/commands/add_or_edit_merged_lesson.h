@@ -39,7 +39,7 @@ public:
                 return "Количество уроков в паре не может быть изменено";
             }
         }
-        for (auto it = merged_lessons.cbegin(); it; it.next())
+        for (auto it = merged_lessons.cbegin(); !!it; ++it)
         {
             if (it->is_removed()) continue;
             if (it->get_number() == m_number && !(m_position && it.get_position() == *m_position))

@@ -21,6 +21,7 @@ class Journal_Year
     {
         // TODO: I'm free of any weirdness right?! Array initialization is weird.
         std::array<std::optional<Vector_Sortable_CIterator_Sorted<Attendance_Merged_Lesson>>, Wday::COUNT> sorted_merged_lessons = {};
+        std::array<std::vector<std::optional<int>>, Month::COUNT> discounts_for_contracts = {};
     };
     mutable Cache m_cache;
 public:
@@ -40,11 +41,72 @@ public:
         }
         return *cache;
     }
+    int get_default_discount_id(Month month, Position<Contract> contract_pos)
+    {
+        auto discount_student_counter = [this](Month month, Position<Contract> contract) -> int
+        {
+            int student_counter = -1;
+            for (const auto& student : students()->cref_students())
+            {
+                if (student.is_removed(month)) continue;
+                if (contract == student.get_contract_pos()) student_counter++;
+            }
+            if (student_counter == -1) student_counter = 0; // Called by the deleted student?
+            return student_counter;
+        };
+        auto discount_lesson_contract_counter = [this](Month month, Position<Contract> contract) -> int
+        {
+            auto& students = this->students()->cref_students();
+            int lessons_contract_counter = -1;
+            Wday wday = Wday::make_begin_EN();
+            do
+            {
+                for (const auto& merged_lesson : attendance_wdays()->cref_wday(wday).cref_merged_lessons())
+                {
+                    if (merged_lesson.is_removed(month)) continue;
+                    for (const auto& internal_lesson : merged_lesson.cref_internal_lessons())
+                    {
+                        for (auto student_it = internal_lesson.cref_students().begin(); student_it; ++student_it)
+                        {
+                            const auto& student = *student_it;
+                            if (students[student.get_student_pos()].get_contract_pos() != contract) continue;
+                            if (merged_lesson.is_student_removed(student_it.get_position())) continue;
+                            if (students[student.get_student_pos()].is_removed(month)) continue;
+                            if (!student.get_wants_lesson()) continue;
+                            lessons_contract_counter++;
+                        }
+                    }
+                }
+            } while (wday.next());
+            if (lessons_contract_counter == -1) lessons_contract_counter = 0; // Called by the student with no lessons?
+            lessons_contract_counter /= 2; // We want to have a number of full lessons
+            return lessons_contract_counter;
+        };
+        auto& cache = m_cache.discounts_for_contracts[month.calculate_study_year_index()][contract_pos.get()];
+        if (!cache)
+        {
+            int student_counter = discount_student_counter(month, contract_pos);
+            int lesson_contract_counter = discount_lesson_contract_counter(month, contract_pos);
+            if (student_counter > 0)
+            {
+                return std::max(student_counter, lesson_contract_counter);
+            }
+            static const int max_discount_for_single = 1;
+            cache = std::min(lesson_contract_counter, max_discount_for_single);
+        }
+        return *cache;
+    }
     void cache_invalidate()
     {
-        for (auto& elem : m_cache.sorted_merged_lessons)
+        for (auto& per_wday : m_cache.sorted_merged_lessons)
         {
-            elem.reset();
+            per_wday.reset();
+        }
+        size_t contract_count = students()->cref_contracts().size();
+        for (auto& per_month : m_cache.discounts_for_contracts)
+        {
+            per_month.clear();
+            per_month = std::vector<std::optional<int>>(contract_count);
         }
     }
 
