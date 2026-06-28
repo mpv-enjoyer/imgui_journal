@@ -8,25 +8,25 @@ namespace UI
     {
         struct Student_Data
         {
-            Pos<Student> position;
+            Position<Student> position;
             bool enabled;
             std::string description;
-            Student_Data(Pos<Student> position_, std::string description_)
+            Student_Data(Position<Student> position_, std::string description_)
             : position(position_), enabled(false), description(description_) { }
         };
         std::vector<Student_Data> m_data;
         bool m_multi;
         ImGuiTextFilter m_filter;
     public:
-        Select_Students(std::string id, const IModel& model, std::function<bool(Pos<Student> student)> filter, bool multi)
+        Select_Students(std::string id, const IModel& model, std::function<bool(Position<Student> student)> filter, bool multi)
         : AUnit(id), m_multi(multi)
         {
             for (auto it = model->students()->cref_students().cbegin(); it; ++it)
             {
-                if (!filter || filter(it.get_pos()))
+                if (!filter || filter(it.get_position()))
                 {
                     int contract_number = model->students()->cref_contracts()[it->get_contract_pos()].get_number();
-                    m_data.emplace_back(it.get_pos(), it->get_name() + " (" + std::to_string(contract_number) + ")");
+                    m_data.emplace_back(it.get_position(), it->get_name() + " (" + std::to_string(contract_number) + ")");
                 }
             }
         }
@@ -59,17 +59,17 @@ namespace UI
                 label(student_data.description);
             }
         }
-        std::optional<Pos<Student>> get_student_position() const
+        std::optional<Position<Student>> get_student_position() const
         {
             if (m_multi) return {};
             auto it = std::find_if(m_data.begin(), m_data.end(), [](const Student_Data& student_data) { return student_data.enabled; });
             if (it == m_data.end()) return {};
             else return it->position;
         }
-        std::vector<Pos<Student>> get_student_positions() const
+        std::vector<Position<Student>> get_student_positions() const
         {
             if (!m_multi) return {};
-            std::vector<Pos<Student>> result;
+            std::vector<Position<Student>> result;
             result.reserve(m_data.size());
             for (const auto& student_data : m_data)
             {

@@ -22,7 +22,7 @@ namespace View
                     .end = end_jtime.get_value()
                 }
             };
-            controller().add(Ptr<::Add_Or_Edit_Merged_Lesson>::make(Mday::make_current(), 0, "comment", 4, requests));
+            controller().add(Ptr<::Add_Or_Edit_Merged_Lesson>::make(Month::make_current(), Wday::make_current(), 0, "comment", 4, requests));
         }, UI::Button::Colors::Dangerous);
         UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
         UI::Input_JTime end_jtime = UI::Input_JTime("##end");
@@ -36,7 +36,7 @@ namespace View
         {
             if (ImGui::Button("Добавить учеников в первый урок"))
             {
-                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Pos<AMerged_Lesson>(0));
+                Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Position<Attendance_Merged_Lesson>(0));
                 popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(controller(), merged_lesson_id));
             }
             input_int.render();
@@ -44,7 +44,7 @@ namespace View
             button.render();
             for (auto it = model()->students()->cref_students().cbegin(); it; it.next())
             {
-                int contract_number = model()->students()->get_contract_number(it.get_pos());
+                int contract_number = model()->students()->get_contract_number(it.get_position());
                 UI::label("student " + it->get_name() + " contract " + std::to_string(contract_number));
             }
             button2.render();
@@ -56,7 +56,7 @@ namespace View
             checkbox.render();
             if (ImGui::Button("Select Students"))
             {
-                select_students.reset(new UI::Select_Students("Select Students", controller().model(), [&](Pos<Student> pos)
+                select_students.reset(new UI::Select_Students("Select Students", controller().model(), [&](Position<Student> pos)
                 {
                     return pos.get() % 2 == 1;
                 }, checkbox.get_value()));

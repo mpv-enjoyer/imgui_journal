@@ -3,40 +3,38 @@
 #include "common/removal_info.h"
 #include "student.h"
 
-class AStudent
+class Attendance_Student
 {
-    NON_COPYABLE(AStudent);
-    const Pos<Student> m_student_pos;
-    std::vector<Ptr<AHolder>> m_holders;
-    // Use this student in an internal lesson for a discount + visual student in group
-    // Change this through set_wants_lesson, remove_student, remove_lesson
-    std::vector<bool> m_wants_lessons_by_month;
+    NON_COPYABLE(Attendance_Student);
+    const Vector_Sortable<Student>::Position m_student_pos;
+    bool m_wants_lesson = true;
+    std::vector<Ptr<Attendance_Holder>> m_holders;
 public:
-    AStudent(std::size_t holders_count, Pos<Student> student_pos)
-    : m_student_pos(student_pos), m_wants_lessons_by_month(Month::COUNT, false)
+    Attendance_Student(std::size_t holders_count, Vector_Sortable<Student>::Position student_pos)
+    : m_student_pos(student_pos)
     {
         for (std::size_t i = 0; i < holders_count; i++)
         {
-            m_holders.push_back(Ptr<AHolder>::make());
+            m_holders.push_back(Ptr<Attendance_Holder>::make());
         }
     }
-    bool get_wants_lesson(Month month) const
+    bool get_wants_lesson() const
     {
-        return m_wants_lessons_by_month[month.calculate_study_year_index()];
+        return m_wants_lesson;
     }
-    void set_wants_lesson(Month month, bool value)
+    void set_wants_lesson(bool value)
     {
-        m_wants_lessons_by_month[month.calculate_study_year_index()] = value;
+        m_wants_lesson = value;
     }
-    const AHolder& cref_holder(Aday aday) const
-    {
-        return *(m_holders[aday.index()]);
-    }
-    AHolder& ref_holder(Aday aday)
+    const Attendance_Holder& cref_holder(Aday aday) const
     {
         return *(m_holders[aday.index()]);
     }
-    Pos<Student> get_student_pos() const
+    Attendance_Holder& ref_holder(Aday aday)
+    {
+        return *(m_holders[aday.index()]);
+    }
+    Vector_Sortable<Student>::Position get_student_pos() const
     {
         return m_student_pos;
     }

@@ -6,9 +6,9 @@
 class Remove_Student_From_Lesson : public ICommand
 {
     Merged_Lesson_ID m_merged_lesson_id;
-    Pos<AStudent> m_student_pos;
+    Position<Attendance_Student> m_student_pos;
 public:
-    Remove_Student_From_Lesson(Merged_Lesson_ID merged_lesson_id, Pos<AStudent> student_pos)
+    Remove_Student_From_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Attendance_Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
     std::optional<std::string> get_error(const IModel& model) const override
@@ -25,9 +25,9 @@ public:
 class Restore_Student_To_Lesson : public ICommand
 {
     Merged_Lesson_ID m_merged_lesson_id;
-    Pos<AStudent> m_student_pos;
+    Position<Attendance_Student> m_student_pos;
 public:
-    Restore_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Pos<AStudent> student_pos)
+    Restore_Student_To_Lesson(Merged_Lesson_ID merged_lesson_id, Position<Attendance_Student> student_pos)
     : m_merged_lesson_id(merged_lesson_id), m_student_pos(student_pos)
     { }
     std::optional<std::string> get_error(const IModel& model) const override

@@ -34,7 +34,7 @@ public:
     {
         return *m_journal_year;
     }
-    void set_year(Year year) override
+    void set_year(Year bottom_year) override
     {
         /* TODO CRITICAL: Actually implement year change with saving using Loader */
     }

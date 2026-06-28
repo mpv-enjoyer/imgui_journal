@@ -232,7 +232,7 @@ public:
     int get_EN() const { return m_value_EN; }
     int get_RU() const { int temp_value_EN = m_value_EN; Loop::minus(temp_value_EN, COUNT); return temp_value_EN; }
     static Wday make_from_EN(int value) { return Wday(value); }
-    static Wday make_from_RU(int value) { Loop::plus(value, COUNT); return Wday(value); }
+    static Wday make_from_RU(int value) { Loop::plus(value, COUNT); return Wday(value, true); }
     static Wday make_begin_EN() { return make_from_EN(0); }
     static Wday make_begin_RU() { return make_from_RU(0); }
     static Wday make_current() { return Wday(Now.time.tm_wday); }

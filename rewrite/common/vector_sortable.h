@@ -83,7 +83,7 @@ private:
         {
             return &get();
         }
-        Position get_pos() const
+        Position get_position() const
         {
             assert(!is_done());
             return Position(m_index);
@@ -181,7 +181,7 @@ private:
         {
             return &get();
         }
-        Position get_pos() const
+        Position get_position() const
         {
             assert(!is_done());
             return Position(m_indices[m_index]);
@@ -292,4 +292,4 @@ public:
 };
 
 template <typename T>
-using Pos = typename Vector_Sortable<T>::Position;
+using Position = typename Vector_Sortable<T>::Position;

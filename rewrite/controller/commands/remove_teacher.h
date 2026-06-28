@@ -4,9 +4,9 @@
 
 class Remove_Teacher : public ICommand
 {
-    Pos<Teacher> m_teacher_pos;
+    Position<Teacher> m_teacher_pos;
 public:
-    Remove_Teacher(Pos<Teacher> teacher_pos)
+    Remove_Teacher(Position<Teacher> teacher_pos)
     : m_teacher_pos(teacher_pos)
     { }
     Error get_error(const IModel& model) const override
@@ -24,9 +24,9 @@ public:
 
 class Restore_Teacher : public ICommand
 {
-    Pos<Teacher> m_teacher_pos;
+    Position<Teacher> m_teacher_pos;
 public:
-    Restore_Teacher(Pos<Teacher> teacher_pos)
+    Restore_Teacher(Position<Teacher> teacher_pos)
     : m_teacher_pos(teacher_pos)
     { }
     Error get_error(const IModel& model) const override

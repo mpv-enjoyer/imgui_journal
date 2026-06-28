@@ -1,17 +1,17 @@
 #pragma once
 #include "attendance_merged_lesson.h"
 
-class AWday
+class Attendance_Wday
 {
-    Vector_Sortable<AMerged_Lesson> m_merged_lessons;
+    Vector_Sortable<Attendance_Merged_Lesson> m_merged_lessons;
 public:
-    AWday()
+    Attendance_Wday()
     { }
-    const Vector_Sortable<AMerged_Lesson>& cref_merged_lessons() const
+    const Vector_Sortable<Attendance_Merged_Lesson>& cref_merged_lessons() const
     {
         return m_merged_lessons;
     }
-    Vector_Sortable<AMerged_Lesson>& ref_merged_lessons()
+    Vector_Sortable<Attendance_Merged_Lesson>& ref_merged_lessons()
     {
         return m_merged_lessons;
     }

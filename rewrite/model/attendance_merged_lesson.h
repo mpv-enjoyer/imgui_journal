@@ -1,15 +1,10 @@
 #pragma once
 #include "attendance_internal_lesson.h"
 
-class AMerged_Lesson : public Removal_Info
+class Attendance_Merged_Lesson : public Removal_Info
 {
 public:
     static constexpr int AGE_GROUP_COUNT = 9;
-    struct Aday_With_Status
-    {
-        Aday aday;
-        bool is_active;
-    };
     static std::array<std::string, AGE_GROUP_COUNT> get_all_age_groups()
     {
         const static std::array<std::string, AGE_GROUP_COUNT> AGE_GROUPS = 
@@ -28,17 +23,11 @@ private:
     int m_number;
     int m_age_group;
     std::string m_comment;
-    Vector_Sortable<AInternal_Lesson> m_internal_lessons;
-    struct Student_Info
-    {
-        bool is_removed = false;
-        std::optional<Month> begin;
-    };
-    std::vector<Student_Info> m_students_info;
-    std::vector<Aday_With_Status> m_adays;
+    Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
+    std::vector<bool> m_students_removal_info;
 public:
-    AMerged_Lesson(std::vector<Ptr<AInternal_Lesson>> internal_lessons, int number, int age_group, std::string comment, std::vector<Aday_With_Status> adays)
-    : m_number(number), m_age_group(age_group), m_comment(comment), m_adays(adays)
+    Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
+    : m_number(number), m_age_group(age_group), m_comment(comment)
     {
         IM_ASSERT(internal_lessons.size() != 0);
         for (auto& internal_lesson : internal_lessons)
@@ -46,51 +35,46 @@ public:
             m_internal_lessons.push_back(std::move(internal_lesson));
         }
     }
-    const Vector_Sortable<AInternal_Lesson>& cref_internal_lessons() const
+    const Vector_Sortable<Attendance_Internal_Lesson>& cref_internal_lessons() const
     {
         return m_internal_lessons;
     }
-    Vector_Sortable<AInternal_Lesson>& ref_internal_lessons()
+    Vector_Sortable<Attendance_Internal_Lesson>& ref_internal_lessons()
     {
         return m_internal_lessons;
     }
-    void add_student(Pos<Student> student_pos)
+    void add_student(Position<Student> student_pos)
     {
         for (auto iter = m_internal_lessons.begin(); iter; iter.next())
         {
             iter->add_student(student_pos);
         }
-        m_students_info.push_back({});
+        m_students_removal_info.push_back(false);
     }
-    bool is_student_removed(Pos<AStudent> student_pos) const
+    bool is_student_removed(Position<Attendance_Student> student_pos) const
     {
-        return m_students_info[student_pos.get()].is_removed;
+        return m_students_removal_info[student_pos.get()];
     }
-    void remove_student(Pos<AStudent> student_pos)
+    void remove_student(Position<Attendance_Student> student_pos)
     {
-        m_students_info[student_pos.get()].is_removed = true;
+        m_students_removal_info[student_pos.get()] = true;
     }
-    void restore_student(Pos<AStudent> student_pos)
+    void restore_student(Position<Attendance_Student> student_pos)
     {
-        m_students_info[student_pos.get()].is_removed = false;
+        m_students_removal_info[student_pos.get()] = false;
     }
-    std::optional<Month> get_student_attend_begin(Pos<AStudent> student_pos) const
+
+    // Cache this maybe?
+    std::vector<Position<Student>> get_student_positions() const
     {
-        return m_students_info[student_pos.get()].begin;
-    }
-    void set_student_attend_begin(Pos<AStudent> student_pos, Month month, Wday this_wday)
-    {
-        m_students_info[student_pos.get()].begin;
-    }
-    std::vector<Pos<Student>> get_student_positions() const
-    {
-        std::vector<Pos<Student>> positions;
+        std::vector<Position<Student>> positions;
         for (auto& attendance_student : m_internal_lessons.cbegin()->cref_students())
         {
             positions.push_back(attendance_student.get_student_pos());
         }
         return positions;
     }
+
     int get_age_group() const
     {
         return m_age_group;
@@ -115,18 +99,6 @@ public:
     {
         m_comment = comment;
     }
-    // void set_active_adays(std::vector<bool> adays)
-    // {
-    //     DEBUG_ASSERT(adays.size() == m_adays.size());
-    //     for (size_t i = 0; i < adays.size(); i++)
-    //     {
-    //         m_adays[i].is_active = adays[i];
-    //     }
-    // }
-    // std::vector<Aday_With_Status> get_adays() const
-    // {
-    //     return m_adays;
-    // }
     std::string get_group_description() const
     {
         std::stringstream output;
@@ -149,7 +121,7 @@ public:
         }
         return output.str();
     }
-    std::string get_description(Pos<AInternal_Lesson> pos)
+    std::string get_description(Position<Attendance_Internal_Lesson> pos)
     {
         std::stringstream output;
         output << "Группа " << get_group_description();
@@ -165,7 +137,5 @@ public:
         return get_all_age_groups()[m_age_group];
     }
 
-    AUTOOPS1(AMerged_Lesson, cref_internal_lessons().cbegin()->get_time_begin());
+    AUTOOPS1(Attendance_Merged_Lesson, cref_internal_lessons().cbegin()->get_time_begin());
 };
-
-using Aday_With_Status = AMerged_Lesson::Aday_With_Status;

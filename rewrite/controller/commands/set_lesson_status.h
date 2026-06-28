@@ -6,17 +6,17 @@
 class Set_Lesson_Status : public ICommand
 {
     Attendance_ID m_id;
-    AStatus m_status;
+    Attendance_Status m_status;
 public:
-    Set_Lesson_Status(Attendance_ID id, AStatus status)
+    Set_Lesson_Status(Attendance_ID id, Attendance_Status status)
     : m_id(id), m_status(status)
     { }
     Error get_error(const IModel& model) const override
     {
-        Mday mday = Mday::make_from_aday(model->bottom_year, m_id.wday(), m_id.aday());
+        Mday mday = model->get_mday(m_id.wday(), m_id.aday());
         if (model->holidays()->get_holiday(mday)) return "На этот день назначен выходной";
         auto current_status = model->cref_attendance_holder(m_id).get_status();
-        if (current_status == AStatus::NOT_AWAITED)
+        if (current_status == Attendance_Status::NOT_AWAITED)
         {
             // Handle legacy NAW's:
             return "Ученик не должен приходить на этот урок";

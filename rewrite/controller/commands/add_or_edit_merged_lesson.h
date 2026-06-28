@@ -6,32 +6,24 @@ class Add_Or_Edit_Merged_Lesson : public ICommand
 public:
     struct Request
     {
-        AInternal_Lesson::Type type;
+        Attendance_Internal_Lesson::Type type;
         JTime begin;
         JTime end;
     };
 private:
-    const std::optional<Pos<AMerged_Lesson>> m_position;
-    std::vector<bool> m_adays_are_active;
+    const std::optional<Position<Attendance_Merged_Lesson>> m_position;
     Wday m_wday;
     int m_number;
     std::string m_comment;
     int m_age_group;
     std::vector<Request> m_lessons;
+    std::optional<Month> m_month_begin; // TODO: Removal_Info with 12 months
 public:
-    Add_Or_Edit_Merged_Lesson(Mday mday, int number, std::string comment, int age_group, std::vector<Request> lessons)
-    : m_wday(Wday::make_from_mday(mday)), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
-    {
-        Year bottom_year = mday.get_month().get_study_bottom_year();
-        std::size_t adays_count = m_wday.calculate_count_for_bottom_year(bottom_year);
-        std::size_t requested_aday_index = Aday::make_from_mday(mday).index();
-        for (size_t i = 0; i < adays_count; i++)
-        {
-            m_adays_are_active.push_back(i >= requested_aday_index);
-        }
-    }
-    Add_Or_Edit_Merged_Lesson(Merged_Lesson_ID id, std::vector<bool> adays_are_active, int number, std::string comment, int age_group, std::vector<Request> lessons)
-    : m_position(id.pos()), m_adays_are_active(adays_are_active), m_wday(id.wday()), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
+    Add_Or_Edit_Merged_Lesson(Month month, Wday wday, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons), m_month_begin(month)
+    { }
+    Add_Or_Edit_Merged_Lesson(Merged_Lesson_ID id, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : m_position(id.pos()), m_wday(id.wday()), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
     { }
     Error get_error(const IModel& model) const override
     {
@@ -50,7 +42,7 @@ public:
         for (auto it = merged_lessons.cbegin(); it; it.next())
         {
             if (it->is_removed()) continue;
-            if (it->get_number() == m_number && !(m_position && it.get_pos() == *m_position))
+            if (it->get_number() == m_number && !(m_position && it.get_position() == *m_position))
             {
                 return "Группа с таким номером в " + m_wday.get_name() + " уже существует";
             }
@@ -82,33 +74,21 @@ public:
             auto it = current.ref_internal_lessons().begin();
             do
             {
-                size_t i = it.get_pos().get();
+                size_t i = it.get_position().get();
                 it->set_time(m_lessons[i].begin, m_lessons[i].end);
             } while (it.next());
-            current.set_active_adays(m_adays_are_active);
             return;
         }
 
-        std::size_t adays_count = m_adays_are_active.size();
-        std::vector<Ptr<AInternal_Lesson>> internal_lessons;
+        std::size_t adays_count = model->get_aday_count(m_wday);
+        std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons;
         for (auto lesson : m_lessons)
         {
-            internal_lessons.push_back(Ptr<AInternal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
+            internal_lessons.push_back(Ptr<Attendance_Internal_Lesson>::make(adays_count, lesson.type, lesson.begin, lesson.end));
         }
-
-        std::vector<Aday_With_Status> adays_with_status;
-        for (size_t index = 0; index < adays_count; index++)
-        {
-            Aday_With_Status current =
-            {
-                .aday = Aday::make_from_index(index),
-                .is_active = m_adays_are_active[index]
-            };
-            adays_with_status.push_back(current);
-        }
-
+        
         merged.push_back(
-            Ptr<AMerged_Lesson>::make(
-                std::move(internal_lessons), m_number, m_age_group, m_comment, adays_with_status));
+            Ptr<Attendance_Merged_Lesson>::make(
+                std::move(internal_lessons), m_number, m_age_group, m_comment));
     }
 };

@@ -3,11 +3,11 @@
 
 class Add_Or_Edit_Teacher : public ICommand
 {
-    std::optional<Pos<Teacher>> m_teacher_pos;
+    std::optional<Position<Teacher>> m_teacher_pos;
     std::string m_name;
     std::string m_abbreviation;
 public:
-    Add_Or_Edit_Teacher(Pos<Teacher> teacher_pos, std::string name, std::string abbreviation)
+    Add_Or_Edit_Teacher(Position<Teacher> teacher_pos, std::string name, std::string abbreviation)
     : m_teacher_pos(teacher_pos), m_name(name), m_abbreviation(abbreviation) { }
     Add_Or_Edit_Teacher(std::string name, std::string abbreviation)
     : m_name(name), m_abbreviation(abbreviation) { }

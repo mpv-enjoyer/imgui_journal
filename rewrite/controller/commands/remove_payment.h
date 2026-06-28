@@ -3,10 +3,10 @@
 
 class Remove_Payment : public ICommand
 {
-    Pos<Contract> m_contract_pos;
-    Pos<Payment> m_payment_pos;
+    Position<Contract> m_contract_pos;
+    Position<Payment> m_payment_pos;
 public:
-    Remove_Payment(Pos<Contract> contract_pos, Pos<Payment> payment_pos)
+    Remove_Payment(Position<Contract> contract_pos, Position<Payment> payment_pos)
     : m_contract_pos(contract_pos), m_payment_pos(payment_pos)
     { }
     Error get_error(const IModel& model) const override
@@ -25,10 +25,10 @@ public:
 
 class Restore_Payment : public ICommand
 {
-    Pos<Contract> m_contract_pos;
-    Pos<Payment> m_payment_pos;
+    Position<Contract> m_contract_pos;
+    Position<Payment> m_payment_pos;
 public:
-    Restore_Payment(Pos<Contract> contract_pos, Pos<Payment> payment_pos)
+    Restore_Payment(Position<Contract> contract_pos, Position<Payment> payment_pos)
     : m_contract_pos(contract_pos), m_payment_pos(payment_pos)
     { }
     Error get_error(const IModel& model) const override

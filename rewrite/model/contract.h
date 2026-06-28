@@ -31,11 +31,11 @@ public:
             })
         );
     }
-    void remove_payment(Pos<Payment> payment_pos)
+    void remove_payment(Position<Payment> payment_pos)
     {
         m_payments[payment_pos].remove();
     }
-    void restore_payment(Pos<Payment> payment_pos)
+    void restore_payment(Position<Payment> payment_pos)
     {
         m_payments[payment_pos].restore();
     }

@@ -6,14 +6,14 @@ namespace View
     class Add_Student_To_Lesson : public Popup
     {
         Merged_Lesson_ID m_merged_lesson_id;
-        std::vector<Pos<Student>> m_merged_lesson_students;
+        std::vector<Position<Student>> m_merged_lesson_students;
         UI::Select_Students m_select_students;
     public:
         Add_Student_To_Lesson(IController& controller, Merged_Lesson_ID merged_lesson_id)
         : Popup("Добавление ученика в группу", controller),
           m_merged_lesson_id(merged_lesson_id),
           m_merged_lesson_students(model()->cref_merged_lesson(merged_lesson_id).get_student_positions()),
-          m_select_students("##Выбрать_учеников", controller.model(), [&](Pos<Student> student_pos) -> bool
+          m_select_students("##Выбрать_учеников", controller.model(), [&](Position<Student> student_pos) -> bool
         {
             return !std::any_of(m_merged_lesson_students.begin(), m_merged_lesson_students.end(), [student_pos](auto any_pos)
             {
