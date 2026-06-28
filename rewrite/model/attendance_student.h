@@ -7,7 +7,7 @@ class Attendance_Student
 {
     NON_COPYABLE(Attendance_Student);
     const Vector_Sortable<Student>::Position m_student_pos;
-    bool m_wants_lesson = true;
+    bool m_wants_lesson = true; // TODO: for 12 months.
     std::vector<Ptr<Attendance_Holder>> m_holders;
 public:
     Attendance_Student(std::size_t holders_count, Vector_Sortable<Student>::Position student_pos)

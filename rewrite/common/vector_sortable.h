@@ -26,6 +26,7 @@ private:
     using Tptr = Ptr<T>;
     using DataTypeBase = std::vector<Tptr>;
     DataTypeBase m_data;
+public:
     template <typename ValueType, typename DataTypeBase>
     class Iterator
     {
@@ -105,6 +106,7 @@ private:
         std::function<bool(const T&, const T&)> m_compare;
         // https://stackoverflow.com/a/10581051
         std::vector<std::size_t> get_ordered(std::vector<Ptr<T>> const& values) {
+            printf("SORTING LUL\n");
             std::vector<std::size_t> indices(values.size());
             std::iota(std::begin(indices), std::end(indices), static_cast<std::size_t>(0));
             
@@ -137,9 +139,7 @@ private:
         //}
         Iterator_Sorted(const Iterator_Sorted<ValueType, DataTypeBase>& it)
         : m_data(it.m_data), m_index(it.m_index), m_indices(it.m_indices), m_compare(it.m_compare)
-        {
-            to_begin_update();
-        }
+        { }
         bool is_done() const
         {
             return m_index == size();
@@ -199,6 +199,7 @@ private:
         bool operator== (Iterator_Sorted& other) const { return other.m_index == m_index; }
         bool operator!= (Iterator_Sorted& other) const { return !(*this == other); }
     };
+private:
     static bool compare_default(const T& lhs, const T& rhs)
     {
         return lhs < rhs; // helper
@@ -293,3 +294,11 @@ public:
 
 template <typename T>
 using Position = typename Vector_Sortable<T>::Position;
+template <typename T>
+using Vector_Sortable_CIterator = typename Vector_Sortable<T>::Iterator<const T, const std::vector<Ptr<T>>>;
+template <typename T>
+using Vector_Sortable_Iterator = typename Vector_Sortable<T>::Iterator<T, std::vector<Ptr<T>>>;
+template <typename T>
+using Vector_Sortable_CIterator_Sorted = typename Vector_Sortable<T>::Iterator_Sorted<const T, const std::vector<Ptr<T>>>;
+template <typename T>
+using Vector_Sortable_Iterator_Sorted = typename Vector_Sortable<T>::Iterator_Sorted<T, std::vector<Ptr<T>>>;

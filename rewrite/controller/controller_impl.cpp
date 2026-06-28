@@ -26,5 +26,6 @@ void Controller_Impl::flush()
         if (!error) m_pending_commands.front()->call(Model_Impl::get());
         else log_error(*error);
         m_pending_commands.pop();
+        Model_Impl::get()->cache_invalidate();
     }
 }

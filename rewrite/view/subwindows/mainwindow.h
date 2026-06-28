@@ -56,9 +56,8 @@ namespace View
             {
                 subwindow_handler().open_subwindow(std::make_unique<Lessons_List>(controller(), shared()));
             }
-            auto& merged_lessons = model()->attendance_wdays()->cref_wday(shared().wday).cref_merged_lessons();
             const Attendance_Merged_Lesson* previous = nullptr;
-            for (auto iter = merged_lessons.csorted_begin(); iter; ++iter )
+            for (auto iter = model()->get_merged_lessons_sorted(shared().wday); iter; ++iter )
             {
                 auto iter_begin_time = iter->cref_internal_lessons().cbegin()->get_time_begin();
                 bool need_sameline = false;

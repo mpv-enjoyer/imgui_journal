@@ -38,7 +38,7 @@ namespace View
                 Wday wday = Wday::make_begin_RU();
                 do
                 {
-                    for (auto merged_lesson_it = model()->cref_wday(wday).cref_merged_lessons().csorted_begin(); !!merged_lesson_it; ++merged_lesson_it)
+                    for (auto merged_lesson_it = model()->get_merged_lessons_sorted(wday); !!merged_lesson_it; ++merged_lesson_it)
                     {
                         const auto& merged_lesson = *merged_lesson_it;
                         if (merged_lesson.is_removed() && !shared().edit_mode) continue;

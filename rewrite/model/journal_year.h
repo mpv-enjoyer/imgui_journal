@@ -16,12 +16,37 @@ class Journal_Year
     Ptr<Students> m_students = Ptr<Students>::make();
     Ptr<Lesson_Infos> m_lesson_infos = Ptr<Lesson_Infos>::make();
     const Year m_bottom_year;
+    
+    struct Cache
+    {
+        // TODO: I'm free of any weirdness right?! Array initialization is weird.
+        std::array<std::optional<Vector_Sortable_CIterator_Sorted<Attendance_Merged_Lesson>>, Wday::COUNT> sorted_merged_lessons = {};
+    };
+    mutable Cache m_cache;
 public:
     explicit Journal_Year(Year bottom_year) : m_bottom_year(bottom_year) { }
     Mday get_mday(Wday wday, Aday aday) const { return Mday::make_from_aday(m_bottom_year, wday, aday); }
     size_t get_aday_count(Wday wday) const { return wday.calculate_count_for_bottom_year(m_bottom_year); }
     Month get_month_begin() const { return Month::make_begin_study_year_from_bottom_year(m_bottom_year); }
     bool is_within_current(Month month) const { return month.get_study_bottom_year() == m_bottom_year; }
+
+    // cached:
+    Vector_Sortable_CIterator_Sorted<Attendance_Merged_Lesson> get_merged_lessons_sorted(Wday wday) const
+    {
+        auto& cache = m_cache.sorted_merged_lessons[wday.get_EN()];
+        if (!cache)
+        {
+            cache.emplace(attendance_wdays()->cref_wday(wday).cref_merged_lessons().csorted_begin());
+        }
+        return *cache;
+    }
+    void cache_invalidate()
+    {
+        for (auto& elem : m_cache.sorted_merged_lessons)
+        {
+            elem.reset();
+        }
+    }
 
     const Ptr<Workouts>& workouts() const { return m_workouts; }
           Ptr<Workouts>& workouts()       { return m_workouts; }
