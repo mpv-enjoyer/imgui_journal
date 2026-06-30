@@ -10,19 +10,19 @@ namespace View
         UI::Input_Int input_int = UI::Input_Int("Student contract here", 0);
         UI::Button button = UI::Button("Add student", [&]()
         {
-            controller().add(Ptr<Add_Or_Edit_Student_In_Base>::make("Student Name", input_int.get_value()));
+            controller().add(Ptr<Add_Student_To_Base>::make("Student Name", input_int.get_value()));
         }, UI::Button::Colors::Dangerous);
         UI::Select_Lesson_Type select_lesson_type = UI::Select_Lesson_Type("Select lesson type", nullptr);
         UI::Button button2 = UI::Button("Add Group", [&]()
         {
-            std::vector<::Add_Or_Edit_Merged_Lesson::Request> requests = {
+            std::vector<Add_Or_Edit_Merged_Lesson_Request> requests = {
                 {
                     .type = select_lesson_type.get_lesson_types().front(),
                     .begin = begin_jtime.get_value(),
                     .end = end_jtime.get_value()
                 }
             };
-            controller().add(Ptr<::Add_Or_Edit_Merged_Lesson>::make(Month::make_current(), Wday::make_current(), 0, "comment", 4, requests));
+            controller().add(Ptr<Add_Merged_Lesson>::make(Wday::make_current(), 0, "comment", 4, requests));
         }, UI::Button::Colors::Dangerous);
         UI::Input_JTime begin_jtime = UI::Input_JTime("##begin");
         UI::Input_JTime end_jtime = UI::Input_JTime("##end");
@@ -37,7 +37,7 @@ namespace View
             if (ImGui::Button("Добавить учеников в первый урок"))
             {
                 Merged_Lesson_ID merged_lesson_id(Wday::make_current(), Position<Attendance_Merged_Lesson>(0));
-                popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(controller(), merged_lesson_id));
+                popup_handler().open_popup(std::make_unique<Add_Student_To_Lesson>(shared(), controller(), merged_lesson_id));
             }
             input_int.render();
             UI::label(shared().edit_mode ? "edit mode" : "not edit mode");

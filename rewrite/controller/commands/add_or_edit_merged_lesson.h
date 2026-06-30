@@ -1,7 +1,7 @@
 #pragma once
 #include "icommand.h"
 
-class Add_Or_Edit_Merged_Lesson : public ICommand
+class Helper__Add_Or_Edit_Merged_Lesson : public ICommand
 {
 public:
     struct Request
@@ -11,20 +11,21 @@ public:
         JTime end;
     };
 private:
+    const Month M_MONTH;
     const std::optional<Position<Attendance_Merged_Lesson>> m_position;
     Wday m_wday;
     int m_number;
     std::string m_comment;
     int m_age_group;
     std::vector<Request> m_lessons;
-    std::optional<Month> m_month_begin; // TODO: Removal_Info with 12 months
 public:
-    Add_Or_Edit_Merged_Lesson(Month month, Wday wday, int number, std::string comment, int age_group, std::vector<Request> lessons)
-    : m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons), m_month_begin(month)
+    Helper__Add_Or_Edit_Merged_Lesson(Wday wday, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : M_MONTH(Month::make_current()), m_wday(wday), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
     { }
-    Add_Or_Edit_Merged_Lesson(Merged_Lesson_ID id, int number, std::string comment, int age_group, std::vector<Request> lessons)
-    : m_position(id.pos()), m_wday(id.wday()), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
+    Helper__Add_Or_Edit_Merged_Lesson(Month month, Merged_Lesson_ID id, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : M_MONTH(month), m_position(id.pos()), m_wday(id.wday()), m_number(number), m_comment(comment), m_age_group(age_group), m_lessons(lessons)
     { }
+
     Error get_error(const IModel& model) const override
     {
         if (m_lessons.size() == 0 || m_lessons.size() > 2)
@@ -41,7 +42,7 @@ public:
         }
         for (auto it = merged_lessons.cbegin(); !!it; ++it)
         {
-            if (it->is_removed()) continue;
+            if (it->is_removed(M_MONTH)) continue;
             if (it->get_number() == m_number && !(m_position && it.get_position() == *m_position))
             {
                 return "Группа с таким номером в " + m_wday.get_name() + " уже существует";
@@ -68,6 +69,7 @@ public:
         if (m_position)
         {
             auto& current = merged.ref(*m_position);
+            // TODO: decide whether this is per_month
             current.set_age_group(m_age_group);
             current.set_number(m_number);
             current.set_comment(m_comment);
@@ -92,3 +94,23 @@ public:
                 std::move(internal_lessons), m_number, m_age_group, m_comment));
     }
 };
+
+class Add_Merged_Lesson : public Helper__Add_Or_Edit_Merged_Lesson
+{
+public:
+    Add_Merged_Lesson(Wday wday, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : Helper__Add_Or_Edit_Merged_Lesson(wday, number, comment, age_group, lessons)
+    { }
+    CMD_WANT_STATE(Time_State::CurrentMonth);
+};
+
+class Edit_Merged_Lesson : public Helper__Add_Or_Edit_Merged_Lesson
+{
+public:
+    Edit_Merged_Lesson(Month month, Merged_Lesson_ID id, int number, std::string comment, int age_group, std::vector<Request> lessons)
+    : Helper__Add_Or_Edit_Merged_Lesson(month, id, number, comment, age_group, lessons)
+    { }
+    CMD_WANT_STATE(Time_State::CurrentYear);
+};
+
+using Add_Or_Edit_Merged_Lesson_Request = Helper__Add_Or_Edit_Merged_Lesson::Request;

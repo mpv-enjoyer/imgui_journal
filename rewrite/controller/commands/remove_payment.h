@@ -9,6 +9,9 @@ public:
     Remove_Payment(Position<Contract> contract_pos, Position<Payment> payment_pos)
     : m_contract_pos(contract_pos), m_payment_pos(payment_pos)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
         if (model->students()->cref_contracts()[m_contract_pos].cref_payments()[m_payment_pos].is_removed())
@@ -31,6 +34,9 @@ public:
     Restore_Payment(Position<Contract> contract_pos, Position<Payment> payment_pos)
     : m_contract_pos(contract_pos), m_payment_pos(payment_pos)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
         if (model->students()->cref_contracts()[m_contract_pos].cref_payments()[m_payment_pos].is_removed())

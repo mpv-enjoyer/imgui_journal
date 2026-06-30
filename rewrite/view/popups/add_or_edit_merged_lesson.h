@@ -37,9 +37,9 @@ namespace View
             UI::Input_JTime begin;
             UI::Input_JTime end;
             Lesson_Type lesson_type;
-            ::Add_Or_Edit_Merged_Lesson::Request convert() const
+            Add_Or_Edit_Merged_Lesson_Request convert() const
             {
-                return ::Add_Or_Edit_Merged_Lesson::Request
+                return Add_Or_Edit_Merged_Lesson_Request
                 {
                     .type = lesson_type,
                     .begin = begin.get_value(),
@@ -83,7 +83,7 @@ namespace View
         }
         std::vector<std::shared_ptr<ICommand>> get_actions() const
         {
-            std::vector<::Add_Or_Edit_Merged_Lesson::Request> requests;
+            std::vector<Add_Or_Edit_Merged_Lesson_Request> requests;
             for (auto request : m_requests)
             {
                 requests.push_back(request.convert());
@@ -91,11 +91,11 @@ namespace View
 
             if (m_id)
             {
-                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(*m_id, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
+                return { std::make_shared<::Edit_Merged_Lesson>(shared().month, *m_id, m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
             else
             {
-                return { std::make_shared<::Add_Or_Edit_Merged_Lesson>(Month::make_current(), m_select_wday.get_choice(), m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
+                return { std::make_shared<::Add_Merged_Lesson>(m_select_wday.get_choice(), m_input_number.get_value(), m_comment.get_value(), m_select_age_group.get_choice(), requests) };
             }
         }
         std::optional<std::string> get_error() const
@@ -103,8 +103,8 @@ namespace View
             return {};
         }
     public:
-        Add_Or_Edit_Merged_Lesson(IController& controller, Merged_Lesson_ID id)
-        : Popup("Изменить группу", controller), m_wday(id.wday()), m_id(id),
+        Add_Or_Edit_Merged_Lesson(const Shared& shared, IController& controller, Merged_Lesson_ID id)
+        : Popup(shared, "Изменить группу", controller), m_wday(id.wday()), m_id(id),
         m_select_wday("День недели", get_wdays(), id.wday().get_RU()),
         m_select_lesson_type("Программа", nullptr, &(model()->cref_merged_lesson(id))),
         m_input_number("Номер", model()->cref_merged_lesson(id).get_number()),
@@ -118,8 +118,8 @@ namespace View
                 m_requests.emplace_back(i, internal_lessons[pos]);
             }
         }
-        Add_Or_Edit_Merged_Lesson(IController& controller, Wday wday)
-        : Popup("Добавить группу", controller), m_wday(wday),
+        Add_Or_Edit_Merged_Lesson(const Shared& shared, IController& controller, Wday wday)
+        : Popup(shared, "Добавить группу", controller), m_wday(wday),
         m_select_wday("День недели", get_wdays(), wday.get_RU()),
         m_select_lesson_type("Программа", [&](std::vector<Lesson_Type> lesson_types)
         {

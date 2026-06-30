@@ -9,10 +9,8 @@ public:
     Add_Holiday(Mday mday, std::string reason)
     : m_mday(mday), m_reason(reason) { }
 
-    static bool IS_FITTING(Time_State state) { return state == Time_State::CurrentYear; }
-    bool is_fitting(Time_State state) const override { return IS_FITTING(state); }
-    TODO_CRITICAL(Do the same for all other actions. Its kinda weird but I need extra validation);
-    
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
         if (model->holidays()->get_holiday(m_mday)) return "На этот день уже назначен праздник";

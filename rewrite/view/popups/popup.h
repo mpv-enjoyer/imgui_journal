@@ -4,11 +4,13 @@
 #include "controller/icontroller.h"
 #include "view/elements/elements.h"
 #include "controller/commands/commands.h"
+#include "view/shared.h"
 
 namespace View
 {
     class Popup
     {
+        const Shared& m_shared;
         std::string m_id;
         IController& m_controller;
 
@@ -50,18 +52,19 @@ namespace View
             if (auto error = get_error()) return error;
             for (auto& action : get_actions())
             {
-                if (auto error = m_controller.get_error(action)) return error;
+                if (auto error = action->get_error(model())) return error;
             }
             return {};
         }
     protected:
-        const IModel& model() const { return m_controller.model(); };
+        const IModel& model() const { return m_controller.model(); }
+        const Shared& shared() const { return m_shared; }
         virtual bool render_logic() = 0;
         virtual std::vector<std::shared_ptr<ICommand>> get_actions() const = 0;
         virtual std::optional<std::string> get_error() const = 0;
     public:
-        Popup(std::string id, IController& controller)
-        : m_id(id), m_controller(controller) { }
+        Popup(const Shared& shared, std::string id, IController& controller)
+        : m_shared(shared), m_id(id), m_controller(controller) { }
         bool render()
         {
             ImGui::OpenPopup(m_id.c_str());

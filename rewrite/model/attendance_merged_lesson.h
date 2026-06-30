@@ -24,7 +24,7 @@ private:
     int m_age_group;
     std::string m_comment;
     Vector_Sortable<Attendance_Internal_Lesson> m_internal_lessons;
-    std::vector<bool> m_students_removal_info;
+    std::vector<Removal_Info_Per_Month> m_students_removal_info;
 public:
     Attendance_Merged_Lesson(std::vector<Ptr<Attendance_Internal_Lesson>> internal_lessons, int number, int age_group, std::string comment)
     : m_number(number), m_age_group(age_group), m_comment(comment)
@@ -49,19 +49,19 @@ public:
         {
             iter->add_student(student_pos);
         }
-        m_students_removal_info.push_back(false);
+        m_students_removal_info.emplace_back();
     }
-    bool is_student_removed(Position<Attendance_Student> student_pos) const
+    bool is_student_removed(Position<Attendance_Student> student_pos, Month month) const
     {
-        return m_students_removal_info[student_pos.get()];
+        return m_students_removal_info[student_pos.get()].is_removed(month);
     }
-    void remove_student(Position<Attendance_Student> student_pos)
+    void remove_student(Position<Attendance_Student> student_pos, Month month)
     {
-        m_students_removal_info[student_pos.get()] = true;
+        m_students_removal_info[student_pos.get()].remove(month);
     }
-    void restore_student(Position<Attendance_Student> student_pos)
+    void restore_student(Position<Attendance_Student> student_pos, Month month)
     {
-        m_students_removal_info[student_pos.get()] = false;
+        m_students_removal_info[student_pos.get()].restore(month);
     }
 
     // Cache this maybe?

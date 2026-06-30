@@ -9,6 +9,6 @@ public:
     Controller_Impl() { }
     const IModel& model() const override;
     void add(std::shared_ptr<ICommand> command) override;
-    std::optional<std::string> get_error(const std::shared_ptr<ICommand>& command) const override;
-    void flush() override;
+    void flush(Time_State::Bits view_time_state) override;
+    // TODO: set_year(Year year)? Would be cool to flush on it right here.
 };

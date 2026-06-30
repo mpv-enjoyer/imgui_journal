@@ -12,6 +12,5 @@ class IController
 public:
     virtual const IModel& model() const = 0;
     virtual void add(std::shared_ptr<ICommand> command) = 0;
-    virtual std::optional<std::string> get_error(const std::shared_ptr<ICommand>& command) const = 0;
-    virtual void flush() = 0;
+    virtual void flush(Time_State::Bits view_time_state) = 0;
 };

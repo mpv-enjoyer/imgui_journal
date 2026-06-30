@@ -11,6 +11,9 @@ public:
     Add_Payment(Position<Contract> contract_pos, Price price, Month month, std::string comment)
     : m_contract_pos(contract_pos), m_price(price), m_month(month), m_comment(comment)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel&) const override
     {
         if (m_price.get() < 0) return "Невозможно установить негативную оплату";

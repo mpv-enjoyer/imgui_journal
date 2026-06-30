@@ -31,8 +31,8 @@ namespace View
             return { };
         }
     public:
-        Confirm_Delete_Lesson(IController& controller, Merged_Lesson_ID id)
-        : Popup("Удалить группу?", controller), m_id(id)
+        Confirm_Delete_Lesson(const Shared& shared, IController& controller, Merged_Lesson_ID id)
+        : Popup(shared, "Удалить группу?", controller), m_id(id)
         { }
     };
 }

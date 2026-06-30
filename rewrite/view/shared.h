@@ -1,6 +1,6 @@
 #pragma once
 #include "common/modifiers.h"
-#include "model/jtime.h"
+#include "common/jtime.h"
 
 namespace View
 {

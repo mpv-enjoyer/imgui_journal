@@ -15,17 +15,17 @@ class Add_Workout : public ICommand
         }
     }
 
-    static Error get_error_removed_merged_lesson(const IModel& model, Merged_Lesson_ID id)
+    static Error get_error_removed_merged_lesson(const IModel& model, Merged_Lesson_ID id, Month month)
     {
-        if (model->cref_merged_lesson(id).is_removed()) return "Группа удалена";
+        if (model->cref_merged_lesson(id).is_removed(month)) return "Группа удалена";
         return {};
     }
 
-    static Error get_error_removed_student(const IModel& model, Internal_Student_ID should_id)
+    static Error get_error_removed_student(const IModel& model, Internal_Student_ID should_id, Month month)
     {
         auto& attendance_student = model->cref_attendance_student(should_id);
         Position<Student> student_pos = attendance_student.get_student_pos();
-        if (model->students()->cref_students().cref(student_pos).is_removed()) return "Ученик удален";
+        if (model->students()->cref_students().cref(student_pos).is_removed(month)) return "Ученик удален";
         if (!attendance_student.get_wants_lesson()) return "Ученик удален из группы";
         return {};
     }
@@ -66,13 +66,18 @@ public:
     Add_Workout(Workout workout)
     : m_workout(workout)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
+        Mday real_mday = model->get_mday(m_workout.real_internal_lesson_id().wday(), m_workout.real_aday());
+        Mday should_mday = model->get_mday(m_workout.should_id().wday(), m_workout.should_id().aday());
         Error e = {};
         false
-         || (e = get_error_removed_merged_lesson(model, m_workout.real_internal_lesson_id()))
-         || (e = get_error_removed_merged_lesson(model, m_workout.should_id()))
-         || (e = get_error_removed_student(model, m_workout.should_id()))
+         || (e = get_error_removed_merged_lesson(model, m_workout.real_internal_lesson_id(), real_mday.get_month()))
+         || (e = get_error_removed_merged_lesson(model, m_workout.should_id(), should_mday.get_month()))
+         || (e = get_error_removed_student(model, m_workout.should_id(), should_mday.get_month()))
          || (e = get_error_student_in_real_lesson(model, m_workout.should_id(), m_workout.real_internal_lesson_id()))
          || (e = get_error_already_worked_out(model->workouts(), m_workout))
          || (e = get_error_not_awaited(model->cref_attendance_student(m_workout.should_id()).cref_holder(m_workout.should_id().aday()).get_status()))

@@ -20,7 +20,7 @@ namespace View
             m_poll_until = std::max(m_poll_until, current_time + active_s);
         }
     public:
-        void prepare_next_frame(Ptr<IController>& controller, double current_time)
+        void prepare_next_frame(Ptr<IController>& controller, double current_time, Time_State::Bits time_state_TEMP)
         {
             if (Impl::renderer()->is_mouse_button_pressed()) set_poll_time(1, current_time);
             if (m_poll_until >= current_time)
@@ -39,9 +39,11 @@ namespace View
             {
                 m_save_counter = want_save_counts;
                 controller->add(Ptr<Save>::make());
-                controller->flush();
+                controller->flush(time_state_TEMP);
                 // Flush immediately so the save() command doesn't ever
                 // get stacked with some other command in weird combination...
+
+                // TODO: this should really be the method of IController.
             }
         }
     };
@@ -67,7 +69,7 @@ namespace View
             bool done = false;
             while (!Impl::renderer()->should_close() && !done)
             {
-                m_timers.prepare_next_frame(m_controller, ImGui::GetTime());
+                m_timers.prepare_next_frame(m_controller, ImGui::GetTime(), Time_State::make(m_shared.month));
                 Impl::renderer()->begin_frame();
                 if (!m_subwindow_handler.is_subwindow_opened())
                 {
@@ -76,7 +78,7 @@ namespace View
                 m_subwindow_handler.render_subwindow();
                 m_popup_handler.render_popup();
                 Impl::renderer()->end_frame();
-                m_controller->flush();
+                m_controller->flush(Time_State::make(m_shared.month));
             }
         }
         ~View()

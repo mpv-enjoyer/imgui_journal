@@ -9,6 +9,9 @@ class Set_Lesson_Teacher : public ICommand
 public:
     Set_Lesson_Teacher(Internal_Lesson_ID internal_lesson_id, Aday aday, Position<Teacher> teacher_pos)
     : m_internal_lesson_id(internal_lesson_id), m_aday(aday), m_teacher_pos(teacher_pos) { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel&) const override
     {
         return {};
@@ -27,6 +30,9 @@ class Reset_Lesson_Teacher : public ICommand
 public:
     Reset_Lesson_Teacher(Internal_Lesson_ID internal_lesson_id, Aday aday)
     : m_internal_lesson_id(internal_lesson_id), m_aday(aday) { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel&) const override
     {
         return {};

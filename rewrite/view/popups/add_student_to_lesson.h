@@ -9,8 +9,8 @@ namespace View
         std::vector<Position<Student>> m_merged_lesson_students;
         UI::Select_Students m_select_students;
     public:
-        Add_Student_To_Lesson(IController& controller, Merged_Lesson_ID merged_lesson_id)
-        : Popup("Добавление ученика в группу", controller),
+        Add_Student_To_Lesson(const Shared& shared, IController& controller, Merged_Lesson_ID merged_lesson_id)
+        : Popup(shared, "Добавление ученика в группу", controller),
           m_merged_lesson_id(merged_lesson_id),
           m_merged_lesson_students(model()->cref_merged_lesson(merged_lesson_id).get_student_positions()),
           m_select_students("##Выбрать_учеников", controller.model(), [&](Position<Student> student_pos) -> bool

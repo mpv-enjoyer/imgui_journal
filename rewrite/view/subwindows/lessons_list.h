@@ -22,7 +22,7 @@ namespace View
             // TODO: everything here basically
             if (ImGui::Button("Добавить группу"))
             {
-                popup_handler().open_popup(std::make_unique<Add_Or_Edit_Merged_Lesson>(controller(), shared().wday));
+                popup_handler().open_popup(std::make_unique<Add_Or_Edit_Merged_Lesson>(shared(), controller(), shared().wday));
             }
             UI::label("Список всех групп");
             const static size_t COLUMN_COUNT = 6;
@@ -41,9 +41,9 @@ namespace View
                     for (auto merged_lesson_it = model()->get_merged_lessons_sorted(wday); !!merged_lesson_it; ++merged_lesson_it)
                     {
                         const auto& merged_lesson = *merged_lesson_it;
-                        if (merged_lesson.is_removed() && !shared().edit_mode) continue;
+                        if (merged_lesson.is_removed(shared().month) && !shared().edit_mode) continue;
                         {
-                            UI::Scope_Disabled disabled(merged_lesson.is_removed());
+                            UI::Scope_Disabled disabled(merged_lesson.is_removed(shared().month));
                             ImGui::TableNextRow();
                             ImGui::TableSetColumnIndex(0);
                                 UI::label(std::to_string(merged_lesson.get_number()));
@@ -71,7 +71,7 @@ namespace View
 
                         if (shared().edit_mode)
                         {
-                            if (merged_lesson.is_removed())
+                            if (merged_lesson.is_removed(shared().month))
                             {
                                 if (UI::button_colored(restore_label, UI::RED))
                                 {
@@ -82,17 +82,17 @@ namespace View
                             {
                                 if (UI::button_dangerous(delete_label))
                                 {
-                                    popup_handler().open_popup(std::make_unique<Confirm_Delete_Lesson>(controller(), merged_lesson_id));
+                                    popup_handler().open_popup(std::make_unique<Confirm_Delete_Lesson>(shared(), controller(), merged_lesson_id));
                                 }
                             }
                         }
                         else if (UI::button_dangerous(delete_label))
                         {
-                            popup_handler().open_popup(std::make_unique<Confirm_Delete_Lesson>(controller(), merged_lesson_id));
+                            popup_handler().open_popup(std::make_unique<Confirm_Delete_Lesson>(shared(), controller(), merged_lesson_id));
                         }
-                        if (!merged_lesson.is_removed() && ImGui::Button(edit_label.c_str()))
+                        if (!merged_lesson.is_removed(shared().month) && ImGui::Button(edit_label.c_str()))
                         {
-                            popup_handler().open_popup(std::make_unique<Add_Or_Edit_Merged_Lesson>(controller(), merged_lesson_id));
+                            popup_handler().open_popup(std::make_unique<Add_Or_Edit_Merged_Lesson>(shared(), controller(), merged_lesson_id));
                         }
                     }
                 } while (wday.next());

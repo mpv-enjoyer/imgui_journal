@@ -1,6 +1,6 @@
 #pragma once
 #include "view/ui/ui.h"
-#include "model/jtime.h"
+#include "common/jtime.h"
 
 namespace UI
 {

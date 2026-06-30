@@ -11,6 +11,9 @@ public:
     Set_Lesson_Status(Attendance_ID id, Attendance_Status status)
     : m_id(id), m_status(status)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
         Mday mday = model->get_mday(m_id.wday(), m_id.aday());

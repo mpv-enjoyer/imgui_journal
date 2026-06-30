@@ -8,6 +8,9 @@ class Edit_Holiday : public ICommand
 public:
     Edit_Holiday(Mday mday, std::string reason)
     : m_mday(mday), m_reason(reason) { }
+
+    CMD_WANT_STATE(Time_State::CurrentYear)
+
     Error get_error(const IModel& model) const override
     {
         if (!model->holidays()->get_holiday(m_mday)) return "На этот день не назначен праздник";

@@ -8,14 +8,17 @@ public:
     Remove_Lesson(Merged_Lesson_ID id)
     : m_id(id)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentMonth)
+
     Error get_error(const IModel& model) const override
     {
-        if (model->cref_merged_lesson(m_id).is_removed()) return "Группа уже удалена";
+        if (model->cref_merged_lesson(m_id).is_removed(Month::make_current())) return "Группа уже удалена";
         return {};
     }
     void call(IModel& model) override
     {
-        model->ref_merged_lesson(m_id).remove();
+        model->ref_merged_lesson(m_id).remove(Month::make_current());
     }
 };
 
@@ -26,13 +29,16 @@ public:
     Restore_Lesson(Merged_Lesson_ID id)
     : m_id(id)
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentMonth)
+
     Error get_error(const IModel& model) const override
     {
-        if (!model->cref_merged_lesson(m_id).is_removed()) return "Группа не удалена";
+        if (!model->cref_merged_lesson(m_id).is_removed(Month::make_current())) return "Группа не удалена";
         return {};
     }
     void call(IModel& model) override
     {
-        model->ref_merged_lesson(m_id).restore();
+        model->ref_merged_lesson(m_id).restore(Month::make_current());
     }
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "per_month.h"
 
 class Removal_Info
 {
@@ -13,10 +14,11 @@ public:
 
 class Removal_Info_Per_Month
 {
-    std::array<bool, Month::COUNT> m_removed = {};
+    Per_Month<bool> m_removed;
 public:
     Removal_Info_Per_Month() { };
-    void remove(Month month) { m_removed[month.calculate_study_year_index()] = true; }
-    void restore(Month month) { m_removed[month.calculate_study_year_index()] = false; }
-    bool is_removed(Month month) const { return m_removed[month.calculate_study_year_index()]; }
+    void remove(Month month) { m_removed.set_this_and_after(month, true); }
+    void restore(Month month) { m_removed.set_this_and_after(month, false); }
+    bool is_removed(Month month) const { return m_removed.get(month); }
+    void set_only_this_month(Month month, bool removed) { m_removed.set(month, removed); }
 };

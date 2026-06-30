@@ -12,9 +12,12 @@ class Move_Student : public ICommand
         return model->cref_merged_lesson(m_from_merged_lesson_id).get_student_positions()[m_from_student_pos.get()];
     }
 public:
-    Move_Student(Merged_Lesson_ID from_merged_lesson_id, Position<Attendance_Student> from_student_pos, Merged_Lesson_ID to_merged_lesson_id)
+    Move_Student(Month month, Merged_Lesson_ID from_merged_lesson_id, Position<Attendance_Student> from_student_pos, Merged_Lesson_ID to_merged_lesson_id)
     : m_from_merged_lesson_id(from_merged_lesson_id), m_from_student_pos(from_student_pos), m_to_merged_lesson_id(to_merged_lesson_id) 
     { }
+
+    CMD_WANT_STATE(Time_State::CurrentMonth)
+
     Error get_error(const IModel& model) const override
     {
         Error error;

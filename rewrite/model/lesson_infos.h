@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-#include "jtime.h"
+#include "common/jtime.h"
 #include "price.h"
 
 class Lesson_Infos

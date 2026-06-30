@@ -16,8 +16,8 @@ namespace View
         void table(Merged_Lesson_ID merged_lesson_id)
         {
             const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
-            if (!shared().edit_mode && merged_lesson.is_removed()) return;
-            UI::Scope_Disabled disabled(merged_lesson.is_removed());
+            if (!shared().edit_mode && merged_lesson.is_removed(shared().month)) return;
+            UI::Scope_Disabled disabled(merged_lesson.is_removed(shared().month));
             UI::Scope_Group group;
             if (disabled)
             {
@@ -65,7 +65,7 @@ namespace View
                 {
                     need_sameline = true;
                 }
-                if (!shared().edit_mode && previous && previous->is_removed()) need_sameline = false;
+                if (!shared().edit_mode && previous && previous->is_removed(shared().month)) need_sameline = false;
                 if (need_sameline) ImGui::SameLine();
                 Merged_Lesson_ID merged_lesson_id(shared().wday, iter.get_position());
                 table(merged_lesson_id);
