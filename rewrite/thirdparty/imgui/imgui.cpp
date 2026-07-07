@@ -3920,13 +3920,14 @@ void ImGui::ClearActiveID()
     SetActiveID(0, NULL); // g.ActiveId = 0;
 }
 
-void ImGui::SetHoveredID(ImGuiID id)
+void ImGui::SetHoveredID(ImGuiID id, size_t hoveredIndexInInteractableRectsArray)
 {
     ImGuiContext& g = *GImGui;
     g.HoveredId = id;
     g.HoveredIdAllowOverlap = false;
     if (id != 0 && g.HoveredIdPreviousFrame != id)
         g.HoveredIdTimer = g.HoveredIdNotActiveTimer = 0.0f;
+    g.InteractableRectVectorIndex = hoveredIndexInInteractableRectsArray; // HACK BY MPV-ENJOYER
 }
 
 ImGuiID ImGui::GetHoveredID()
@@ -4135,8 +4136,11 @@ bool ImGui::ItemHoverable(const ImRect& bb, ImGuiID id, ImGuiItemFlags item_flag
         // Drag source doesn't report as hovered
         if (g.DragDropActive && g.DragDropPayload.SourceId == id && !(g.DragDropSourceFlags & ImGuiDragDropFlags_SourceNoDisableHover))
             return false;
-
-        SetHoveredID(id);
+        
+        /* HACK BY MPV-ENJOYER */
+        IM_ASSERT(g.InteractableRects.size() != 0);
+        SetHoveredID(id, g.InteractableRects.size() - 1);
+        /* HACK BY MPV-ENJOYER */
 
         // AllowOverlap mode (rarely used) requires previous frame HoveredId to be null or to match.
         // This allows using patterns where a later submitted widget overlaps a previous one. Generally perceived as a front-to-back hit-test.
@@ -4830,6 +4834,12 @@ void ImGui::NewFrame()
         g.DebugBeginReturnValueCullDepth = -1;
 
     CallContextHooks(&g, ImGuiContextHookType_NewFramePost);
+
+    /* HACK BY MPV-ENJOYER */
+    printf("Frame %i: InteractableRects count %i, current is %i\n", g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex == (size_t)-1 ? -1 : (int)g.InteractableRectVectorIndex);
+    g.InteractableRects.clear_no_dealloc();
+    g.InteractableRectVectorIndex = -1;
+    /* HACK BY MPV-ENJOYER */
 }
 
 // FIXME: Add a more explicit sort order in the window structure.
@@ -9629,6 +9639,11 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Visible;
     if (IsMouseHoveringRect(bb.Min, bb.Max))
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
+    
+    /* HACK BY MPV-ENJOYER */
+    g.InteractableRects.push_back(bb);
+    /* HACK BY MPV-ENJOYER */
+
     return true;
 }
 

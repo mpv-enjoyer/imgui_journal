@@ -8,9 +8,13 @@ class Model_Impl : public IModel
     static Model_Impl* m_instance_ptr;
     Ptr<Journal_Year> m_journal_year;
     Model_Impl()
-    : m_journal_year(Ptr<Journal_Year>::make(Year::make_current()))
+    : m_journal_year(Ptr<Journal_Year>::make(Year::make_current_bottom_year()))
     {
         /* TODO CRITICAL: Implement load current month by default using Loader */
+    }
+    void load(Year bottom_year)
+    {
+
     }
 public:
     static Model_Impl& get()
@@ -36,10 +40,12 @@ public:
     }
     void set_year(Year bottom_year) override
     {
-        /* TODO CRITICAL: Actually implement year change with saving using Loader */
+        save();
+        m_journal_year.reset(new Journal_Year(bottom_year));
     }
     void save() override
     {
+        
         /* TODO CRITICAL: Save using Loader */
     }
 };

@@ -46,6 +46,7 @@ public:
     static Year make_from_0(int value) { return Year(value - 1900); }
     static Year make_from_1900(int value) { return Year(value); }
     static Year make_current() { return Year(Now.time.tm_year); }
+    static Year make_current_bottom_year();
     int get_from_0() const { return m_value_from_1900 + 1900; }
     int get_from_1900() const { return m_value_from_1900; }
     void next() { m_value_from_1900++; }
@@ -413,3 +414,7 @@ inline int Mday::get_index_in_month() const
     return get_from_0() / Wday::COUNT;
 }
 
+Year Year::make_current_bottom_year()
+{
+    return Month::make_current().get_study_bottom_year();
+}

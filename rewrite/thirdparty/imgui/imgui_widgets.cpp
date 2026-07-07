@@ -517,7 +517,10 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
         if (IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
         {
             hovered = true;
-            SetHoveredID(id);
+            /* HACK BY MPV-ENJOYER */
+            IM_ASSERT(g.InteractableRects.size() != 0);
+            SetHoveredID(id, g.InteractableRects.size() - 1);
+            /* HACK BY MPV-ENJOYER */
             if (g.HoveredIdTimer - g.IO.DeltaTime <= DRAGDROP_HOLD_TO_OPEN_TIMER && g.HoveredIdTimer >= DRAGDROP_HOLD_TO_OPEN_TIMER)
             {
                 pressed = true;
@@ -966,7 +969,10 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 
         // Click position in scrollbar normalized space (0.0f->1.0f)
         const float clicked_v_norm = ImSaturate((mouse_pos_v - scrollbar_pos_v) / scrollbar_size_v);
-        SetHoveredID(id);
+        /* HACK BY MPV-ENJOYER */
+        IM_ASSERT(g.InteractableRects.size() != 0);
+        SetHoveredID(id, g.InteractableRects.size() - 1);
+        /* HACK BY MPV-ENJOYER */
 
         bool seek_absolute = false;
         if (g.ActiveIdIsJustActivated)

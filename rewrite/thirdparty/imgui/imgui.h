@@ -1848,6 +1848,9 @@ struct ImVector
     inline void         clear()                             { if (Data) { Size = Capacity = 0; IM_FREE(Data); Data = NULL; } }  // Important: does not destruct anything
     inline void         clear_delete()                      { for (int n = 0; n < Size; n++) IM_DELETE(Data[n]); clear(); }     // Important: never called automatically! always explicit.
     inline void         clear_destruct()                    { for (int n = 0; n < Size; n++) Data[n].~T(); clear(); }           // Important: never called automatically! always explicit.
+    /* HACK BY MPV-ENJOYER */
+    inline void         clear_no_dealloc()                  { shrink(0); } 
+    /* HACK BY MPV-ENJOYER */
 
     inline bool         empty() const                       { return Size == 0; }
     inline int          size() const                        { return Size; }

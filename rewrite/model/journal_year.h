@@ -25,7 +25,10 @@ class Journal_Year
     };
     mutable Cache m_cache;
 public:
-    explicit Journal_Year(Year bottom_year) : m_bottom_year(bottom_year) { }
+    explicit Journal_Year(Year bottom_year) : m_bottom_year(bottom_year)
+    {
+        
+    }
     Mday get_mday(Wday wday, Aday aday) const { return Mday::make_from_aday(m_bottom_year, wday, aday); }
     size_t get_aday_count(Wday wday) const { return wday.calculate_count_for_bottom_year(m_bottom_year); }
     Month get_month_begin() const { return Month::make_begin_study_year_from_bottom_year(m_bottom_year); }

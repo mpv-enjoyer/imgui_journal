@@ -2157,6 +2157,11 @@ struct ImGuiContext
     int                     WantTextInputNextFrame;
     ImVector<char>          TempBuffer;                         // Temporary text buffer
 
+    /* HACK BY MPV-ENJOYER */
+    ImVector<ImRect> InteractableRects; // For manual render updates
+    size_t InteractableRectVectorIndex; // For InteractableRects
+    /* HACK BY MPV-ENJOYER */
+
     ImGuiContext(ImFontAtlas* shared_font_atlas)
     {
         IO.Ctx = this;
@@ -2972,7 +2977,7 @@ namespace ImGui
     IMGUI_API void          SetFocusID(ImGuiID id, ImGuiWindow* window);
     IMGUI_API void          ClearActiveID();
     IMGUI_API ImGuiID       GetHoveredID();
-    IMGUI_API void          SetHoveredID(ImGuiID id);
+    IMGUI_API void          SetHoveredID(ImGuiID id, size_t hoveredIndexInInteractableRectsArray); // HACK BY MPV-ENJOYER
     IMGUI_API void          KeepAliveID(ImGuiID id);
     IMGUI_API void          MarkItemEdited(ImGuiID id);     // Mark data associated to given item as "edited", used by IsItemDeactivatedAfterEdit() function.
     IMGUI_API void          PushOverrideID(ImGuiID id);     // Push given value as-is at the top of the ID stack (whereas PushID combines old and new hashes)
