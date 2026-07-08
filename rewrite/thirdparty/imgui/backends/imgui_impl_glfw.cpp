@@ -120,6 +120,7 @@ struct ImGui_ImplGlfw_Data
 {
     GLFWwindow*             Window;
     GlfwClientApi           ClientApi;
+    double                  TimeBeforeCommit; // HACK BY MPV-ENJOYER
     double                  Time;
     GLFWwindow*             MouseWindow;
     GLFWcursor*             MouseCursors[ImGuiMouseCursor_COUNT];
@@ -563,6 +564,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
 
     bd->Window = window;
     bd->Time = 0.0;
+    bd->TimeBeforeCommit = 0.0; // HACK BY MPV-ENJOYER
 
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
@@ -797,6 +799,7 @@ void ImGui_ImplGlfw_NewFrame()
 
     // Setup time step
     // (Accept glfwGetTime() not returning a monotonically increasing value. Seems to happens on disconnecting peripherals and probably on VMs and Emscripten, see #6491, #6189, #6114, #3644)
+    bd->TimeBeforeCommit = bd->Time; // HACK BY MPV-ENJOYER
     double current_time = glfwGetTime();
     if (current_time <= bd->Time)
         current_time = bd->Time + 0.00001f;
@@ -813,6 +816,20 @@ void ImGui_ImplGlfw_NewFrame()
     // Update game controllers (if enabled and available)
     ImGui_ImplGlfw_UpdateGamepads();
 }
+
+// HACK BY MPV-ENJOYER
+void ImGui_ImplGlfw_CancelFrame()
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    bd->Time = bd->TimeBeforeCommit;
+    // io.DeltaTime is calculated from bd->Time so no need to change it here
+}
+void ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(double* x, double* y)
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    glfwGetCursorPos(bd->Window, x, y);
+}
+// HACK BY MPV-ENJOYER
 
 //-----------------------------------------------------------------------------
 

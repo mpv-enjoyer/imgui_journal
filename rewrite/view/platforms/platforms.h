@@ -27,7 +27,7 @@ public:
         }
     public:
         virtual bool is_initialized() = 0;
-        virtual void begin_frame() = 0;
+        virtual bool begin_frame(bool cancellable) = 0; // If false, do not call end_frame, just try again.
         virtual void end_frame() = 0;
         virtual bool should_close() = 0;
         virtual void cleanup() = 0;

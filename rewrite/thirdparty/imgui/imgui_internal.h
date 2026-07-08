@@ -2159,7 +2159,9 @@ struct ImGuiContext
 
     /* HACK BY MPV-ENJOYER */
     ImVector<ImRect> InteractableRects; // For manual render updates
-    size_t InteractableRectVectorIndex; // For InteractableRects
+    int InteractableRectVectorIndex; // For InteractableRects
+    ImVector<bool> InteractableRectsHovered;
+    ImVector<ImRect> InteractableRectsPreviousFrame;
     /* HACK BY MPV-ENJOYER */
 
     ImGuiContext(ImFontAtlas* shared_font_atlas)
@@ -2334,6 +2336,8 @@ struct ImGuiContext
         FramerateSecPerFrameIdx = FramerateSecPerFrameCount = 0;
         FramerateSecPerFrameAccum = 0.0f;
         WantCaptureMouseNextFrame = WantCaptureKeyboardNextFrame = WantTextInputNextFrame = -1;
+
+        InteractableRectVectorIndex = -1; // HACK BY MPV-ENJOYER
     }
 };
 
@@ -2977,7 +2981,7 @@ namespace ImGui
     IMGUI_API void          SetFocusID(ImGuiID id, ImGuiWindow* window);
     IMGUI_API void          ClearActiveID();
     IMGUI_API ImGuiID       GetHoveredID();
-    IMGUI_API void          SetHoveredID(ImGuiID id, size_t hoveredIndexInInteractableRectsArray); // HACK BY MPV-ENJOYER
+    IMGUI_API void          SetHoveredID(ImGuiID id, int hoveredIndexInInteractableRectsArray); // HACK BY MPV-ENJOYER
     IMGUI_API void          KeepAliveID(ImGuiID id);
     IMGUI_API void          MarkItemEdited(ImGuiID id);     // Mark data associated to given item as "edited", used by IsItemDeactivatedAfterEdit() function.
     IMGUI_API void          PushOverrideID(ImGuiID id);     // Push given value as-is at the top of the ID stack (whereas PushID combines old and new hashes)

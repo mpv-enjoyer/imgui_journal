@@ -11,7 +11,7 @@ class SDL2_Renderer : public Impl::Renderer
 public:
     SDL2_Renderer();
     bool is_initialized() override;
-    void begin_frame() override;
+    bool begin_frame(bool cancellable) override;
     void end_frame() override;
     bool should_close() override;
     void cleanup() override;

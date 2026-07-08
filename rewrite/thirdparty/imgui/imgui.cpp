@@ -3920,7 +3920,7 @@ void ImGui::ClearActiveID()
     SetActiveID(0, NULL); // g.ActiveId = 0;
 }
 
-void ImGui::SetHoveredID(ImGuiID id, size_t hoveredIndexInInteractableRectsArray)
+void ImGui::SetHoveredID(ImGuiID id, int hoveredIndexInInteractableRectsArray)
 {
     ImGuiContext& g = *GImGui;
     g.HoveredId = id;
@@ -4818,6 +4818,14 @@ void ImGui::NewFrame()
         g.DebugLogFlags &= ~ImGuiDebugLogFlags_EventClipper;
     }
 
+    /* HACK BY MPV-ENJOYER */
+    printf("Frame %i: InteractableRects count %i, current is %i\n", g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex);
+    g.InteractableRectsPreviousFrame = g.InteractableRects;
+    g.InteractableRects.clear_no_dealloc();
+    g.InteractableRectsHovered.clear_no_dealloc();
+    g.InteractableRectVectorIndex = -1;
+    /* HACK BY MPV-ENJOYER */
+
     // Create implicit/fallback window - which we will only render it if the user has added something to it.
     // We don't use "Debug" to avoid colliding with user trying to create a "Debug" window with custom flags.
     // This fallback is particularly important as it prevents ImGui:: calls from crashing.
@@ -4834,12 +4842,6 @@ void ImGui::NewFrame()
         g.DebugBeginReturnValueCullDepth = -1;
 
     CallContextHooks(&g, ImGuiContextHookType_NewFramePost);
-
-    /* HACK BY MPV-ENJOYER */
-    printf("Frame %i: InteractableRects count %i, current is %i\n", g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex == (size_t)-1 ? -1 : (int)g.InteractableRectVectorIndex);
-    g.InteractableRects.clear_no_dealloc();
-    g.InteractableRectVectorIndex = -1;
-    /* HACK BY MPV-ENJOYER */
 }
 
 // FIXME: Add a more explicit sort order in the window structure.
@@ -9637,11 +9639,13 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
     // We need to calculate this now to take account of the current clipping rectangle (as items like Selectable may change them)
     if (is_rect_visible)
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Visible;
-    if (IsMouseHoveringRect(bb.Min, bb.Max))
+    bool hovering = IsMouseHoveringRect(bb.Min, bb.Max); // HACK BY MPV-ENJOYER
+    if (hovering)
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
     
     /* HACK BY MPV-ENJOYER */
     g.InteractableRects.push_back(bb);
+    g.InteractableRectsHovered.push_back(hovering);
     /* HACK BY MPV-ENJOYER */
 
     return true;
@@ -10350,6 +10354,78 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 int ImGui::GetPopupCount()
 {
     return GImGui->OpenPopupStack.size();
+}
+bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec2 pos = ImVec2(mouse_x, mouse_y);
+    ImGuiContext& g = *GImGui;
+    if (io.AnyKeyPressed)
+    {
+        printf(" kp ");
+        return false;
+    }
+    if (g.InputTextState.ID != 0 && g.InputTextState.ID == g.ActiveId)
+    {
+        printf(" its ");
+        return false;
+    }
+    for (int i = 0; i < IM_ARRAYSIZE(io.MouseClicked); i++)
+    {
+        if (io.MouseClicked[i])
+        {
+            printf(" mc ");
+            return false;
+        }
+    }
+    for (int i = 0; i < IM_ARRAYSIZE(io.MouseReleased); i++)
+    {
+        if (io.MouseReleased[i])
+        {
+            printf(" mr ");
+            return false;
+        }
+    }
+    if (g.InteractableRectsPreviousFrame.size() != g.InteractableRects.size())
+    {
+        printf(" ir != ir_prev ");
+        return false;
+    }
+    for (int i = 0; i < g.InteractableRects.size(); i++)
+    {
+        ImRect cur = g.InteractableRects[i];
+        ImRect prev = g.InteractableRectsPreviousFrame[i];
+        if (cur.GetTL().x != prev.GetTL().x ||
+            cur.GetTL().y != prev.GetTL().y ||
+            cur.GetBR().x != prev.GetBR().x ||
+            cur.GetBR().y != prev.GetBR().y)
+        {
+            printf(" ir[i] != ir_prev[i] ");
+            return false;
+        }
+    }
+    if (g.InteractableRectVectorIndex != -1) // Hovered on something
+    {
+        if (!g.InteractableRects[g.InteractableRectVectorIndex].Contains(pos))
+        {
+            printf(" inter_hover_off ");
+            return false; // Hovered off the item.
+        }
+    }
+    else
+    {
+        for (int i = 0; i < g.InteractableRects.size(); i++)
+        {
+            bool currentlyHovered = g.InteractableRects[i].Contains(pos);
+            if (currentlyHovered != g.InteractableRectsHovered[i])
+            {
+                printf(" inter_hover_change ");
+                return false; // Overall hovered state changed
+            }
+        }
+    }
+
+    return true;
 }
 // HACK BY MPV-ENJOYER
 

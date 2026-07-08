@@ -139,12 +139,25 @@ bool GLFW3_Renderer::is_initialized()
     return init;
 }
 
-void GLFW3_Renderer::begin_frame()
+bool GLFW3_Renderer::begin_frame(bool cancellable)
 {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
+    bool TEMP_BACKUP = ImGui::GetIO().AnyKeyPressed;
     ImGui_ImplGlfw_NewFrame();
+    bool TEMP_BACKUP_2 = ImGui::GetIO().AnyKeyPressed;
+    ImGui::GetIO().AnyKeyPressed = TEMP_BACKUP;
+    double x, y;
+    ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(&x, &y);
+    if (cancellable && ImGui::NewFrameMustBeCancelled(x, y)) 
+    {
+        ImGui_ImplGlfw_CancelFrame();
+        return false;
+    }
+    printf("Submitted \n");
+    ImGui::GetIO().AnyKeyPressed = TEMP_BACKUP_2;
     ImGui::NewFrame();
+    return true;
 }
 
 void GLFW3_Renderer::end_frame()
@@ -249,12 +262,13 @@ bool SDL2_Renderer::is_initialized()
     return init;
 }
 
-void SDL2_Renderer::begin_frame()
+bool SDL2_Renderer::begin_frame(bool cancellable)
 {
     // Start the Dear ImGui frame
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+    return true; // TODO
 }
 
 void SDL2_Renderer::end_frame()

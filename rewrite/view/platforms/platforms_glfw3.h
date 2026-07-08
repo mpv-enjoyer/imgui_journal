@@ -10,7 +10,7 @@ class GLFW3_Renderer : public Impl::Renderer
 public:
     GLFW3_Renderer();
     bool is_initialized() override;
-    void begin_frame() override;
+    bool begin_frame(bool cancellable) override;
     void end_frame() override;
     bool should_close() override;
     void cleanup() override;

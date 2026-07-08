@@ -63,20 +63,36 @@ namespace View
             // First time calling renderer + init check:
             bool init = Impl::renderer()->is_initialized();
             IM_ASSERT(init);
+            Impl::renderer()->begin_frame(false);
+            bool dummy;
+            draw_frame(dummy);
+            Impl::renderer()->end_frame();
+        }
+        void draw_frame(bool& done)
+        {
+            if (!m_subwindow_handler.is_subwindow_opened())
+            {
+                if (m_mainwindow.render()) done = true;
+            }
+            m_subwindow_handler.render_subwindow();
+            m_popup_handler.render_popup();
         }
         void main_loop()
         {
             bool done = false;
-            while (!Impl::renderer()->should_close() && !done)
+            while (!done)
             {
-                m_timers.prepare_next_frame(m_controller, ImGui::GetTime(), Time_State::make(m_shared.month));
-                Impl::renderer()->begin_frame();
-                if (!m_subwindow_handler.is_subwindow_opened())
+                //m_timers.prepare_next_frame(m_controller, ImGui::GetTime(), Time_State::make(m_shared.month));
+                // TODO: transfer autosaves
+                bool valid_frame = false;
+                while (!valid_frame)
                 {
-                    if (m_mainwindow.render()) done = true;
+                    Impl::renderer()->wait_events();
+                    valid_frame = Impl::renderer()->begin_frame(true);
+                    if (Impl::renderer()->should_close()) break;
                 }
-                m_subwindow_handler.render_subwindow();
-                m_popup_handler.render_popup();
+                if (Impl::renderer()->should_close()) break;
+                draw_frame(done);
                 Impl::renderer()->end_frame();
                 m_controller->flush(Time_State::make(m_shared.month));
             }
