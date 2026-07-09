@@ -9646,12 +9646,15 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
     
     /* HACK BY MPV-ENJOYER */
-    bool is_mouse_hovering_interactable_rect = nav_bb_arg ?
-        IsMouseHoveringRect(nav_bb_arg->Min, nav_bb_arg->Max) :
-        hovering;
-    g.InteractableRects.push_back(nav_bb_arg ? *nav_bb_arg : bb);
-    g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
-    if (is_mouse_hovering_interactable_rect) printf("|");
+    if (!(extra_flags & ImGuiItemFlags_NotInteractable))
+    {
+        bool is_mouse_hovering_interactable_rect = nav_bb_arg ?
+            IsMouseHoveringRect(nav_bb_arg->Min, nav_bb_arg->Max) :
+            hovering;
+        g.InteractableRects.push_back(nav_bb_arg ? *nav_bb_arg : bb);
+        g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
+        if (is_mouse_hovering_interactable_rect) printf("|");
+    }
     /* HACK BY MPV-ENJOYER */
 
     return true;
@@ -10514,6 +10517,20 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     }
     if (g.ActiveId != 0)
     {
+        if (g.ActiveId == g.InputTextState.ID && mouse_moved)
+        {
+            bool is_mouse_down = false;
+            for (auto is_mouse_down_current : g.IO.MouseDown)
+            {
+                if (is_mouse_down_current) is_mouse_down = true;
+            }
+            if (is_mouse_down)
+            {
+                printf(" its mm ");
+                SetWantFrames(2);
+                return false;
+            }
+        }
         if (mouse_button_changed)
         {
             printf(" aid mbc ");

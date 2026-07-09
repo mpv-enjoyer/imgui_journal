@@ -250,6 +250,7 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
         ImRect bb(text_pos, text_pos + text_size);
         ItemSize(text_size, 0.0f);
         ItemAdd(bb, 0);
+        // ItemAdd(bb, 0, NULL, ImGuiItemFlags_NotInteractable); // FUTURE HACK BY MPV-ENJOYER?
     }
 }
 
