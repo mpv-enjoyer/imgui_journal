@@ -76,6 +76,7 @@ namespace View
             }
             m_subwindow_handler.render_subwindow();
             m_popup_handler.render_popup();
+            //ImGui::ShowDemoWindow();
         }
         void main_loop()
         {
@@ -87,7 +88,14 @@ namespace View
                 bool valid_frame = false;
                 while (!valid_frame)
                 {
-                    Impl::renderer()->wait_events();
+                    if (ImGui::HasPendingFrames())
+                    {
+                        Impl::renderer()->poll_events();
+                    }
+                    else
+                    {
+                        Impl::renderer()->wait_events();
+                    }
                     valid_frame = Impl::renderer()->begin_frame(true);
                     if (Impl::renderer()->should_close()) break;
                 }

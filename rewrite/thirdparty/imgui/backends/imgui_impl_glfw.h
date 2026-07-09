@@ -29,7 +29,8 @@ IMGUI_IMPL_API bool     ImGui_ImplGlfw_InitForVulkan(GLFWwindow* window, bool in
 IMGUI_IMPL_API bool     ImGui_ImplGlfw_InitForOther(GLFWwindow* window, bool install_callbacks);
 IMGUI_IMPL_API void     ImGui_ImplGlfw_Shutdown();
 IMGUI_IMPL_API void     ImGui_ImplGlfw_NewFrame();
-IMGUI_IMPL_API void     ImGui_ImplGlfw_CancelFrame(); // HACK BY MPV-ENJOYER
+IMGUI_IMPL_API bool     ImGui_ImplGlfw_GetAndClearUncancellableEvents();                   // HACK BY MPV-ENJOYER
+IMGUI_IMPL_API void     ImGui_ImplGlfw_CancelFrame();                                      // HACK BY MPV-ENJOYER
 IMGUI_IMPL_API void     ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(double* x, double* y); // HACK BY MPV-ENJOYER
 
 // GLFW callbacks install

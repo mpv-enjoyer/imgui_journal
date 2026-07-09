@@ -137,12 +137,15 @@ struct ImGui_ImplGlfw_Data
     GLFWkeyfun              PrevUserCallbackKey;
     GLFWcharfun             PrevUserCallbackChar;
     GLFWmonitorfun          PrevUserCallbackMonitor;
+    GLFWwindowrefreshfun    PrevUserCallbackRefresh; // HACK BY MPV-ENJOYER
 #ifdef _WIN32
     WNDPROC                 GlfwWndProc;
 #endif
 
     ImGui_ImplGlfw_Data()   { memset((void*)this, 0, sizeof(*this)); }
 };
+
+static bool glfw_context_has_uncancellable_events = false; // HACK BY MPV-ENJOYER
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
@@ -497,6 +500,13 @@ static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wPara
 }
 #endif
 
+// HACK BY MPV-ENJOYER
+void ImGui_ImplGlfw_RefreshCallback(GLFWwindow* window)
+{
+    glfw_context_has_uncancellable_events = true;
+}
+// HACK BY MPV-ENJOYER
+
 void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
@@ -511,6 +521,7 @@ void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
     bd->PrevUserCallbackKey = glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
     bd->PrevUserCallbackChar = glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
     bd->PrevUserCallbackMonitor = glfwSetMonitorCallback(ImGui_ImplGlfw_MonitorCallback);
+    bd->PrevUserCallbackRefresh = glfwSetWindowRefreshCallback(window, ImGui_ImplGlfw_RefreshCallback); // HACK BY MPV-ENJOYER
     bd->InstalledCallbacks = true;
 }
 
@@ -818,6 +829,13 @@ void ImGui_ImplGlfw_NewFrame()
 }
 
 // HACK BY MPV-ENJOYER
+bool ImGui_ImplGlfw_GetAndClearUncancellableEvents()
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    bool value = glfw_context_has_uncancellable_events;
+    glfw_context_has_uncancellable_events = false;
+    return value;
+}
 void ImGui_ImplGlfw_CancelFrame()
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();

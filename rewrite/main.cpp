@@ -149,7 +149,7 @@ bool GLFW3_Renderer::begin_frame(bool cancellable)
     ImGui::GetIO().AnyKeyPressed = TEMP_BACKUP;
     double x, y;
     ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(&x, &y);
-    if (cancellable && ImGui::NewFrameMustBeCancelled(x, y)) 
+    if (!ImGui_ImplGlfw_GetAndClearUncancellableEvents() && cancellable && ImGui::NewFrameMustBeCancelled(x, y)) 
     {
         ImGui_ImplGlfw_CancelFrame();
         return false;
@@ -201,6 +201,12 @@ void GLFW3_Renderer::wait_events_timeout(double time)
 void GLFW3_Renderer::wait_events()
 {
     glfwWaitEvents();
+}
+
+void GLFW3_Renderer::poll_events()
+{
+    // For debug
+    glfwPollEvents();
 }
 
 bool GLFW3_Renderer::supports_images()
@@ -333,6 +339,19 @@ void SDL2_Renderer::wait_events()
         done = true;
     if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
         done = true;
+    while (SDL_PollEvent(&event))
+    {
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        if (event.type == SDL_QUIT)
+            done = true;
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+            done = true;
+    }
+}
+
+void SDL2_Renderer::poll_events()
+{
+    SDL_Event event;
     while (SDL_PollEvent(&event))
     {
         ImGui_ImplSDL2_ProcessEvent(&event);

@@ -34,6 +34,7 @@ public:
         virtual bool is_mouse_button_pressed() = 0;
         virtual void wait_events_timeout(double time) = 0;
         virtual void wait_events() = 0;
+        virtual void poll_events() = 0;
         virtual bool supports_images() = 0;
         virtual const char* name() = 0;
         // TODO MAYBE: void set_window_titlebar_icon(GLFWwindow* window);

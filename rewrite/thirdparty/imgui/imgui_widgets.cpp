@@ -1927,11 +1927,19 @@ bool ImGui::Combo(const char* label, int* current_item, const char* (*getter)(vo
 
         PushID(i);
         const bool item_selected = (i == *current_item);
-        if (Selectable(item_text, item_selected) && *current_item != i)
+        const bool selectable_returned = Selectable(item_text, item_selected); // HACK BY MPV-ENJOYER
+        if (selectable_returned && *current_item != i)
         {
             value_changed = true;
             *current_item = i;
         }
+        // HACK BY MPV-ENJOYER
+        if (selectable_returned)
+        {
+            if (GImGui->CurrentHoveredIDFramesLeft < 5)
+                GImGui->CurrentHoveredIDFramesLeft = 5;
+        }
+        // HACK BY MPV-ENJOYER
         if (item_selected)
             SetItemDefaultFocus();
         PopID();
