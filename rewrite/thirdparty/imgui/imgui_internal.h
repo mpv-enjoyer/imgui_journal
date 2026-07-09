@@ -2164,6 +2164,7 @@ struct ImGuiContext
     ImVector<ImRect> InteractableRectsPreviousFrame;
     int CurrentHoveredIDWantsMoreFrames; // More frames on any event (kb, mouse, etc...)
     int CurrentHoveredIDFramesLeft; // Set to CurrentHoveredIDWantsMoreFrames on interaction
+    double PollUntil;
     /* HACK BY MPV-ENJOYER */
 
     ImGuiContext(ImFontAtlas* shared_font_atlas)
@@ -2342,6 +2343,7 @@ struct ImGuiContext
         InteractableRectVectorIndex = -1; // HACK BY MPV-ENJOYER
         CurrentHoveredIDWantsMoreFrames = 0; // HACK BY MPV-ENJOYER
         CurrentHoveredIDFramesLeft = 0; // HACK BY MPV-ENJOYER
+        PollUntil = 0; // HACK BY MPV-ENJOYER
     }
 };
 

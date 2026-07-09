@@ -298,6 +298,7 @@ namespace ImGui
 
     // Main
     // HACK BY MPV-ENJOYER
+    IMGUI_API void ScheduleOneFrame();
     IMGUI_API bool HasPendingFrames();
     IMGUI_API int GetPopupCount();
     IMGUI_API bool NewFrameMustBeCancelled(double mouse_x, double mouse_y);
@@ -1959,7 +1960,6 @@ struct ImGuiStyle
     // (It is possible to modify those fields mid-frame if specific behavior need it, unlike e.g. configuration fields in ImGuiIO)
     float             HoverStationaryDelay;     // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
     float             HoverDelayShort;          // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
-    TODO look into this.
     float             HoverDelayNormal;         // Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal). "
     ImGuiHoveredFlags HoverFlagsForTooltipMouse;// Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using mouse.
     ImGuiHoveredFlags HoverFlagsForTooltipNav;  // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using keyboard/gamepad.

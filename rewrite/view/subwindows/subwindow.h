@@ -39,6 +39,10 @@ namespace View
             bool result = render_logic();
             ImGui::PopStyleVar();
             ImGui::End();
+            if (result)
+            {
+                ImGui::ScheduleOneFrame();
+            }
             return result;
         }
     };

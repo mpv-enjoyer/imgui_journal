@@ -64,7 +64,10 @@ namespace View
         virtual std::optional<std::string> get_error() const = 0;
     public:
         Popup(const Shared& shared, std::string id, IController& controller)
-        : m_shared(shared), m_id(id), m_controller(controller) { }
+        : m_shared(shared), m_id(id), m_controller(controller)
+        {
+            ImGui::OpenPopup(m_id.c_str());
+        }
         bool render()
         {
             ImGui::OpenPopup(m_id.c_str());
@@ -97,7 +100,11 @@ namespace View
             if (ImGui::Button("Отмена")) popup_active = false;
             ImGui::SameLine();
             m_last_error.print();
-            if (!popup_active) ImGui::CloseCurrentPopup();
+            if (!popup_active)
+            {
+                ImGui::CloseCurrentPopup();
+                ImGui::ScheduleOneFrame();
+            }
             ImGui::EndPopup();
             return !popup_active;
         }

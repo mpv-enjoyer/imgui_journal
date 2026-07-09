@@ -1206,7 +1206,8 @@ ImGuiStyle::ImGuiStyle()
 
     // Behaviors
     HoverStationaryDelay    = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
-    HoverDelayShort         = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
+    // HACK BY MPV-ENJOYER:
+    HoverDelayShort         = 0.00f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
     HoverDelayNormal        = 0.40f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal). "
     HoverFlagsForTooltipMouse = ImGuiHoveredFlags_Stationary | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled;    // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using mouse.
     HoverFlagsForTooltipNav = ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;  // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using keyboard/gamepad.
@@ -4819,7 +4820,7 @@ void ImGui::NewFrame()
     }
 
     /* HACK BY MPV-ENJOYER */
-    printf("Frame %i: InteractableRects count %i, current is %i\n", g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex);
+    printf("[%f] Frame %i: InteractableRects count %i, current is %i\n", g.Time, g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex);
     g.InteractableRectsPreviousFrame = g.InteractableRects;
     g.InteractableRects.clear_no_dealloc();
     g.InteractableRectsHovered.clear_no_dealloc();
@@ -10361,9 +10362,13 @@ static void SetWantFrames(int count)
     if (GImGui->CurrentHoveredIDFramesLeft < count)
         GImGui->CurrentHoveredIDFramesLeft = count;
 }
+void ImGui::ScheduleOneFrame()
+{
+    return SetWantFrames(2);
+}
 bool ImGui::HasPendingFrames()
 {
-    return GImGui->CurrentHoveredIDFramesLeft != 0;
+    return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0;
 }
 int ImGui::GetPopupCount()
 {
@@ -10377,6 +10382,19 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     if (g.CurrentHoveredIDFramesLeft > 0)
     {
         printf(" fl ");
+        return false;
+    }
+
+    if (g.PollUntil > g.Time)
+    {
+        printf(" pu ");
+        return false;
+    }
+
+    if (g.DimBgRatio != 0.0f && g.DimBgRatio != 1.0f)
+    {
+        // Popup is opening, need to play animation
+        printf(" popup_opening ");
         return false;
     }
 
@@ -10482,23 +10500,26 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
         SetWantFrames(2);
         return false;
     }
-    if (text_inputted)
-    {
-        printf(" ti ");
-        SetWantFrames(3);
-        return false;
-    }
+    // if (text_inputted)
+    // {
+    //     printf(" ti ");
+    //     SetWantFrames(3);
+    //     return false;
+    // }
     if (mouse_wheeled)
     {
         printf(" mw ");
         SetWantFrames(2);
         return false;
     }
-    if (g.InputTextState.ID != 0 && g.InputTextState.ID == g.ActiveId)
+    if (g.ActiveId != 0)
     {
-        printf(" its ");
-        SetWantFrames(2);
-        return false;
+        if (mouse_button_changed)
+        {
+            printf(" aid mbc ");
+            SetWantFrames(2);
+            return false;
+        }
     }
     // for (int i = 0; i < IM_ARRAYSIZE(io.MouseClicked); i++)
     // {
@@ -10542,7 +10563,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
         if (mouse_button_changed)
         {
             printf(" inter_hover mbc ");
-            SetWantFrames(4); This is incorrect. Look into HoverDelayShort, maybe set it to 0
+            SetWantFrames(2);
             //SetWantFrames(6); 6 frames lead to weirdness when opening/closing popups, but 4 is fine...???
             return false;
         }
@@ -10555,9 +10576,10 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     }
     else if (g.OpenPopupStack.size() > 0)
     {
-        if (!g.OpenPopupStack.back().Window->Rect().Contains(pos))
+        ImGuiWindow* window = g.OpenPopupStack.back().Window;
+        if (window && !window->Rect().Contains(pos) && mouse_button_changed)
         {
-            printf(" popup ");
+            printf(" popup mbc ");
             SetWantFrames(2);
             return false;
         }
@@ -10684,6 +10706,11 @@ void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
     if (g.OpenPopupStack.Size < current_stack_size + 1)
     {
         g.OpenPopupStack.push_back(popup_ref);
+        // HACK BY MPV-ENJOYER
+        g.PollUntil = g.Time + 1.0 / 6.0; // From DimBgRatio code in NewFrame()
+        printf("[Set PU to %f at %f]", g.PollUntil, g.Time);
+        printf(">");
+        // HACK BY MPV-ENJOYER
     }
     else
     {
@@ -10706,8 +10733,6 @@ void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
         //if (g.OpenPopupStack[current_stack_size].PopupId == id)
         //    FocusWindow(parent_window);
     }
-
-    printf(">"); // HACK BY MPV-ENJOYER
 }
 
 // When popups are stacked, clicking on a lower level popups puts focus back to it and close popups above it.

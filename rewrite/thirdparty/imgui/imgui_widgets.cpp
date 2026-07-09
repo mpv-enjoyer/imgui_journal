@@ -1936,8 +1936,9 @@ bool ImGui::Combo(const char* label, int* current_item, const char* (*getter)(vo
         // HACK BY MPV-ENJOYER
         if (selectable_returned)
         {
-            if (GImGui->CurrentHoveredIDFramesLeft < 5)
-                GImGui->CurrentHoveredIDFramesLeft = 5;
+            ImGui::ScheduleOneFrame();
+            //if (GImGui->CurrentHoveredIDFramesLeft < 5)
+            //    GImGui->CurrentHoveredIDFramesLeft = 5;
         }
         // HACK BY MPV-ENJOYER
         if (item_selected)
