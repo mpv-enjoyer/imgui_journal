@@ -9646,7 +9646,7 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
     
     /* HACK BY MPV-ENJOYER */
-    if (!(extra_flags & ImGuiItemFlags_NotInteractable))
+    if (true /* !(extra_flags & ImGuiItemFlags_NotInteractable)*/)
     {
         bool is_mouse_hovering_interactable_rect = nav_bb_arg ?
             IsMouseHoveringRect(nav_bb_arg->Min, nav_bb_arg->Max) :
@@ -10616,6 +10616,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
         }
     }
 
+    GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any mouse interaction breaks. Looks fine so far
     return true;
 }
 // HACK BY MPV-ENJOYER

@@ -820,7 +820,8 @@ enum ImGuiItemFlags_
     // Controlled by widget code
     ImGuiItemFlags_Inputable                = 1 << 10, // false     // [WIP] Auto-activate input mode when tab focused. Currently only used and supported by a few items before it becomes a generic feature.
     ImGuiItemFlags_HasSelectionUserData     = 1 << 11, // false     // Set by SetNextItemSelectionUserData()
-    ImGuiItemFlags_NotInteractable          = 1 << 12, // false     // UNUSED FOR NOW. Don't add this item's rect to the interactable rect list. HACK BY MPV-ENJOYER
+    // ImGuiItemFlags_NotInteractable          = 1 << 12, // false     // UNUSED FOR NOW. Don't add this item's rect to the interactable rect list. HACK BY MPV-ENJOYER
+    // Not using this because SetHoveredID(id, g.InteractableRects.size() - 1); may crash ^^^
 };
 
 // Status flags for an already submitted item

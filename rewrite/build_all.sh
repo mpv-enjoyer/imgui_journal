@@ -1,4 +1,4 @@
-set -x
+set -xe
 cd thirdparty/
 ./nob
 cd ../
