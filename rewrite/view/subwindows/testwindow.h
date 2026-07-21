@@ -64,7 +64,7 @@ namespace View
             if (select_students) select_students->render();
             else select_lesson_type.render();
             calendar.render();
-            return ImGui::Button("Exit lol");
+            return !ImGui::Button("Exit lol");
         }
     public:
         Testwindow(IController& controller, Shared& shared)

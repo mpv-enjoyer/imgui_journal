@@ -286,6 +286,16 @@ public:
     {
         return cref(position);
     }
+    T& front()
+    {
+        IM_ASSERT(size() > 0);
+        return m_data.front();
+    }
+    const T& front() const
+    {
+        IM_ASSERT(size() > 0);
+        return m_data.front();
+    }
     std::size_t size() const
     {
         return m_data.size();

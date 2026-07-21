@@ -72,7 +72,7 @@ namespace View
         {
             if (!m_subwindow_handler.is_subwindow_opened())
             {
-                if (m_mainwindow.render()) done = true;
+                if (!m_mainwindow.render()) done = true;
             }
             m_subwindow_handler.render_subwindow();
             m_popup_handler.render_popup();

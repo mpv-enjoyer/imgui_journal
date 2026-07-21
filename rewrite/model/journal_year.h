@@ -22,6 +22,7 @@ class Journal_Year
         // TODO: I'm free of any weirdness right?! Array initialization is weird.
         std::array<std::optional<Vector_Sortable_CIterator_Sorted<Attendance_Merged_Lesson>>, Wday::COUNT> sorted_merged_lessons = {};
         std::array<std::vector<std::optional<int>>, Month::COUNT> discounts_for_contracts = {};
+        std::optional<std::vector<std::vector<std::pair<Merged_Lesson_ID, Position<Attendance_Student>>>>> merged_lessons_for_all_students;
     };
     mutable Cache m_cache;
 public:
@@ -99,6 +100,28 @@ public:
         }
         return *cache;
     }
+    std::vector<std::pair<Merged_Lesson_ID, Position<Attendance_Student>>> get_merged_lessons_for_student(Position<Student> student_pos) const
+    {
+        auto& cache = m_cache.merged_lessons_for_all_students;
+        if (!cache)
+        {
+            cache = std::vector<std::vector<std::pair<Merged_Lesson_ID, Position<Attendance_Student>>>>(students()->cref_students().size());
+            Wday wday = Wday::make_begin_RU();
+            do
+            {
+                for (auto merged_lesson_it = cref_wday(wday).cref_merged_lessons().cbegin(); !!merged_lesson_it; ++merged_lesson_it)
+                {
+                    // Position<Attendance_Student> MUST be valid for all internal lessons inside a single Merged_Lesson, so
+                    // it's fine to only iterate the first element
+                    for (auto it = merged_lesson_it->cref_first_internal_lesson().cref_students().cbegin(); !!it; ++it)
+                    {
+                        (*cache)[it->get_student_pos().get()].emplace_back(Merged_Lesson_ID(wday, merged_lesson_it.get_position()), it.get_position());
+                    }
+                }
+            } while (wday.next());
+        }
+        return (*cache)[student_pos.get()];
+    }
     void cache_invalidate()
     {
         for (auto& per_wday : m_cache.sorted_merged_lessons)
@@ -111,6 +134,7 @@ public:
             per_month.clear();
             per_month = std::vector<std::optional<int>>(contract_count);
         }
+        m_cache.merged_lessons_for_all_students.reset();
     }
 
     const Ptr<Workouts>& workouts() const { return m_workouts; }

@@ -87,6 +87,17 @@ namespace UI
         operator bool() { return m_value; }
     };
 
+    class Scope_ID
+    {
+    public:
+        NON_COPYABLE_NOR_MOVABLE(Scope_ID);
+        [[nodiscard]] explicit Scope_ID(int id)
+        {
+            ImGui::PushID(id);
+        }
+        ~Scope_ID() { ImGui::PopID(); }
+    };
+
     std::string id(const std::string prefix, std::vector<int> unique)
     {
         std::string output = prefix;

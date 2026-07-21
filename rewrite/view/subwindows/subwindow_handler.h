@@ -22,7 +22,7 @@ namespace View
         bool render_subwindow()
         {
             if (!current) return false;
-            if (current->render()) current.reset();
+            if (!current->render()) current.reset();
             return true;
         }
     };

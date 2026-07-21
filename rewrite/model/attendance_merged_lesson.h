@@ -43,6 +43,14 @@ public:
     {
         return m_internal_lessons;
     }
+    const Attendance_Internal_Lesson& cref_first_internal_lesson() const
+    {
+        return m_internal_lessons.front();
+    }
+    Attendance_Internal_Lesson& ref_first_internal_lesson()
+    {
+        return m_internal_lessons.front();
+    }
     void add_student(Position<Student> student_pos)
     {
         for (auto iter = m_internal_lessons.begin(); iter; iter.next())
@@ -64,11 +72,10 @@ public:
         m_students_removal_info[student_pos.get()].restore(month);
     }
 
-    // Cache this maybe?
     std::vector<Position<Student>> get_student_positions() const
     {
         std::vector<Position<Student>> positions;
-        for (auto& attendance_student : m_internal_lessons.cbegin()->cref_students())
+        for (auto& attendance_student : cref_first_internal_lesson().cref_students())
         {
             positions.push_back(attendance_student.get_student_pos());
         }
@@ -137,5 +144,5 @@ public:
         return get_all_age_groups()[m_age_group];
     }
 
-    AUTOOPS1(Attendance_Merged_Lesson, cref_internal_lessons().cbegin()->get_time_begin());
+    AUTOOPS1(Attendance_Merged_Lesson, cref_first_internal_lesson().get_time_begin());
 };

@@ -59,9 +59,9 @@ namespace View
             const Attendance_Merged_Lesson* previous = nullptr;
             for (auto iter = model()->get_merged_lessons_sorted(shared().wday); iter; ++iter )
             {
-                auto iter_begin_time = iter->cref_internal_lessons().cbegin()->get_time_begin();
+                auto iter_begin_time = iter->cref_first_internal_lesson().get_time_begin();
                 bool need_sameline = false;
-                if (previous && iter_begin_time == previous->cref_internal_lessons().cbegin()->get_time_begin())
+                if (previous && iter_begin_time == previous->cref_first_internal_lesson().get_time_begin())
                 {
                     need_sameline = true;
                 }
@@ -71,7 +71,7 @@ namespace View
                 table(merged_lesson_id);
                 previous = &iter.get();
             }
-            return ImGui::Button("Exit lol");
+            return !ImGui::Button("Exit lol");
         }
     public:
         Mainwindow(IController& controller, Shared& shared)

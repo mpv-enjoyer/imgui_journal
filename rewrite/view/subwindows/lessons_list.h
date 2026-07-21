@@ -17,7 +17,7 @@ namespace View
         bool render_logic() override
         {
             UI::Scope_Color color(ImGuiCol_ChildBg, get_background_color());
-            if (ImGui::Button("Вернуться к журналу")) return true;
+            if (ImGui::Button("Вернуться к журналу")) return false;
             ImGui::SameLine();
             // TODO: everything here basically
             if (ImGui::Button("Добавить группу"))
@@ -97,7 +97,7 @@ namespace View
                     }
                 } while (wday.next());
             });
-            return false;
+            return true;
         }
     public:
         Lessons_List(IController& controller, Shared& shared)
