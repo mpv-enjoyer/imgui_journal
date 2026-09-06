@@ -23,6 +23,7 @@ class Journal_Year
         std::array<std::optional<Vector_Sortable_CIterator_Sorted<Attendance_Merged_Lesson>>, Wday::COUNT> sorted_merged_lessons = {};
         std::array<std::vector<std::optional<int>>, Month::COUNT> discounts_for_contracts = {};
         std::optional<std::vector<std::vector<std::pair<Merged_Lesson_ID, Position<Attendance_Student>>>>> merged_lessons_for_all_students;
+        std::optional<Vector_Sortable_CIterator_Sorted<Student>> all_students_sorted;
     };
     mutable Cache m_cache;
 public:
@@ -122,6 +123,22 @@ public:
         }
         return (*cache)[student_pos.get()];
     }
+    Vector_Sortable_CIterator_Sorted<Student> get_all_students_sorted() const
+    {
+        auto& cache = m_cache.all_students_sorted;
+        if (!cache)
+        {
+            cache.emplace(students()->cref_students().csorted_begin([&](const Student& l, const Student& r) -> bool
+            {
+                auto l_num = students()->cref_contracts()[l.get_contract_pos()].get_number();
+                auto r_num = students()->cref_contracts()[r.get_contract_pos()].get_number();
+                auto l_name = l.get_name();
+                auto r_name = r.get_name();
+                return std::tie(l_num, l_name) < std::tie(r_num, r_name);
+            }));
+        }
+        return *cache;
+    }
     void cache_invalidate()
     {
         for (auto& per_wday : m_cache.sorted_merged_lessons)
@@ -135,6 +152,7 @@ public:
             per_month = std::vector<std::optional<int>>(contract_count);
         }
         m_cache.merged_lessons_for_all_students.reset();
+        m_cache.all_students_sorted.reset();
     }
 
     const Ptr<Workouts>& workouts() const { return m_workouts; }

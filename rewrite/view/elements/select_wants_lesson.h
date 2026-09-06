@@ -30,7 +30,7 @@ namespace UI
                     s << " _ ";
                 }
             }
-            choices.emplace_back(s, current_choice);
+            choices.emplace_back(s.str(), current_choice);
         }
         size_t merged_lesson_current_value = 0;
         for (size_t i = 0; i < merged_lesson.cref_internal_lessons().size(); i++)

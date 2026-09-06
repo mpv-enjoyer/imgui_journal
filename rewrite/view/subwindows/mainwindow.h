@@ -4,6 +4,7 @@
 #include "lessons_list.h"
 #include "view/shared.h"
 #include "controller/commands/commands.h"
+#include "students_list.h"
 
 namespace View
 {
@@ -52,6 +53,11 @@ namespace View
 
         bool render_logic() override
         {
+            if (UI::button_colored("Ученики", Students_List::get_background_color()))
+            {
+                subwindow_handler().open_subwindow(std::make_unique<Students_List>(controller(), shared()));
+            }
+            ImGui::SameLine();
             if (UI::button_colored("Группы", Lessons_List::get_background_color()))
             {
                 subwindow_handler().open_subwindow(std::make_unique<Lessons_List>(controller(), shared()));

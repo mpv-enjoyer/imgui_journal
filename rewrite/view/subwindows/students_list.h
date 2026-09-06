@@ -7,10 +7,6 @@ namespace View
 {
     class Students_List : public Subwindow
     {
-        static ImVec4 get_background_color()
-        {
-            return ImVec4(0.7f, 0.85f, 0.85f, 1.0f);
-        }
         static ImVec4 get_background_color_filtered()
         {
             return ImVec4(0.5f, 0.75f, 0.65f, 1.0f);
@@ -19,6 +15,10 @@ namespace View
         Vector_Sortable_CIterator_Sorted<Student> m_students_iterator;
         const size_t m_students_count_before;
     public:
+        static ImVec4 get_background_color()
+        {
+            return ImVec4(0.7f, 0.85f, 0.85f, 1.0f);
+        }
         virtual bool render_logic() override
         {
             bool filter_active = std::string(m_text_filter.InputBuf).length() > 0;
@@ -33,6 +33,7 @@ namespace View
                     // popup_handler().open_popup(new Popup_Add_Student_To_Base(graphical));
                 }
             }
+            ImGui::SameLine();
             {
                 UI::Scope_Color_Input color;
                 m_text_filter.Draw("Поиск с учётом регистра", 140);
@@ -62,22 +63,6 @@ namespace View
 //         append_students_to_begin();
 
             UI::Scope_Child child("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-            UI::table("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg, {}, {}, [&]() {
-                ImGui::TableSetupColumn("Номер д-ра", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableSetupColumn("Фамилия и имя");
-                ImGui::TableSetupColumn("Группы");
-                ImGui::TableSetupColumn("Действия", ImGuiTableColumnFlags_WidthFixed);
-                ImGui::TableHeadersRow();
-
-                for (size_t i = model()->students()->cref_students().size(); i-- > m_students_count_before; )
-                {
-
-                }
-                for (auto it = m_students_iterator; !!it; ++it)
-                {
-                    
-                }
-            });
 
             auto do_student_row = [&](Position<Student> student_pos) -> void
             {
@@ -94,123 +79,135 @@ namespace View
                     UI::Input_Int("##д-р", contract_number, [&](int value) -> bool {
                         controller().add(Ptr<Edit_Student_In_Base>::make(shared().month, student_pos, student.get_name(), value));
                         return true;
-                    }, 0);
+                    }, 0).render();
                     ImGui::TableNextColumn();
                     ImGui::SetNextItemWidth(-1);
                     UI::Input_Text("##фи", student.get_name(), [&](std::string value) -> bool {
                         controller().add(Ptr<Edit_Student_In_Base>::make(shared().month, student_pos, value, contract_number));
                         return true;
-                    });
+                    }).render();
                 }
 
                 ImGui::TableNextColumn();
                 auto merged_lessons = model()->get_merged_lessons_for_student(student_pos);
-                for (const auto [merged_lesson_id, attendance_student_pos] : merged_lessons)
+                bool print_separator = false;
+                for (const auto& [merged_lesson_id, attendance_student_pos] : merged_lessons)
                 {
-                    UI::Scope_ID(merged_lesson_id.wday().get_EN());
-                    UI::Scope_ID(merged_lesson_id.pos().get());
+                    if (print_separator)
+                    {
+                        ImGui::Separator();
+                    }
+                    else
+                    {
+                        print_separator = true;
+                    }
+                    UI::Scope_ID id1(merged_lesson_id.wday().get_EN());
+                    UI::Scope_ID id2(merged_lesson_id.pos().get());
                     const Attendance_Merged_Lesson& merged_lesson = model()->cref_merged_lesson(merged_lesson_id);
                     if (merged_lesson.is_removed(shared().month)) continue;
-                    UI::Scope_Disabled disabled(merged_lesson.is_student_removed(attendance_student_pos, shared().month));
                     UI::Scope_Disabled disabled2(!(Time_State::make(shared().month) & Time_State::CurrentMonth)); // TODO: handle different months...
-                    
+                    UI::Scope_Group group;
                     {
-                        UI::Scope_Group group;
+                        UI::Scope_Disabled disabled(merged_lesson.is_student_removed(attendance_student_pos, shared().month));
                         UI::label(merged_lesson_id.wday().get_name_short() + ", " + merged_lesson.get_group_description());
                         if (merged_lesson.cref_internal_lessons().size() > 1)
                         {
-                            UI::select_wants_lesson("##attend", merged_lesson, attendance_student_pos, [](std::vector<bool>)... // TODO THIS
-                            UI::Select_Lesson_Type select_lesson_type("##attend", [&](std::vector<Lesson_Type> lesson_types) -> bool {
-
+                            UI::select_wants_lesson("##attend", merged_lesson, attendance_student_pos, [&](std::vector<bool> wants) -> bool {
+                                Month month = shared().month;
+                                do
+                                {
+                                    for (std::size_t i = 0; i < wants.size(); i++)
+                                    {
+                                        Internal_Lesson_ID internal_lesson_id(merged_lesson_id, Position<Attendance_Internal_Lesson>(i));
+                                        Internal_Student_ID id(internal_lesson_id, attendance_student_pos);
+                                        auto call = std::make_shared<Edit_Wants_Lesson>(month, id, wants[i]);
+                                        if (!call->get_error(model()))
+                                        {
+                                            controller().add(call);
+                                        }
+                                    }
+                                } while (month.next());
                                 return true;
-                            })
+                            });
+                        }
+                        else
+                        {
+                            UI::label(Lesson_Infos::get_name(merged_lesson.cref_first_internal_lesson().get_lesson_type()));
+                        }
+                        ImGui::AlignTextToFramePadding();
+                    }
+
+                    ImGui::SameLine();
+                    if (!merged_lesson.is_student_removed(attendance_student_pos, shared().month))
+                    {
+                        if (UI::button_dangerous("Удалить из группы?"))
+                        {
+                            controller().add(std::make_shared<Remove_Student_From_Lesson>(merged_lesson_id, attendance_student_pos));
+                        }
+                    }
+                    else
+                    {
+                        if (UI::button_colored("Восстановить в группе", UI::GREEN))
+                        {
+                            controller().add(std::make_shared<Restore_Student_To_Lesson>(merged_lesson_id, attendance_student_pos));
+                        }
+                    }
+
+                    ImGui::SameLine();
+                    {
+                        UI::Scope_Disabled disabled(merged_lesson.is_student_removed(attendance_student_pos, shared().month));
+                        if (ImGui::Button("Переместить"))
+                        {
+                            /* TODO: MOVE POPUP */
                         }
                     }
                 }
+
+                ImGui::TableNextColumn();
+                if (!shared().edit_mode)
+                {
+                    if (UI::button_dangerous("Удалить ученика"))
+                    {
+                        /* TODO: CONFIRM DELETE STUDENT POPUP */
+                    }
+                }
+                else if (student.is_removed(shared().month))
+                {
+                    if (UI::button_colored("Восстановить ученика", UI::GREEN))
+                    {
+                        controller().add(std::make_shared<Restore_Student>(student_pos));
+                    }
+                }
+                else
+                {
+                    if (UI::button_dangerous("Удалить ученика"))
+                    {
+                        /* TODO: POPUP CONFIRM DELETE STUDENT */
+                    }
+                }
             };
-//                 std::string label = generate_label("##attend", {student_id, i});
-//                 Attend_Data cached_data = current_group.get_attend_data(internal_student_id);
-//                 std::string first_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(0).lesson_name_id);
-//                 if (current_lesson_info->get_lessons_size() == 2)
-//                 {
-//                     std::string second_name = journal->Lesson_name(current_lesson_info->get_lesson_pair(1).lesson_name_id);
-//                     if (Graphical::attend_data(label.c_str(), &cached_data, first_name, second_name))
-//                     {
-//                         journal->set_student_attend_data(current_wday, current_merged_lesson_id, internal_student_id, cached_data);
-//                     }
-//                 }
-//                 else
-//                 {
-//                     ImGui::Text(first_name.c_str());
-//                 }
-//                 ImGui::AlignTextToFramePadding();
 
-//                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
-//                 ImGui::SameLine();
-//                 if (!current_group.is_deleted(PTRREF(journal->student(student_id))))
-//                 {
-//                     std::string label_delete = generate_label("Удалить из группы##", {student_id, i});
-//                     if (Graphical::button_dangerous(label_delete.c_str()))
-//                     {
-//                         journal->remove_student_from_group(current_wday, current_merged_lesson_id, student_id);
-//                     }
-//                 }
-//                 else
-//                 {
-//                     std::string label_restore = generate_label("Восстановить в группе##", {student_id, i});
-//                     if (Graphical::button_colored(label_restore.c_str(), 0.1, 0.9, 0.1))
-//                     {
-//                         journal->restore_student_to_group(current_wday, current_merged_lesson_id, student_id);
-//                     }
-//                 }
+            UI::table("students", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg, {}, {}, [&]() {
+                ImGui::TableSetupColumn("Номер д-ра", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn("Фамилия и имя");
+                ImGui::TableSetupColumn("Группы");
+                ImGui::TableSetupColumn("Действия", ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableHeadersRow();
 
-//                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::BeginDisabled();
-
-//                 ImGui::SameLine();
-//                 std::string button_label = generate_label("Переместить##move", {student_id, i});
-//                 if (ImGui::Button(button_label.c_str()))
-//                 {
-//                     popup_handler->open_popup(new Popup_Move_Student_To_Group(graphical, current_lesson_info, current_wday, current_merged_lesson_id, student_id, &should_update_students));
-//                 }
-                
-//                 ImGui::EndGroup();
-//                 if (current_group.is_deleted(PTRREF(journal->student(student_id)))) ImGui::EndDisabled();
-//                 if (i != lessons_per_student[index].first.size() - 1)
-//                     ImGui::Separator();
-//             }
-//             if (current_student->is_removed()) ImGui::EndDisabled();
-//             ImGui::TableNextColumn();
-//             if (!edit_mode)
-//             {
-//                 if (Graphical::button_dangerous("Удалить ученика"))
-//                 {
-//                     popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
-//                 }
-//             }
-//             else
-//             {
-//                 if (is_removed_input_buffer && Graphical::button_colored("Восстановить ученика", 0.1, 0.9, 0.1))
-//                 {
-//                     journal->restore_student(student_id);
-//                 }
-//                 else if (!is_removed_input_buffer && Graphical::button_dangerous("Удалить ученика"))
-//                 {
-//                     popup_handler->open_popup(new Popup_Confirm_Delete_Student(graphical, student_id));
-//                 }
-//             }
-//             if (!is_current) ImGui::EndDisabled();
-//             ImGui::PopID();
-//         }
-//         ImGui::EndTable();
-//     }
-//     ImGui::EndChild();
-//     ImGui::End();
-//     ImGui::PopStyleColor(); //BG
+                for (size_t i = model()->students()->cref_students().size(); i-- > m_students_count_before; )
+                {
+                    do_student_row(Position<Student>(i));
+                }
+                for (auto it = m_students_iterator; !!it; ++it)
+                {
+                    do_student_row(it.get_position());
+                }
+            });
             return true;
         }
         Students_List(IController& controller, Shared& shared)
         : Subwindow("Список всех учеников", controller, shared),
-        m_students_iterator(model()->students()->cref_students().csorted_begin()),
+        m_students_iterator(model()->get_all_students_sorted()),
         m_students_count_before(model()->students()->cref_students().size())
         {
             

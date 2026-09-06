@@ -21,7 +21,7 @@ namespace UI
         Select_Students(std::string id, const IModel& model, std::function<bool(Position<Student> student)> filter, bool multi)
         : AUnit(id), m_multi(multi)
         {
-            for (auto it = model->students()->cref_students().cbegin(); it; ++it)
+            for (auto it = model->get_all_students_sorted(); it; ++it)
             {
                 if (!filter || filter(it.get_position()))
                 {

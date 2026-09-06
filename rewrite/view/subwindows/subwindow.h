@@ -42,6 +42,11 @@ namespace View
             if (!result)
             {
                 ImGui::ScheduleOneFrame();
+                /* TODO RENDERING: hovered ID is incorrect once the main window is rendered:
+                - Hover on button 1
+                - Open subwindow by button 1
+                - Close subwindow when mouse on button 2 on main window
+                - Hover color still on button 1 */
             }
             return result;
         }

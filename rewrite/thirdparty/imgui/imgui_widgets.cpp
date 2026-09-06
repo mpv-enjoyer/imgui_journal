@@ -4373,6 +4373,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         }
         else if (hovered && io.MouseClickedCount[0] >= 2 && !io.KeyShift)
         {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             stb_textedit_click(state, &state->Stb, mouse_x, mouse_y);
             const int multiclick_count = (io.MouseClickedCount[0] - 2);
             if ((multiclick_count % 2) == 0)
@@ -4410,6 +4411,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         {
             if (hovered)
             {
+                ScheduleOneFrame(); // HACK BY MPV-ENJOYER
                 if (io.KeyShift)
                     stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
                 else
@@ -4419,12 +4421,16 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         }
         else if (io.MouseDown[0] && !state->SelectedAllMouseLock && (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f))
         {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER (DOESN'T HELP)
             stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
             state->CursorAnimReset();
             state->CursorFollow = true;
         }
         if (state->SelectedAllMouseLock && !io.MouseDown[0])
+        {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             state->SelectedAllMouseLock = false;
+        }
 
         // We expect backends to emit a Tab key but some also emit a Tab character which we ignore (#2467, #1336)
         // (For Tab and Enter: Win32/SFML/Allegro are sending both keys and chars, GLFW and SDL are only sending keys. For Space they all send all threes)

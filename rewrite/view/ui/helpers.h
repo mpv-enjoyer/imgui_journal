@@ -9,10 +9,12 @@ namespace UI
 {
     struct Scope_Group
     {
+        bool enabled = true;
         NON_COPYABLE_NOR_MOVABLE(Scope_Group);
         [[nodiscard]] explicit Scope_Group() { ImGui::BeginGroup(); }
-        ~Scope_Group() { ImGui::EndGroup(); }
-        operator bool() { return true; }
+        void end() { enabled = false; }
+        ~Scope_Group() { if (enabled) ImGui::EndGroup(); }
+        operator bool() { return enabled; }
     };
 
     struct Scope_Child
