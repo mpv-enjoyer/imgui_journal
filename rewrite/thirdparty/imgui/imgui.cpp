@@ -1286,7 +1286,7 @@ ImGuiIO::ImGuiIO()
     ConfigMacOSXBehaviors = false;
 #endif
     ConfigInputTrickleEventQueue = true;
-    ConfigInputTextCursorBlink = true;
+    ConfigInputTextCursorBlink = false; // HACK BY MPV-ENJOYER (blinking doesn't wotk properly with cancellable frames)
     ConfigInputTextEnterKeepActive = false;
     ConfigDragClickToInputText = false;
     ConfigWindowsResizeFromEdges = true;
