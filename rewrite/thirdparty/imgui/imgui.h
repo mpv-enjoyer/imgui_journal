@@ -296,8 +296,9 @@ namespace ImGui
     IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
 
 
-    // Main
+// Main
     // HACK BY MPV-ENJOYER
+    void SetWantFrames(int count);
     IMGUI_API void ScheduleOneFrame();
     IMGUI_API bool HasPendingFrames();
     IMGUI_API int GetPopupCount();

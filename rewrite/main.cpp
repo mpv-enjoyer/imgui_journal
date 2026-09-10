@@ -141,6 +141,7 @@ bool GLFW3_Renderer::is_initialized()
 
 bool GLFW3_Renderer::begin_frame(bool cancellable)
 {
+    const static bool LOG = false;
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     bool TEMP_BACKUP = ImGui::GetIO().AnyKeyPressed;
@@ -154,7 +155,7 @@ bool GLFW3_Renderer::begin_frame(bool cancellable)
         ImGui_ImplGlfw_CancelFrame();
         return false;
     }
-    printf("Submitted \n");
+    if (LOG) printf("Submitted \n");
     ImGui::GetIO().AnyKeyPressed = TEMP_BACKUP_2;
     ImGui::NewFrame();
     return true;

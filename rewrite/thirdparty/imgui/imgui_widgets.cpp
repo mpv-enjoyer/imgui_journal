@@ -4112,6 +4112,10 @@ void ImGui::InputTextDeactivateHook(ImGuiID id)
 // - If you want to use ImGui::InputText() with std::string, see misc/cpp/imgui_stdlib.h
 // (FIXME: Rather confusing and messy function, among the worse part of our codebase, expecting to rewrite a V2 at some point.. Partly because we are
 //  doing UTF8 > U16 > UTF8 conversions on the go to easily interface with stb_textedit. Ideally should stay in UTF-8 all the time. See https://github.com/nothings/stb/issues/188)
+
+// HACK BY MPV-ENJOYER: override ScheduleOneFrame for this func if needed:
+// #define ScheduleOneFrame() [&](){ ImGui::ScheduleOneFrame(); printf("[%i] Textbox wants frame. Cursor at %i, mouse cursor x at %i, abs mc x: %i\n", __LINE__, GImGui->InputTextState.Stb.cursor, (int)mouse_x, (int)(io.MousePos.x)); }()
+#define ScheduleOneFrame() do { } while (0) 
 bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -5063,6 +5067,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     else
         return value_changed;
 }
+// HACK BY MPV-ENJOYER:
+#undef ScheduleOneFrame
+
 
 void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
 {

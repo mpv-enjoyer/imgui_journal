@@ -10360,7 +10360,7 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 //-----------------------------------------------------------------------------
 
 // HACK BY MPV-ENJOYER
-static void SetWantFrames(int count)
+void ImGui::SetWantFrames(int count)
 {
     if (GImGui->CurrentHoveredIDFramesLeft < count)
         GImGui->CurrentHoveredIDFramesLeft = count;
@@ -10368,10 +10368,6 @@ static void SetWantFrames(int count)
 void ImGui::ScheduleOneFrame()
 {
     const ImGuiContext& g = *GImGui;
-    if (g.ActiveId == g.InputTextState.ID)
-    {
-        /* TODO: Do something IDK. InputText is very broken */
-    }
     SetWantFrames(2);
 }
 bool ImGui::HasPendingFrames()
@@ -10384,25 +10380,26 @@ int ImGui::GetPopupCount()
 }
 bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
 {
+    static const bool LOG = false;
     const ImGuiIO& io = ImGui::GetIO();
     const ImGuiContext& g = *GImGui;
 
     if (g.CurrentHoveredIDFramesLeft > 0)
     {
-        printf(" fl ");
+        if (LOG) printf(" fl ");
         return false;
     }
 
     if (g.PollUntil > g.Time)
     {
-        printf(" pu ");
+        if (LOG) printf(" pu ");
         return false;
     }
 
     if (g.DimBgRatio != 0.0f && g.DimBgRatio != 1.0f)
     {
         // Popup is opening, need to play animation
-        printf(" popup_opening ");
+        if (LOG) printf(" popup_opening ");
         return false;
     }
 
@@ -10465,8 +10462,8 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
             const int key_data_index = (int)(key_data - g.IO.KeysData);
             if (trickle_fast_inputs && key_data->Down != e->Key.Down && (key_changed_mask.TestBit(key_data_index) || text_inputted || mouse_button_changed != 0))
                 break;
-            key_data->Down = e->Key.Down;
-            key_data->AnalogValue = e->Key.AnalogValue;
+            // key_data->Down = e->Key.Down; // TODO: look more into this (may break checkboxes idk)
+            // key_data->AnalogValue = e->Key.AnalogValue;
             key_changed = true;
             key_changed_mask.SetBit(key_data_index);
 
@@ -10504,7 +10501,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     ImVec2 pos = ImVec2(mouse_x, mouse_y);
     if (key_changed)
     {
-        printf(" kc ");
+        if (LOG) printf(" kc ");
         SetWantFrames(2);
         return false;
     }
@@ -10514,9 +10511,23 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     //     SetWantFrames(3);
     //     return false;
     // }
+    if (g.ActiveId == g.InputTextState.ID)
+    {
+        for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key++)
+        {
+            // Here we're fine with outdated key data: we just want to keep updating
+            if (ImGui::IsKeyDown((ImGuiKey)key))
+            {
+                if (LOG) printf("its kd");
+                SetWantFrames(2);
+                return false;
+            }
+        }
+        /* TODO: Do something more IDK. InputText is very broken */
+    }
     if (mouse_wheeled)
     {
-        printf(" mw ");
+        if (LOG) printf(" mw ");
         SetWantFrames(2);
         return false;
     }
@@ -10531,14 +10542,14 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
             }
             if (is_mouse_down)
             {
-                printf(" its mm ");
+                if (LOG) printf(" its mm ");
                 SetWantFrames(2);
                 return false;
             }
         }
         if (mouse_button_changed)
         {
-            printf(" aid mbc ");
+            if (LOG) printf(" aid mbc ");
             SetWantFrames(2);
             return false;
         }
@@ -10563,7 +10574,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     // }
     if (g.InteractableRectsPreviousFrame.size() != g.InteractableRects.size())
     {
-        printf(" ir != ir_prev ");
+        if (LOG) printf(" ir != ir_prev ");
         SetWantFrames(2);
         return false;
     }
@@ -10576,7 +10587,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
             cur.GetBR().x != prev.GetBR().x ||
             cur.GetBR().y != prev.GetBR().y)
         {
-            printf(" ir[i] != ir_prev[i] ");
+            if (LOG) printf(" ir[i] != ir_prev[i] ");
             return false;
         }
     }
@@ -10584,14 +10595,14 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
     {
         if (mouse_button_changed)
         {
-            printf(" inter_hover mbc ");
+            if (LOG) printf(" inter_hover mbc ");
             SetWantFrames(2);
             //SetWantFrames(6); 6 frames lead to weirdness when opening/closing popups, but 4 is fine...???
             return false;
         }
         if (!g.InteractableRects[g.InteractableRectVectorIndex].Contains(pos))
         {
-            printf(" inter_hover_off ");
+            if (LOG) printf(" inter_hover_off ");
             SetWantFrames(2);
             return false; // Hovered off the item.
         }
@@ -10601,7 +10612,7 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
         ImGuiWindow* window = g.OpenPopupStack.back().Window;
         if (window && !window->Rect().Contains(pos) && mouse_button_changed)
         {
-            printf(" popup mbc ");
+            if (LOG) printf(" popup mbc ");
             SetWantFrames(2);
             return false;
         }
@@ -10614,14 +10625,17 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
             bool currentlyHovered = g.InteractableRects[i].Contains(pos);
             if (currentlyHovered != g.InteractableRectsHovered[i])
             {
-                printf(" inter_hover_change ");
+                if (LOG) printf(" inter_hover_change ");
                 SetWantFrames(2);
                 return false; // Overall hovered state changed
             }
         }
     }
 
-    GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any mouse interaction breaks. Looks fine so far
+    // EDITING GLOBAL STATE!!!
+    // The frame is discarded. All events will be cleared. Update mouse pos so it remains valid (for textbox selections):
+    ImGui::GetIO().MousePos = pos;
+    GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any more mouse interaction break. Looks fine so far
     return true;
 }
 // HACK BY MPV-ENJOYER
