@@ -10523,7 +10523,6 @@ bool ImGui::NewFrameMustBeCancelled(double mouse_x, double mouse_y)
                 return false;
             }
         }
-        /* TODO: Do something more IDK. InputText is very broken */
     }
     if (mouse_wheeled)
     {

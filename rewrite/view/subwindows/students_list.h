@@ -19,7 +19,7 @@ namespace View
         {
             return ImVec4(0.7f, 0.85f, 0.85f, 1.0f);
         }
-        virtual bool render_logic() override
+        bool render_logic() override
         {
             bool filter_active = std::string(m_text_filter.InputBuf).length() > 0;
             UI::Scope_Color color(ImGuiCol_ChildBg, filter_active ? get_background_color_filtered() : get_background_color());
@@ -27,10 +27,9 @@ namespace View
             if (Add_Student_To_Base::IS_FITTING(Time_State::make(shared().month)))
             {
                 ImGui::SameLine();
-                if (ImGui::Button("Добавить ученика##в общий список"))
+                if (ImGui::Button("Добавить ученика"))
                 {
-                    // TODO: add student to base popup
-                    // popup_handler().open_popup(new Popup_Add_Student_To_Base(graphical));
+                    popup_handler().open_popup(std::make_unique<Popup_Add_Student_To_Base>(shared(), controller()));
                 }
             }
             ImGui::SameLine();
@@ -52,15 +51,6 @@ namespace View
             {
                 UI::label("Вы смотрите данные другого года (" + shared().month.get_name() + "). Редактирование доступно только для текущего месяца.", UI::RED);
             }
-
-//     if (should_update_students)
-//     {
-//         update_lessons_per_student();
-//         should_update_students = false;
-//     }
-
-//     if (lessons_per_student.size() != journal->student_count())
-//         append_students_to_begin();
 
             UI::Scope_Child child("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
 

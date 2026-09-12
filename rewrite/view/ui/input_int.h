@@ -14,18 +14,30 @@ namespace UI
         {
             std::sprintf(m_buffer.data(), "%i", m_value);
         }
+        static int M_CALLBACK_TEXTBOX(ImGuiInputTextCallbackData* data)
+        {
+            char c = data->EventChar;
+            bool invalid = (c < '0') || (c > '9');
+            return (int)invalid;
+        }
+        bool input_int_UNUSED(const char* label, int* v)
+        {
+            return ImGui::InputScalar(label, ImGuiDataType_U32, (void*)v, NULL, NULL, NULL, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+        }
+
     protected:
         std::vector<char> m_buffer;
     public:
-        Input_Int(std::string id, int value = 0, std::function<bool(int)> callback = nullptr, int min = 0, int max = __INT_MAX__)
+        Input_Int(std::string id, int value = 0, std::function<bool(int)> callback = nullptr, int min = 0, int max = 100000000)
         : AUnit(id), m_value(value), m_callback(callback), m_min(min), m_max(max), m_buffer(std::to_string(m_max).size() + 1, '\0')
         {
             update_visible_value();
         }
+
         void render_logic()
         {
             UI::Scope_Color_Input color;
-            if (!ImGui::InputText(m_id.c_str(), m_buffer.data(), m_buffer.size(), ImGuiInputTextFlags_AutoSelectAll)) return;
+            if (!ImGui::InputText(m_id.c_str(), m_buffer.data(), m_buffer.size(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CallbackCharFilter, M_CALLBACK_TEXTBOX)) return;
             int value_buffer;
             if (std::sscanf(m_buffer.data(), "%i", &value_buffer) == 0)
             {

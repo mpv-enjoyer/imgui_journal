@@ -4425,7 +4425,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         }
         else if (io.MouseDown[0] && !state->SelectedAllMouseLock && (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f))
         {
-            ScheduleOneFrame(); // HACK BY MPV-ENJOYER (DOESN'T HELP)
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
             state->CursorAnimReset();
             state->CursorFollow = true;
