@@ -14,6 +14,9 @@ private:
     int age_group = 0;
     std::vector<Lesson_Pair> lesson_pairs;
     int existing_lesson_info_id = -1;
+
+    int get_first_lesson_type_id() const;
+    std::optional<int> get_second_lesson_type_id();
 public:
     Popup_Add_Merged_Lesson_To_Journal(JournalHolder* graphical, int existing_lesson_info_id = -1, int wday = -1);
     bool show_frame() override;

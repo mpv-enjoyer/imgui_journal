@@ -28,12 +28,38 @@ std::string generate_prices_name()
     return "prices_default.data";
 }
 
+static void fixup_missing_prices(std::vector<std::vector<int>> &prices)
+{
+    if (prices.size() == LESSON_TYPE_COUNT)
+    {
+        /* everything good */
+    }
+    else if (prices.size() < LESSON_TYPE_COUNT)
+    {
+        int discounts_size = prices[0].size();
+        // Пленэр?
+        for (int i_ = prices.size(); i_ < LESSON_TYPE_COUNT; i_++)
+        {
+            prices.push_back({});
+            for (int discount_id = 0; discount_id < discounts_size; discount_id++)
+            {
+                prices.back().push_back(999);
+            }
+        }
+    }
+    else
+    {
+        IM_ASSERT(false && "Prices: Found more lesson_types than supported");
+    }
+}
+
 bool Journal::get_default_prices(std::vector<std::vector<int>> &prices, int &ill_price, int &skipped_price)
 {
     std::ifstream ifs(generate_prices_name());
     if (ifs.fail()) return false;
     boost::archive::text_iarchive ia(ifs);
     ia >> prices;
+    fixup_missing_prices(prices);
     ia >> skipped_price;
     ia >> ill_price;
     return true;
@@ -169,6 +195,7 @@ bool Journal::load_prices()
     }
     boost::archive::text_iarchive ia(ifs);
     ia >> _lesson_prices;
+    fixup_missing_prices(_lesson_prices);
     ia >> _lesson_price_skipped;
     ia >> _lesson_price_was_ill;
     return true;

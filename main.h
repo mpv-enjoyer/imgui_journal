@@ -83,7 +83,7 @@ typedef short Attend_Data;
 #define ATTEND_SECOND 2
 #define INTERVAL_CHECK(left1, right1, left2, right2) (!(left1 < right1 && right1 < left2 && left2 < right2))
 
-const int LESSON_TYPE_COUNT = 5;
+const int LESSON_TYPE_COUNT = 6;
 //const int LESSON_PRICES_COUNT = 3;
 const int AGE_GROUP_COUNT = 9;
 
@@ -123,9 +123,9 @@ std::vector<std::size_t> sort_indexes_by_ptr(const std::vector<T*> &v) {
   return idx;
 }
 
-//TODO: remove
-const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
-const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
+// Also update Journal::_lesson_names and prices_saveload if edited: 
+const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс", "Пленэр"};
+// const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
 //const int                      Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
 const std::vector<std::string> Month_Names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 const char                     Month_Names_Combo[] = "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0";
