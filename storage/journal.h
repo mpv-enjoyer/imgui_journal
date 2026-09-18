@@ -8,6 +8,7 @@
 #define NAME_DESIGN 2        // Дизайн
 #define NAME_TECHDRAWING 3   // Черчение
 #define NAME_SPECIALCOURSE 4 // Спецкурс
+#define NAME_PLEIN 5         // Пленэр
 
 void turn_on_log_regular_saves();
 class Test_Journal

@@ -10,7 +10,9 @@ int get_combo_lesson_name_id(std::vector<Lesson_Pair> pairs)
     if (first_lesson_id == NAME_DRAWING) return 0;
     if (first_lesson_id == NAME_SCULPTING) return 1;
     if (first_lesson_id == NAME_DESIGN) return 4;
-    if (first_lesson_id == NAME_SPECIALCOURSE) return 5;
+    if (first_lesson_id == NAME_TECHDRAWING) return 5;
+    if (first_lesson_id == NAME_SPECIALCOURSE) return 6;
+    if (first_lesson_id == NAME_PLEIN) return 7;
     IM_ASSERT(false && "invalid pairs");
 }
 
@@ -45,14 +47,14 @@ int Popup_Add_Merged_Lesson_To_Journal::get_first_lesson_type_id() const
 {
     switch (combo_lesson_name_id)
     {
-    case 0: return 0;
-    case 1: return 1;
-    case 2: return 0;
-    case 3: return 1;
-    case 4: return 2;
-    case 5: return 3;
-    case 6: return 4;
-    case 7: return 5;
+    case 0: return NAME_DRAWING;
+    case 1: return NAME_SCULPTING;
+    case 2: return NAME_DRAWING;
+    case 3: return NAME_SCULPTING;
+    case 4: return NAME_DESIGN;
+    case 5: return NAME_TECHDRAWING;
+    case 6: return NAME_SPECIALCOURSE;
+    case 7: return NAME_PLEIN;
     default: IM_ASSERT(false);
     }
 }
@@ -62,12 +64,12 @@ std::optional<int> Popup_Add_Merged_Lesson_To_Journal::get_second_lesson_type_id
     {
     case 0: return {};
     case 1: return {};
-    case 2: return 1;
-    case 3: return 0;
-    case 4: return 2;
-    case 5: return 3;
-    case 6: return 4;
-    case 7: return 5;
+    case 2: return NAME_SCULPTING;
+    case 3: return NAME_DRAWING;
+    case 4: return NAME_DESIGN;
+    case 5: return NAME_TECHDRAWING;
+    case 6: return NAME_SPECIALCOURSE;
+    case 7: return NAME_PLEIN;
     default: IM_ASSERT(false);
     }
 }
