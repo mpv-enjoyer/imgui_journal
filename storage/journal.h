@@ -191,7 +191,7 @@ public:
     void save_prices();
     bool load_workouts();
     bool load();
-    bool load_prices();
+    bool load_prices(bool try_my_prices_file = true);
     void generate(int base_month, int base_year);
     void generate_empty();
     void generate();

@@ -184,10 +184,10 @@ bool Journal::load()
     return true;
 }
 
-bool Journal::load_prices()
+bool Journal::load_prices(bool try_my_prices_file)
 {
     std::ifstream ifs(generate_prices_name(_current_month, _current_year));
-    if (ifs.fail())
+    if (!try_my_prices_file || ifs.fail())
     {
         ifs = std::ifstream(generate_prices_name());
         if (ifs.fail()) return false;

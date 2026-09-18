@@ -3,7 +3,7 @@
 Subwindow_Prices_List::Subwindow_Prices_List(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler)
 {
-    if (!Journal::get_default_prices(prices, price_ill, price_skipped))
+    //if (!Journal::get_default_prices(prices, price_ill, price_skipped))
     {
         price_loaded_from_journal = true;
         prices = journal->get_lesson_prices();
@@ -27,8 +27,8 @@ bool Subwindow_Prices_List::show_frame()
 
     if (price_loaded_from_journal)
     {
-        ImGui::SameLine();
-        ImGui::TextColored(ImVec4(255, 0, 0, 255), "Файл со стандартными ценами не найден. Цены загружены из текущего месяца журнала.");
+//        ImGui::SameLine();
+//        ImGui::TextColored(ImVec4(255, 0, 0, 255), "Файл со стандартными ценами не найден. Цены загружены из текущего месяца журнала.");
     }
 
     if (unsaved_changes)
@@ -75,11 +75,18 @@ bool Subwindow_Prices_List::show_frame()
         }
     }
 
+    ImGui::Text("state %i ...", journal->get_state());
+    bool can_save_for_current_month = (journal->get_state() == Journal::State::Limited) || (journal->get_state() == Journal::State::Fullaccess);
+
     if (Graphical::button_colored("Сохранить", 0.1f, 0.9f, 0.1f))
     {
         Journal::set_default_prices(prices, price_ill, price_skipped);
         if (Journal::get_default_prices(prices, price_ill, price_skipped))
         {
+            if (can_save_for_current_month)
+            {
+                journal->load_prices(false); // load prices and ignore current -> will be overwritten on next save.
+            }
             unsaved_changes = false;
             price_loaded_from_journal = false;
             ImGui::End();
@@ -88,8 +95,14 @@ bool Subwindow_Prices_List::show_frame()
     }
 
     ImGui::SameLine();
-    ImGui::Text("Изменения вступят в силу в следующем месяце.");
-
+    if (can_save_for_current_month)
+    {
+        ImGui::Text("Изменения подействуют на %s %i и далее будут считаться за цены по умолчанию.", journal->Month_name(journal->current_month()).c_str(), journal->current_year() + 1900);
+    }
+    else
+    {
+        ImGui::Text("Изменения НЕ подействуют на текущий месяц, только на цены по умолчанию. (выбран месяц %s %i из будущего или из другого учебного года)", journal->Month_name(journal->current_month()).c_str(), journal->current_year() + 1900);
+    }
     ImGui::End();
     return false;
 }
