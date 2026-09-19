@@ -120,6 +120,7 @@ struct ImGui_ImplGlfw_Data
 {
     GLFWwindow*             Window;
     GlfwClientApi           ClientApi;
+    double                  TimeBeforeCommit; // HACK BY MPV-ENJOYER
     double                  Time;
     GLFWwindow*             MouseWindow;
     GLFWcursor*             MouseCursors[ImGuiMouseCursor_COUNT];
@@ -136,12 +137,15 @@ struct ImGui_ImplGlfw_Data
     GLFWkeyfun              PrevUserCallbackKey;
     GLFWcharfun             PrevUserCallbackChar;
     GLFWmonitorfun          PrevUserCallbackMonitor;
+    GLFWwindowrefreshfun    PrevUserCallbackRefresh; // HACK BY MPV-ENJOYER
 #ifdef _WIN32
     WNDPROC                 GlfwWndProc;
 #endif
 
     ImGui_ImplGlfw_Data()   { memset((void*)this, 0, sizeof(*this)); }
 };
+
+static bool glfw_context_has_uncancellable_events = false; // HACK BY MPV-ENJOYER
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
@@ -496,6 +500,13 @@ static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wPara
 }
 #endif
 
+// HACK BY MPV-ENJOYER
+void ImGui_ImplGlfw_RefreshCallback(GLFWwindow* window)
+{
+    glfw_context_has_uncancellable_events = true;
+}
+// HACK BY MPV-ENJOYER
+
 void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
@@ -510,6 +521,7 @@ void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
     bd->PrevUserCallbackKey = glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
     bd->PrevUserCallbackChar = glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
     bd->PrevUserCallbackMonitor = glfwSetMonitorCallback(ImGui_ImplGlfw_MonitorCallback);
+    bd->PrevUserCallbackRefresh = glfwSetWindowRefreshCallback(window, ImGui_ImplGlfw_RefreshCallback); // HACK BY MPV-ENJOYER
     bd->InstalledCallbacks = true;
 }
 
@@ -563,6 +575,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
 
     bd->Window = window;
     bd->Time = 0.0;
+    bd->TimeBeforeCommit = 0.0; // HACK BY MPV-ENJOYER
 
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
@@ -797,6 +810,7 @@ void ImGui_ImplGlfw_NewFrame()
 
     // Setup time step
     // (Accept glfwGetTime() not returning a monotonically increasing value. Seems to happens on disconnecting peripherals and probably on VMs and Emscripten, see #6491, #6189, #6114, #3644)
+    bd->TimeBeforeCommit = bd->Time; // HACK BY MPV-ENJOYER
     double current_time = glfwGetTime();
     if (current_time <= bd->Time)
         current_time = bd->Time + 0.00001f;
@@ -813,6 +827,27 @@ void ImGui_ImplGlfw_NewFrame()
     // Update game controllers (if enabled and available)
     ImGui_ImplGlfw_UpdateGamepads();
 }
+
+// HACK BY MPV-ENJOYER
+bool ImGui_ImplGlfw_GetAndClearUncancellableEvents()
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    bool value = glfw_context_has_uncancellable_events;
+    glfw_context_has_uncancellable_events = false;
+    return value;
+}
+void ImGui_ImplGlfw_CancelFrame()
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    bd->Time = bd->TimeBeforeCommit;
+    // io.DeltaTime is calculated from bd->Time so no need to change it here
+}
+void ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(double* x, double* y)
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    glfwGetCursorPos(bd->Window, x, y);
+}
+// HACK BY MPV-ENJOYER
 
 //-----------------------------------------------------------------------------
 

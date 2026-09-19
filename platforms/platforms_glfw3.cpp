@@ -61,12 +61,23 @@ bool GLFW3_Renderer::is_initialized()
     return init;
 }
 
-void GLFW3_Renderer::begin_frame()
+bool GLFW3_Renderer::begin_frame()
 {
+    static bool cancellable = false;
+    const static bool LOG = false;
+    
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
+    if (!ImGui_ImplGlfw_GetAndClearUncancellableEvents() && cancellable && ImGui::NewFrameMustBeCancelled())
+    {
+        ImGui_ImplGlfw_CancelFrame();
+        return false;
+    }
+    cancellable = true;
+    if (LOG) printf("Submitted \n");
     ImGui::NewFrame();
+    return true;
 }
 
 void GLFW3_Renderer::render_frame()
@@ -110,6 +121,11 @@ void GLFW3_Renderer::wait_events_timeout(double time)
 void GLFW3_Renderer::wait_events()
 {
     glfwWaitEvents();
+}
+
+void GLFW3_Renderer::poll_events()
+{
+    glfwPollEvents();
 }
 
 bool GLFW3_Renderer::supports_images()

@@ -53,7 +53,7 @@ bool SDL2_Renderer::is_initialized()
     return init;
 }
 
-void SDL2_Renderer::begin_frame()
+bool SDL2_Renderer::begin_frame()
 {
     // Start the Dear ImGui frame
     ImGui_ImplSDLRenderer2_NewFrame();
@@ -131,6 +131,20 @@ void SDL2_Renderer::wait_events()
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
             done = true;
     }
+}
+
+void SDL2_Renderer::poll_events()
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        ImGui_ImplSDL2_ProcessEvent(&event);
+        if (event.type == SDL_QUIT)
+            done = true;
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+            done = true;
+    }
+
 }
 
 bool SDL2_Renderer::supports_images()

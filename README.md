@@ -1,4 +1,4 @@
 # imgui_journal
 
 TODO:
- - saving prices for this month is surely possible.
+ - SDL2 new rendering

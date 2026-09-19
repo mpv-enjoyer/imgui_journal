@@ -295,9 +295,14 @@ namespace ImGui
     IMGUI_API ImGuiContext* GetCurrentContext();
     IMGUI_API void          SetCurrentContext(ImGuiContext* ctx);
 
-    // Main
+
+// Main
     // HACK BY MPV-ENJOYER
+    IMGUI_API void SetWantFrames(int count);
+    IMGUI_API void ScheduleOneFrame();
+    IMGUI_API bool HasPendingFrames();
     IMGUI_API int GetPopupCount();
+    IMGUI_API bool NewFrameMustBeCancelled(); // Clears an input queue if a frame is cancelled
     // HACK BY MPV-ENJOYER
     IMGUI_API ImGuiIO&      GetIO();                                    // access the IO structure (mouse/keyboard/gamepad inputs, time, various configuration options/flags)
     IMGUI_API ImGuiStyle&   GetStyle();                                 // access the Style structure (colors, sizes). Always use PushStyleCol(), PushStyleVar() to modify style mid-frame!
@@ -1848,6 +1853,9 @@ struct ImVector
     inline void         clear()                             { if (Data) { Size = Capacity = 0; IM_FREE(Data); Data = NULL; } }  // Important: does not destruct anything
     inline void         clear_delete()                      { for (int n = 0; n < Size; n++) IM_DELETE(Data[n]); clear(); }     // Important: never called automatically! always explicit.
     inline void         clear_destruct()                    { for (int n = 0; n < Size; n++) Data[n].~T(); clear(); }           // Important: never called automatically! always explicit.
+    /* HACK BY MPV-ENJOYER */
+    inline void         clear_no_dealloc()                  { shrink(0); } 
+    /* HACK BY MPV-ENJOYER */
 
     inline bool         empty() const                       { return Size == 0; }
     inline int          size() const                        { return Size; }

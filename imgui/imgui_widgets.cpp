@@ -250,6 +250,7 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
         ImRect bb(text_pos, text_pos + text_size);
         ItemSize(text_size, 0.0f);
         ItemAdd(bb, 0);
+        // ItemAdd(bb, 0, NULL, ImGuiItemFlags_NotInteractable); // FUTURE HACK BY MPV-ENJOYER?
     }
 }
 
@@ -517,7 +518,10 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
         if (IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
         {
             hovered = true;
-            SetHoveredID(id);
+            /* HACK BY MPV-ENJOYER */
+            IM_ASSERT(g.InteractableRects.size() != 0);
+            SetHoveredID(id, g.InteractableRects.size() - 1);
+            /* HACK BY MPV-ENJOYER */
             if (g.HoveredIdTimer - g.IO.DeltaTime <= DRAGDROP_HOLD_TO_OPEN_TIMER && g.HoveredIdTimer >= DRAGDROP_HOLD_TO_OPEN_TIMER)
             {
                 pressed = true;
@@ -966,7 +970,10 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
 
         // Click position in scrollbar normalized space (0.0f->1.0f)
         const float clicked_v_norm = ImSaturate((mouse_pos_v - scrollbar_pos_v) / scrollbar_size_v);
-        SetHoveredID(id);
+        /* HACK BY MPV-ENJOYER */
+        IM_ASSERT(g.InteractableRects.size() != 0);
+        SetHoveredID(id, g.InteractableRects.size() - 1);
+        /* HACK BY MPV-ENJOYER */
 
         bool seek_absolute = false;
         if (g.ActiveIdIsJustActivated)
@@ -1921,11 +1928,20 @@ bool ImGui::Combo(const char* label, int* current_item, const char* (*getter)(vo
 
         PushID(i);
         const bool item_selected = (i == *current_item);
-        if (Selectable(item_text, item_selected) && *current_item != i)
+        const bool selectable_returned = Selectable(item_text, item_selected); // HACK BY MPV-ENJOYER
+        if (selectable_returned && *current_item != i)
         {
             value_changed = true;
             *current_item = i;
         }
+        // HACK BY MPV-ENJOYER
+        if (selectable_returned)
+        {
+            ImGui::ScheduleOneFrame();
+            //if (GImGui->CurrentHoveredIDFramesLeft < 5)
+            //    GImGui->CurrentHoveredIDFramesLeft = 5;
+        }
+        // HACK BY MPV-ENJOYER
         if (item_selected)
             SetItemDefaultFocus();
         PopID();
@@ -4096,6 +4112,10 @@ void ImGui::InputTextDeactivateHook(ImGuiID id)
 // - If you want to use ImGui::InputText() with std::string, see misc/cpp/imgui_stdlib.h
 // (FIXME: Rather confusing and messy function, among the worse part of our codebase, expecting to rewrite a V2 at some point.. Partly because we are
 //  doing UTF8 > U16 > UTF8 conversions on the go to easily interface with stb_textedit. Ideally should stay in UTF-8 all the time. See https://github.com/nothings/stb/issues/188)
+
+// HACK BY MPV-ENJOYER: override ScheduleOneFrame for this func if needed:
+// #define ScheduleOneFrame() [&](){ ImGui::ScheduleOneFrame(); printf("[%i] Textbox wants frame. Cursor at %i, mouse cursor x at %i, abs mc x: %i\n", __LINE__, GImGui->InputTextState.Stb.cursor, (int)mouse_x, (int)(io.MousePos.x)); }()
+#define ScheduleOneFrame() do { } while (0) 
 bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* callback_user_data)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -4357,6 +4377,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         }
         else if (hovered && io.MouseClickedCount[0] >= 2 && !io.KeyShift)
         {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             stb_textedit_click(state, &state->Stb, mouse_x, mouse_y);
             const int multiclick_count = (io.MouseClickedCount[0] - 2);
             if ((multiclick_count % 2) == 0)
@@ -4394,6 +4415,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         {
             if (hovered)
             {
+                ScheduleOneFrame(); // HACK BY MPV-ENJOYER
                 if (io.KeyShift)
                     stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
                 else
@@ -4403,12 +4425,16 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         }
         else if (io.MouseDown[0] && !state->SelectedAllMouseLock && (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f))
         {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             stb_textedit_drag(state, &state->Stb, mouse_x, mouse_y);
             state->CursorAnimReset();
             state->CursorFollow = true;
         }
         if (state->SelectedAllMouseLock && !io.MouseDown[0])
+        {
+            ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             state->SelectedAllMouseLock = false;
+        }
 
         // We expect backends to emit a Tab key but some also emit a Tab character which we ignore (#2467, #1336)
         // (For Tab and Enter: Win32/SFML/Allegro are sending both keys and chars, GLFW and SDL are only sending keys. For Space they all send all threes)
@@ -5041,6 +5067,9 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     else
         return value_changed;
 }
+// HACK BY MPV-ENJOYER:
+#undef ScheduleOneFrame
+
 
 void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
 {

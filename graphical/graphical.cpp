@@ -21,8 +21,8 @@ void JournalHolder::set_edit_mode(bool value)
 
 bool Graphical::attend_data(std::string label, Attend_Data* attend_data, std::string first_lesson_name, std::string second_lesson_name)
 {
-    std::string lesson_concat = to_string({ first_lesson_name, second_lesson_name}, "+").c_str();
-    const char* items[] = {lesson_concat.c_str(), first_lesson_name.c_str(), second_lesson_name.c_str()};
+    std::string lesson_concat = to_string({first_lesson_name, second_lesson_name}, "+").c_str();
+    const char* items[] = {lesson_concat.c_str(), (first_lesson_name + "##1").c_str(), (second_lesson_name + "##2").c_str()};
     const char* combo_preview_value = items[*attend_data];  // Pass in the preview value visible before opening the combo (it could be anything)
     //ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
     if (ImGui::BeginCombo(label.c_str(), combo_preview_value, ImGuiComboFlags_WidthFitPreview))

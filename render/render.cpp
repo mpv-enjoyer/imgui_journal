@@ -52,7 +52,7 @@ void Render::main_loop()
 {
     while (!Impl::renderer()->should_close())
     {
-        if (Impl::renderer()->is_mouse_button_pressed()) set_poll_time(1);
+        /*if (Impl::renderer()->is_mouse_button_pressed()) set_poll_time(1);
         if (poll_until >= ImGui::GetTime())
         {
             Impl::renderer()->wait_events_timeout(0.05f);
@@ -65,7 +65,28 @@ void Render::main_loop()
         if (io->AnyKeyPressed)
         {
             set_poll_time(0.6f);
+        }*/
+        bool should_close = false;
+        bool valid_frame = false;
+        while (!valid_frame)
+        {
+            if (ImGui::HasPendingFrames())
+            {
+                Impl::renderer()->poll_events();
+            }
+            else
+            {
+                Impl::renderer()->wait_events();
+            }
+            valid_frame = Impl::renderer()->begin_frame();
+            if (Impl::renderer()->should_close())
+            {
+                should_close = true;
+                break;
+            }
         }
+        if (should_close) break;
+        //Impl::renderer()->render_frame();
         show_frame();
     }
 
@@ -95,7 +116,6 @@ void Render::show_popups()
 
 void Render::show_frame()
 {
-    Impl::renderer()->begin_frame();
     mainwindow.show_frame();
     Mainwindow::Callback callback = mainwindow.get_callback();
     if (callback == Mainwindow::Callback::month_left)

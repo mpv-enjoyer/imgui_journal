@@ -536,6 +536,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
         TableResetSettings(table);
     if (table->IsInitializing)
     {
+        ImGui::ScheduleOneFrame(); // HACK BY MPV-ENJOYER
         // Initialize
         table->SettingsOffset = -1;
         table->IsSortSpecsDirty = true;

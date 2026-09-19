@@ -820,6 +820,8 @@ enum ImGuiItemFlags_
     // Controlled by widget code
     ImGuiItemFlags_Inputable                = 1 << 10, // false     // [WIP] Auto-activate input mode when tab focused. Currently only used and supported by a few items before it becomes a generic feature.
     ImGuiItemFlags_HasSelectionUserData     = 1 << 11, // false     // Set by SetNextItemSelectionUserData()
+    // ImGuiItemFlags_NotInteractable          = 1 << 12, // false     // UNUSED FOR NOW. Don't add this item's rect to the interactable rect list. HACK BY MPV-ENJOYER
+    // Not using this because SetHoveredID(id, g.InteractableRects.size() - 1); may crash ^^^
 };
 
 // Status flags for an already submitted item
@@ -2157,6 +2159,16 @@ struct ImGuiContext
     int                     WantTextInputNextFrame;
     ImVector<char>          TempBuffer;                         // Temporary text buffer
 
+    /* HACK BY MPV-ENJOYER */
+    ImVector<ImRect> InteractableRects; // For manual render updates
+    int InteractableRectVectorIndex; // For InteractableRects
+    ImVector<bool> InteractableRectsHovered;
+    ImVector<ImRect> InteractableRectsPreviousFrame;
+    int CurrentHoveredIDWantsMoreFrames; // More frames on any event (kb, mouse, etc...)
+    int CurrentHoveredIDFramesLeft; // Set to CurrentHoveredIDWantsMoreFrames on interaction
+    double PollUntil;
+    /* HACK BY MPV-ENJOYER */
+
     ImGuiContext(ImFontAtlas* shared_font_atlas)
     {
         IO.Ctx = this;
@@ -2329,6 +2341,11 @@ struct ImGuiContext
         FramerateSecPerFrameIdx = FramerateSecPerFrameCount = 0;
         FramerateSecPerFrameAccum = 0.0f;
         WantCaptureMouseNextFrame = WantCaptureKeyboardNextFrame = WantTextInputNextFrame = -1;
+
+        InteractableRectVectorIndex = -1; // HACK BY MPV-ENJOYER
+        CurrentHoveredIDWantsMoreFrames = 0; // HACK BY MPV-ENJOYER
+        CurrentHoveredIDFramesLeft = 0; // HACK BY MPV-ENJOYER
+        PollUntil = 0; // HACK BY MPV-ENJOYER
     }
 };
 
@@ -2972,7 +2989,7 @@ namespace ImGui
     IMGUI_API void          SetFocusID(ImGuiID id, ImGuiWindow* window);
     IMGUI_API void          ClearActiveID();
     IMGUI_API ImGuiID       GetHoveredID();
-    IMGUI_API void          SetHoveredID(ImGuiID id);
+    IMGUI_API void          SetHoveredID(ImGuiID id, int hoveredIndexInInteractableRectsArray); // HACK BY MPV-ENJOYER
     IMGUI_API void          KeepAliveID(ImGuiID id);
     IMGUI_API void          MarkItemEdited(ImGuiID id);     // Mark data associated to given item as "edited", used by IsItemDeactivatedAfterEdit() function.
     IMGUI_API void          PushOverrideID(ImGuiID id);     // Push given value as-is at the top of the ID stack (whereas PushID combines old and new hashes)

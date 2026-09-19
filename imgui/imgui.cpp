@@ -1206,7 +1206,8 @@ ImGuiStyle::ImGuiStyle()
 
     // Behaviors
     HoverStationaryDelay    = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
-    HoverDelayShort         = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
+    // HACK BY MPV-ENJOYER:
+    HoverDelayShort         = 0.00f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
     HoverDelayNormal        = 0.40f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal). "
     HoverFlagsForTooltipMouse = ImGuiHoveredFlags_Stationary | ImGuiHoveredFlags_DelayShort | ImGuiHoveredFlags_AllowWhenDisabled;    // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using mouse.
     HoverFlagsForTooltipNav = ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_AllowWhenDisabled;  // Default flags when using IsItemHovered(ImGuiHoveredFlags_ForTooltip) or BeginItemTooltip()/SetItemTooltip() while using keyboard/gamepad.
@@ -1285,7 +1286,7 @@ ImGuiIO::ImGuiIO()
     ConfigMacOSXBehaviors = false;
 #endif
     ConfigInputTrickleEventQueue = true;
-    ConfigInputTextCursorBlink = true;
+    ConfigInputTextCursorBlink = false; // HACK BY MPV-ENJOYER (blinking doesn't wotk properly with cancellable frames)
     ConfigInputTextEnterKeepActive = false;
     ConfigDragClickToInputText = false;
     ConfigWindowsResizeFromEdges = true;
@@ -3920,13 +3921,14 @@ void ImGui::ClearActiveID()
     SetActiveID(0, NULL); // g.ActiveId = 0;
 }
 
-void ImGui::SetHoveredID(ImGuiID id)
+void ImGui::SetHoveredID(ImGuiID id, int hoveredIndexInInteractableRectsArray)
 {
     ImGuiContext& g = *GImGui;
     g.HoveredId = id;
     g.HoveredIdAllowOverlap = false;
     if (id != 0 && g.HoveredIdPreviousFrame != id)
         g.HoveredIdTimer = g.HoveredIdNotActiveTimer = 0.0f;
+    g.InteractableRectVectorIndex = hoveredIndexInInteractableRectsArray; // HACK BY MPV-ENJOYER
 }
 
 ImGuiID ImGui::GetHoveredID()
@@ -4135,8 +4137,11 @@ bool ImGui::ItemHoverable(const ImRect& bb, ImGuiID id, ImGuiItemFlags item_flag
         // Drag source doesn't report as hovered
         if (g.DragDropActive && g.DragDropPayload.SourceId == id && !(g.DragDropSourceFlags & ImGuiDragDropFlags_SourceNoDisableHover))
             return false;
-
-        SetHoveredID(id);
+        
+        /* HACK BY MPV-ENJOYER */
+        IM_ASSERT(g.InteractableRects.size() != 0);
+        SetHoveredID(id, g.InteractableRects.size() - 1);
+        /* HACK BY MPV-ENJOYER */
 
         // AllowOverlap mode (rarely used) requires previous frame HoveredId to be null or to match.
         // This allows using patterns where a later submitted widget overlaps a previous one. Generally perceived as a front-to-back hit-test.
@@ -4813,6 +4818,15 @@ void ImGui::NewFrame()
         DebugLog("(Auto-disabled ImGuiDebugLogFlags_EventClipper to avoid spamming)\n");
         g.DebugLogFlags &= ~ImGuiDebugLogFlags_EventClipper;
     }
+
+    /* HACK BY MPV-ENJOYER */
+    printf("[%f] Frame %i: InteractableRects count %i, current is %i\n", g.Time, g.FrameCount, g.InteractableRects.size(), g.InteractableRectVectorIndex);
+    g.InteractableRectsPreviousFrame = g.InteractableRects;
+    g.InteractableRects.clear_no_dealloc();
+    g.InteractableRectsHovered.clear_no_dealloc();
+    g.InteractableRectVectorIndex = -1;
+    if (g.CurrentHoveredIDFramesLeft > 0) g.CurrentHoveredIDFramesLeft -= 1;
+    /* HACK BY MPV-ENJOYER */
 
     // Create implicit/fallback window - which we will only render it if the user has added something to it.
     // We don't use "Debug" to avoid colliding with user trying to create a "Debug" window with custom flags.
@@ -9627,8 +9641,22 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
     // We need to calculate this now to take account of the current clipping rectangle (as items like Selectable may change them)
     if (is_rect_visible)
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Visible;
-    if (IsMouseHoveringRect(bb.Min, bb.Max))
+    bool hovering = IsMouseHoveringRect(bb.Min, bb.Max); // HACK BY MPV-ENJOYER
+    if (hovering)
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
+    
+    /* HACK BY MPV-ENJOYER */
+    if (true /* !(extra_flags & ImGuiItemFlags_NotInteractable)*/)
+    {
+        bool is_mouse_hovering_interactable_rect = nav_bb_arg ?
+            IsMouseHoveringRect(nav_bb_arg->Min, nav_bb_arg->Max) :
+            hovering;
+        g.InteractableRects.push_back(nav_bb_arg ? *nav_bb_arg : bb);
+        g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
+        if (is_mouse_hovering_interactable_rect) printf("|");
+    }
+    /* HACK BY MPV-ENJOYER */
+
     return true;
 }
 
@@ -10332,9 +10360,296 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 //-----------------------------------------------------------------------------
 
 // HACK BY MPV-ENJOYER
+void ImGui::SetWantFrames(int count)
+{
+    if (GImGui->CurrentHoveredIDFramesLeft < count)
+        GImGui->CurrentHoveredIDFramesLeft = count;
+}
+void ImGui::ScheduleOneFrame()
+{
+    const ImGuiContext& g = *GImGui;
+    SetWantFrames(2);
+}
+bool ImGui::HasPendingFrames()
+{
+    return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0;
+}
 int ImGui::GetPopupCount()
 {
     return GImGui->OpenPopupStack.size();
+}
+bool ImGui::NewFrameMustBeCancelled()
+{
+    double mouse_x = ImGui::GetIO().MousePos.x;
+    double mouse_y = ImGui::GetIO().MousePos.y;
+
+    static const bool LOG = true;
+    const ImGuiIO& io = ImGui::GetIO();
+    const ImGuiContext& g = *GImGui;
+
+    if (g.CurrentHoveredIDFramesLeft > 1)
+    {
+        if (LOG) printf(" fl ");
+        return false;
+    }
+
+    if (g.PollUntil > g.Time)
+    {
+        if (LOG) printf(" pu ");
+        return false;
+    }
+
+    if (g.DimBgRatio != 0.0f && g.DimBgRatio != 1.0f)
+    {
+        // Popup is opening, need to play animation
+        if (LOG) printf(" popup_opening ");
+        return false;
+    }
+
+    // Don't set trickle_fast_inputs to true because a single mouse touch outside interactable rect
+    // can hang an entire input queue.
+    const bool trickle_fast_inputs = false;
+    const bool trickle_interleaved_keys_and_text = (trickle_fast_inputs && g.WantTextInputNextFrame == 1);
+
+    bool mouse_moved = false, mouse_wheeled = false, key_changed = false, text_inputted = false;
+    bool focus_edited = false;
+
+    int  mouse_button_changed = 0x00;
+    ImBitArray<ImGuiKey_KeysData_SIZE> key_changed_mask;
+    for (int event_n = 0; event_n < g.InputEventsQueue.Size; event_n++)
+    {
+        const ImGuiInputEvent* e = &g.InputEventsQueue[event_n];
+        if (e->Type == ImGuiInputEventType_MousePos)
+        {
+            if (g.IO.WantSetMousePos)
+                continue;
+            // Trickling Rule: Stop processing queued events if we already handled a mouse button change
+            ImVec2 event_pos(e->MousePos.PosX, e->MousePos.PosY);
+            if (trickle_fast_inputs && (mouse_button_changed != 0 || mouse_wheeled || key_changed || text_inputted))
+                break;
+            mouse_x = event_pos.x;
+            mouse_y = event_pos.y;
+            //io.MousePos = event_pos;
+            //io.MouseSource = e->MousePos.MouseSource;
+            mouse_moved = true;
+        }
+        else if (e->Type == ImGuiInputEventType_MouseButton)
+        {
+            // Trickling Rule: Stop processing queued events if we got multiple action on the same button
+            const ImGuiMouseButton button = e->MouseButton.Button;
+            IM_ASSERT(button >= 0 && button < ImGuiMouseButton_COUNT);
+            if (trickle_fast_inputs && ((mouse_button_changed & (1 << button)) || mouse_wheeled))
+                break;
+            if (trickle_fast_inputs && e->MouseButton.MouseSource == ImGuiMouseSource_TouchScreen && mouse_moved) // #2702: TouchScreen have no initial hover.
+                break;
+            //io.MouseDown[button] = e->MouseButton.Down;
+            //io.MouseSource = e->MouseButton.MouseSource;
+            mouse_button_changed |= (1 << button);
+        }
+        else if (e->Type == ImGuiInputEventType_MouseWheel)
+        {
+            // Trickling Rule: Stop processing queued events if we got multiple action on the event
+            if (trickle_fast_inputs && (mouse_moved || mouse_button_changed != 0))
+                break;
+            // io.MouseWheelH += e->MouseWheel.WheelX;
+            // io.MouseWheel += e->MouseWheel.WheelY;
+            // io.MouseSource = e->MouseWheel.MouseSource;
+            mouse_wheeled = true;
+        }
+        else if (e->Type == ImGuiInputEventType_Key)
+        {
+            // Trickling Rule: Stop processing queued events if we got multiple action on the same button
+            ImGuiKey key = e->Key.Key;
+            IM_ASSERT(key != ImGuiKey_None);
+            ImGuiKeyData* key_data = GetKeyData(key);
+            const int key_data_index = (int)(key_data - g.IO.KeysData);
+            if (trickle_fast_inputs && key_data->Down != e->Key.Down && (key_changed_mask.TestBit(key_data_index) || text_inputted || mouse_button_changed != 0))
+                break;
+            // key_data->Down = e->Key.Down; // TODO: look more into this (may break checkboxes idk)
+            // key_data->AnalogValue = e->Key.AnalogValue;
+            key_changed = true;
+            key_changed_mask.SetBit(key_data_index);
+
+            // Allow legacy code using io.KeysDown[GetKeyIndex()] with new backends
+#ifndef IMGUI_DISABLE_OBSOLETE_KEYIO
+            // io.KeysDown[key_data_index] = key_data->Down;
+            // if (io.KeyMap[key_data_index] != -1)
+            //     io.KeysDown[io.KeyMap[key_data_index]] = key_data->Down;
+#endif
+        }
+        else if (e->Type == ImGuiInputEventType_Text)
+        {
+            // Trickling Rule: Stop processing queued events if keys/mouse have been interacted with
+            if (trickle_fast_inputs && ((key_changed && trickle_interleaved_keys_and_text) || mouse_button_changed != 0 || mouse_moved || mouse_wheeled))
+                break;
+            unsigned int c = e->Text.Char;
+            // io.InputQueueCharacters.push_back(c <= IM_UNICODE_CODEPOINT_MAX ? (ImWchar)c : IM_UNICODE_CODEPOINT_INVALID);
+            if (trickle_interleaved_keys_and_text)
+                text_inputted = true;
+        }
+        else if (e->Type == ImGuiInputEventType_Focus)
+        {
+            // We intentionally overwrite this and process in NewFrame(), in order to give a chance
+            // to multi-viewports backends to queue AddFocusEvent(false) + AddFocusEvent(true) in same frame.
+            const bool focus_lost = !e->AppFocused.Focused;
+            focus_edited = true;
+            // io.AppFocusLost = focus_lost;
+        }
+        else
+        {
+            IM_ASSERT(0 && "Unknown event!");
+        }
+    }
+
+    ImVec2 pos = ImVec2(mouse_x, mouse_y);
+    if (key_changed)
+    {
+        if (LOG) printf(" kc ");
+        SetWantFrames(2);
+        return false;
+    }
+    // if (text_inputted)
+    // {
+    //     printf(" ti ");
+    //     SetWantFrames(3);
+    //     return false;
+    // }
+    if (g.ActiveId == g.InputTextState.ID)
+    {
+        for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key++)
+        {
+            // Here we're fine with outdated key data: we just want to keep updating
+            if (ImGui::IsKeyDown((ImGuiKey)key))
+            {
+                if (LOG) printf("its kd");
+                SetWantFrames(2);
+                return false;
+            }
+        }
+    }
+    if (mouse_wheeled)
+    {
+        if (LOG) printf(" mw ");
+        SetWantFrames(2);
+        return false;
+    }
+    if (g.ActiveId != 0)
+    {
+        if (g.ActiveId == g.InputTextState.ID && mouse_moved)
+        {
+            bool is_mouse_down = false;
+            for (auto is_mouse_down_current : g.IO.MouseDown)
+            {
+                if (is_mouse_down_current) is_mouse_down = true;
+            }
+            if (is_mouse_down)
+            {
+                if (LOG) printf(" its mm ");
+                SetWantFrames(2);
+                return false;
+            }
+        }
+        if (mouse_button_changed)
+        {
+            if (LOG) printf(" aid mbc ");
+            SetWantFrames(2);
+            //SetWantFrames(3);
+            // 2 was good but it waits for an event to expand tables on ir != ir_prev for some reason.
+            // Probably need to dig into imgui_tables.cpp >>> I put a wantframe in tables.cpp and it went away lol.
+            // Probably still an issue though.
+            return false;
+        }
+    }
+    // for (int i = 0; i < IM_ARRAYSIZE(io.MouseClicked); i++)
+    // {
+    //     if (io.MouseClicked[i])
+    //     {
+    //         printf(" mc ");
+    //         SetWantFrames(2);
+    //         return false;
+    //     }
+    // }
+    // for (int i = 0; i < IM_ARRAYSIZE(io.MouseReleased); i++)
+    // {
+    //     if (io.MouseReleased[i])
+    //     {
+    //         printf(" mr ");
+    //         SetWantFrames(2);
+    //         return false;
+    //     }
+    // }
+    if (g.InteractableRectsPreviousFrame.size() != g.InteractableRects.size())
+    {
+        if (LOG) printf(" ir != ir_prev ");
+        SetWantFrames(2);
+        return false;
+    }
+    for (int i = 0; i < g.InteractableRects.size(); i++)
+    {
+        ImRect cur = g.InteractableRects[i];
+        ImRect prev = g.InteractableRectsPreviousFrame[i];
+        if (cur.GetTL().x != prev.GetTL().x ||
+            cur.GetTL().y != prev.GetTL().y ||
+            cur.GetBR().x != prev.GetBR().x ||
+            cur.GetBR().y != prev.GetBR().y)
+        {
+            if (LOG) printf(" ir[i] != ir_prev[i] ");
+            return false;
+        }
+    }
+    if (g.InteractableRectVectorIndex != -1) // Hovered on something
+    {
+        if (mouse_button_changed)
+        {
+            if (LOG) printf(" inter_hover mbc ");
+            SetWantFrames(2);
+            //SetWantFrames(6); 6 frames lead to weirdness when opening/closing popups, but 4 is fine...???
+            return false;
+        }
+        if (!g.InteractableRects[g.InteractableRectVectorIndex].Contains(pos))
+        {
+            if (LOG) printf(" inter_hover_off ");
+            SetWantFrames(2);
+            return false; // Hovered off the item.
+        }
+    }
+    else if (g.OpenPopupStack.size() > 0)
+    {
+        ImGuiWindow* window = g.OpenPopupStack.back().Window;
+        if (window && !window->Rect().Contains(pos) && mouse_button_changed)
+        {
+            if (LOG) printf(" popup mbc ");
+            SetWantFrames(2);
+            return false;
+        }
+    }
+    
+    if (g.InteractableRectVectorIndex == -1)
+    {
+        for (int i = 0; i < g.InteractableRects.size(); i++)
+        {
+            bool currentlyHovered = g.InteractableRects[i].Contains(pos);
+            if (currentlyHovered != g.InteractableRectsHovered[i])
+            {
+                if (LOG) printf(" inter_hover_change ");
+                SetWantFrames(2);
+                return false; // Overall hovered state changed
+            }
+        }
+    }
+
+    if (g.CurrentHoveredIDFramesLeft == 1)
+    {
+        // The last scheduled frame must make more checks to see if any more frames are needed so it's here.
+        if (LOG) printf(" fll ");
+        return false;
+    }
+
+    // EDITING GLOBAL STATE!!!
+    // The frame is discarded. All events will be cleared. Update mouse pos so it remains valid (for textbox selections):
+    ImGui::GetIO().MousePos = pos;
+    GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any more mouse interaction break. Looks fine so far
+    return true;
 }
 // HACK BY MPV-ENJOYER
 
@@ -10441,6 +10756,11 @@ void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
     if (g.OpenPopupStack.Size < current_stack_size + 1)
     {
         g.OpenPopupStack.push_back(popup_ref);
+        // HACK BY MPV-ENJOYER
+        g.PollUntil = g.Time + 1.0 / 6.0; // From DimBgRatio code in NewFrame()
+        printf("[Set PU to %f at %f]", g.PollUntil, g.Time);
+        printf(">");
+        // HACK BY MPV-ENJOYER
     }
     else
     {
@@ -10576,6 +10896,8 @@ void ImGui::CloseCurrentPopup()
     // Similarly, we could avoid mouse hover highlight in this window but it is less visually problematic.
     if (ImGuiWindow* window = g.NavWindow)
         window->DC.NavHideHighlightOneFrame = true;
+    
+    printf("<"); // HACK BY MPV-ENJOYER
 }
 
 // Attention! BeginPopup() adds default flags which BeginPopupEx()!
