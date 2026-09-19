@@ -7,7 +7,7 @@ bool Popup_Add_Student_To_Base::show_frame()
 {
     if (begin_frame("Добавить ученика в базу"))
     {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
         ImGui::InputText("ФИ ученика", &name);
         if (ImGui::InputInt("Номер договора", &contract, 1, 100, ImGuiInputTextFlags_CharsNoBlank))
         {

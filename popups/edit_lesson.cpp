@@ -20,7 +20,7 @@ bool Popup_Edit_Lesson::show_frame()
 {
     if (begin_frame("Изменить группу"))
     {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
         ImGui::Text(("1." + Lesson_Names[first_lesson_pair.lesson_name_id]).c_str());
         Graphical::input_time("##edit_lesson_first_begin", first_lesson_pair.time_begin); ImGui::SameLine();
         ImGui::Text(" - "); ImGui::SameLine();

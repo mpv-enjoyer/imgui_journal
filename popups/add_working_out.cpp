@@ -138,7 +138,7 @@ bool Popup_Add_Working_Out::show_frame()
             update_journal(month, year);
         }; 
         ImGui::SameLine();
-        ImGui::Button(current_journal->Month_name(current_journal->current_month()).c_str());
+        ImGui::Button(current_journal->Month_name(current_journal->current_month()).c_str(), {ImGui::CalcTextSize("__Февраль__").x, 0.0f});
         ImGui::SameLine();
         if (ImGui::Button(">##workout"))
         {
@@ -205,7 +205,7 @@ bool Popup_Add_Working_Out::show_frame()
                 const Lesson_Info* current = current_journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
                 std::string description = current->get_description(possible_lessons[select_day][i].internal_lesson_id);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
                 if (ImGui::Checkbox(description.c_str(), &checkbox_value))
                 {
                     select_lesson = possible_lessons[select_day][i];
@@ -296,7 +296,7 @@ Popup_Add_Working_Out::Picker::Picker(std::vector<std::string> descriptions, std
 
 int Popup_Add_Working_Out::Picker::show()
 {
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
     filter.Draw("Поиск с учётом регистра");
     ImGui::PopStyleColor(1);
     ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);

@@ -191,7 +191,7 @@ int Graphical::StudentPicker::show()
 {
     Group group;
     //ImGui::BeginGroup();
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
     filter.Draw("Поиск с учётом регистра");
     ImGui::PopStyleColor(1);
     Child child("Child window", ImVec2(500, 300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);

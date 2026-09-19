@@ -73,7 +73,7 @@ bool Subwindow_Students_List::show_frame()
         } 
     }
 
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
     ImGui::SameLine();
     text_filter.Draw("Поиск с учётом регистра", 140);
     if (std::string(text_filter.InputBuf).size() > 0)
@@ -130,7 +130,7 @@ bool Subwindow_Students_List::show_frame()
             contract_input_buffer = current_student->get_contract();
             is_removed_input_buffer = current_student->is_removed();
             ImGui::TableNextColumn(); 
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
             if (ImGui::InputInt("##д-р", &contract_input_buffer, ImGuiInputTextFlags_CharsDecimal))
             {
                 if (contract_input_buffer < 0) contract_input_buffer = 0;

@@ -41,7 +41,7 @@ bool Mainwindow::show_frame()
     {
         if (ImGui::BeginMenu("Файл"))
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
             bool edit_mode_buffer = graphical->edit_mode;
             if ((journal->get_state() == Journal::State::Fullaccess || journal->get_state() == Journal::State::Limited) && ImGui::Button("Сохранить"))
             {

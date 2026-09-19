@@ -80,7 +80,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
     std::string label = existing_lesson_info ? "Изменить группу " + Day_Names[day_of_the_week] : "Добавить группу на " + Day_Names[day_of_the_week];
     if (begin_frame(label.c_str()))
     {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.75f));
         if (existing_lesson_info) ImGui::BeginDisabled();
         int combo_day_of_the_week = CONVERT_TO_EN_CALENDAR(day_of_the_week);
         if (ImGui::Combo("День недели", &combo_day_of_the_week, "Пн\0Вт\0Ср\0Чт\0Пт\0Сб\0Вс\0\0", 7))
