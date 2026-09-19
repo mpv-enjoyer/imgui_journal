@@ -4825,6 +4825,7 @@ void ImGui::NewFrame()
     g.InteractableRects.clear_no_dealloc();
     g.InteractableRectsHovered.clear_no_dealloc();
     g.InteractableRectVectorIndex = -1;
+    g.InteractableActiveItemWants = {};
     if (g.CurrentHoveredIDFramesLeft > 0) g.CurrentHoveredIDFramesLeft -= 1;
     /* HACK BY MPV-ENJOYER */
 
@@ -9641,17 +9642,21 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
     // We need to calculate this now to take account of the current clipping rectangle (as items like Selectable may change them)
     if (is_rect_visible)
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Visible;
-    bool hovering = IsMouseHoveringRect(bb.Min, bb.Max); // HACK BY MPV-ENJOYER
-    if (hovering)
+    if (IsMouseHoveringRect(bb.Min, bb.Max))
         g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_HoveredRect;
     
     /* HACK BY MPV-ENJOYER */
+    // TODO: Wanna use if (g.CurrentWindow == g.HoveredWindow) but it hangs the app.
     if (true /* !(extra_flags & ImGuiItemFlags_NotInteractable)*/)
     {
+        ImRect rect_clipped = nav_bb_arg ? *nav_bb_arg : bb;
+        rect_clipped.ClipWith(g.CurrentWindow->ClipRect);
+
+        bool hovering = IsMouseHoveringRect(bb.Min, bb.Max);
         bool is_mouse_hovering_interactable_rect = nav_bb_arg ?
             IsMouseHoveringRect(nav_bb_arg->Min, nav_bb_arg->Max) :
             hovering;
-        g.InteractableRects.push_back(nav_bb_arg ? *nav_bb_arg : bb);
+        g.InteractableRects.push_back(rect_clipped);
         g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
         if (is_mouse_hovering_interactable_rect) printf("|");
     }
@@ -10516,10 +10521,10 @@ bool ImGui::NewFrameMustBeCancelled()
     // }
     if (g.ActiveId == g.InputTextState.ID)
     {
-        for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key++)
+        for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; key++)
         {
             // Here we're fine with outdated key data: we just want to keep updating
-            if (ImGui::IsKeyDown((ImGuiKey)key))
+            if (ImGui::IsKeyDown((ImGuiKey)key)) // TODO: ImGuiKey is also for mouse keys lol. I don't need that here.
             {
                 if (LOG) printf("its kd");
                 SetWantFrames(2);
@@ -10535,7 +10540,7 @@ bool ImGui::NewFrameMustBeCancelled()
     }
     if (g.ActiveId != 0)
     {
-        if (g.ActiveId == g.InputTextState.ID && mouse_moved)
+        if ((g.InteractableActiveItemWants.mouse_move || g.ActiveId == g.InputTextState.ID) && mouse_moved)
         {
             bool is_mouse_down = false;
             for (auto is_mouse_down_current : g.IO.MouseDown)
@@ -10594,6 +10599,7 @@ bool ImGui::NewFrameMustBeCancelled()
             cur.GetBR().y != prev.GetBR().y)
         {
             if (LOG) printf(" ir[i] != ir_prev[i] ");
+            SetWantFrames(2);
             return false;
         }
     }
@@ -10649,6 +10655,8 @@ bool ImGui::NewFrameMustBeCancelled()
     // The frame is discarded. All events will be cleared. Update mouse pos so it remains valid (for textbox selections):
     ImGui::GetIO().MousePos = pos;
     GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any more mouse interaction break. Looks fine so far
+
+    //return false;
     return true;
 }
 // HACK BY MPV-ENJOYER

@@ -1856,6 +1856,16 @@ struct ImGuiContextHook
 // [SECTION] ImGuiContext (main Dear ImGui context)
 //-----------------------------------------------------------------------------
 
+// HACK BY MPV-ENJOYER
+/*struct InteractableRectProp
+{
+    ImRect rect;
+    bool on_mouse_move;
+    InteractableRectProp(ImRect rect_, bool on_mouse_move_ = false)
+    : rect(rect_), on_mouse_move(on_mouse_move_) {};
+};*/
+// HACK BY MPV-ENJOYER
+
 struct ImGuiContext
 {
     bool                    Initialized;
@@ -2164,6 +2174,11 @@ struct ImGuiContext
     int InteractableRectVectorIndex; // For InteractableRects
     ImVector<bool> InteractableRectsHovered;
     ImVector<ImRect> InteractableRectsPreviousFrame;
+    struct
+    {
+        bool mouse_move;
+        bool key_hold; // unused for now
+    } InteractableActiveItemWants;
     int CurrentHoveredIDWantsMoreFrames; // More frames on any event (kb, mouse, etc...)
     int CurrentHoveredIDFramesLeft; // Set to CurrentHoveredIDWantsMoreFrames on interaction
     double PollUntil;

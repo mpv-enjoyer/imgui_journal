@@ -537,6 +537,10 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
     const ImGuiID test_owner_id = (flags & ImGuiButtonFlags_NoTestKeyOwner) ? ImGuiKeyOwner_Any : id;
     if (hovered)
     {
+        /* HACK BY MPV-ENJOYER */
+//        IM_ASSERT(g.InteractableRects.size() != 0);
+//        SetHoveredID(id, g.InteractableRects.size() - 1);
+        /* HACK BY MPV-ENJOYER */
         // Poll mouse buttons
         // - 'mouse_button_clicked' is generally carried into ActiveIdMouseButton when setting ActiveId.
         // - Technically we only need some values in one code path, but since this is gated by hovered test this is fine.
@@ -959,6 +963,18 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
     bool hovered = false;
     ItemAdd(bb_frame, id, NULL, ImGuiItemFlags_NoNav);
     ButtonBehavior(bb, id, &hovered, &held, ImGuiButtonFlags_NoNavFocus);
+    // HACK BY MPV-ENJOYER
+    if (g.CurrentWindow == g.HoveredWindow)
+    {
+        ImRect rect_clipped = bb;
+        rect_clipped.ClipWith(g.CurrentWindow->ClipRect);
+        bool is_mouse_hovering_interactable_rect = hovered;
+        g.InteractableRects.push_back(rect_clipped);
+        g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
+        if (is_mouse_hovering_interactable_rect) printf("~");
+        if (g.ActiveId == id) g.InteractableActiveItemWants.mouse_move = true;
+    }
+    // HACK BY MPV-ENJOYER
 
     const ImS64 scroll_max = ImMax((ImS64)1, size_contents_v - size_avail_v);
     float scroll_ratio = ImSaturate((float)*p_scroll_v / (float)scroll_max);
@@ -972,7 +988,8 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
         const float clicked_v_norm = ImSaturate((mouse_pos_v - scrollbar_pos_v) / scrollbar_size_v);
         /* HACK BY MPV-ENJOYER */
         IM_ASSERT(g.InteractableRects.size() != 0);
-        SetHoveredID(id, g.InteractableRects.size() - 1);
+        //ScheduleOneFrame();
+        //SetHoveredID(id, g.InteractableRects.size() - 1);
         /* HACK BY MPV-ENJOYER */
 
         bool seek_absolute = false;
