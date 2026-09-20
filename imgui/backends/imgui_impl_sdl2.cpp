@@ -105,6 +105,7 @@ struct ImGui_ImplSDL2_Data
 {
     SDL_Window*     Window;
     SDL_Renderer*   Renderer;
+    Uint64          TimeBeforeCommit; // HACK BY MPV-ENJOYER
     Uint64          Time;
     Uint32          MouseWindowID;
     int             MouseButtonsDown;
@@ -116,6 +117,8 @@ struct ImGui_ImplSDL2_Data
 
     ImGui_ImplSDL2_Data()   { memset((void*)this, 0, sizeof(*this)); }
 };
+
+static bool sdl_context_has_uncancellable_events = false; // HACK BY MPV-ENJOYER
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
@@ -380,6 +383,10 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
                 io.AddFocusEvent(true);
             else if (event->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
                 io.AddFocusEvent(false);
+            if (window_event == SDL_WINDOWEVENT_EXPOSED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)
+            {
+                sdl_context_has_uncancellable_events = true;
+            }
             return true;
         }
     }
@@ -657,13 +664,14 @@ void ImGui_ImplSDL2_NewFrame()
     if (current_time <= bd->Time)
         current_time = bd->Time + 1;
     io.DeltaTime = bd->Time > 0 ? (float)((double)(current_time - bd->Time) / frequency) : (float)(1.0f / 60.0f);
+    bd->TimeBeforeCommit = bd->Time; // HACK BY MPV-ENJOYER
     bd->Time = current_time;
 
     if (bd->PendingMouseLeaveFrame && bd->PendingMouseLeaveFrame >= ImGui::GetFrameCount() && bd->MouseButtonsDown == 0)
     {
-        bd->MouseWindowID = 0;
-        bd->PendingMouseLeaveFrame = 0;
-        io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+        bd->MouseWindowID = 0; // HACK BY MPV-ENJOYER TODO: does this lead to weirdness on cancelled frames? multi-viewport only bug?
+        bd->PendingMouseLeaveFrame = 0; // HACK BY MPV-ENJOYER TODO: does this lead to weirdness on cancelled frames?
+        io.AddMousePosEvent(-FLT_MAX, -FLT_MAX); // HACK BY MPV-ENJOYER TODO: should be fine, we clear the event anyway.
     }
 
     // HACK BY MPV-ENJOYER
@@ -676,6 +684,27 @@ void ImGui_ImplSDL2_NewFrame()
     // Update game controllers (if enabled and available)
     ImGui_ImplSDL2_UpdateGamepads();
 }
+
+// HACK BY MPV-ENJOYER
+bool ImGui_ImplSDL2_GetAndClearUncancellableEvents()
+{
+    ImGui_ImplSDL2_Data* bd = ImGui_ImplSDL2_GetBackendData();
+    bool value = sdl_context_has_uncancellable_events;
+    sdl_context_has_uncancellable_events = false;
+    return value;
+}
+void ImGui_ImplSDL2_CancelFrame()
+{
+    ImGui_ImplSDL2_Data* bd = ImGui_ImplSDL2_GetBackendData();
+    bd->Time = bd->TimeBeforeCommit;
+    // io.DeltaTime is calculated from bd->Time so no need to change it here
+}
+// void ImGui_ImplGlfw_GetCursorPosBeforeImGuiFrame(double* x, double* y)
+// {
+//     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+//     glfwGetCursorPos(bd->Window, x, y);
+// }
+// HACK BY MPV-ENJOYER
 
 //-----------------------------------------------------------------------------
 

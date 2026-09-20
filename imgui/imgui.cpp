@@ -9659,6 +9659,7 @@ bool ImGui::ItemAdd(const ImRect& bb, ImGuiID id, const ImRect* nav_bb_arg, ImGu
         g.InteractableRects.push_back(rect_clipped);
         g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
         if (is_mouse_hovering_interactable_rect) printf("|");
+        // if (hovering) g.CurrentWindow->DrawList->AddRect(rect_clipped.GetTL(), rect_clipped.GetBR(), IM_COL32(255 * 0.9f, 255 * 0.2f, 255 * 0.2f, 255 * 1.0f), NULL, NULL, 3);
     }
     /* HACK BY MPV-ENJOYER */
 
@@ -10365,6 +10366,12 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 //-----------------------------------------------------------------------------
 
 // HACK BY MPV-ENJOYER
+// Currently only 2 custom frame update modes are supported:
+// 1) SetWantFrames(count) - Draw at least "count" frames unconditionally.
+// 2) g->PollUntil - Draw frames until "g->Time >= g->PollUntil" unconditionally.
+// I really need 3rd update mode:
+// 3) Schedule an update 
+
 void ImGui::SetWantFrames(int count)
 {
     if (GImGui->CurrentHoveredIDFramesLeft < count)
@@ -10377,7 +10384,7 @@ void ImGui::ScheduleOneFrame()
 }
 bool ImGui::HasPendingFrames()
 {
-    return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0;
+    return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0 || GImGui->PreviousFrameUsedPollUntil;
 }
 int ImGui::GetPopupCount()
 {
@@ -10401,8 +10408,11 @@ bool ImGui::NewFrameMustBeCancelled()
     if (g.PollUntil > g.Time)
     {
         if (LOG) printf(" pu ");
+        GImGui->PreviousFrameUsedPollUntil = true; // editing OUR global state
         return false;
     }
+    bool previous_frame_used_poll_until = GImGui->PreviousFrameUsedPollUntil;
+    GImGui->PreviousFrameUsedPollUntil = false; // editing OUR global state
 
     if (g.DimBgRatio != 0.0f && g.DimBgRatio != 1.0f)
     {
@@ -10519,15 +10529,15 @@ bool ImGui::NewFrameMustBeCancelled()
     //     SetWantFrames(3);
     //     return false;
     // }
-    if (g.ActiveId == g.InputTextState.ID)
+    if (g.ActiveId == g.InputTextState.ID && g.ActiveId != 0)
     {
         for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_MouseLeft; key++)
         {
             // Here we're fine with outdated key data: we just want to keep updating
-            if (ImGui::IsKeyDown((ImGuiKey)key)) // TODO: ImGuiKey is also for mouse keys lol. I don't need that here.
+            if (ImGui::IsKeyDown((ImGuiKey)key))
             {
                 if (LOG) printf("its kd");
-                SetWantFrames(2);
+                SetWantFrames(2); // TODO: causes a lot of unneccessary frames.
                 return false;
             }
         }
@@ -10650,13 +10660,20 @@ bool ImGui::NewFrameMustBeCancelled()
         if (LOG) printf(" fll ");
         return false;
     }
+    if (previous_frame_used_poll_until)
+    {
+        // One last frame after Time is already bigger than PollUntil.
+        // That's to finish every possible animation etc.
+        if (LOG) printf(" pul ");
+        return false;
+    }
 
     // EDITING GLOBAL STATE!!!
     // The frame is discarded. All events will be cleared. Update mouse pos so it remains valid (for textbox selections):
     ImGui::GetIO().MousePos = pos;
     GImGui->InputEventsQueue.clear_no_dealloc(); // TODO: check if any more mouse interaction break. Looks fine so far
 
-    //return false;
+    // return false;
     return true;
 }
 // HACK BY MPV-ENJOYER

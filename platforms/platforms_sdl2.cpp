@@ -55,10 +55,21 @@ bool SDL2_Renderer::is_initialized()
 
 bool SDL2_Renderer::begin_frame()
 {
+    static bool cancellable = false;
+    const static bool LOG = false;
+    
     // Start the Dear ImGui frame
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
+    if (!ImGui_ImplSDL2_GetAndClearUncancellableEvents() && cancellable && ImGui::NewFrameMustBeCancelled())
+    {
+        ImGui_ImplSDL2_CancelFrame();
+        return false;
+    }
+    cancellable = true;
+    if (LOG) printf("Submitted \n");
     ImGui::NewFrame();
+    return true;
 }
 
 void SDL2_Renderer::render_frame()

@@ -971,9 +971,14 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
         bool is_mouse_hovering_interactable_rect = hovered;
         g.InteractableRects.push_back(rect_clipped);
         g.InteractableRectsHovered.push_back(is_mouse_hovering_interactable_rect);
-        if (is_mouse_hovering_interactable_rect) printf("~");
-        if (g.ActiveId == id) g.InteractableActiveItemWants.mouse_move = true;
+        if (is_mouse_hovering_interactable_rect)
+        {
+            g.InteractableRectVectorIndex = g.InteractableRects.size() - 1;
+            // g.CurrentWindow->DrawList->AddRect(rect_clipped.GetTL(), rect_clipped.GetBR(), IM_COL32(255 * 0.9f, 255 * 0.9f, 255 * 0.2f, 255 * 1.0f), NULL, NULL, 3);
+            printf("~");
+        }
     }
+    if (g.ActiveId == id) g.InteractableActiveItemWants.mouse_move = true;
     // HACK BY MPV-ENJOYER
 
     const ImS64 scroll_max = ImMax((ImS64)1, size_contents_v - size_avail_v);

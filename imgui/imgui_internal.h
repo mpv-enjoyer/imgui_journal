@@ -2182,6 +2182,7 @@ struct ImGuiContext
     int CurrentHoveredIDWantsMoreFrames; // More frames on any event (kb, mouse, etc...)
     int CurrentHoveredIDFramesLeft; // Set to CurrentHoveredIDWantsMoreFrames on interaction
     double PollUntil;
+    bool PreviousFrameUsedPollUntil;
     /* HACK BY MPV-ENJOYER */
 
     ImGuiContext(ImFontAtlas* shared_font_atlas)
