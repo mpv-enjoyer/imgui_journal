@@ -300,6 +300,7 @@ namespace ImGui
     // HACK BY MPV-ENJOYER
     IMGUI_API void SetWantFrames(int count);
     IMGUI_API void ScheduleOneFrame();
+    IMGUI_API void SetPollUntil(double time);
     IMGUI_API bool HasPendingFrames();
     IMGUI_API int GetPopupCount();
     IMGUI_API bool NewFrameMustBeCancelled(); // Clears an input queue if a frame is cancelled

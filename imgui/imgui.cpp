@@ -10382,6 +10382,13 @@ void ImGui::ScheduleOneFrame()
     const ImGuiContext& g = *GImGui;
     SetWantFrames(2);
 }
+void ImGui::SetPollUntil(double time)
+{
+    GImGui->PollUntil = time;
+    ScheduleOneFrame();
+    // Even if the entire animation lagged out we at least render one frame afterwards.
+    // Otherwise g->PreviousFrameUsedPollUntil is responsible for that.
+}
 bool ImGui::HasPendingFrames()
 {
     return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0 || GImGui->PreviousFrameUsedPollUntil;
@@ -10782,7 +10789,7 @@ void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
     {
         g.OpenPopupStack.push_back(popup_ref);
         // HACK BY MPV-ENJOYER
-        g.PollUntil = g.Time + 1.0 / 6.0; // From DimBgRatio code in NewFrame()
+        SetPollUntil(g.Time + 1.0 / 6.0); // From DimBgRatio code in NewFrame()
         printf("[Set PU to %f at %f]", g.PollUntil, g.Time);
         printf(">");
         // HACK BY MPV-ENJOYER
