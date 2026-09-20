@@ -10370,7 +10370,7 @@ void ImGui::SetItemTooltipV(const char* fmt, va_list args)
 // 1) SetWantFrames(count) - Draw at least "count" frames unconditionally.
 // 2) g->PollUntil - Draw frames until "g->Time >= g->PollUntil" unconditionally.
 // I really need 3rd update mode:
-// 3) Schedule an update 
+// 3) Schedule an update after N ms
 
 void ImGui::SetWantFrames(int count)
 {
@@ -10406,12 +10406,6 @@ bool ImGui::NewFrameMustBeCancelled()
     const ImGuiIO& io = ImGui::GetIO();
     const ImGuiContext& g = *GImGui;
 
-    if (g.CurrentHoveredIDFramesLeft > 1)
-    {
-        if (LOG) printf(" fl ");
-        return false;
-    }
-
     if (g.PollUntil > g.Time)
     {
         if (LOG) printf(" pu ");
@@ -10420,6 +10414,12 @@ bool ImGui::NewFrameMustBeCancelled()
     }
     bool previous_frame_used_poll_until = GImGui->PreviousFrameUsedPollUntil;
     GImGui->PreviousFrameUsedPollUntil = false; // editing OUR global state
+
+    if (g.CurrentHoveredIDFramesLeft > 1)
+    {
+        if (LOG) printf(" fl ");
+        return false;
+    }
 
     if (g.DimBgRatio != 0.0f && g.DimBgRatio != 1.0f)
     {
