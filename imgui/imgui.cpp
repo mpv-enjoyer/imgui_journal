@@ -4087,7 +4087,11 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
     {
         ImGuiID hover_delay_id = (g.LastItemData.ID != 0) ? g.LastItemData.ID : window->GetIDFromRectangle(g.LastItemData.Rect);
         if ((flags & ImGuiHoveredFlags_NoSharedDelay) && (g.HoverItemDelayIdPreviousFrame != hover_delay_id))
+        {
             g.HoverItemDelayTimer = 0.0f;
+            // HACK BY MPV-ENJOYER:
+            g.WaitFramesUntil = g.Time + delay;
+        }
         g.HoverItemDelayId = hover_delay_id;
 
         // When changing hovered item we requires a bit of stationary delay before activating hover timer,
@@ -10391,7 +10395,17 @@ void ImGui::SetPollUntil(double time)
 }
 bool ImGui::HasPendingFrames()
 {
-    return GImGui->PollUntil > GImGui->Time || GImGui->CurrentHoveredIDFramesLeft != 0 || GImGui->PreviousFrameUsedPollUntil;
+    const ImGuiContext& g = *GImGui;
+    if (g.InteractableRectHoveredOffAndWaiting)
+    {
+        double hoverItemDelayClearTimer = g.HoverItemDelayClearTimer + g.IO.DeltaTime; // dt is updated by the backend here
+        if (hoverItemDelayClearTimer >= ImMax(0.25f, g.IO.DeltaTime * 2.0f)) // Ctrl+F this text for more info: "~7 frames at 30 Hz + allow for low framerate"
+        {
+            GImGui->InteractableRectHoveredOffAndWaiting = false; // editing OUR state
+            return true;
+        }
+    }
+    return g.PollUntil > g.Time || g.CurrentHoveredIDFramesLeft != 0 || g.PreviousFrameUsedPollUntil;
 }
 int ImGui::GetPopupCount()
 {
@@ -10425,6 +10439,14 @@ bool ImGui::NewFrameMustBeCancelled()
     {
         // Popup is opening, need to play animation
         if (LOG) printf(" popup_opening ");
+        return false;
+    }
+
+    // This doesn't work: // TODO
+    if (g.WaitFramesUntil != 0 && g.WaitFramesUntil > g.Time)
+    {
+        GImGui->WaitFramesUntil = 0; // editing OUR global state
+        if (LOG) printf(" wfu ");
         return false;
     }
 
@@ -10631,6 +10653,10 @@ bool ImGui::NewFrameMustBeCancelled()
         }
         if (!g.InteractableRects[g.InteractableRectVectorIndex].Contains(pos))
         {
+            if (g.HoverItemDelayId == 0 && g.HoverItemDelayTimer > 0.0f)
+            {
+                GImGui->InteractableRectHoveredOffAndWaiting = true; // editing OUR state
+            }
             if (LOG) printf(" inter_hover_off ");
             SetWantFrames(2);
             return false; // Hovered off the item.

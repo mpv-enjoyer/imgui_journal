@@ -2183,6 +2183,8 @@ struct ImGuiContext
     int CurrentHoveredIDFramesLeft; // Set to CurrentHoveredIDWantsMoreFrames on interaction
     double PollUntil;
     bool PreviousFrameUsedPollUntil;
+    double WaitFramesUntil; // Do one frame once the time comes
+    bool InteractableRectHoveredOffAndWaiting; // USELESS?
     /* HACK BY MPV-ENJOYER */
 
     ImGuiContext(ImFontAtlas* shared_font_atlas)
