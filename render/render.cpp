@@ -86,7 +86,6 @@ void Render::main_loop()
             }
         }
         if (should_close) break;
-        //Impl::renderer()->render_frame();
         show_frame();
     }
 

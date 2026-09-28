@@ -4089,8 +4089,6 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
         if ((flags & ImGuiHoveredFlags_NoSharedDelay) && (g.HoverItemDelayIdPreviousFrame != hover_delay_id))
         {
             g.HoverItemDelayTimer = 0.0f;
-            // HACK BY MPV-ENJOYER:
-            g.WaitFramesUntil = g.Time + delay;
         }
         g.HoverItemDelayId = hover_delay_id;
 
@@ -4098,7 +4096,10 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
         // but once unlocked on a given item we also moving.
         //if (g.HoverDelayTimer >= delay && (g.HoverDelayTimer - g.IO.DeltaTime < delay || g.MouseStationaryTimer - g.IO.DeltaTime < g.Style.HoverStationaryDelay)) { IMGUI_DEBUG_LOG("HoverDelayTimer = %f/%f, MouseStationaryTimer = %f\n", g.HoverDelayTimer, delay, g.MouseStationaryTimer); }
         if ((flags & ImGuiHoveredFlags_Stationary) != 0 && g.HoverItemUnlockedStationaryId != hover_delay_id)
+        {
+            ImGui::ScheduleOneFrame(); // HACK BY MPV-ENJOYER
             return false;
+        }
 
         if (g.HoverItemDelayTimer < delay)
             return false;
@@ -4831,6 +4832,7 @@ void ImGui::NewFrame()
     g.InteractableRectVectorIndex = -1;
     g.InteractableActiveItemWants = {};
     if (g.CurrentHoveredIDFramesLeft > 0) g.CurrentHoveredIDFramesLeft -= 1;
+    g.InteractableTrackMouseMoves = false;
     /* HACK BY MPV-ENJOYER */
 
     // Create implicit/fallback window - which we will only render it if the user has added something to it.
@@ -10345,6 +10347,9 @@ void ImGui::SetTooltipV(const char* fmt, va_list args)
         return;
     TextV(fmt, args);
     EndTooltip();
+    
+    // HACK BY MPV-ENJOYER:
+    GImGui->InteractableTrackMouseMoves = true;
 }
 
 // Shortcut to use 'style.HoverFlagsForTooltipMouse' or 'style.HoverFlagsForTooltipNav'.
@@ -10396,15 +10401,6 @@ void ImGui::SetPollUntil(double time)
 bool ImGui::HasPendingFrames()
 {
     const ImGuiContext& g = *GImGui;
-    if (g.InteractableRectHoveredOffAndWaiting)
-    {
-        double hoverItemDelayClearTimer = g.HoverItemDelayClearTimer + g.IO.DeltaTime; // dt is updated by the backend here
-        if (hoverItemDelayClearTimer >= ImMax(0.25f, g.IO.DeltaTime * 2.0f)) // Ctrl+F this text for more info: "~7 frames at 30 Hz + allow for low framerate"
-        {
-            GImGui->InteractableRectHoveredOffAndWaiting = false; // editing OUR state
-            return true;
-        }
-    }
     return g.PollUntil > g.Time || g.CurrentHoveredIDFramesLeft != 0 || g.PreviousFrameUsedPollUntil;
 }
 int ImGui::GetPopupCount()
@@ -10439,14 +10435,6 @@ bool ImGui::NewFrameMustBeCancelled()
     {
         // Popup is opening, need to play animation
         if (LOG) printf(" popup_opening ");
-        return false;
-    }
-
-    // This doesn't work: // TODO
-    if (g.WaitFramesUntil != 0 && g.WaitFramesUntil > g.Time)
-    {
-        GImGui->WaitFramesUntil = 0; // editing OUR global state
-        if (LOG) printf(" wfu ");
         return false;
     }
 
@@ -10577,6 +10565,12 @@ bool ImGui::NewFrameMustBeCancelled()
         SetWantFrames(2);
         return false;
     }
+    if (mouse_moved && g.InteractableTrackMouseMoves)
+    {
+        if (LOG) printf(" itmm ");
+        SetWantFrames(2);
+        return false;
+    }
     if (g.ActiveId != 0)
     {
         if ((g.InteractableActiveItemWants.mouse_move || g.ActiveId == g.InputTextState.ID) && mouse_moved)
@@ -10653,10 +10647,6 @@ bool ImGui::NewFrameMustBeCancelled()
         }
         if (!g.InteractableRects[g.InteractableRectVectorIndex].Contains(pos))
         {
-            if (g.HoverItemDelayId == 0 && g.HoverItemDelayTimer > 0.0f)
-            {
-                GImGui->InteractableRectHoveredOffAndWaiting = true; // editing OUR state
-            }
             if (LOG) printf(" inter_hover_off ");
             SetWantFrames(2);
             return false; // Hovered off the item.
