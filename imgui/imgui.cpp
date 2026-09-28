@@ -1205,7 +1205,8 @@ ImGuiStyle::ImGuiStyle()
     CircleTessellationMaxError = 0.30f;         // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
 
     // Behaviors
-    HoverStationaryDelay    = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
+    // HACK BY MPV-ENJOYER:
+    HoverStationaryDelay    = 0.00f;            // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
     // HACK BY MPV-ENJOYER:
     HoverDelayShort         = 0.00f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayShort). Usually used along with HoverStationaryDelay.
     HoverDelayNormal        = 0.40f;            // Delay for IsItemHovered(ImGuiHoveredFlags_DelayNormal). "
@@ -4089,8 +4090,6 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
         if ((flags & ImGuiHoveredFlags_NoSharedDelay) && (g.HoverItemDelayIdPreviousFrame != hover_delay_id))
         {
             g.HoverItemDelayTimer = 0.0f;
-            // HACK BY MPV-ENJOYER:
-            g.WaitFramesUntil = g.Time + delay;
         }
         g.HoverItemDelayId = hover_delay_id;
 
@@ -4098,7 +4097,14 @@ bool ImGui::IsItemHovered(ImGuiHoveredFlags flags)
         // but once unlocked on a given item we also moving.
         //if (g.HoverDelayTimer >= delay && (g.HoverDelayTimer - g.IO.DeltaTime < delay || g.MouseStationaryTimer - g.IO.DeltaTime < g.Style.HoverStationaryDelay)) { IMGUI_DEBUG_LOG("HoverDelayTimer = %f/%f, MouseStationaryTimer = %f\n", g.HoverDelayTimer, delay, g.MouseStationaryTimer); }
         if ((flags & ImGuiHoveredFlags_Stationary) != 0 && g.HoverItemUnlockedStationaryId != hover_delay_id)
+        {
+            // HACK BY MPV-ENJOYER:
+            if (g.Style.HoverStationaryDelay > g.MouseStationaryTimer)
+            {
+                g.WaitFramesUntil = g.Time + (g.Style.HoverStationaryDelay - g.MouseStationaryTimer);
+            }
             return false;
+        }
 
         if (g.HoverItemDelayTimer < delay)
             return false;
@@ -10393,19 +10399,28 @@ void ImGui::SetPollUntil(double time)
     // Even if the entire animation lagged out we at least render one frame afterwards.
     // Otherwise g->PreviousFrameUsedPollUntil is responsible for that.
 }
-bool ImGui::HasPendingFrames()
+double ImGui::HasPendingFrames(double current_time)
 {
     const ImGuiContext& g = *GImGui;
-    if (g.InteractableRectHoveredOffAndWaiting)
+    if (g.PollUntil > g.Time) return 0;
+    if (g.CurrentHoveredIDFramesLeft != 0) return 0;
+    if (g.PreviousFrameUsedPollUntil) return 0;
+    if (g.WaitFramesUntil > current_time)
     {
-        double hoverItemDelayClearTimer = g.HoverItemDelayClearTimer + g.IO.DeltaTime; // dt is updated by the backend here
-        if (hoverItemDelayClearTimer >= ImMax(0.25f, g.IO.DeltaTime * 2.0f)) // Ctrl+F this text for more info: "~7 frames at 30 Hz + allow for low framerate"
-        {
-            GImGui->InteractableRectHoveredOffAndWaiting = false; // editing OUR state
-            return true;
-        }
+        printf("############");
+        return g.WaitFramesUntil;
     }
-    return g.PollUntil > g.Time || g.CurrentHoveredIDFramesLeft != 0 || g.PreviousFrameUsedPollUntil;
+    // if (g.InteractableRectHoveredOffAndWaiting)
+    // {
+    //     double hoverItemDelayClearTimer = g.HoverItemDelayClearTimer + g.IO.DeltaTime; // dt is updated by the backend here
+    //     double wantWaitTime = ImMax(0.25f, g.IO.DeltaTime * 2.0f);
+    //     if (hoverItemDelayClearTimer < wantWaitTime) // Ctrl+F this text for more info: "~7 frames at 30 Hz + allow for low framerate"
+    //     {
+    //         GImGui->InteractableRectHoveredOffAndWaiting = false; // editing OUR state
+    //         return g.Time + (wantWaitTime - hoverItemDelayClearTimer);
+    //     }
+    // }
+    return -1;
 }
 int ImGui::GetPopupCount()
 {
@@ -10442,11 +10457,12 @@ bool ImGui::NewFrameMustBeCancelled()
         return false;
     }
 
-    // This doesn't work: // TODO
-    if (g.WaitFramesUntil != 0 && g.WaitFramesUntil > g.Time)
+    if (g.WaitFramesUntil != -1 && g.WaitFramesUntil <= g.Time)
     {
-        GImGui->WaitFramesUntil = 0; // editing OUR global state
+        // one more frame please
+        GImGui->WaitFramesUntil = -1;
         if (LOG) printf(" wfu ");
+        SetWantFrames(2);
         return false;
     }
 
@@ -10655,7 +10671,7 @@ bool ImGui::NewFrameMustBeCancelled()
         {
             if (g.HoverItemDelayId == 0 && g.HoverItemDelayTimer > 0.0f)
             {
-                GImGui->InteractableRectHoveredOffAndWaiting = true; // editing OUR state
+                GImGui->InteractableRectHoveredOffAndWaiting = true; // editing OUR state (useless)
             }
             if (LOG) printf(" inter_hover_off ");
             SetWantFrames(2);

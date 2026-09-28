@@ -301,7 +301,11 @@ namespace ImGui
     IMGUI_API void SetWantFrames(int count);
     IMGUI_API void ScheduleOneFrame();
     IMGUI_API void SetPollUntil(double time);
-    IMGUI_API bool HasPendingFrames();
+    // HasPendingFrames:
+    // negative: no
+    // zero: update right now
+    // positive: wait until that TIMESTAMP (not a delta)
+    IMGUI_API double HasPendingFrames(double current_time);
     IMGUI_API int GetPopupCount();
     IMGUI_API bool NewFrameMustBeCancelled(); // Clears an input queue if a frame is cancelled
     // HACK BY MPV-ENJOYER

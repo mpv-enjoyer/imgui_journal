@@ -113,6 +113,31 @@ bool GLFW3_Renderer::is_mouse_button_pressed()
     return glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
+double GLFW3_Renderer::get_current_time()
+{
+    double current_time = glfwGetTime();
+    double previous_frame_time = ImGui::GetTime();
+    if (current_time <= previous_frame_time)
+        current_time = previous_frame_time + 0.00001f;
+    return current_time;
+}
+
+void GLFW3_Renderer::wait_events_until(double time)
+{
+    // repeat the logic from ImGui_ImplGlfw_NewFrame
+    double previous_frame_time = ImGui::GetTime();
+    double current_time = get_current_time();
+    double delta_time = previous_frame_time > 0.0 ? (float)(current_time - previous_frame_time) : (float)(1.0f / 60.0f);
+    if (current_time < time)
+    {
+        wait_events_timeout(delta_time);
+    }
+    else
+    {
+        /* Not an error - may happen */
+    }
+}
+
 void GLFW3_Renderer::wait_events_timeout(double time)
 {
     glfwWaitEventsTimeout(time);

@@ -70,13 +70,18 @@ void Render::main_loop()
         bool valid_frame = false;
         while (!valid_frame)
         {
-            if (ImGui::HasPendingFrames())
+            double target_time = ImGui::HasPendingFrames(Impl::renderer()->get_current_time());
+            if (target_time == 0)
             {
                 Impl::renderer()->poll_events();
             }
-            else
+            else if (target_time < 0)
             {
                 Impl::renderer()->wait_events();
+            }
+            else
+            {
+                Impl::renderer()->wait_events_until(target_time);
             }
             valid_frame = Impl::renderer()->begin_frame();
             if (Impl::renderer()->should_close())

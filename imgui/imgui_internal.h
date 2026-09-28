@@ -2364,6 +2364,7 @@ struct ImGuiContext
         CurrentHoveredIDWantsMoreFrames = 0; // HACK BY MPV-ENJOYER
         CurrentHoveredIDFramesLeft = 0; // HACK BY MPV-ENJOYER
         PollUntil = 0; // HACK BY MPV-ENJOYER
+        WaitFramesUntil = -1;
     }
 };
 

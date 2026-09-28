@@ -16,6 +16,8 @@ public:
     bool should_close() override;
     void cleanup() override;
     bool is_mouse_button_pressed() override;
+    double get_current_time() override;
+    void wait_events_until(double time) override;
     void wait_events_timeout(double time) override;
     void wait_events() override;
     void poll_events() override;

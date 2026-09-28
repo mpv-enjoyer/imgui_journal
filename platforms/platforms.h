@@ -20,6 +20,8 @@ public:
         virtual bool should_close() = 0;
         virtual void cleanup() = 0;
         virtual bool is_mouse_button_pressed() = 0;
+        virtual double get_current_time() = 0;
+        virtual void wait_events_until(double time) = 0;
         virtual void wait_events_timeout(double time) = 0;
         virtual void wait_events() = 0;
         virtual void poll_events() = 0;

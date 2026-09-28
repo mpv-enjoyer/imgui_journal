@@ -106,6 +106,29 @@ bool SDL2_Renderer::is_mouse_button_pressed()
     return SDL_GetMouseState(NULL, NULL) & SDL_MOUSEBUTTONUP;
 }
 
+double SDL2_Renderer::get_current_time()
+{
+    // repeat the logic from ImGui_ImplSDL2_NewFrame
+    static Uint64 frequency = SDL_GetPerformanceFrequency();
+    Uint64 current_time_uint64 = SDL_GetPerformanceCounter();
+    return (double)(current_time_uint64) / frequency;
+}
+
+void SDL2_Renderer::wait_events_until(double time)
+{
+    double current_time = get_current_time();
+    double previous_frame_time = ImGui::GetTime();
+    double delta_time = previous_frame_time > 0.0 ? (float)(current_time - previous_frame_time) : (float)(1.0f / 60.0f); // TODO: we lost some presicion here.
+    if (current_time < time)
+    {
+        wait_events_timeout(delta_time);
+    }
+    else
+    {
+        /* not an error - may happen */
+    }
+}
+
 void SDL2_Renderer::wait_events_timeout(double time)
 {
     SDL_Event event;
