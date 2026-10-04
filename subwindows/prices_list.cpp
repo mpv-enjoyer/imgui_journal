@@ -75,7 +75,7 @@ bool Subwindow_Prices_List::show_frame()
         }
     }
 
-    ImGui::Text("state %i ...", journal->get_state());
+    // ImGui::Text("state %i ...", journal->get_state());
     bool can_save_for_current_month = (journal->get_state() == Journal::State::Limited) || (journal->get_state() == Journal::State::Fullaccess);
 
     if (Graphical::button_colored("Сохранить", 0.1f, 0.9f, 0.1f))

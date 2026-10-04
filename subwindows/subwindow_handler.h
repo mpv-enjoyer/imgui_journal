@@ -9,6 +9,7 @@ class Subwindow_Handler
 public:
     Subwindow_Handler() { };
     bool is_subwindow_opened();
-    void open_subwindow(Subwindow* subwindow);
+    bool can_open_subwindow();
+    void open_subwindow(Subwindow *subwindow);
     bool render_subwindow(Render* render); // Pass in Render to be sure that this is called by Render
 };

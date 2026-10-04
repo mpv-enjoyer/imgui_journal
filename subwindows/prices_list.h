@@ -11,4 +11,5 @@ class Subwindow_Prices_List : public Subwindow
 public:
     Subwindow_Prices_List(JournalHolder *graphical, Popup_Handler *popup_handler);
     bool show_frame() override;
+    bool allow_ontop() override { return false; }
 };
