@@ -1,5 +1,6 @@
 #include "journal.h"
 #include <filesystem>
+#include "backup.h"
 
 bool log_regular_saves = false;
 
@@ -87,18 +88,22 @@ void Journal::save_workouts()
 
 void Journal::save_backup()
 {
-    std::string backups_root = "backup";
-    std::string current_folder_name = backups_root + "/" + std::to_string(current_time.tm_mday) + "." + std::to_string(current_time.tm_mon + 1) + "." + std::to_string(current_year() + 1900) + "backup";
-    if (!std::filesystem::exists(current_folder_name)) std::filesystem::create_directory(current_folder_name);
-    std::string workout_path = current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year);
-    std::string journal_path = current_folder_name + "/" + generate_file_name(_current_month, _current_year);
-    std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), workout_path, std::filesystem::copy_options::overwrite_existing);
-    std::filesystem::copy_file(generate_file_name(_current_month, _current_year), journal_path, std::filesystem::copy_options::overwrite_existing);
+    update_backups(generate_workout_name(_journal_main_bottom_year), 'a', 'z');
+    char ext_begin, ext_end;
+    switch (this->_state)
+    {
+        case Journal::State::Empty: return;
+        case Journal::State::Preview: return;
+        case Journal::State::Limited: ext_begin = 'a'; ext_end = 'b'; break;
+        case Journal::State::Fullaccess: ext_begin = 'a'; ext_end = 'j'; break;
+    }
+    update_backups(generate_file_name(_current_month, _current_year), ext_begin, ext_end);
 }
 
 bool Journal::save()
 {
     if (restrict_saving) return false;
+    save_backup();
     save_workouts();
     if (!_check_rights({State::Fullaccess, State::Limited})) return false;
     if (log_regular_saves) printf("saving journal month %i\n", current_month());
@@ -114,14 +119,6 @@ bool Journal::save()
     }
 
     save_prices();
-    try
-    {
-        save_backup();
-    }
-    catch(const std::exception& e)
-    {
-        printf(e.what());
-    }
     return true;
 }
 
