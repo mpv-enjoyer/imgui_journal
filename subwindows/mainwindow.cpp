@@ -71,7 +71,7 @@ bool Mainwindow::show_frame()
             ImGui::PopStyleColor();
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Помощь"))
+        if (!subwindow_handler->is_subwindow_opened() && ImGui::BeginMenu("Помощь"))
         {
             if (ImGui::Button("Справка"))
             {

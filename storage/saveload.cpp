@@ -89,15 +89,21 @@ void Journal::save_workouts()
 void Journal::save_backup()
 {
     update_backups(generate_workout_name(_journal_main_bottom_year), 'a', 'z');
-    char ext_begin, ext_end;
     switch (this->_state)
     {
-        case Journal::State::Empty: return;
-        case Journal::State::Preview: return;
-        case Journal::State::Limited: ext_begin = 'a'; ext_end = 'b'; break;
-        case Journal::State::Fullaccess: ext_begin = 'a'; ext_end = 'j'; break;
+        case Journal::State::Empty:
+            return;
+        case Journal::State::Preview:
+            return;
+        case Journal::State::Limited:
+            remove_beyond_backups(generate_file_name(_current_month, _current_year), 'a', 'b');
+            return;
+        case Journal::State::Fullaccess:
+            update_backups(generate_file_name(_current_month, _current_year), 'a', 'j');
+            return;
+        default:
+            IM_ASSERT(false && "unreachable");
     }
-    update_backups(generate_file_name(_current_month, _current_year), ext_begin, ext_end);
 }
 
 bool Journal::save()

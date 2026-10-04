@@ -174,7 +174,7 @@ static bool starts_with(std::string str, std::string prefix)
     return str.find(postfix, start) == start;
 }
 
-static void update_backups_may_throw(const std::string& arg_file_name, char ext_begin, char ext_end)
+static void update_backups_may_throw(const std::string& arg_file_name, char ext_begin, char ext_end, bool only_remove_beyond)
 {
     std::filesystem::path arg_file_path(arg_file_name);
     if (!std::filesystem::exists(arg_file_path))
@@ -253,13 +253,17 @@ static void update_backups_may_throw(const std::string& arg_file_name, char ext_
             std::filesystem::remove(file);
         }
     }
+    if (only_remove_beyond) return; 
 
     if (files.size() > 0)
     {
-        bool most_recent_backup_too_recent = std::filesystem::last_write_time(arg_file_path) < files.back().time + std::chrono::hours(24);
+        bool most_recent_backup_too_recent = std::filesystem::last_write_time(arg_file_path) < files.back().time + std::chrono::hours(8);
         if (most_recent_backup_too_recent)
         {
-            debug_cout << "Replacing a most recent backup without ever rotating (did a backup in last 24 hours).\n";
+            // Not using 24 hours as last_write_time is changed every time this branch is executed
+            // If, for example, we used this program every day from 8AM to 10AM, it'd never get backups
+            // because the last backup would always be too recent, as it was modified less than 24 hours earlier.
+            debug_cout << "Replacing a most recent backup without ever rotating (did a backup in last 8 hours).\n";
             std::filesystem::copy_file(arg_file_path, files.back().path, std::filesystem::copy_options::overwrite_existing);
             return;
         }
@@ -289,12 +293,27 @@ std::optional<std::string> update_backups(const std::string& file_name, char ext
 {
     try
     {
-        update_backups_may_throw(file_name, ext_begin, ext_end);
+        update_backups_may_throw(file_name, ext_begin, ext_end, false);
     }
     catch (const std::exception& e)
     {
         std::stringstream s;
         s << "Cannot rotate backups for " << file_name << ": " << e.what() << "\n";
+        return s.str();
+    }
+    return {};
+}
+
+std::optional<std::string> remove_beyond_backups(const std::string& file_name, char ext_begin, char ext_end)
+{
+    try
+    {
+        update_backups_may_throw(file_name, ext_begin, ext_end, true);
+    }
+    catch (const std::exception& e)
+    {
+        std::stringstream s;
+        s << "Cannot remove beyond backups for " << file_name << ": " << e.what() << "\n";
         return s.str();
     }
     return {};

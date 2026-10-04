@@ -10,7 +10,11 @@ void Subwindow_Handler::open_subwindow(Subwindow *subwindow)
     if (subwindow == nullptr) return;
     if (is_subwindow_opened())
     {
-        if (!current->allow_ontop()) return;
+        if (!current->allow_ontop())
+        {
+            delete subwindow;
+            return;
+        }
         delete current;
     }
     current = subwindow;
