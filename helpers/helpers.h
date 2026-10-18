@@ -99,3 +99,4 @@ void previous_month_for(int& month, int& year);
 void HelpMarker(const char *desc);
 
 #include "images.h"
+#include "jtime.h"

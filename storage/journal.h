@@ -22,9 +22,12 @@ public:
     Test_Journal();
 };
 
+class Journal_Year;
+
 class Journal
 {
     friend Test_Journal;
+    friend Journal_Year;
     const std::array<std::string, LESSON_TYPE_COUNT> _lesson_names =
         {"ИЗО", 
         "Лепка",
@@ -183,6 +186,20 @@ public:
     bool restrict_saving = false;
     // Almost every action requires certain State. State must never be changed after construction.
     
+    friend class boost::serialization::access;
+    template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
+        // ar << 
+    }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+        // ar >> 
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
     static bool save_file_exists(int month, int year);
     void save_workouts();
     void save_backup();
