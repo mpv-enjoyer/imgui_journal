@@ -274,13 +274,13 @@ void Journal::generate_empty()
 
 void Journal::generate()
 {
-    if (this->journal_main == this)
-    {
-        if (std::filesystem::exists(generate_file_name(_current_month, _current_year)))
-        {
-            IM_ASSERT(false && "Tried to generate an existing main save file");
-        }
-    }
+    // if (this->journal_main == this)
+    // {
+    //     if (std::filesystem::exists(generate_file_name(_current_month, _current_year)))
+    //     {
+    //         IM_ASSERT(false && "Tried to generate an existing main save file");
+    //     }
+    // }
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
@@ -292,8 +292,8 @@ void Journal::generate()
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
-    load_prices();
-    save(); // Needed for generating new months in Add_Working_Out Popup.
+    //load_prices();
+    //save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
 bool Journal::_check_rights(std::vector<State> states)

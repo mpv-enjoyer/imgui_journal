@@ -130,6 +130,51 @@ Journal::Journal(int month, int year, Journal* _journal_main)
     else generate();
 }
 
+Journal::Journal(Month month, bool generate)
+{
+    _current_year = month.get_year().get_from_1900();
+    _current_month = month.get_from_0();
+    _current_month_days_num = month.get_day_count();
+    if (generate) { // Do not deserialize after that.
+        _all_days.clear();
+        _all_groups.clear();
+        _all_lessons.clear();
+        _all_students.clear();
+        _all_lessons = std::vector<std::vector<Lesson_Info*>>(7);
+        int first_day_of_the_week = get_first_mwday(_current_month, _current_year);
+        for (int i = 0; i < _current_month_days_num; i++)
+        {
+            int wday = (first_day_of_the_week + i) % 7;
+            _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
+        }
+    }
+    Month actual_current_month = Month::make_current();
+    bool is_past = month < actual_current_month;
+    bool is_current = month == actual_current_month;
+    bool is_future = month > actual_current_month;
+    bool is_current_study_year = month.get_study_bottom_year() == actual_current_month.get_study_bottom_year();
+    if (is_current_study_year) {
+        if (is_current) {
+            _state = State::Fullaccess;
+        } else if (is_past) {
+            _state = State::Limited;
+        } else {
+            _state = State::Preview;
+        }
+    } else {
+        if (is_past) {
+            if (generate) {
+                // nah. Unused past year. TODO: handle inbetween months in past years during migration?
+                _state = State::Empty;
+            } else {
+                _state = State::Limited;
+            }
+        } else {
+            _state = State::Empty;
+        }
+    }
+}
+
 // Current month and year
 Journal::Journal()
 {

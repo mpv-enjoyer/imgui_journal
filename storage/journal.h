@@ -34,16 +34,7 @@ class Journal
         "Дизайн",
         "Черчение",
         "Спецкурс",
-        "Пленэр"}; 
-    std::vector<std::vector<int>> _lesson_prices = 
-        {{100, 99, 98},
-        {200, 199, 198}, 
-        {300, 299, 298}, 
-        {400, 399, 398}, 
-        {500, 499, 498},
-        {600, 599, 598}};
-    int _lesson_price_skipped = 50;
-    int _lesson_price_was_ill = 0;
+        "Пленэр"};
     const std::array<std::string, 12> _month_names = 
         {"Январь", 
         "Февраль", 
@@ -113,6 +104,7 @@ class Journal
 public:
     Journal();
     Journal(int month, int year, Journal *journal_main);
+    Journal(Month month, bool generate);
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
@@ -190,13 +182,20 @@ public:
     template<class Archive>
     void save(Archive & ar, const unsigned int version) const
     {
-        // ar << 
+        ar << _all_students;
+        ar << _all_groups;
+        ar << _all_lessons;
+        ar << _all_days;
     }
 
     template<class Archive>
     void load(Archive & ar, const unsigned int version)
     {
-        // ar >> 
+        ar << _all_students;
+        ar << _all_groups;
+        ar << _all_lessons;
+        ar << _all_days;
+        // So simple?!
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
