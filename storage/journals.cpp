@@ -5,26 +5,52 @@
 struct Journal_Year
 {
     std::array<Journal*, 12> m_journals_per_month = {};
+    Workout_Handler* m_workouts = nullptr;
     Year m_bottom_year;
-    Workout_Handler m_workouts;
     Journal_Year(Year bottom_year);
     Year get_bottom_year();
     Month get_month(size_t index);
     std::string get_save_file_name();
+    std::string get_legacy_workout_file_name();
+    void save();
+    ~Journal_Year();
 };
-
-Journal_Year* m_journal_year = nullptr; // CURRENT YEAR.
 
 Journal_Year::Journal_Year(Year bottom_year) : m_bottom_year(bottom_year)
 {
-    // TODO: migration
     bool existed = std::filesystem::exists(get_save_file_name());
-    bool generate = !existed;
+    bool existed_legacy = std::filesystem::exists(get_legacy_workout_file_name());
+    bool need_migration = !existed && existed_legacy;
+    
+    if (need_migration) {
+        std::ofstream ofs(get_save_file_name());
+        boost::archive::text_oarchive oa(ofs);
+        for (int i = 0; i < m_journals_per_month.size(); i++) {
+            Month month = get_month(i);
+            // Load from legacy constructors:
+            Journal* journal = month == Month::make_current() ? new Journal() : new Journal(month.get_from_0(), month.get_year().get_from_1900(), nullptr);
+            journal->restrict_saving = true;
+            oa << journal;
+            delete journal;
+        }
+
+        std::ifstream ifs_workout(get_legacy_workout_file_name());
+        boost::archive::text_iarchive ia(ifs_workout);
+        Workout_Handler* dummy_wh = new Workout_Handler();
+        ia >> dummy_wh;
+        oa << dummy_wh;
+        delete dummy_wh;
+        existed = true;
+        printf("Migrated!!\n");
+    }
+
+    Month first_month_in_this_bottom_year = Month::make_begin_study_year_from_bottom_year(m_bottom_year);
+    m_workouts = new Workout_Handler(first_month_in_this_bottom_year.get_from_0(), m_bottom_year.get_from_1900());
 
     if (existed)
     {
         for (int i = 0; i < m_journals_per_month.size(); i++) {
-            m_journals_per_month[i] = new Journal(get_month(i), generate);
+            m_journals_per_month[i] = new Journal(get_month(i), false);
         }
         std::ifstream ifs(get_save_file_name());
         boost::archive::text_iarchive ia(ifs);
@@ -36,20 +62,16 @@ Journal_Year::Journal_Year(Year bottom_year) : m_bottom_year(bottom_year)
     else
     {
         for (int i = 0; i < m_journals_per_month.size(); i++) {
-            m_journals_per_month[i] = new Journal(get_month(i), generate);
-            m_journals_per_month[i]->generate();
+            m_journals_per_month[i] = new Journal(get_month(i), true);
         }
+        /* m_workouts is already initialized here */
     }
 }
+
 
 Year Journal_Year::get_bottom_year()
 {
     return m_bottom_year;
-}
-
-Journal *Journal_Year::get_journal(size_t index)
-{
-    return m_journals_per_month[index];
 }
 
 std::string Journal_Year::get_save_file_name()
@@ -57,36 +79,80 @@ std::string Journal_Year::get_save_file_name()
     return "save2_" + std::to_string(m_bottom_year.get_from_0()) + "y.data";
 }
 
-Journal *Journals::get_journal(Month month)
+std::string Journal_Year::get_legacy_workout_file_name()
+{    
+    return "save_" + std::to_string(m_bottom_year.get_from_0()) + "y_workouts.data";
+}
+
+void Journal_Year::save()
+{
+    std::ofstream ofs(get_save_file_name());
+    boost::archive::text_oarchive oa(ofs);
+    for (int i = 0; i < m_journals_per_month.size(); i++) {
+        oa << m_journals_per_month[i];
+    }
+    oa << m_workouts;
+}
+
+Journal_Year::~Journal_Year()
+{
+    save();
+    for (Journal* journal : m_journals_per_month) {
+        delete journal;
+    }
+    delete m_workouts;
+}
+
+
+// The one and only, journal storage:
+std::unique_ptr<Journal_Year> m_journal_year = std::make_unique<Journal_Year>(Year::make_current_bottom_year());
+
+Journal *Journals::get_journal_cross_year(Month month)
 {
     Year bottom_year = month.get_study_bottom_year();
     size_t index = month.calculate_study_year_index();
-    if (bottom_year == m_current_year.get_bottom_year()) {
-        return m_current_year.get_journal(index);
+    if (bottom_year != m_journal_year->get_bottom_year()) {
+        m_journal_year = std::make_unique<Journal_Year>(Year::make_current_bottom_year()); // Saving occurs here
     }
-    if (!m_journal_year) {
-        
+    return m_journal_year->m_journals_per_month[index];
+}
+
+std::optional<Journal *> Journals::get_next_journal_this_year(Journal *journal)
+{
+    Month month = get_month(journal);
+    bool success = month.next_bounded();
+    if (success) {
+        size_t index = month.calculate_study_year_index();
+        return m_journal_year->m_journals_per_month[index];
+    } else {
+        return std::nullopt;
     }
 }
 
-bool Journals::is_next_month_in_the_same_study_year(Month month)
+Journal *Journals::get_next_journal_cross_year(Journal *journal)
 {
-    return month.get_from_0() != Month::END_STUDY_MONTH_FROM_0;
+    Month month = get_month(journal);
+    month.next();
+    return get_journal_cross_year(month);
 }
 
-bool Journals::is_next_month_in_the_same_study_year(Journal *journal)
+std::optional<Journal *> Journals::get_previous_journal_this_year(Journal *journal)
 {
-    return is_next_month_in_the_same_study_year(get_month(journal));
+    Month month = get_month(journal);
+    bool success = month.previous_bounded();
+    if (success) {
+        size_t index = month.calculate_study_year_index();
+        return m_journal_year->m_journals_per_month[index];
+    } else {
+        return std::nullopt;
+    }
 }
 
-bool Journals::is_previous_month_in_the_same_study_year(Month month)
+Journal *Journals::get_previous_journal_cross_year(Journal *journal)
 {
-    return month.get_from_0() != Month::BEGIN_STUDY_MONTH_FROM_0;
-}
-
-bool Journals::is_previous_month_in_the_same_study_year(Journal *journal)
-{
-    return is_previous_month_in_the_same_study_year(get_month(journal));
+    Month month = get_month(journal);
+    month.previous();
+    return get_journal_cross_year(month);
 }
 
 Month Journals::get_month(Journal *journal)

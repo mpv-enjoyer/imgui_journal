@@ -88,7 +88,7 @@ void Journal::save_workouts()
 
 void Journal::save_backup()
 {
-    update_backups(generate_workout_name(_journal_main_bottom_year), 'a', 'z');
+    // update_backups(generate_workout_name(_journal_main_bottom_year), 'a', 'z');
     switch (this->_state)
     {
         case Journal::State::Empty:
@@ -200,7 +200,7 @@ bool Journal::load_prices(bool try_my_prices_file)
     ia >> _lesson_prices;
     fixup_missing_prices(_lesson_prices);
     ia >> _lesson_price_skipped;
-    ia >> _lesson_price_was_ill;
+    ia >> _lesson_price_was_ill; // TODO: For legacy: load prices to some dummy structs, fill in Prices class.
     return true;
 }
 
@@ -324,6 +324,7 @@ Journal::~Journal()
         delete student;
     }
     if (_state == State::Empty) return;
-    bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
-    if (is_current_year_allocated) delete _workout_handler;
+    // bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
+    // delete _workout_handler;
+    // TODO: we leak _workout_handler for now, legacy Journal will not load workouts afterwards.
 }

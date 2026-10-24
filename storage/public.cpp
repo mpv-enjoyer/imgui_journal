@@ -74,17 +74,21 @@ bool Journal::_search_last_generated_month(int* month, int* year)
 // Any month and year
 Journal::Journal(int month, int year, Journal* _journal_main)
 {
-    // Reach the real "main" journal:
-    while (_journal_main->journal_main != nullptr) _journal_main = _journal_main->journal_main;
-    journal_main = _journal_main;
+    if (_journal_main) {
+        // Reach the real "main" journal:
+        while (_journal_main->journal_main != nullptr) _journal_main = _journal_main->journal_main;
+        journal_main = _journal_main;
+    } // TODO: remove this block entirely (also check add_working_out popup)
 
-    _journal_main_bottom_year = Workout_Handler::get_bottom_year(journal_main->current_month(), journal_main->current_year());
+    // _journal_main_bottom_year = Workout_Handler::get_bottom_year(journal_main->current_month(), journal_main->current_year());
     _current_year = year;
     _current_month = month;
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
 
     int bottom_year = Workout_Handler::get_bottom_year(month, year);
-    if (journal_main->workout_handler()->bottom_year() < bottom_year)
+    Month actual_current_month = Month::make_current();
+    Month journal_month_obj = Month::make_from_0(_current_month, Year::make_from_1900(_current_year));
+    if (actual_current_month.get_study_bottom_year() < journal_month_obj.get_study_bottom_year())
     {
         _state = State::Empty;
         generate_empty();
@@ -105,7 +109,7 @@ Journal::Journal(int month, int year, Journal* _journal_main)
         return;
     }
     // Check if current month is in main year or before it:
-    bool in_this_year = journal_main->workout_handler()->is_month_here(_current_month, _current_year);
+    bool in_this_year = actual_current_month.get_study_bottom_year() == journal_month_obj.get_study_bottom_year();
     if (in_this_year)
     {
         _workout_handler = journal_main->workout_handler();
@@ -180,7 +184,7 @@ Journal::Journal()
 {
     _current_year = _current_time.tm_year;
     _current_month = _current_time.tm_mon;
-    _journal_main_bottom_year = Workout_Handler::get_bottom_year(_current_month, _current_year);
+    // _journal_main_bottom_year = Workout_Handler::get_bottom_year(_current_month, _current_year);
     _current_month_days_num = get_number_of_days(_current_month, _current_year + 1900);
     _state = State::Fullaccess;
     bool load_result = load();

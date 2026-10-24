@@ -97,7 +97,7 @@ class Journal
 
     Workout_Handler* _workout_handler;
     
-    int _journal_main_bottom_year;
+    // int _journal_main_bottom_year;
 
     const static Journal current_journal;
 
@@ -141,6 +141,7 @@ public:
     const bool is_workout_possible(const Lesson_Info *select_lesson, int select_internal_lesson, int student_id, int caller_lesson_name_id);
     const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
 
+    // TODO: look through every action so it makes sense in Journal_Year context.
     void add_student_to_base(std::string name, int contract);
     void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
@@ -195,7 +196,7 @@ public:
         ar << _all_groups;
         ar << _all_lessons;
         ar << _all_days;
-        // So simple?!
+        // So simple?! TODO: Nah, Prices should be here too.
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
