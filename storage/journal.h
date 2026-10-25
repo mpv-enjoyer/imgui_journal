@@ -2,6 +2,7 @@
 #include "../main_types/main_types.h"
 #include "../helpers/helpers.h"
 #include "workout.h"
+#include "prices.h"
 
 #define NAME_DRAWING 0       // ИЗО
 #define NAME_SCULPTING 1     // Лепка
@@ -95,16 +96,17 @@ class Journal
     std::vector<std::vector<Lesson_Info*>> _all_lessons;
     std::vector<Calendar_Day*> _all_days;
 
-    Workout_Handler* _workout_handler;
+    Workout_Handler* _workout_handler; // Shared between all months, provided by Journal_Year
+    Prices* _prices;
     
     // int _journal_main_bottom_year;
 
-    const static Journal current_journal;
+    const bool MIGRATION; // unused for now
 
 public:
     Journal();
     Journal(int month, int year, Journal *journal_main);
-    Journal(Month month, bool generate);
+    Journal(Month month, bool generate, Workout_Handler* workout_handler);
 
     const time_t current_timestamp = time(NULL);
     const std::tm current_time = *std::localtime(&current_timestamp);
@@ -113,8 +115,7 @@ public:
     const std::vector<std::vector<int>> get_lesson_prices();
     const int get_ill_price();
     const int get_skipped_price();
-    static void set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price);
-    static bool get_default_prices(std::vector<std::vector<int>>& prices, int& ill_price, int& skipped_price);
+    void set_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price);
 
     std::string Lesson_name(int type);
     const int Lesson_price(int type, int discount_status);
@@ -181,31 +182,22 @@ public:
     
     friend class boost::serialization::access;
     template<class Archive>
-    void save(Archive & ar, const unsigned int version) const
+    void serialize(Archive & ar, const unsigned int version)
     {
-        ar << _all_students;
-        ar << _all_groups;
-        ar << _all_lessons;
-        ar << _all_days;
+        ar & _all_students;
+        ar & _all_groups;
+        ar & _all_lessons;
+        ar & _all_days;
+        ar & _prices; // Prices are default initialized for MIGRATION. 
     }
-
-    template<class Archive>
-    void load(Archive & ar, const unsigned int version)
-    {
-        ar << _all_students;
-        ar << _all_groups;
-        ar << _all_lessons;
-        ar << _all_days;
-        // So simple?! TODO: Nah, Prices should be here too.
-    }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    // BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     static bool save_file_exists(int month, int year);
-    void save_workouts();
-    void save_backup();
-    bool save();
-    void save_default_prices();
-    void save_prices();
+    // void save_workouts();
+    // void save_backup();
+    // bool save();
+    // void save_default_prices();
+    // void save_prices();
     bool load_workouts();
     bool load();
     bool load_prices(bool try_my_prices_file = true);

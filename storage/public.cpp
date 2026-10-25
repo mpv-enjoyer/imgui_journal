@@ -2,15 +2,19 @@
 
 const std::vector<std::vector<int>> Journal::get_lesson_prices()
 {
-    return _lesson_prices;
+    return _prices->get_lesson_prices();
 }
 const int Journal::get_ill_price()
 {
-    return _lesson_price_was_ill;
+    return _prices->get_ill_price();
 }
 const int Journal::get_skipped_price()
 {
-    return _lesson_price_skipped;
+    return _prices->get_skipped_price();
+}
+void Journal::set_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price)
+{
+    _prices->set_prices(prices, ill_price, skipped_price);
 }
 std::string Journal::Lesson_name(int type)
 {
@@ -18,7 +22,7 @@ std::string Journal::Lesson_name(int type)
 }
 const int Journal::Lesson_price(int type, int discount_status)
 {
-    return _lesson_prices[type][discount_status];
+    return _prices->get_lesson_prices()[type][discount_status];
 }
 std::string Journal::Month_name(int number)
 {
@@ -73,6 +77,7 @@ bool Journal::_search_last_generated_month(int* month, int* year)
 
 // Any month and year
 Journal::Journal(int month, int year, Journal* _journal_main)
+: MIGRATION(true)
 {
     if (_journal_main) {
         // Reach the real "main" journal:
@@ -134,7 +139,8 @@ Journal::Journal(int month, int year, Journal* _journal_main)
     else generate();
 }
 
-Journal::Journal(Month month, bool generate)
+Journal::Journal(Month month, bool generate, Workout_Handler* workout_handler)
+: MIGRATION(false), _workout_handler(workout_handler)
 {
     _current_year = month.get_year().get_from_1900();
     _current_month = month.get_from_0();
@@ -181,6 +187,7 @@ Journal::Journal(Month month, bool generate)
 
 // Current month and year
 Journal::Journal()
+: MIGRATION(true)
 {
     _current_year = _current_time.tm_year;
     _current_month = _current_time.tm_mon;
@@ -279,22 +286,22 @@ const std::vector<Day_With_Info> Journal::enumerate_days(int wday)
 const int Journal::lesson_common_price(int contract, int lesson_type)
 {
     int discount_status = _discount_status(contract);
-    int price = _lesson_prices[lesson_type][discount_status];
+    int price = _prices->get_lesson_prices()[lesson_type][discount_status];
     return price;
 }
 const int Journal::lesson_current_price(Lesson lesson, int mday, int internal_student_id)
 {
     int status = day(mday)->get_status(lesson, internal_student_id).status;
     if (status == STATUS_NO_DATA) return -1;
-    if (status == STATUS_SKIPPED) return _lesson_price_skipped;
-    if (status == STATUS_WAS_ILL) return _lesson_price_was_ill;
+    if (status == STATUS_SKIPPED) return _prices->get_skipped_price();
+    if (status == STATUS_WAS_ILL) return _prices->get_ill_price();
     if (status == STATUS_NOT_AWAITED) return -1;
     int defined_status = _day(mday)->get_discount_status(lesson, internal_student_id);
     int wday = get_wday(mday, _current_month, _current_year);
     Lesson_Pair pair = _all_lessons[wday][lesson.merged_lesson_id]->get_lesson_pair(lesson.internal_lesson_id);
     int lesson_type = pair.lesson_name_id;
     if (defined_status >= get_lesson_prices()[lesson_type].size()) defined_status = get_lesson_prices()[lesson_type].size() - 1; /* Status set, then discounts shrink */
-    if (defined_status != -1) return _lesson_prices[lesson_type][defined_status];
+    if (defined_status != -1) return _prices->get_lesson_prices()[lesson_type][defined_status];
     //discount status is undefined at this point, fall back to common
     int contract = lesson_info(wday, lesson.merged_lesson_id)->get_group().get_student(internal_student_id).get_contract();
     return lesson_common_price(contract, lesson_type);

@@ -54,6 +54,7 @@ static void fixup_missing_prices(std::vector<std::vector<int>> &prices)
     }
 }
 
+/* Only used in popup
 bool Journal::get_default_prices(std::vector<std::vector<int>> &prices, int &ill_price, int &skipped_price)
 {
     std::ifstream ifs(generate_prices_name());
@@ -64,7 +65,7 @@ bool Journal::get_default_prices(std::vector<std::vector<int>> &prices, int &ill
     ia >> skipped_price;
     ia >> ill_price;
     return true;
-}
+}*/
 
 Journal::State Journal::get_state()
 {
@@ -77,6 +78,7 @@ bool Journal::save_file_exists(int month, int year)
     return ifs.good();
 }
 
+/*
 void Journal::save_workouts()
 {
     if (!_check_rights({State::Fullaccess, State::Limited, State::Preview})) return;
@@ -128,29 +130,7 @@ bool Journal::save()
     return true;
 }
 
-void Journal::set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price)
-{
-    for (int i = 1; i < prices.size(); i++)
-    {
-        IM_ASSERT(prices[0].size() == prices[i].size());
-    }
-    std::ofstream ofs_default(generate_prices_name());
-    boost::archive::text_oarchive oa_default(ofs_default);
-    oa_default << prices;
-    oa_default << skipped_price;
-    oa_default << ill_price;
-}
-
-void Journal::save_prices()
-{
-    if (!_check_rights({State::Fullaccess})) return;
-    std::ofstream ofs(generate_prices_name(_current_month, _current_year));
-    boost::archive::text_oarchive oa(ofs);
-    oa << _lesson_prices;
-    oa << _lesson_price_skipped;
-    oa << _lesson_price_was_ill;
-}
-
+*/
 bool Journal::load_workouts()
 {
     std::ifstream workout_ifs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
@@ -158,10 +138,11 @@ bool Journal::load_workouts()
     {
         return false;
     }
-    if (log_regular_saves) printf("loading workouts month %i\n", current_month());
-    boost::archive::text_iarchive workout_ia(workout_ifs);
-    workout_ia >> _workout_handler;
     return true;
+    // if (log_regular_saves) printf("loading workouts month %i\n", current_month());
+    // boost::archive::text_iarchive workout_ia(workout_ifs);
+    // workout_ia >> _workout_handler;
+    // return true;
 }
 
 bool Journal::load()
@@ -182,7 +163,7 @@ bool Journal::load()
     ia >> _all_lessons;
     ia >> _all_days;
 
-    if (!load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
+    // if (!load_workouts()) IM_ASSERT(false && "Loaded month must load workouts...");
     load_prices();
     return true;
 }
@@ -197,10 +178,13 @@ bool Journal::load_prices(bool try_my_prices_file)
         // Fallback to default price
     }
     boost::archive::text_iarchive ia(ifs);
+    int _lesson_price_skipped, _lesson_price_was_ill;
+    std::vector<std::vector<int>> _lesson_prices;
     ia >> _lesson_prices;
     fixup_missing_prices(_lesson_prices);
     ia >> _lesson_price_skipped;
-    ia >> _lesson_price_was_ill; // TODO: For legacy: load prices to some dummy structs, fill in Prices class.
+    ia >> _lesson_price_was_ill;
+    _prices->set_prices(_lesson_prices, _lesson_price_was_ill, _lesson_price_skipped);
     return true;
 }
 
@@ -254,7 +238,7 @@ void Journal::generate(int base_month, int base_year)
     }
 
     load_prices();
-    save(); // Needed for generating new months in Add_Working_Out Popup.
+    // save(); Was needed for generating new months in Add_Working_Out Popup.
 }
 
 void Journal::generate_empty()
@@ -292,7 +276,7 @@ void Journal::generate()
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
-    //load_prices();
+    load_prices();
     //save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
@@ -307,7 +291,7 @@ bool Journal::_check_rights(std::vector<State> states)
 
 Journal::~Journal()
 {
-    save();
+    // save();
     for (auto& lesson_info_day : _all_lessons)
     {
         for (auto& lesson_info : lesson_info_day)
@@ -326,5 +310,4 @@ Journal::~Journal()
     if (_state == State::Empty) return;
     // bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
     // delete _workout_handler;
-    // TODO: we leak _workout_handler for now, legacy Journal will not load workouts afterwards.
 }

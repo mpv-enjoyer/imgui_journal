@@ -36,7 +36,7 @@ int Journal::_discount_student_counter(int student_contract)
         if (student_contract == student->get_contract()) student_counter++;
     }
     if (student_counter == -1) student_counter = 0; // Called by the deleted student?
-    int discounts_size = _lesson_prices[0].size();
+    int discounts_size = _prices->get_lesson_prices()[0].size();
     if (student_counter >= discounts_size) student_counter = discounts_size - 1;
     return student_counter;
 }
@@ -69,7 +69,7 @@ int Journal::_discount_lesson_contract_counter(int student_contract)
     }
     if (lessons_contract_counter == -1) lessons_contract_counter = 0; // Called by the student with no lessons?
     lessons_contract_counter /= 2; // We want to have a number of full lessons
-    int discounts_size = _lesson_prices[0].size();
+    int discounts_size = _prices->get_lesson_prices()[0].size();
     if (lessons_contract_counter >= discounts_size) lessons_contract_counter = discounts_size - 1;
     return lessons_contract_counter;
 }
