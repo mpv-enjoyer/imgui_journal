@@ -26,32 +26,67 @@ Calendar_Day* Journal::_day(int mday)
     return _all_days[mday];
 }
 
-int Journal::_discount_status(int student_contract)
+int Journal::_discount_student_counter(int student_contract)
+// from 0
 {
-    int found_students = 0;
-    for (auto student : _all_students)
+    int student_counter = -1;
+    for (const auto& student : _all_students)
     {
-        if (student->get_contract() == student_contract && !student->is_removed()) found_students++;
+        if (student->is_removed()) continue;
+        if (student_contract == student->get_contract()) student_counter++;
     }
-    int output = found_students - 1;
-    if (output < 0) output = 0; // Probably requested by the deleted student?
+    if (student_counter == -1) student_counter = 0; // Called by the deleted student?
     int discounts_size = _lesson_prices[0].size();
-    if (output >= discounts_size) output = discounts_size - 1;
-    return output;
+    if (student_counter >= discounts_size) student_counter = discounts_size - 1;
+    return student_counter;
 }
 
-int Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
+int Journal::_discount_lesson_contract_counter(int student_contract)
 {
-    auto& lessons_in_this_day = _all_lessons[wday];
-    int new_merged_lesson_known_id = lessons_in_this_day.size();
-    for (int i = 0; i < lessons_in_this_day.size(); i++)
+    int lessons_contract_counter = -1;
+    for (const auto& lessons : _all_lessons)
     {
-        if (PTRREF(lessons_in_this_day[i]) > lesson_info)
+        for (const auto& lesson : lessons)
         {
-            new_merged_lesson_known_id = i;
-            break;
+            if (lesson->is_discontinued()) continue;
+            const Group& group = lesson->get_group();
+            for (int student_id = 0; student_id < group.get_size(); student_id++)
+            {
+                const Student& student = group.get_student(student_id);
+                if (group.is_deleted(student)) continue;
+                if (student.is_removed()) continue;
+                if (group.get_student(student_id).get_contract() != student_contract) continue;
+                Attend_Data attend_data = group.get_attend_data(student_id);
+                if (lesson->get_lessons_size() == 1)
+                {
+                    lessons_contract_counter++;
+                    continue;
+                }
+                if (attend_data == ATTEND_FIRST || attend_data == ATTEND_SECOND) lessons_contract_counter++;
+                if (attend_data == ATTEND_BOTH) lessons_contract_counter += 2;
+            }
         }
     }
-    lessons_in_this_day.insert(lessons_in_this_day.begin() + new_merged_lesson_known_id, &lesson_info);
-    return new_merged_lesson_known_id;
+    if (lessons_contract_counter == -1) lessons_contract_counter = 0; // Called by the student with no lessons?
+    lessons_contract_counter /= 2; // We want to have a number of full lessons
+    int discounts_size = _lesson_prices[0].size();
+    if (lessons_contract_counter >= discounts_size) lessons_contract_counter = discounts_size - 1;
+    return lessons_contract_counter;
+}
+
+int Journal::_discount_status(int student_contract)
+{
+    int student_counter = _discount_student_counter(student_contract);
+    int lesson_contract_counter = _discount_lesson_contract_counter(student_contract);
+    if (student_counter > 0)
+    {
+        return std::max(student_counter, lesson_contract_counter);
+    }
+    static const int max_discount_for_single = 1;
+    return std::min(lesson_contract_counter, max_discount_for_single);
+}
+
+void Journal::_emplace_lesson_info(int wday, Lesson_Info &lesson_info)
+{
+    _all_lessons[wday].push_back(&lesson_info);
 }

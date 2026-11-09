@@ -9,8 +9,8 @@ class Popup_Confirm_Delete_Student : public Popup
 {
     int _student_id;
 public:
-    Popup_Confirm_Delete_Student(Graphical* _graphical, int student_id);
-    bool show_frame();
-    bool is_ok_possible() { return true; }
-    void accept_changes();
+    Popup_Confirm_Delete_Student(JournalHolder* _graphical, int student_id);
+    bool show_frame() override;
+    bool is_ok_possible() override { return true; }
+    void accept_changes() override;
 };

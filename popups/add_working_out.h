@@ -37,13 +37,14 @@ private:
         Picker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
         int show();
     };
-    Picker picker;
+    Graphical::StudentPicker picker;
+    bool is_calendar_filled = false;
 public:
-    Popup_Add_Working_Out(Graphical* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
+    Popup_Add_Working_Out(JournalHolder* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info);
     void update_possible_lessons();
     void update_journal(int month, int year);
-    bool show_frame();
-    bool is_ok_possible(bool is_calendar_filled);
+    bool show_frame() override;
+    bool is_ok_possible() override;
     void accept_changes();
     ~Popup_Add_Working_Out();
 };

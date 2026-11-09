@@ -1,56 +1,66 @@
 #pragma once
 #include "../storage/journal.h"
 
-class Popup_Add_Merged_Lesson_To_Journal;
-class Popup_Add_Student_To_Base;
-class Popup_Add_Student_To_Group;
-class Popup_Add_Working_Out;
-class Popup_Select_Day_Of_The_Week;
-class Popup_Edit_Lesson;
-class Popup_Confirm_Delete_Workout;
-class Popup_Confirm_Delete_Student;
-class Popup_Confirm_Delete_Lesson;
-
-class Subwindow_Students_List;
-class Subwindow_Lessons_List;
-class Subwindow_Prices_List;
-
 class Mainwindow;
 
-class Graphical
+/*
+    JournalHolder (previously Graphical) is:
+    1) (V) Journal storage.
+    2) (X) Subwindow handler
+    3) Some info about user inputs: wday and edit_mode
+    4) (X) additional ImGui functions
+*/
+
+namespace Graphical
+{
+    bool attend_data(std::string label, Attend_Data *attend_data, std::string first_lesson_name, std::string second_lesson_name);
+    bool button_selectable(const char *label, bool selected, bool small = false);
+    bool button_dangerous(const char *label);
+    bool input_time(std::string label, JTime &time);
+    bool button_colored(const char *label, float r, float g, float b);
+    bool age_group_combo(const char *label, int *age_group, bool shrink = true);
+    bool attendance_combo(const char* label, int* status, std::string tooltip = "");
+    // RAII versions of ImGui functions:
+    struct Group
+    {
+        [[nodiscard]] Group() { ImGui::BeginGroup(); }
+        ~Group() { ImGui::EndGroup(); }
+    };
+    struct Child
+    {
+        const bool valid;
+        [[nodiscard]] Child(const char* str_id, const ImVec2& size = ImVec2(0, 0), bool border = false, ImGuiWindowFlags window_flags = 0)
+        : valid(ImGui::BeginChild(str_id, size, border, window_flags)) { }
+        ~Child() { ImGui::EndChild(); } // "Always call a matching EndChild() for each BeginChild() call" from docs
+    };
+    class StudentPicker
+    {
+        ImGuiTextFilter filter;
+        int current = -1;
+        std::vector<std::string> _descriptions;
+        std::vector<int> _id_list;
+        bool use_id_list = false;
+    public:
+        [[nodiscard]] StudentPicker() {};
+        [[nodiscard]] StudentPicker(std::vector<std::string> descriptions, std::vector<int> id_list = {});
+        [[nodiscard]] int show();
+        [[nodiscard]] bool is_valid();
+    };
+};
+
+class JournalHolder /* move this class to journal_holder.h? */
 {
     bool _edit_mode;
     int _wday;
     std::vector<Day_With_Info> _visible_days;
-
 public:
-    Popup_Add_Student_To_Group* popup_add_student_to_group = nullptr;
-    Popup_Select_Day_Of_The_Week* popup_select_day_of_the_week = nullptr;
-    Popup_Add_Merged_Lesson_To_Journal* popup_add_merged_lesson_to_journal = nullptr;
-    Popup_Add_Working_Out* popup_add_working_out = nullptr;
-    Popup_Add_Student_To_Base* popup_add_student_to_base = nullptr;
-    Popup_Confirm_Delete_Workout* popup_confirm_delete_workout = nullptr;
-    Popup_Confirm_Delete_Student* popup_confirm_delete_student = nullptr;
-    Popup_Confirm_Delete_Lesson* popup_confirm_delete_lesson = nullptr;
-
-    Subwindow_Students_List* subwindow_students_list = nullptr;
-    Subwindow_Lessons_List* subwindow_lessons_list = nullptr;
-    Subwindow_Prices_List* subwindow_prices_list = nullptr;
-
-    Mainwindow* mainwindow = nullptr;
-
+//    Mainwindow* mainwindow = nullptr;
     Journal& journal;
 
-    Graphical(Journal& main_journal);
+    JournalHolder(Journal& main_journal);
     const int& wday = std::ref(_wday);
     const std::vector<Day_With_Info>& visible_days = std::ref(_visible_days);
     const bool& edit_mode = std::ref(_edit_mode);
     void select_wday(int wday);
     void set_edit_mode(bool value);
-
-    bool attend_data(std::string label, Attend_Data *attend_data, std::string first_lesson_name, std::string second_lesson_name);
-    bool button_selectable(const char *label, bool selected, bool small);
-    bool button_dangerous(const char *label);
-    bool input_time(std::string label, JTime &time);
-    bool button_colored(const char *label, float r, float g, float b);
 };

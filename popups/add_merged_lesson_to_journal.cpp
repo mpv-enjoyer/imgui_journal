@@ -1,6 +1,7 @@
 #include "add_merged_lesson_to_journal.h"
+#include <optional>
 
-int get_combo_lesson_name_id(std::vector<InternalLessonInfo> pairs)
+int get_combo_lesson_name_id(std::vector<Lesson_Pair> pairs)
 {
     int first_lesson_id = pairs[0].lesson_name_id;
     int second_lesson_id = pairs.size() > 1 ? pairs[1].lesson_name_id : -1;
@@ -9,14 +10,15 @@ int get_combo_lesson_name_id(std::vector<InternalLessonInfo> pairs)
     if (first_lesson_id == NAME_DRAWING) return 0;
     if (first_lesson_id == NAME_SCULPTING) return 1;
     if (first_lesson_id == NAME_DESIGN) return 4;
-    if (first_lesson_id == NAME_SPECIALCOURSE) return 5;
+    if (first_lesson_id == NAME_TECHDRAWING) return 5;
+    if (first_lesson_id == NAME_SPECIALCOURSE) return 6;
+    if (first_lesson_id == NAME_PLEIN) return 7;
     IM_ASSERT(false && "invalid pairs");
 }
 
-Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical* _graphical, int existing_lesson_info_id, int wday)
+Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(JournalHolder* graphical, int existing_lesson_info_id, int wday)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     if (existing_lesson_info_id != -1)
     {
         this->existing_lesson_info_id = existing_lesson_info_id;
@@ -30,10 +32,46 @@ Popup_Add_Merged_Lesson_To_Journal::Popup_Add_Merged_Lesson_To_Journal(Graphical
     }
     else
     {
-        day_of_the_week = _graphical->wday;
-        lesson_pairs = std::vector<InternalLessonInfo>(2, {0,0,0});
+        day_of_the_week = graphical->wday;
+        lesson_pairs = std::vector<Lesson_Pair>(2, {0,0,0});
     }
     
+}
+
+// Edit these when adding a new lesson:
+static const char* get_combo_lesson_type_str()
+{
+    return "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0Пленэр\0\0";
+}
+int Popup_Add_Merged_Lesson_To_Journal::get_first_lesson_type_id() const
+{
+    switch (combo_lesson_name_id)
+    {
+    case 0: return NAME_DRAWING;
+    case 1: return NAME_SCULPTING;
+    case 2: return NAME_DRAWING;
+    case 3: return NAME_SCULPTING;
+    case 4: return NAME_DESIGN;
+    case 5: return NAME_TECHDRAWING;
+    case 6: return NAME_SPECIALCOURSE;
+    case 7: return NAME_PLEIN;
+    default: IM_ASSERT(false);
+    }
+}
+std::optional<int> Popup_Add_Merged_Lesson_To_Journal::get_second_lesson_type_id()
+{
+    switch (combo_lesson_name_id)
+    {
+    case 0: return {};
+    case 1: return {};
+    case 2: return NAME_SCULPTING;
+    case 3: return NAME_DRAWING;
+    case 4: return NAME_DESIGN;
+    case 5: return NAME_TECHDRAWING;
+    case 6: return NAME_SPECIALCOURSE;
+    case 7: return NAME_PLEIN;
+    default: IM_ASSERT(false);
+    }
 }
 
 bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
@@ -50,37 +88,47 @@ bool Popup_Add_Merged_Lesson_To_Journal::show_frame()
             day_of_the_week = CONVERT_TO_RU_CALENDAR(combo_day_of_the_week);
         }
         
-        ImGui::Combo("Программа", &combo_lesson_name_id, "ИЗО\0Лепка\0ИЗО+Лепка\0Лепка+ИЗО\0Дизайн\0Черчение\0Спецкурс\0\0");
+        ImGui::Combo("Программа", &combo_lesson_name_id, get_combo_lesson_type_str());
         if (existing_lesson_info) ImGui::EndDisabled();
-        for (int i = 0; i < 2; i++)
+
         {
-            if (combo_lesson_name_id == 2 || combo_lesson_name_id == 3) 
-            {
-                std::string lesson_name;
-                if (i == 0) lesson_name = Lesson_Names[combo_lesson_name_id - 2];
-                else lesson_name = Lesson_Names[3 - combo_lesson_name_id]; //mirrored
-                ImGui::Text("%i. %s", i + 1, lesson_name.c_str());
-            }
-            else if (combo_lesson_name_id > 3)
-            {
-                std::string lesson_name = Lesson_Names[combo_lesson_name_id - 2];
-                ImGui::Text("%i. %s", i + 1, lesson_name.c_str());
-            }
-            else if (i == 1) break; 
+            int i = 0;
+            int lesson_type_id = get_first_lesson_type_id();
+            std::string lesson_type_name = Lesson_Names[lesson_type_id];
+            ImGui::Text("%i. %s", i + 1, lesson_type_name.c_str());
             ImGui::PushID(i);
-            j_input_time("##LessonBegin", lesson_pairs[i].time_begin);
+            Graphical::input_time("##LessonBegin", lesson_pairs[i].time_begin);
             ImGui::SameLine();
             ImGui::Text(" _ ");
             ImGui::SameLine();
-            j_input_time("##LessonEnd", lesson_pairs[i].time_end);
+            Graphical::input_time("##LessonEnd", lesson_pairs[i].time_end);
             ImGui::PopID();
         }
+
+        {
+            int i = 1;
+            std::optional<int> lesson_type_id_opt = get_second_lesson_type_id();
+            if (lesson_type_id_opt.has_value())
+            {
+                int lesson_type_id = *lesson_type_id_opt;
+                std::string lesson_type_name = Lesson_Names[lesson_type_id];
+                ImGui::Text("%i. %s", i + 1, lesson_type_name.c_str());
+                ImGui::PushID(i);
+                Graphical::input_time("##LessonBegin", lesson_pairs[i].time_begin);
+                ImGui::SameLine();
+                ImGui::Text(" _ ");
+                ImGui::SameLine();
+                Graphical::input_time("##LessonEnd", lesson_pairs[i].time_end);
+                ImGui::PopID();
+            }
+        }
+
         if (ImGui::InputInt("Номер", &group_number))
         {
             if (group_number < 0) group_number = 0;
         };
+        Graphical::age_group_combo("Возраст", &age_group, false);
         ImGui::InputText("Описание (необязательно)", &group_comment);
-        j_age_group_combo("Возраст (необязательно)", &age_group, false);
         ImGui::PopStyleColor();
 
         if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK; 
@@ -103,7 +151,7 @@ bool Popup_Add_Merged_Lesson_To_Journal::is_ok_possible()
         error("Группа с таким номером в " + Day_Names[day_of_the_week] + " уже существует");
         return false;
     }
-    if (combo_lesson_name_id >= 2)
+    if (get_second_lesson_type_id().has_value())
     {
         bool insane_time = false;
         insane_time = insane_time || lesson_pairs[0].time_begin >= lesson_pairs[0].time_end;
@@ -129,7 +177,7 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
         journal->set_group_age_group(day_of_the_week, existing_lesson_info_id, age_group);
         journal->set_group_comment(day_of_the_week, existing_lesson_info_id, group_comment);
         journal->set_group_number(day_of_the_week, existing_lesson_info_id, group_number);
-        std::vector<InternalLessonInfo> loaded_pairs = journal->lesson_info(day_of_the_week, existing_lesson_info_id)->get_lesson_pairs();
+        std::vector<Lesson_Pair> loaded_pairs = journal->lesson_info(day_of_the_week, existing_lesson_info_id)->get_lesson_pairs();
         for (int i = 0; i < loaded_pairs.size(); i++)
         {
             loaded_pairs[i].time_begin = lesson_pairs[i].time_begin;
@@ -139,22 +187,15 @@ void Popup_Add_Merged_Lesson_To_Journal::accept_changes()
         return;
     }
 
-    int current_pair_name_id = combo_lesson_name_id;
-    if (combo_lesson_name_id >= 2) current_pair_name_id -= 2;
-    lesson_pairs[0].lesson_name_id = current_pair_name_id;
-    if (combo_lesson_name_id == 2)
+    lesson_pairs[0].lesson_name_id = get_first_lesson_type_id();
+    std::optional<int> second_lesson_type_id = get_second_lesson_type_id();
+    if (second_lesson_type_id.has_value())
     {
-        lesson_pairs[1].lesson_name_id = 1;
-    } 
-    else if (combo_lesson_name_id == 3)
-    {
-        lesson_pairs[1].lesson_name_id = 0;
+        lesson_pairs[1].lesson_name_id = *second_lesson_type_id;
     }
-    else if (combo_lesson_name_id > 3)
+    else
     {
-        lesson_pairs[1].lesson_name_id = current_pair_name_id;
+        lesson_pairs.erase(lesson_pairs.begin() + 1);
     }
-    else lesson_pairs.erase(lesson_pairs.begin() + 1);
-
     journal->add_merged_lesson(day_of_the_week, group_number, group_comment, age_group, lesson_pairs);
 }

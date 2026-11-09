@@ -2,11 +2,9 @@
 
 #define Journal graphical.journal
 
-Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(Graphical* _graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday) 
-: current_group(current_lesson.get_group()), merged_lesson_known_id(merged_lesson_known_id), current_lesson(current_lesson)
+Popup_Add_Student_To_Group::Popup_Add_Student_To_Group(JournalHolder* graphical, const Lesson_Info& current_lesson, int merged_lesson_known_id, int wday) 
+: Popup(graphical), merged_lesson_known_id(merged_lesson_known_id), current_group(current_lesson.get_group()), current_lesson(current_lesson)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     current_wday = wday;
     for (int i = 0; i < journal->student_count(); i++)
     {
@@ -24,9 +22,8 @@ bool Popup_Add_Student_To_Group::show_frame()
     {
         if (possible_student_ids.size() == 0) POPUP_CANCEL;
         ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-        text_filter.Draw("Поиск по ученикам");
+        text_filter.Draw("Поиск с учётом регистра");
         ImGui::PopStyleColor(1);
-        bool select_visible = false;
         ImGui::BeginChild("Child window", ImVec2(0,400), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         for (int i = 0; i < possible_student_descriptions.size(); i++)
         {
@@ -37,8 +34,7 @@ bool Popup_Add_Student_To_Group::show_frame()
             if (selected_students[i])
             {
                 std::string next_button_name = generate_label("Выбран.##", { i });
-                if (j_button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
-                select_visible = true;
+                if (Graphical::button_selectable(next_button_name.c_str(), true)) selected_students[i] = false;
             }
             else
             {
@@ -50,7 +46,7 @@ bool Popup_Add_Student_To_Group::show_frame()
         }
         ImGui::EndChild();
         ImGui::SetItemDefaultFocus();
-        if (ImGui::Button("OK") && is_ok_possible(select_visible)) POPUP_OK;
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();

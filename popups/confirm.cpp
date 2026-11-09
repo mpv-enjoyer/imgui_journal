@@ -1,3 +1,5 @@
+#if 0
+
 #include "confirm.h"
 
 Popup_Confirm::Popup_Confirm(std::string description, void (*action)())
@@ -23,3 +25,5 @@ void Popup_Confirm::activate()
     IM_ASSERT(check_ok());
     action();
 }
+
+#endif

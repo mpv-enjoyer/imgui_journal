@@ -1,9 +1,8 @@
 #include "confirm_delete_lesson.h"
 
-Popup_Confirm_Delete_Lesson::Popup_Confirm_Delete_Lesson(Graphical *_graphical, int wday, int merged_lesson_id)
+Popup_Confirm_Delete_Lesson::Popup_Confirm_Delete_Lesson(JournalHolder *graphical, int wday, int merged_lesson_id)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     _wday = wday;
     _merged_lesson_id = merged_lesson_id;
 }
@@ -12,12 +11,12 @@ bool Popup_Confirm_Delete_Lesson::show_frame()
 {
     const Lesson_Info* lesson_info = journal->lesson_info(_wday, _merged_lesson_id);
     const Group& group = lesson_info->get_group();
-    IM_ASSERT(!lesson_info->is_removed());
+    IM_ASSERT(!lesson_info->is_discontinued());
     if (begin_frame("Удалить группу?"))
     {
         ImGui::Text("Номер группы: %i", group.get_number());
 
-        std::vector<InternalLessonInfo> pairs_buffer = lesson_info->get_lesson_pairs();
+        std::vector<Lesson_Pair> pairs_buffer = lesson_info->get_lesson_pairs();
         for (int i = 0; i < pairs_buffer.size(); i++)
         {
             ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());
@@ -40,5 +39,7 @@ bool Popup_Confirm_Delete_Lesson::show_frame()
 void Popup_Confirm_Delete_Lesson::accept_changes()
 {
     IM_ASSERT(check_ok());
+    std::string old_comment = journal->lesson_info(_wday, _merged_lesson_id)->get_group().get_comment();
+    journal->set_group_comment(_wday, _merged_lesson_id, "[-] " + old_comment);
     journal->remove_lesson(_wday, _merged_lesson_id);
 }

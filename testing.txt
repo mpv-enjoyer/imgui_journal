@@ -1,0 +1,15 @@
+Some HAND-MADE tests that have to be done before shipping a new version. 
+
+./journal --log-regular-saves
+
+1. Move to the previous month and immediately close the application before the autosave.
+  EXPECTED (if 2 is the current month):
+   saving workouts month 1
+   saving journal month 1
+   loading workouts month 2
+   saving workouts month 2
+   saving journal month 2
+   saving workouts month 2
+   saving journal month 2
+  BUG:
+   month 1 wasn't saved losing all info but preserving workouts which desynced the workouts from month save file.

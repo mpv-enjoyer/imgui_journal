@@ -7,18 +7,18 @@
 class Popup_Edit_Lesson : public Popup
 {
     const Lesson_Info* lesson_info;
-    InternalLessonInfo first_lesson_pair;
-    InternalLessonInfo second_lesson_pair;
+    Lesson_Pair first_lesson_pair;
+    Lesson_Pair second_lesson_pair;
     bool second_lesson_exists = false;
     std::string group_description;
     int group_number;
     int wday;
     int merged_lesson_id;
 public:
-    Popup_Edit_Lesson(Graphical* graphical, int wday, int merged_lesson_id);
-    bool show_frame();
-    void accept_changes();
-    bool is_ok_possible()
+    Popup_Edit_Lesson(JournalHolder* graphical, int wday, int merged_lesson_id);
+    bool show_frame() override;
+    void accept_changes() override;
+    bool is_ok_possible() override
     {
         if (second_lesson_exists)
         {

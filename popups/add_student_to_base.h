@@ -11,12 +11,27 @@ private:
     bool is_date_visible = false;
     int contract = 0;
 public:
-    Popup_Add_Student_To_Base(Graphical* graphical);
-    bool show_frame();
-    bool is_ok_possible() 
+    Popup_Add_Student_To_Base(JournalHolder* graphical);
+    bool show_frame() override;
+    bool is_ok_possible() override
     {
-        if (contract < 0) error("SYSTEM_NEGATIVE_CONTRACT");
-        return contract >= 0;
+        Student student;
+        student.set_contract(contract);
+        student.set_name(name);
+        for (int i = 0; i < journal->student_count(); i++)
+        {
+            if (journal->student(i)->is_identical(student))
+            {
+                error("такой ученик уже существует");
+                return false;
+            }
+        }
+        if (name.size() == 0)
+        {
+            error("введите имя ученика");
+            return false;
+        }
+        return true;
     }
-    void accept_changes();
+    void accept_changes() override;
 };

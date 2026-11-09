@@ -8,7 +8,9 @@
 #define NAME_DESIGN 2        // Дизайн
 #define NAME_TECHDRAWING 3   // Черчение
 #define NAME_SPECIALCOURSE 4 // Спецкурс
+#define NAME_PLEIN 5         // Пленэр
 
+void turn_on_log_regular_saves();
 class Test_Journal
 {
     void add_student();
@@ -28,13 +30,15 @@ class Journal
         "Лепка",
         "Дизайн",
         "Черчение",
-        "Спецкурс"};
+        "Спецкурс",
+        "Пленэр"}; 
     std::vector<std::vector<int>> _lesson_prices = 
         {{100, 99, 98},
         {200, 199, 198}, 
         {300, 299, 298}, 
         {400, 399, 398}, 
-        {500, 499, 498}};
+        {500, 499, 498},
+        {600, 599, 598}};
     int _lesson_price_skipped = 50;
     int _lesson_price_was_ill = 0;
     const std::array<std::string, 12> _month_names = 
@@ -67,7 +71,7 @@ class Journal
         "Пт", 
         "Сб"};
     const std::array<std::string, AGE_GROUP_COUNT> _age_group_names = 
-        {"возраст не указан"
+        {"возраст не указан",
         "4 года, дошкольная группа", 
         "5 лет, дошкольная группа", 
         "6 лет, дошкольная группа", 
@@ -81,12 +85,12 @@ class Journal
     const std::tm _current_time = *std::localtime(&_current_timestamp);
     std::vector<_Day_With_Info> _enumerate_days(int day_of_the_week);
     Calendar_Day* _day(int mday);
+    int _discount_student_counter(int student_contract);
+    int _discount_lesson_contract_counter(int student_contract);
     int _discount_status(int student_contract);
-    int _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
+    void _emplace_lesson_info(int wday, Lesson_Info& lesson_info);
     bool _match_lesson_types(int l, int r);
     bool _search_last_generated_month(int *month, int *year);
-
-    Journal* generation_base = nullptr;
 
     int _current_year;
     int _current_month;
@@ -100,6 +104,9 @@ class Journal
     Workout_Handler* _workout_handler;
     
     int _journal_main_bottom_year;
+
+    const static Journal current_journal;
+
 public:
     Journal();
     Journal(int month, int year, Journal *journal_main);
@@ -122,7 +129,8 @@ public:
     std::string Age_group(int number);
 
     Workout_Handler *workout_handler();
-    const Student* student(int id);
+    std::vector<const Student*> students();
+    const Student *student(int id);
     const int student_count();
     const Lesson_Info* lesson_info(int wday, int merged_lesson_id);
     const int lesson_info_count(int wday);
@@ -139,13 +147,14 @@ public:
     const std::string merged_lesson_name(int wday, int merged_lesson_id, int internal_student_id);
 
     void add_student_to_base(std::string name, int contract);
-    void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<InternalLessonInfo> lesson_pairs);
+    void add_merged_lesson(int wday, int number, std::string comment, int age_group, std::vector<Lesson_Pair> lesson_pairs);
     void add_student_to_group(int student_id, int wday, int merged_lesson_id);
     void add_working_out(const std::tm caller_date, const std::tm select_date, int student_id, Lesson caller_lesson, Lesson select_lesson);
-    void edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<InternalLessonInfo> pairs);
+    void edit_lesson_pairs(int wday, int merged_lesson_id, std::vector<Lesson_Pair> pairs);
     const std::vector<std::vector<std::pair<const Workout_Info_ *, const Workout_Info_ *>>> get_workout_info(int real_wday, int real_merged_lesson, std::vector<int> *student_ids);
     const std::vector<std::vector<const Workout_Info_ *>> get_workout_info(int real_wday, Lesson real_lesson, std::vector<int> *student_ids);
     const Workout_Info_ *get_workout_info(int should_mday, Lesson should_lesson, int should_student_id);
+    const std::vector<int> get_sorted_lesson_ids(int wday);
     void remove_student(int id);
     void restore_student(int id);
     void remove_lesson(int wday, int merged_lesson_id);
@@ -155,6 +164,7 @@ public:
     void set_group_age_group(int wday, int merged_lesson_id, int age_group);
     void remove_student_from_group(int wday, int merged_lesson_id, int student_id);
     void restore_student_to_group(int wday, int merged_lesson_id, int student_id);
+    void move_student_to_group(int wday, int merged_lesson_id, int student_id, int another_wday, int another_merged_lesson_id);
     bool does_group_exist(int wday, int number);
     void set_student_contract(int id, int contract);
     void set_group_number(int wday, int merged_lesson_id, int number);
@@ -175,12 +185,13 @@ public:
     
     static bool save_file_exists(int month, int year);
     void save_workouts();
-    void save();
+    void save_backup();
+    bool save();
     void save_default_prices();
     void save_prices();
     bool load_workouts();
     bool load();
-    bool load_prices();
+    bool load_prices(bool try_my_prices_file = true);
     void generate(int base_month, int base_year);
     void generate_empty();
     void generate();

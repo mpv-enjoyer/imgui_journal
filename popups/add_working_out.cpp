@@ -1,9 +1,8 @@
 #include "add_working_out.h"
 
-Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
+Popup_Add_Working_Out::Popup_Add_Working_Out(JournalHolder* graphical, const std::tm current_lesson_time, Lesson current_lesson, const Lesson_Info* current_lesson_info)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     main_journal = journal->journal_main ? journal->journal_main : journal;
     current_journal = journal;
     caller_lesson_info = current_lesson_info;
@@ -36,7 +35,7 @@ Popup_Add_Working_Out::Popup_Add_Working_Out(Graphical* _graphical, const std::t
         possible_student_descriptions.push_back((journal->student(i)->get_name() + " (" + std::to_string(journal->student(i)->get_contract()) + ")"));
         possible_student_ids.push_back(i);
     }
-    picker = Picker(possible_student_descriptions, possible_student_ids);
+    picker = Graphical::StudentPicker(possible_student_descriptions, possible_student_ids);
     if (!possible_student_descriptions.size()) quit_early = true;
     first_mwday = get_first_mwday(journal->current_month(), journal->current_year());
     count_mday = get_number_of_days(journal->current_month(), journal->current_year() + 1900);
@@ -54,18 +53,19 @@ void Popup_Add_Working_Out::update_possible_lessons()
 {
     possible_lessons.clear();
     possible_lessons = std::vector<std::vector<Lesson>>(current_journal->day_count());
-    std::tm input_date = { 0, 0, 0, 
+    [[maybe_unused]] std::tm input_date = { 0, 0, 0, 
         0, select_month, select_year};
-    //if (select_student == -1) return;
-    InternalLessonInfo caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
+    Lesson_Pair caller_pair = caller_lesson_info->get_lesson_pair(caller_lesson.internal_lesson_id);
     int caller_lesson_type = caller_pair.lesson_name_id;
     for (int i = 0; i < current_journal->day_count(); i++)
     {
         int wday = current_journal->wday(i);
         input_date.tm_mday = i;
         input_date.tm_wday = wday;
-        for (int j = 0; j < current_journal->lesson_info_count(wday); j++)
+        std::vector<int> sorted_lesson_ids = current_journal->get_sorted_lesson_ids(wday);
+        for (int _j = 0; _j < current_journal->lesson_info_count(wday); _j++)
         {
+            int j = sorted_lesson_ids[_j];
             for (int k = 0; k < current_journal->lesson_info(wday, j)->get_lessons_size(); k++)
             {
                 if (current_journal->is_workout_possible(current_journal->lesson_info(wday, j), k, select_student, caller_lesson_type))
@@ -153,8 +153,8 @@ bool Popup_Add_Working_Out::show_frame()
             ImGui::BeginDisabled();
         }
         int first_mwday_ru = (( first_mwday - 1 ) + 7) % 7 ;
-        bool is_calendar_filled = false;
-        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedSame))
+        is_calendar_filled = false;
+        if (ImGui::BeginTable("##Календарь", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit))
         {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
@@ -165,7 +165,7 @@ bool Popup_Add_Working_Out::show_frame()
                 ImGui::TableNextColumn();
             }
             ImGui::TableSetColumnIndex(first_mwday_ru);
-            std::tm select_date = { 0, 0, 0, 
+            [[maybe_unused]] std::tm select_date = { 0, 0, 0, 
                     0, select_month, select_year};
             
             for (int i = 0; i < possible_lessons.size(); i++)
@@ -174,7 +174,7 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     is_calendar_filled = true;
                     bool current_selected = select_day == i;
-                    if (j_button_selectable(std::to_string(i + 1).c_str(), current_selected, true))
+                    if (Graphical::button_selectable(c_str_int(i + 1), current_selected, true))
                     {
                         if (current_selected) select_day = -1;
                         else select_day = i;
@@ -184,7 +184,8 @@ bool Popup_Add_Working_Out::show_frame()
                 {
                     if (select_day == i) select_day = -1;
                     ImGui::BeginDisabled();
-                    ImGui::SmallButton(c_str_int(i + 1));
+                    ImGui::SmallButton("??");
+                    //c_str_int caused a bug but now that's an intended behaviour :)
                     ImGui::EndDisabled();
                 }
                 ImGui::TableNextColumn();
@@ -204,17 +205,19 @@ bool Popup_Add_Working_Out::show_frame()
                 const Lesson_Info* current = current_journal->lesson_info(select_mday, possible_lessons[select_day][i].merged_lesson_id);
                 std::string description = current->get_description(possible_lessons[select_day][i].internal_lesson_id);
                 bool checkbox_value = select_lesson == possible_lessons[select_day][i];
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.6f));
                 if (ImGui::Checkbox(description.c_str(), &checkbox_value))
                 {
                     select_lesson = possible_lessons[select_day][i];
                 }
+                ImGui::PopStyleColor();
                 select_lesson_shown |= checkbox_value;
             }
             if (!select_lesson_shown)
                 select_lesson = {-1, -1};
         }
         ImGui::EndGroup();
-        if (ImGui::Button("OK") && is_ok_possible(is_calendar_filled)) POPUP_OK;
+        if (ImGui::Button("OK") && is_ok_possible()) POPUP_OK;
         ImGui::SameLine();
         if (ImGui::Button("Отмена") || should_exit()) POPUP_CANCEL;
         ImGui::SameLine(); print_error();
@@ -223,7 +226,7 @@ bool Popup_Add_Working_Out::show_frame()
     return false;
 }
 
-bool Popup_Add_Working_Out::is_ok_possible(bool is_calendar_filled) 
+bool Popup_Add_Working_Out::is_ok_possible() 
 {
     if (select_student == -1) { error("Выберите ученика"); return false; }
     if (!is_calendar_filled) { error("Для выбранного ученика нет доступных отработок"); return false; }
@@ -250,6 +253,7 @@ void Popup_Add_Working_Out::accept_changes()
     caller_mday, caller_month, caller_year };
     // Assume that students aren't being deleted
     current_journal->add_working_out(caller_date, select_date, select_student, caller_lesson, select_lesson );
+    // TODO: The data is now inconsistent if the program crashes before the quicksave.
 }
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()
@@ -293,7 +297,7 @@ Popup_Add_Working_Out::Picker::Picker(std::vector<std::string> descriptions, std
 int Popup_Add_Working_Out::Picker::show()
 {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.5f, 0.0f, 0.5f));
-    filter.Draw("Поиск по ученикам");
+    filter.Draw("Поиск с учётом регистра");
     ImGui::PopStyleColor(1);
     ImGui::BeginChild("Child window", ImVec2(500,300), true, ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
     for (int i = 0; i < _descriptions.size(); i++)
@@ -303,7 +307,7 @@ int Popup_Add_Working_Out::Picker::show()
         if (current == i)
         {
             std::string student_button_name = generate_label("Выбран.##", { i });
-            j_button_selectable(student_button_name.c_str(), true);
+            Graphical::button_selectable(student_button_name.c_str(), true);
         }
         else
         {

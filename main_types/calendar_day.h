@@ -79,16 +79,6 @@ void serialize(Archive & ar, Internal_Attendance_Status & g, const unsigned int 
     ar & g.workouts;
 }
 
-NO_IMPLICIT_CONVERSION_T(int, AttendanceStatus);
-NO_IMPLICIT_CONVERSION_T(int, DiscountStatus);
-struct StudentAttendance
-{
-    AttendanceStatus status = STATUS_NO_DATA;
-    DiscountStatus discount_status = -1;
-    StudentAttendance() {};
-};
-NO_IMPLICIT_CONVERSION_T(std::string, TeacherName);
-
 class Calendar_Day
 {
     friend class boost::serialization::access;
@@ -114,49 +104,43 @@ class Calendar_Day
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-public:
-    NO_IMPLICIT_CONVERSION_T(std::string, TeacherName);
 private:
-    NON_COPYABLE_NOR_MOVABLE(Calendar_Day);
-    Calendar_Day() : _attendance(_lessons_day) { };
-    struct InternalAttendance
-    {
-        const Group* group;
-        std::vector<StudentAttendance> student_attendance;
-        TeacherName teacher_name = TeacherName("");
-        InternalAttendance(const Group* _group) : group(_group) { sync(); };
-        void sync()
-        {
-            for (std::size_t i = student_attendance.size(); i < group->size(); i++)
-            {
-                student_attendance.emplace_back();
-            }
-        };
-    };
-    class Attendance
-    {
-        const Lessons_Day* _lessons_day;
-        std::vector<std::vector<InternalAttendance>> _data; // [merged_lesson_id][internal_lesson_id]
-    public:
-        Attendance(const Lessons_Day* lessons_day);
-        void sync();
-        InternalAttendance get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
-        StudentAttendance get(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
-        void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
-        void set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance attendance);
-    };
-    Lessons_Day* const _lessons_day = nullptr;
-    Attendance _attendance;
+    std::vector<Lesson_Info*>* lessons;
+    std::vector<std::vector<std::string>> teacher_names;
+    std::vector<std::vector<Internal_Attendance_Status>> attendance_info;
 public:
-    Calendar_Day(Lessons_Day* lessons_day);
-    const Lessons_Day* lessons_day() const;
-    bool set_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id, StudentAttendance student_attendance);
-    void set_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, TeacherName teacher_name);
-    StudentAttendance get_status(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id, Group::StudentID student_id) const;
-    TeacherName get_teacher_name(MergedLessonID merged_lesson_id, InternalLessonID internal_lesson_id) const;
-    /* Now syncing functions */
-    void student_added();
-    void lesson_info_added();
+    Calendar_Day() { };
+    Calendar_Day(std::vector<Lesson_Info*>& lessons_in_this_day); //LESSONS MUST BE SORTED BEFORE CALLING.
+    bool set_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int status);
+    bool set_status(Lesson known_lesson, int known_id_student, int status);
+    bool insert_workout_into_status(Lesson known_lesson, int known_id_student, Workout_Info workout_info);
+    Student_Status get_status(const Lesson_Info &merged_lesson, int internal_lesson, const Student &student) const;
+    Student_Status get_status(Lesson known_lesson, int known_id_student) const;
+    bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
+    bool add_workout(int known_id_student, Lesson known_lesson_from, Lesson_Info& merged_to, int internal_to, std::tm cached_time_to);
+    bool add_workout(Student& student_to_workout, Lesson known_lesson_from, Workout_Info new_workout_info);
+    int get_workout_size(Lesson_Info& merged_lesson, int internal_lesson) const;
+    int get_workout_size(Lesson known_lesson) const;
+    const Student& get_workout_student(Lesson_Info& merged_lesson, int internal_lesson, int known_workout_id) const;
+    const Student* get_workout_student(Lesson known_lesson, int known_workout_id) const;
+    Workout_Info get_workout_info(Lesson known_lesson, int known_workout_id) const;
+    Workout_Info get_workout_info(Lesson known_lesson, const Student& student) const;
+    bool delete_workout(Lesson_Info& merged_lesson, int internal_lesson, const Student& student);
+    bool delete_workout(Lesson known_lesson, int known_workout_id);
+    bool set_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student, int discount_status);
+    bool set_discount_status(Lesson known_lesson, int internal_lesson, Student& student, int discount_status);
+    bool set_discount_status(Lesson known_lesson, int known_student_id, int discount_status);
+    int get_discount_status(Lesson_Info& merged_lesson, int internal_lesson, Student& student);
+    int get_discount_status(Lesson known_lesson, int known_id_student);
+    int find_merged_lesson(const Lesson_Info& l_info) const;
+    int find_student(Student& student, int known_merged_lesson_id) const;
+    std::string get_teacher_name(Lesson lesson) const;
+    void set_teacher_name(Lesson lesson, std::string name);
+    //the following is needed to properly update the journal
+    bool add_student_to_group(Group& group, Student& new_student, int known_new_student_id);
+    bool add_student_to_group(int known_merged_lesson_id, Student& new_student, int known_new_student_id);
+    bool add_merged_lesson(Lesson_Info& new_lesson_info, bool await_no_one);
+    //...
 };
 
 BOOST_CLASS_VERSION(Calendar_Day, 1); // Version 1: added teacher_names

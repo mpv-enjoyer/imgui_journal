@@ -1,10 +1,7 @@
 #include "lessons_list.h"
 
-Subwindow_Lessons_List::Subwindow_Lessons_List(Graphical* _graphical)
-{ 
-    graphical = _graphical;
-    journal = &(graphical->journal);
-};
+Subwindow_Lessons_List::Subwindow_Lessons_List(JournalHolder *graphical, Popup_Handler *popup_handler)
+    : Subwindow(graphical, popup_handler) {}
 
 bool Subwindow_Lessons_List::show_frame()
 {
@@ -26,7 +23,7 @@ bool Subwindow_Lessons_List::show_frame()
     {
         if (ImGui::Button("Добавить группу"))
         {
-            graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical);
+            popup_handler->open_popup(new Popup_Add_Merged_Lesson_To_Journal(graphical));
         }
     }
     else
@@ -35,9 +32,9 @@ bool Subwindow_Lessons_List::show_frame()
         ImGui::TextColored(red, "Вы смотрите данные другого месяца (%s). Редактирование доступно только для текущего месяца.", Month_Names[journal->current_month()].c_str());
     }
 
-    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
     ImGui::Text("Список всех групп");
-    if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX))
+    ImGui::BeginChild("Child", ImVec2(0, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
+    if (ImGui::BeginTable("##Список групп", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg))
     {
         ImGui::TableSetupColumn("Номер группы");
         ImGui::TableSetupColumn("День недели");
@@ -49,20 +46,22 @@ bool Subwindow_Lessons_List::show_frame()
         for (int _wday = 0; _wday < 7; _wday++)
         {
             int wday = CONVERT_TO_RU_CALENDAR(_wday);
-            for (int merged_lesson_id = 0; merged_lesson_id < journal->lesson_info_count(wday); merged_lesson_id++)
+            std::vector<int> sorted_merged_lesson_ids = journal->get_sorted_lesson_ids(wday);
+            for (int _merged_lesson_id = 0; _merged_lesson_id < journal->lesson_info_count(wday); _merged_lesson_id++)
             {
+                int merged_lesson_id = sorted_merged_lesson_ids[_merged_lesson_id];
                 const auto& current_lesson_info = journal->lesson_info(wday, merged_lesson_id);
                 const auto& current_group = current_lesson_info->get_group();
-                bool is_removed_input_buffer = current_lesson_info->is_removed();
+                bool is_removed_input_buffer = current_lesson_info->is_discontinued();
                 if (is_removed_input_buffer && !edit_mode) continue;
                 if (is_removed_input_buffer) ImGui::BeginDisabled();
-                ImGui::TableNextRow(); 
+                ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                     ImGui::Text("%i", current_group.get_number());
                 ImGui::TableSetColumnIndex(1);
                     ImGui::Text(Day_Names[wday].c_str());
                 ImGui::TableSetColumnIndex(2);
-                    std::vector<InternalLessonInfo> pairs_buffer = current_lesson_info->get_lesson_pairs();
+                    std::vector<Lesson_Pair> pairs_buffer = current_lesson_info->get_lesson_pairs();
                     for (int i = 0; i < pairs_buffer.size(); i++)
                     {
                         ImGui::Text("%i. %s", i + 1, Lesson_Names[pairs_buffer[i].lesson_name_id].c_str());
@@ -84,23 +83,23 @@ bool Subwindow_Lessons_List::show_frame()
                 {
                     if (is_removed_input_buffer)
                     {
-                        if (j_button_colored(restore_label.c_str(), 0.1, 0.9, 0.1)) journal->restore_lesson(wday, merged_lesson_id);
+                        if (Graphical::button_colored(restore_label.c_str(), 0.1, 0.9, 0.1)) journal->restore_lesson(wday, merged_lesson_id);
                     }
                     else
                     {
-                        if (j_button_dangerous(delete_label.c_str()))
+                        if (Graphical::button_dangerous(delete_label.c_str()))
                         {
-                            graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
+                            popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                         }
                     }
                 }
-                else if (j_button_dangerous(delete_label.c_str()))
+                else if (Graphical::button_dangerous(delete_label.c_str()))
                 {
-                    graphical->popup_confirm_delete_lesson = new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id);
+                    popup_handler->open_popup(new Popup_Confirm_Delete_Lesson(graphical, wday, merged_lesson_id));
                 }
                 if (!is_removed_input_buffer && ImGui::Button(edit_label.c_str()))
                 {
-                    graphical->popup_add_merged_lesson_to_journal = new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday);
+                    popup_handler->open_popup(new Popup_Add_Merged_Lesson_To_Journal(graphical, merged_lesson_id, wday));
                 }
 
                 if (!is_current) ImGui::EndDisabled();

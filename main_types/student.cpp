@@ -1,46 +1,58 @@
 #include "student.h"
 
-Student::Contract Student::get_contract() const
+int Student::get_contract() const
 {
-    return _contract;
+    return contract;
 }
 
-Student::Name Student::get_name() const
+std::string Student::get_name() const
 {
-    return _name;
+    return name;
 }
 
-bool Student::set_contract(Contract contract)
+bool Student::set_contract(int new_contract)
 {
-    _contract = contract;
+    contract = new_contract;
     return true;
 }
 
-bool Student::set_name(Name name)
+bool Student::set_name(std::string new_name)
 {
-    // Allow empty names
-    _name = name;
+    if (new_name.length()==0) return false;
+    name = new_name;
     return true;
 }
 
-Student::Student(Contract contract, Name name) : _contract(contract), _name(name) { }
-
-bool operator==(const Student &lhs, const Student &rhs)
+bool Student::is_removed() const
 {
-    return std::tie(lhs._name, lhs._contract) == std::tie(rhs._name, rhs._contract);
+    return removed;
 }
 
-bool operator!=(const Student &lhs, const Student &rhs)
+bool Student::remove()
 {
-    return !(lhs == rhs);
+    removed = true;
+    return true;
 }
 
-bool operator<(const Student &lhs, const Student &rhs)
+bool Student::restore()
 {
-    return std::tie(lhs._name, lhs._contract) < std::tie(rhs._name, rhs._contract);
+    removed = false;
+    return true;
 }
 
-bool operator>(const Student &lhs, const Student &rhs)
+Student::Student()
 {
-    return rhs < lhs;
+    contract = -1;
 }
+
+bool Student::is_identical(const Student& rhs) const
+{
+    if (removed != rhs.removed) return false;
+    if (name == rhs.name && contract == rhs.contract) return true;
+    return false;
+}
+
+bool Student::operator==(const Student& rhs) const { return this == &rhs; }
+bool Student::operator!=(const Student& rhs) const { return !(this == &rhs); }
+bool Student::operator< (const Student& rhs) const { return std::tie(contract, name) < std::tie(rhs.contract, rhs.name); }
+bool Student::operator> (const Student& rhs) const { return rhs < *this; }

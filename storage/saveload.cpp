@@ -1,4 +1,12 @@
 #include "journal.h"
+#include <filesystem>
+
+bool log_regular_saves = false;
+
+void turn_on_log_regular_saves()
+{
+    log_regular_saves = true;
+}
 
 std::string generate_file_name(int month, int year)
 {
@@ -20,12 +28,38 @@ std::string generate_prices_name()
     return "prices_default.data";
 }
 
+static void fixup_missing_prices(std::vector<std::vector<int>> &prices)
+{
+    if (prices.size() == LESSON_TYPE_COUNT)
+    {
+        /* everything good */
+    }
+    else if (prices.size() < LESSON_TYPE_COUNT)
+    {
+        int discounts_size = prices[0].size();
+        // Пленэр?
+        for (int i_ = prices.size(); i_ < LESSON_TYPE_COUNT; i_++)
+        {
+            prices.push_back({});
+            for (int discount_id = 0; discount_id < discounts_size; discount_id++)
+            {
+                prices.back().push_back(999);
+            }
+        }
+    }
+    else
+    {
+        IM_ASSERT(false && "Prices: Found more lesson_types than supported");
+    }
+}
+
 bool Journal::get_default_prices(std::vector<std::vector<int>> &prices, int &ill_price, int &skipped_price)
 {
     std::ifstream ifs(generate_prices_name());
     if (ifs.fail()) return false;
     boost::archive::text_iarchive ia(ifs);
     ia >> prices;
+    fixup_missing_prices(prices);
     ia >> skipped_price;
     ia >> ill_price;
     return true;
@@ -45,23 +79,50 @@ bool Journal::save_file_exists(int month, int year)
 void Journal::save_workouts()
 {
     if (!_check_rights({State::Fullaccess, State::Limited, State::Preview})) return;
+    if (log_regular_saves) printf("saving workouts month %i\n", current_month());
     std::ofstream ofs(generate_workout_name(Workout_Handler::get_bottom_year(_current_month, _current_year)));
     boost::archive::text_oarchive oa(ofs);
     oa << _workout_handler;
 }
 
-void Journal::save()
+void Journal::save_backup()
 {
-    if (restrict_saving) return;
+    std::string backups_root = "backup";
+    std::string current_folder_name = backups_root + "/" + std::to_string(current_time.tm_mday) + "." + std::to_string(current_time.tm_mon + 1) + "." + std::to_string(current_year() + 1900) + "backup";
+    if (!std::filesystem::exists(current_folder_name)) std::filesystem::create_directory(current_folder_name);
+    std::string workout_path = current_folder_name + "/" + generate_workout_name(_journal_main_bottom_year);
+    std::string journal_path = current_folder_name + "/" + generate_file_name(_current_month, _current_year);
+    std::filesystem::copy_file(generate_workout_name(_journal_main_bottom_year), workout_path, std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file(generate_file_name(_current_month, _current_year), journal_path, std::filesystem::copy_options::overwrite_existing);
+}
+
+bool Journal::save()
+{
+    if (restrict_saving) return false;
     save_workouts();
-    if (!_check_rights({State::Fullaccess, State::Limited})) return;
-    std::ofstream ofs(generate_file_name(_current_month, _current_year));
-    boost::archive::text_oarchive oa(ofs);
-    oa << _all_students;
-    oa << _all_groups;
-    oa << _all_lessons;
-    oa << _all_days;
+    if (!_check_rights({State::Fullaccess, State::Limited})) return false;
+    if (log_regular_saves) printf("saving journal month %i\n", current_month());
+
+    {
+        std::ofstream ofs(generate_file_name(_current_month, _current_year));
+        if (ofs.fail()) return false;
+        boost::archive::text_oarchive oa(ofs);
+        oa << _all_students;
+        oa << _all_groups;
+        oa << _all_lessons;
+        oa << _all_days;
+    }
+
     save_prices();
+    try
+    {
+        save_backup();
+    }
+    catch(const std::exception& e)
+    {
+        printf(e.what());
+    }
+    return true;
 }
 
 void Journal::set_default_prices(std::vector<std::vector<int>> prices, int ill_price, int skipped_price)
@@ -94,6 +155,7 @@ bool Journal::load_workouts()
     {
         return false;
     }
+    if (log_regular_saves) printf("loading workouts month %i\n", current_month());
     boost::archive::text_iarchive workout_ia(workout_ifs);
     workout_ia >> _workout_handler;
     return true;
@@ -110,6 +172,7 @@ bool Journal::load()
     {
         return false;
     }
+    if (log_regular_saves) printf("loading journal month %i\n", current_month());
     boost::archive::text_iarchive ia(ifs);
     ia >> _all_students;
     ia >> _all_groups;
@@ -121,10 +184,10 @@ bool Journal::load()
     return true;
 }
 
-bool Journal::load_prices()
+bool Journal::load_prices(bool try_my_prices_file)
 {
     std::ifstream ifs(generate_prices_name(_current_month, _current_year));
-    if (ifs.fail())
+    if (!try_my_prices_file || ifs.fail())
     {
         ifs = std::ifstream(generate_prices_name());
         if (ifs.fail()) return false;
@@ -132,6 +195,7 @@ bool Journal::load_prices()
     }
     boost::archive::text_iarchive ia(ifs);
     ia >> _lesson_prices;
+    fixup_missing_prices(_lesson_prices);
     ia >> _lesson_price_skipped;
     ia >> _lesson_price_was_ill;
     return true;
@@ -157,7 +221,7 @@ void Journal::generate(int base_month, int base_year)
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
 
-    /* TODO: Remove removed lessons for real? */
+    /* Removed lessons are transfered too. */
 
     // Fill lessons status for workouts depending on other months:
     auto workouts = _workout_handler->search_info(_current_month);
@@ -175,6 +239,18 @@ void Journal::generate(int base_month, int base_year)
         _day(workout->should_attend.tm_mday)->set_discount_status(workout->should_lesson, internal_student_id, discount_status);
     }
 
+    for (int group_id = 0; group_id < _all_groups.size(); group_id++)
+    {
+        Group* group = _all_groups[group_id];
+        for (int student_id = 0; student_id < group->get_size(); student_id++)
+        {
+            const Student& student = group->get_student(student_id);
+            if (group->is_moved_away(student)) group->delete_student(student);
+            if (group->is_moved_away(student)) IM_ASSERT(false && "Student wasn't deleted after being 'moved away'");
+        }
+    }
+
+    load_prices();
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 
@@ -195,6 +271,13 @@ void Journal::generate_empty()
 
 void Journal::generate()
 {
+    if (this->journal_main == this)
+    {
+        if (std::filesystem::exists(generate_file_name(_current_month, _current_year)))
+        {
+            IM_ASSERT(false && "Tried to generate an existing main save file");
+        }
+    }
     _all_days.clear();
     _all_groups.clear();
     _all_lessons.clear();
@@ -206,6 +289,7 @@ void Journal::generate()
         int wday = (first_day_of_the_week + i) % 7;
         _all_days.push_back(new Calendar_Day(_all_lessons[wday]));
     }
+    load_prices();
     save(); // Needed for generating new months in Add_Working_Out Popup.
 }
 

@@ -1,9 +1,8 @@
 #include "confirm_delete_student.h"
 
-Popup_Confirm_Delete_Student::Popup_Confirm_Delete_Student(Graphical *_graphical, int student_id)
+Popup_Confirm_Delete_Student::Popup_Confirm_Delete_Student(JournalHolder *graphical, int student_id)
+: Popup(graphical)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
     _student_id = student_id;
 }
 

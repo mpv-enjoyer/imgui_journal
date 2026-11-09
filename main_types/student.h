@@ -1,7 +1,7 @@
 #pragma once
 #include "main_types.h"
 
-class Student : public Removable
+class Student
 {
     friend class boost::serialization::access;
     template<class Archive>
@@ -11,22 +11,18 @@ class Student : public Removable
         ar & contract;
         ar & removed;
     }
-public:
-    NO_IMPLICIT_CONVERSION_T(int, Contract);
-    NO_IMPLICIT_CONVERSION_T(std::string, Name);
-    NON_COPYABLE_NOR_MOVABLE(Student);
 private:
-    Student() { };
-    Contract _contract = 0;
-    Name _name = std::string();
+    bool removed = 0;
+    int contract;
+    std::string name;
 public:
-    Student(Contract contract, Name name);
-    Student::Contract get_contract() const;
-    Student::Name get_name() const;
-    bool set_contract(Contract contract);
-    bool set_name(Name new_name);
-    friend bool operator==(const Student& lhs, const Student& rhs);
-    friend bool operator!=(const Student& lhs, const Student& rhs);
-    friend bool operator< (const Student& lhs, const Student& rhs);
-    friend bool operator> (const Student& lhs, const Student& rhs);
+    Student();
+    int get_contract() const; bool set_contract(int new_contract);
+    std::string get_name() const; bool set_name(std::string new_name);
+    bool is_removed() const; bool remove(); bool restore();
+    bool is_identical(const Student& rhs) const; //this is an entry check. Once there is an identical student for some reason, do nothing about it.
+    bool operator==(const Student& rhs) const;
+    bool operator!=(const Student& rhs) const;
+    bool operator< (const Student& rhs) const;
+    bool operator> (const Student& rhs) const;
 };

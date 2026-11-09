@@ -1,54 +1,86 @@
 #include "lesson_info.h"
 
-void Lesson_Info::set(InternalLessonInfo data, Container<InternalLessonInfo>::ID id)
+Lesson_Info::Lesson_Info(Group& connected_group) : group(&connected_group) {};
+
+const Group& Lesson_Info::get_group() const
 {
-    IM_ASSERT(id < size());
-    _data[id].time_begin = data.time_begin;
-    _data[id].time_end = data.time_end;
+    return PTRREF(group);
 }
 
-Lesson_Info::Lesson_Info(Group &connected_group, std::vector<InternalLessonInfo> internal_lesson_infos)
-    : _group(&connected_group)
+Group& Lesson_Info::_group()
 {
-    for (std::size_t i = 0; i < internal_lesson_infos.size(); i++)
+    return PTRREF(group);
+}
+
+Lesson_Pair Lesson_Info::get_lesson_pair(int id) const
+{
+    return lesson_pairs[id];
+}
+
+int Lesson_Info::get_lessons_size() const
+{
+    return lesson_pairs.size();
+}
+
+bool Lesson_Info::set_group(Group& new_group)
+{
+    group = &new_group;
+    return true;
+}
+
+std::vector<Lesson_Pair> Lesson_Info::get_lesson_pairs() const
+{
+    return lesson_pairs;
+}
+
+//Changed behaviour: no more sort check
+bool Lesson_Info::add_lesson_pair(Lesson_Pair new_lesson_pair)
+{
+    if (new_lesson_pair.time_end <= new_lesson_pair.time_begin) return false;
+    lesson_pairs.push_back(new_lesson_pair);
+    return true;
+}
+
+bool Lesson_Info::delete_lesson_pair(int id)
+{
+    if (id >= get_lessons_size()) return false;
+    lesson_pairs.erase(lesson_pairs.begin()+id);
+    return true;
+}
+
+bool Lesson_Info::should_attend(int known_internal_student_id, int internal_lesson) const
+{
+    const Student& student = group->get_student(known_internal_student_id);
+    if (!group->is_in_group(student)) return false;
+    if (group->is_deleted(student)) return false;
+    if (!group->check_with_attend_data(known_internal_student_id, internal_lesson)) return false;
+    return true;
+}
+
+std::string Lesson_Info::get_description(int current_internal_lesson) const
+{
+    std::string to_return = "Группа " + group->get_description();
+    if (current_internal_lesson == -1)
     {
-        _data.push_back(internal_lesson_infos[i]);
+        for (int i = 0; i < get_lessons_size(); i++)
+        {
+            to_return.append(", ");
+            Lesson_Pair pair = get_lesson_pair(i);
+            to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
+            to_return.append(std::to_string(pair.time_begin.hours) + ":");
+            if (pair.time_begin.minutes < 10) to_return.append("0");
+            to_return.append(std::to_string(pair.time_begin.minutes));
+            to_return.append(" - ");
+            to_return.append(std::to_string(pair.time_end.hours) + ":");
+            if (pair.time_end.minutes < 10) to_return.append("0");
+            to_return.append(std::to_string(pair.time_end.minutes));
+        }
     }
-}
-
-const Group &Lesson_Info::get_group() const
-{
-    return PTRREF(_group);
-}
-
-Group& Lesson_Info::get_group()
-{
-    return PTRREF(_group);
-}
-
-std::string Lesson_Info::get_description(ID id) const
-{
-    std::string to_return = "Группа " + _group->get_description();
-    to_return.append(", ");
-    InternalLessonInfo pair = get(id);
-    to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
-    to_return.append(std::to_string(pair.time_begin.hours) + ":");
-    if (pair.time_begin.minutes < 10) to_return.append("0");
-    to_return.append(std::to_string(pair.time_begin.minutes));
-    to_return.append(" - ");
-    to_return.append(std::to_string(pair.time_end.hours) + ":");
-    if (pair.time_end.minutes < 10) to_return.append("0");
-    to_return.append(std::to_string(pair.time_end.minutes));
-    return to_return;
-}
-
-std::string Lesson_Info::get_description() const
-{
-    std::string to_return = "Группа " + _group->get_description();
-    for (std::size_t i = 0; i < size(); i++)
+    else
     {
+        int i = current_internal_lesson;
         to_return.append(", ");
-        InternalLessonInfo pair = get(i);
+        Lesson_Pair pair = get_lesson_pair(i);
         to_return.append(Lesson_Names[pair.lesson_name_id] + " ");
         to_return.append(std::to_string(pair.time_begin.hours) + ":");
         if (pair.time_begin.minutes < 10) to_return.append("0");
@@ -58,23 +90,33 @@ std::string Lesson_Info::get_description() const
         if (pair.time_end.minutes < 10) to_return.append("0");
         to_return.append(std::to_string(pair.time_end.minutes));
     }
+
+    return to_return;
 }
 
-void Lesson_Info::edit_lesson_pair(ID id, JTime begin, JTime end)
+bool Lesson_Info::discontinue()
 {
-    InternalLessonInfo info = get(id);
-    info.time_begin = begin;
-    info.time_end = end;
-    set(info, id);
+    removed = true;
+    return true;
 }
 
-//bool Lesson_Info::operator==(const Lesson_Info& rhs) const { return this == &rhs; }
-//bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
+bool Lesson_Info::is_discontinued() const
+{
+    return removed;
+}
+
+bool Lesson_Info::restore()
+{
+    removed = false;
+    return true;
+}
+
+bool Lesson_Info::operator==(const Lesson_Info& rhs) const { return this == &rhs; }
+bool Lesson_Info::operator!=(const Lesson_Info& rhs) const { return !(this == &rhs); }
 bool Lesson_Info::operator< (const Lesson_Info& rhs) const
 {
-    JTime lhs_begin = get(0).time_begin;
-    JTime rhs_begin = rhs.get(0).time_begin;
-    return std::tie(lhs_begin.hours, lhs_begin.minutes)
-         < std::tie(rhs_begin.hours, rhs_begin.minutes);
+    if (lesson_pairs[0].time_begin < rhs.get_lesson_pair(0).time_begin) return true;
+    if (lesson_pairs[0].time_begin > rhs.get_lesson_pair(0).time_begin) return false;
+    return group->get_number() < rhs.get_group().get_number();
 }
-bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return rhs < *this; };
+bool Lesson_Info::operator> (const Lesson_Info& rhs) const { return !(*this < rhs) && (*this != rhs); };

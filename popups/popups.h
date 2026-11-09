@@ -10,16 +10,21 @@ private:
     int popup_count = 1;
     bool popup_count_became_one = false;
 protected:
-    Graphical* graphical = nullptr;
+    JournalHolder* graphical = nullptr;
     Journal* journal = nullptr;
     bool begin_frame(const char* label);
     bool should_exit();
+    virtual bool is_ok_possible() = 0;
 public:
     bool check_ok() { return accept_edit; }
     void cancel() { accept_edit = false; }
     void ok() { accept_edit = true; }
     void error(std::string desc) { last_error = "ошибка: " + desc; }
     void print_error() { ImGui::TextColored({0.9f, 0.1f, 0.1f, 1.0f}, last_error.c_str()); }
+    virtual bool show_frame() = 0;
+    virtual void accept_changes() = 0;
+    virtual ~Popup() { };
+    Popup(JournalHolder* graphical);
 };
 
 #include "add_merged_lesson_to_journal.h"
@@ -31,3 +36,6 @@ public:
 #include "confirm_delete_workout.h"
 #include "confirm_delete_student.h"
 #include "confirm_delete_lesson.h"
+#include "move_student_to_group.h"
+#include "workout_debugging.h"
+#include "popup_handler.h"

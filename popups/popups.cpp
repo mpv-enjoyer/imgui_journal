@@ -15,3 +15,9 @@ bool Popup::should_exit()
 {
     return (popup_count == 1 && !popup_count_became_one && !any_item_active && ImGui::IsKeyPressed(ImGuiKey_Escape));
 }
+
+Popup::Popup(JournalHolder *_graphical)
+{
+    graphical = _graphical;
+    journal = &(graphical->journal);
+}

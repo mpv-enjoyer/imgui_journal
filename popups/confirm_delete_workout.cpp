@@ -1,11 +1,9 @@
 #include "confirm_delete_workout.h"
 
-Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(Graphical *_graphical, const Workout_Info_ *workout_info, int student_id)
-: _workout_info(workout_info)
+Popup_Confirm_Delete_Workout::Popup_Confirm_Delete_Workout(JournalHolder *graphical, const Workout_Info_ *workout_info, int student_id)
+: Popup(graphical), _workout_info(workout_info)
 {
-    graphical = _graphical;
-    journal = &(graphical->journal);
-    InternalLessonInfo should_pair;
+    Lesson_Pair should_pair;
     Group should_group;
     if (workout_info->real_attend.tm_mon != workout_info->should_attend.tm_mon)
     {
@@ -49,7 +47,7 @@ bool Popup_Confirm_Delete_Workout::show_frame()
 {
     const Lesson_Info& real_lesson_info = PTRREF(journal->lesson_info(graphical->wday, _workout_info->real_lesson.merged_lesson_id));
     const Group& real_group = real_lesson_info.get_group();
-    const InternalLessonInfo real_pair = real_lesson_info.get_lesson_pair(_workout_info->real_lesson.internal_lesson_id);
+    const Lesson_Pair real_pair = real_lesson_info.get_lesson_pair(_workout_info->real_lesson.internal_lesson_id);
     std::string real_lesson_type = journal->Lesson_name(real_pair.lesson_name_id);
     JTime real_lesson_begin = real_pair.time_begin;
     JTime real_lesson_end = real_pair.time_end;
@@ -118,4 +116,5 @@ void Popup_Confirm_Delete_Workout::accept_changes()
     {
         journal->set_lesson_status(workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
     }
+    // TODO: The data is now inconsistent if the program crashes before the quicksave.
 }

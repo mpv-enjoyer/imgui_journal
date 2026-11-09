@@ -8,10 +8,6 @@
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h>
-#include <string>
-#include <limits>
-#include <vector>
-#include <array>
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -19,14 +15,21 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 #include "imgui/misc/cpp/imgui_stdlib.h"
+
+#include <cassert>
+#define ASSERT(expr) assert(expr)
+
+#include <string>
+#include <limits>
+#include <vector>
+#include <array>
 #include <ctime> //std::tm is used ONLY for YY.MM.DD
 
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <tuple>
+#include <set>
 #include <numeric>
-#include <type_traits>
 
 #include <boost/archive/tmpdir.hpp>
 
@@ -44,7 +47,7 @@
 #endif
 
 #define STATUS_INVALID     -2
-#define STATUS_NOT_AWAITED -1 /* Do not set! Calculate dynamically when lessons shouldn't be attended instead! */
+#define STATUS_NOT_AWAITED -1
 #define STATUS_NO_DATA      0
 #define STATUS_ON_LESSON    1
 #define STATUS_WAS_ILL      2
@@ -56,7 +59,7 @@
 #define MDAY_DIFF            1
 
 #define DEFAULT_COLUMN_COUNT 5
-//#define MAX_INTERNAL_LESSONS 2
+#define MAX_INTERNAL_LESSONS 2
 #define SUBCOLUMN_WIDTH_PXLS 40
 #define TABLE_BOTTOM_OFFSET_PXLS -32
 #define CONVERT_TO_RU_CALENDAR(wday) wday == 6 ? 0 : wday + 1;
@@ -75,68 +78,16 @@
 #define WINDOW_FLAGS                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
 
 typedef short Attend_Data;
+#define ATTEND_BOTH 0
+#define ATTEND_FIRST 1
+#define ATTEND_SECOND 2
 #define INTERVAL_CHECK(left1, right1, left2, right2) (!(left1 < right1 && right1 < left2 && left2 < right2))
 
-#define NON_COPYABLE_NOR_MOVABLE(T) \ 
-    T(T const &) = delete; \
-    void operator=(T const &t) = delete; \
-    T(T &&) = delete;
+const int LESSON_TYPE_COUNT = 6;
+//const int LESSON_PRICES_COUNT = 3;
+const int AGE_GROUP_COUNT = 9;
 
-template <class T>
-struct NotImplicitlyConvertable
-{
-    T value;
-    NotImplicitlyConvertable(T _value) : value(_value) { };
-    template <class t>
-    NotImplicitlyConvertable<T>& operator=(const t&) = delete;
-    operator T() const { return value; } 
-    template <class t> 
-    operator t() const = delete; 
-};
-
-#define NO_IMPLICIT_CONVERSION_T_COMPARISON(T) \
-    bool operator==(const T& rhs) const { return value == rhs.value; }; \
-    bool operator!=(const T& rhs) const { return !(*this == rhs)   ; }; \
-    bool operator< (const T& rhs) const { return value < rhs.value ; }; \
-    bool operator> (const T& rhs) const { return rhs < *this       ; }; \
-    bool operator<=(const T& rhs) const { return !(*this > rhs)    ; }; \
-    bool operator>=(const T& rhs) const { return !(*this < rhs)    ; }; \
-    \
-    template <class t> \
-    bool operator==(const t& rhs) const = delete; \
-    template <class t> \
-    bool operator!=(const t& rhs) const = delete; \
-    template <class t> \
-    bool operator< (const t& rhs) const = delete; \
-    template <class t> \
-    bool operator> (const t& rhs) const = delete; \
-    template <class t> \
-    bool operator<=(const t& rhs) const = delete; \
-    template <class t> \
-    bool operator>=(const t& rhs) const = delete;
-
-#define NO_IMPLICIT_CONVERSION_T_CHECKED(BASET, T, CHECK) \
-    struct T : NotImplicitlyConvertable<BASET> \
-    { \
-        T(BASET _value) : NotImplicitlyConvertable(_value) { IM_ASSERT(CHECK); } \
-        NO_IMPLICIT_CONVERSION_T_COMPARISON(T); \
-    }
-#define NO_IMPLICIT_CONVERSION_T(BASET, T) NO_IMPLICIT_CONVERSION_T_CHECKED(BASET, T, true)
-
-class Removable
-{
-public:
-    NO_IMPLICIT_CONVERSION_T(bool, IsRemoved);
-private:
-    time_t timestamp;
-    IsRemoved removed;
-public:
-    Removable() : timestamp(time(NULL)), removed(false) { };
-    IsRemoved is_removed() const { return removed; };
-    time_t get_removed_timestamp() const { return timestamp; };
-    bool remove() { if (removed) return false; timestamp = time(NULL); removed = true; return true; }
-    bool restore() { if (!removed) return false; timestamp = time(NULL); removed = false; return true; }
-};
+const int STUDY_YEAR_BEGIN_MONTH = 8;
 
 template <typename T>
 std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
@@ -155,104 +106,26 @@ std::vector<std::size_t> sort_indexes(const std::vector<T> &v) {
   return idx;
 }
 
-/*template <class DataT>
-class Container
-{
-public:
-    NO_IMPLICIT_CONVERSION_T(std::size_t, ID);
-protected:
-    std::vector<DataT> _data;
-    void add(DataT data) { _data.push_back(data); }
-    virtual void set(DataT data, ID id) { IM_ASSERT(id < size()); _data[id] = data; }
-public:
-    DataT get(ID id) const { IM_ASSERT(id < size()); return _data[id]; }
-    const std::vector<DataT> get() const { return _data; }
-    ID size() const { return _data.size(); }
-};*/
+template <typename T>
+std::vector<std::size_t> sort_indexes_by_ptr(const std::vector<T*> &v) {
 
-template <class DataT, class IDT = std::size_t>
-class Container
-{
-public:
-    NO_IMPLICIT_CONVERSION_T(IDT, ID);
-protected:
-    std::vector<DataT> _data;
-    void add(DataT data) { _data.push_back(data); }
-    virtual void set(DataT data, ID id) { IM_ASSERT(id < size()); _data[id] = data; }
-public:
-    DataT get(ID id) const { IM_ASSERT(id < size()); return _data[id]; }
-    const std::vector<DataT> get() const { return _data; }
-    ID size() const { return _data.size(); }
-};
+  // initialize original index locations
+  std::vector<std::size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
 
-template <class SyncT, class StoreT, class ValueT = StoreT, class SyncIdT = std::size_t, class... IDs>
-class Syncable
-{
-protected:
-    std::vector<StoreT> store_val;
-    const SyncT* sync_val;
-    Syncable() { };
-public:
-    Syncable(const SyncT* sync_val) : sync_val(sync_val)
-    {
-        sync();
-    };
-    virtual void sync()
-    {
-        for (SyncIdT i = store_val.size(); i < sync_val->size(); i++)
-        {
-            store_val.push_back(StoreT(sync_val->get(i)));
-        }
-    };
-    virtual ValueT get(SyncIdT id, IDs... ids) const
-    {
-        return store_val[id];
-    };
-    virtual void set(ValueT value, SyncIdT id, IDs... ids)
-    {
-        store_val[id] = value;
-    };
-};
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values 
+  stable_sort(idx.begin(), idx.end(),
+       [&v](std::size_t i1, std::size_t i2) {return *(v[i1]) < *(v[i2]);});
 
-template <class SyncT, class StoreT, class ValueT, class SyncIdT = std::size_t, class... IDs>
-class SyncableRecursive : public Syncable
-{
-public:
-    void sync() override
-    {
-        for (SyncIdT i = 0; i < store_val.size(); i++)
-        {
-            store_val[i].sync();
-        }
-        for (SyncIdT i = store_val.size(); i < sync_val->size(); i++)
-        {
-            store_val.push_back(StoreT(sync_val->get(i)));
-        }
-    }
-    ValueT get(SyncIdT id, IDs... ids) const override
-    {
-        return store_val[id].get(ids...);
-    }
-    void set(ValueT value, SyncIdT id, IDs... ids) override
-    {
-        return store_val[id].set(value, ids...);
-    };
-};
+  return idx;
+}
 
-template <class SyncT, class SortedT>
-class SortTable : Syncable<SyncT, SortedT>
-{
-    void sync();
-};
-
-const int LESSON_TYPE_COUNT = 5;
-//const int LESSON_PRICES_COUNT = 3;
-const int AGE_GROUP_COUNT = 8;
-const int STUDY_YEAR_BEGIN_MONTH = 8;
-
-//TODO: remove
-const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс"};
-const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
+// Also update Journal::_lesson_names and prices_saveload if edited: 
+const std::vector<std::string> Lesson_Names = {"ИЗО", "Лепка", "Дизайн", "Черчение", "Спецкурс", "Пленэр"};
+// const char                     Lesson_Names_Combo[] = "ИЗО\0Лепка\0Дизайн\0Черчение\0Спецкурс\0\0";
 //const int                      Lesson_Prices[5][3] = {{100, 99, 98}, {200, 199, 198}, {300, 299, 298}, {400, 399, 398}, {500, 499, 498}};
 const std::vector<std::string> Month_Names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 const char                     Month_Names_Combo[] = "Январь\0Февраль\0Март\0Апрель\0Май\0Июнь\0Июль\0Август\0Сентябрь\0Октябрь\0Ноябрь\0Декабрь\0\0";
@@ -267,3 +140,6 @@ class Student;
 class Group;
 class Lesson_Info;
 class Calendar_Day;
+
+#pragma GCC diagnostic ignored "-Wsign-compare"
+// because: for (int i = 0; i < vector.size(); i++)
