@@ -5,25 +5,69 @@
 bool _button_recalculate_all_prices = false;
 bool _button_open_workout_debugging = false;
 
+struct Images
+{
+    struct Image
+    {
+        std::string name;
+        int width;
+        int height;
+        GLuint texture;
+        bool loaded = false;
+        Image(std::string name)
+        {
+            if (!Impl::renderer()->supports_images())
+            {
+                loaded = false;
+            }
+            else
+            {
+                loaded = LoadTextureFromFile(("images/" + name).c_str(), &texture, &width, &height);
+            }
+        }
+        bool draw() const
+        {
+            if (!loaded)
+            {
+                ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1), "not found/images not supported: %s", name.c_str());
+                return false;
+            }
+            ImGui::Image((void*)(intptr_t)(texture), ImVec2(width, height));
+            return true;
+        }
+    };
+    Image add_student_to_base = Image("add_student_to_base.png");
+    Image add_group = Image("add_group.png");
+    Image add_student_to_group = Image("add_student_to_group.png");
+    Image info = Image("exclamation.png");
+    Image workout1 = Image("workout1.png");
+    Image workout2 = Image("workout2.png");
+    Image workout3 = Image("workout3.png");
+    Image workout4 = Image("workout4.png");
+    Image attendance = Image("attendance.png");
+    Image students_list = Image("students_list.png");
+    Image groups_list = Image("groups_list.png");
+    Image edit_attend_data = Image("edit_attend_data.png");
+    Image student_search_1 = Image("student_search_1.png");
+    Image student_search_2 = Image("student_search_2.png");
+    Image move_to_group_1 = Image("move_to_group_1.png");
+    Image move_to_group_2 = Image("move_to_group_2.png");
+    Image move_to_group_3 = Image("move_to_group_3.png");
+    Image move_to_group_4 = Image("move_to_group_4.png");
+};
+
+static const Images& get_images()
+{
+    static Images images = Images();
+    return images;
+}
+
 Subwindow_Help::Subwindow_Help(JournalHolder *graphical, Popup_Handler* popup_handler)
 : Subwindow(graphical, popup_handler) { }
 
-
-bool Subwindow_Help::draw_image(Image image)
-{
-    Image current = image;
-    if (!(current.loaded))
-    {
-        ImGui::TextColored(ImVec4(0.8, 0.2, 0.2, 1), "not found/images not supported: %s", image.name.c_str());
-        return false;
-    }
-    ImGui::Image((void*)(intptr_t)(current.texture), ImVec2(current.width, current.height));
-    return true;
-}
-
 void Subwindow_Help::draw_note(std::string text)
 {
-    draw_image(info);
+    get_images().info.draw();
     ImGui::SameLine();
     ImGui::AlignTextToFramePadding();
     ImGui::TextWrapped(text.c_str());
@@ -55,11 +99,11 @@ bool Subwindow_Help::show_frame()
     {
         draw_text("Программа состоит из 3 разделов, не считая справки и вкладки изменения цен: ");
         draw_text("1. Журнал. В этом разделе можно отмечать учеников и учителей, добавлять отработки и добавлять учеников в группы:");
-        draw_image(attendance);
+        get_images().attendance.draw();
         draw_text("2. Список учеников. В этом разделе можно изменить информацию о любом из учеников и можно добавить нового ученика в базу:");
-        draw_image(students_list);
+        get_images().students_list.draw();
         draw_text("3. Список групп. В этом разделе можно изменить информацию о всех группах и можно добавить новую группу:");
-        draw_image(groups_list);
+        get_images().groups_list.draw();
         draw_text("");
         draw_text("В нижней части журнала находятся кнопки для переключения между днями недели и месяцами.");
         draw_note("Почти всю информацию (напр. ФИ учеников, номера групп) можно редактировать только для текущего месяца.");
@@ -72,7 +116,7 @@ bool Subwindow_Help::show_frame()
         draw_text("2. Нажмите на кнопку 'Добавить ученика'");
         draw_text("3. Введите номер договора и ФИ ученика");
         draw_text("4. Нажмите ОК");
-        draw_image(add_student_to_base);
+        get_images().add_student_to_base.draw();
         draw_note("Номер договора и ФИ ученика можно будет изменить потом.");
     }
     if (ImGui::CollapsingHeader("Как добавить группу?"))
@@ -81,7 +125,7 @@ bool Subwindow_Help::show_frame()
         draw_text("2. Нажмите на кнопку 'Добавить группу'");
         draw_text("3. Укажите день недели, программу, время, номер группы и возраст");
         draw_text("4. Нажмите ОК");
-        draw_image(add_group);
+        get_images().add_group.draw();
         draw_note("Введённая информация о группе будет видна в описании. Используйте поле 'Описание' только для дополнительных заметок.");
         draw_note("Всю введенную информацию кроме дня недели и программы можно будет изменить потом.");
     }
@@ -91,7 +135,7 @@ bool Subwindow_Help::show_frame()
         draw_text("1. Найдите нужную группу в общей таблице и нажмите на кнопку 'Добавить ученика'");
         draw_text("2. Выберите ученика или нескольких учеников из списка");
         draw_text("3. Нажмите ОК");
-        draw_image(add_student_to_group);
+        get_images().add_student_to_group.draw();
         draw_note("Если кнопка 'Добавить ученика' не нажимается, в базе нет подходящих учеников.");
     }
     if (ImGui::CollapsingHeader("Какие группы отображаются справа от других?"))
@@ -109,30 +153,30 @@ bool Subwindow_Help::show_frame()
     if (ImGui::CollapsingHeader("Пример добавления отработки"))
     {
         draw_text("Иван Иванов должен прийти в группу #1 4 сентября на ИЗО, но пришёл в группу #2 11 сентября");
-        draw_image(workout1);
-        draw_image(workout2);
-        draw_image(workout3);
-        draw_image(workout4);
+        get_images().workout1.draw();
+        get_images().workout2.draw();
+        get_images().workout3.draw();
+        get_images().workout4.draw();
     }
     if (ImGui::CollapsingHeader("Как добавить ученика, который ходит в одной группе на ИЗО, а в другой на лепку?"))
     {
         draw_text("1. Добавьте ученика в обе группы");
         draw_text("2. Перейдите во вкладку 'Ученики'");
         draw_text("3. Для соответствующего ученика и соответствующих групп выберите ИЗО или лепку");
-        draw_image(edit_attend_data);
+        get_images().edit_attend_data.draw();
         draw_note("Ученик может посещать ИЗО + ИЗО, Лепка + Лепка + Дизайн и любые другие комбинации");
     }
     if (ImGui::CollapsingHeader("Изменения от 26 окт."))
     {
         draw_text("1. Добавлен поиск по всем ученикам. ");
-        draw_image(student_search_1);
-        draw_image(student_search_2);
+        get_images().student_search_1.draw();
+        get_images().student_search_2.draw();
         draw_text("2. Добавлена возможность перемещать учеников в другую группу одной кнопкой.");
         draw_text("   Если ученик был перемещен таким способом, то он останется видимым (как удалённый) в исходной группе");
-        draw_image(move_to_group_1);
-        draw_image(move_to_group_2);
-        draw_image(move_to_group_3);
-        draw_image(move_to_group_4);
+        get_images().move_to_group_1.draw();
+        get_images().move_to_group_2.draw();
+        get_images().move_to_group_3.draw();
+        get_images().move_to_group_4.draw();
         draw_text("3. Разрешена отработка между ИЗО и Спецкурсом");
         draw_text("");
         draw_text("Исправления: ");
@@ -182,18 +226,6 @@ bool Subwindow_Help::show_frame()
     ImGui::PopStyleColor();
     ImGui::End();
     return false;
-}
-
-Subwindow_Help::Image::Image(std::string name) : name(name)
-{
-    if (!Impl::renderer()->supports_images())
-    {
-        loaded = false;
-    }
-    else
-    {
-        loaded = LoadTextureFromFile(("images/" + name).c_str(), &texture, &width, &height);
-    }
 }
 
 void show_button_to_recalculate_all_prices()

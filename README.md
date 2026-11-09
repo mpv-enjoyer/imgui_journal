@@ -1,4 +1,4 @@
 # imgui_journal
 
-TODO:
- - saving prices for this month is surely possible.
+FIXME (important):
+- cross-month workouts cause segfaults on trying to remove them. Cannot reproduce rn.
