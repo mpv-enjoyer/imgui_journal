@@ -12,3 +12,4 @@ imgui/docs
 /build/*.exe
 *.zip
 *.ttf
+*~

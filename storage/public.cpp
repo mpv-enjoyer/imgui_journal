@@ -96,16 +96,22 @@ Journal::Journal(int month, int year, Journal* _journal_main)
     bool is_current = _current_time.tm_year == year && _current_time.tm_mon == month;
     bool is_future = !(is_before || is_current);
     IM_ASSERT(!is_current && "Check for current before it's generated");
+    bool in_this_year = journal_main->workout_handler()->is_month_here(_current_month, _current_year);
     bool load_result = load();
     if (load_result)
     {
         IM_ASSERT(!is_future);
         // Workouts loaded, journal loaded.
+        if (in_this_year)
+        {
+            // But we don't need loaded workout, we will avoid inconsistencies by using main workout_handler.
+            delete _workout_handler;
+            _workout_handler = journal_main->workout_handler();
+        }
         if (is_before) _state = State::Limited;
         return;
     }
     // Check if current month is in main year or before it:
-    bool in_this_year = journal_main->workout_handler()->is_month_here(_current_month, _current_year);
     if (in_this_year)
     {
         _workout_handler = journal_main->workout_handler();

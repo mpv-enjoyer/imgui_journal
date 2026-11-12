@@ -258,6 +258,8 @@ void Popup_Add_Working_Out::accept_changes()
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()
 {
+    // TODO: Wow! Each code path leaks memory on load_workouts! That's amazing.
+    // TODO: We don't really need to make these actions for main journal year. All workouts are now shared from journal_main.
     if (journal != main_journal)
     {
         if (current_journal == journal)

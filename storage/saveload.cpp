@@ -320,7 +320,12 @@ Journal::~Journal()
     {
         delete student;
     }
+    for (auto& day : _all_days)
+    {
+        delete day; // how didn't I notice that earlier???????
+    }
     if (_state == State::Empty) return;
     bool is_current_year_allocated = _journal_main_bottom_year != Workout_Handler::get_bottom_year(current_month(), current_year());
     if (is_current_year_allocated) delete _workout_handler;
+    if (this->journal_main == nullptr) delete _workout_handler; // We are the main journal. Make valgrind happier, free ourselves.
 }
