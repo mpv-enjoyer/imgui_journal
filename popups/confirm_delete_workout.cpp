@@ -99,7 +99,6 @@ void Popup_Confirm_Delete_Workout::accept_changes()
         if (main_journal->current_month() == should_month)
         {
             main_journal->set_lesson_status(workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
-            if (journal != main_journal) journal->workout_handler()->delete_info(workout_info); // Do the same thing main_journal did.
         }
         else
         {
@@ -109,7 +108,6 @@ void Popup_Confirm_Delete_Workout::accept_changes()
                 journal_distant.set_lesson_status(workout_info->should_attend.tm_mday, should_lesson, internal_student_id, new_status, true);
             }
             // journal destructor will save the changes or discard saving them
-            journal->load_workouts();
         }
     }
     else

@@ -2,6 +2,11 @@
 #include "../helpers/helpers.h"
 #include "../platforms/platforms.h"
 
+static bool is_journal_in_current_year(Journal* journal)
+{
+    return (journal->journal_main == nullptr) || (journal->workout_handler()->bottom_year() == journal->journal_main->workout_handler()->bottom_year());
+}
+
 Mainwindow::Callback Mainwindow::get_callback()
 {
     auto output = _callback;
@@ -273,7 +278,14 @@ int Mainwindow::table_cell(int merged_lesson_id, int internal_student_id, int vi
         if (enabled_because_workout) ImGui::EndDisabled();
         if (attendance_combo(combo_attendance_name.c_str(), &(status.status), tooltip))
         {
-            journal->set_lesson_status(mday, lesson, internal_student_id, status, workout_exists);
+            if (!workout_exists || is_journal_in_current_year(journal))
+            {
+                journal->set_lesson_status(mday, lesson, internal_student_id, status, workout_exists);
+            }
+            else
+            {
+                // nope. Not a chance. Not doing anything. Don't ask me to. I will screw up something.
+            }
         }
         if (enabled_because_workout) ImGui::BeginDisabled();
         int price = journal->lesson_current_price(lesson, mday, internal_student_id);
@@ -365,7 +377,7 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
             lesson.merged_lesson_id = merged_lesson_id;
             lesson.internal_lesson_id = internal_lesson;
             [[maybe_unused]] Day_With_Info visible_day = graphical->visible_days[day_id];
-            bool disabled = graphical->visible_days[day_id].is_future;
+            bool disabled = graphical->visible_days[day_id].is_future || (!is_journal_in_current_year(journal));
             if (disabled) ImGui::BeginDisabled();
             if (internal_lesson != 0) ImGui::SameLine(0.0f, 2.0f);
             std::string add_workout_button_name = generate_label("Отр##add_workout_button", {merged_lesson_id, day_id, internal_lesson});
@@ -373,8 +385,15 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
             {
                 std::tm current_lesson_time = { 0, 0, 0,
                         graphical->visible_days[day_id].number - MDAY_DIFF, journal->current_month(), journal->current_year() };
-                journal->save(); // Cross month actions may break without saving here.
-                popup_handler->open_popup(new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson));
+                if (is_journal_in_current_year(journal))
+                {
+                    journal->save(); // Cross month actions may break without saving here?
+                    popup_handler->open_popup(new Popup_Add_Working_Out(graphical, current_lesson_time, lesson, &merged_lesson));
+                }
+                else
+                {
+                    // please don't do anything like that outside the current year.
+                }
             }
             if (disabled) ImGui::EndDisabled();
         }
@@ -426,7 +445,14 @@ void Mainwindow::table_add_workout_row(int merged_lesson_id, int counter, std::v
                 ImGui::SetNextItemWidth(SUBCOLUMN_WIDTH_PXLS);
                 if (ImGui::Checkbox(workout_info_radio_tooltip_name.c_str(), &dummy))
                 {
-                    popup_handler->open_popup(new Popup_Confirm_Delete_Workout(graphical, current_workout_info, current_workout_info->should_student_id));
+                    if (is_journal_in_current_year(journal))
+                    {
+                        popup_handler->open_popup(new Popup_Confirm_Delete_Workout(graphical, current_workout_info, current_workout_info->should_student_id));
+                    }
+                    else
+                    {
+                        // please don't. It will bug out, I know for sure.
+                    }
                 }
                 // TODO: Show correct should_time.
                 std::string tooltip = "Отработка за " + std::to_string(current_workout_info->should_attend.tm_mday + MDAY_DIFF) + " " +

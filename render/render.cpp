@@ -22,8 +22,6 @@ void Render::change_current_month(int month, int year)
 
     if (is_changed_month_main)
     {
-        // Months with State::Preview can generate workouts that affect main journal.
-        journal_main->load_workouts(); // TODO: we also leak memory here. oops.
         journal = journal_main;
         graphical = graphical_main;
     }

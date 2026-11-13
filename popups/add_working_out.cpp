@@ -258,33 +258,9 @@ void Popup_Add_Working_Out::accept_changes()
 
 Popup_Add_Working_Out::~Popup_Add_Working_Out()
 {
-    // TODO: Wow! Each code path leaks memory on load_workouts! That's amazing.
-    // TODO: We don't really need to make these actions for main journal year. All workouts are now shared from journal_main.
-    if (journal != main_journal)
-    {
-        if (current_journal == journal)
-        {
-            current_journal->save_workouts();
-            main_journal->load_workouts();
-            return;
-        }
-        if (current_journal == main_journal)
-        {
-            current_journal->save_workouts();
-            journal->load_workouts();
-            return;
-        }
-        delete current_journal;
-        journal->load_workouts();
-        return;
-    }
-
-    // Caller is current month
-    if (main_journal != current_journal)
+    if (current_journal != main_journal && current_journal != journal)
     {
         delete current_journal;
-        // Destructor saved new workout to the list so we need to load the list again
-        main_journal->load_workouts();
     }
 }
 
