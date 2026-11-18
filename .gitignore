@@ -8,7 +8,6 @@ boost-1.85.0
 imgui/examples
 imgui/docs
 /build/mingw32*
-/build/Release
 /build/*.exe
 *.zip
 *.ttf
